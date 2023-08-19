@@ -15,20 +15,23 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   DateTime? _selectedDate;
   String? selectedPosisi;
   String? selectedJenisKelamin;
+  String? selectedStatus;
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        _selectedDate = pickedDate;
-      });
-    }
+Future<void> _selectDate(BuildContext context) async {
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2101),
+  );
+  if (pickedDate != null && pickedDate != _selectedDate) {
+    print("Picked Date: $pickedDate"); // Check if pickedDate is correct
+    setState(() {
+      _selectedDate = pickedDate;
+      print("_selectedDate: $_selectedDate"); // Check if _selectedDate is updated
+    });
   }
+}
 
   Widget buildTextField(String label, String placeholder,
       {bool multiline = false}) {
@@ -65,117 +68,117 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   }
 
  Widget buildDropdown(String label, List<String> items) {
-    List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
-    String? selectedValue;
+  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
+  String? selectedValue;
 
-    if (label == 'Posisi') {
-      selectedValue = selectedPosisi;
-    } else if (label == 'Jenis Kelamin') {
-      selectedValue = selectedJenisKelamin;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(color: Colors.grey[400]!),
-          ),
-          child: DropdownButton<String>(
-            isExpanded: true,
-            value: selectedValue,
-            underline: Container(),
-            items: uniqueItems.map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                  child: Text(
-                    value,
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                if (label == 'Posisi') {
-                  selectedPosisi = newValue;
-                } else if (label == 'Jenis Kelamin') {
-                  selectedJenisKelamin = newValue;
-                }
-              });
-            },
-          ),
-        ),
-      ],
-    );
+  if (label == 'Posisi') {
+    selectedValue = selectedPosisi;
+  } else if (label == 'Jenis Kelamin') {
+    selectedValue = selectedJenisKelamin;
+  } else if (label == 'Status') {
+    selectedValue = selectedStatus;
   }
 
-
-Widget buildDateButton() {
-  return Expanded(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Tanggal',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[600],
         ),
-        SizedBox(height: 8.0),
-        ElevatedButton(
-          onPressed: () {
-            _selectDate(context);
+      ),
+      SizedBox(height: 8.0),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Colors.grey[400]!),
+        ),
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: selectedValue,
+          underline: Container(),
+          items: uniqueItems.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              if (label == 'Posisi') {
+                selectedPosisi = newValue;
+              } else if (label == 'Jenis Kelamin') {
+                selectedJenisKelamin = newValue;
+              } else if (label == 'Status') {
+                selectedStatus = newValue;
+              }
+            });
           },
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero, backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              side: BorderSide(color: Colors.grey[400]!),
-            ),
-          ),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              vertical: 12.0,
-              horizontal: 16.0,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Colors.grey[600],
-                ),
-                SizedBox(width: 8.0),
-                Text(
-                  _selectedDate == null
-                      ? DateFormat.yMMMMd().format(DateTime.now())
-                      : DateFormat.yMMMMd().format(_selectedDate!),
-                ),
-              ],
-            ),
-          ),
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }
 
+
+Widget buildDateButton() {
+  String dateText = _selectedDate == null
+      ? "Pilih Tanggal"
+      : DateFormat.yMMMMd().format(_selectedDate!);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        'Tanggal',
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[600],
+        ),
+      ),
+      SizedBox(height: 8.0),
+      ElevatedButton(
+        onPressed: () {
+          _selectDate(context);
+        },
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            side: BorderSide(color: Colors.grey[400]!),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.calendar_today,
+              color: Colors.grey[600],
+            ),
+            SizedBox(width: 8.0),
+            Text(
+              dateText,
+              style: TextStyle(
+                color: _selectedDate == null ? Colors.grey[500] : Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
 
   @override
   Widget build(BuildContext context) {
