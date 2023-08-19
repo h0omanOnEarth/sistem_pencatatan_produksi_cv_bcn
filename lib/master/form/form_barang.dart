@@ -150,7 +150,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                     ),
                     SizedBox(width: 24.0),
                     Text(
-                      'Bahan',
+                      'Barang',
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,

@@ -3,7 +3,9 @@ import 'package:sistem_manajemen_produksi_cv_bcn/produksi/bottom_navigation.dart
 import 'package:sistem_manajemen_produksi_cv_bcn/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/profil_screen.dart';
-
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_mesin.dart';
 import 'main_master.dart';
 import 'main_proses.dart';
 
@@ -51,7 +53,14 @@ class _MainProduksiState extends State<MainProduksi> {
            HomeScreenProduksi.routeName:(context)=>const HomeScreenProduksi(),
            MainMasterProduksiScreen.routeName:(context)=> const MainMasterProduksiScreen(),
            MainProsesProduksiScreen.routeName:(context)=> const MainProsesProduksiScreen(),
-           MainLaporanProduksiScreen.routeName:(context)=> const MainLaporanProduksiScreen()
+           MainLaporanProduksiScreen.routeName:(context)=> const MainLaporanProduksiScreen(),
+
+
+          //form
+          FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
+          FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
+          FormMasterMesinScreen.routeName: (context)=> const FormMasterMesinScreen(),
+
           });
   }
 }

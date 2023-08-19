@@ -6,6 +6,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/profil_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_barang.dart';
 
 import 'main_pembelian.dart';
 
@@ -55,6 +57,11 @@ class _MainGudangState extends State<MainGudang> {
            MainPenjualanGudangScreen.routeName:(context)=>const MainPenjualanGudangScreen(),
            MainProduksiGudangScreen.routeName:(context)=>const MainProduksiGudangScreen(),
            MainLaporanGudangScreen.routeName:(context)=>const MainLaporanGudangScreen(),
+
+           //Form
+           FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
+           FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen()
+
           });
   }
 }

@@ -63,6 +63,7 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             MainPenjulanAdministrasiScreen.routeName:(context) => const MainPenjulanAdministrasiScreen(),
             MainLaporanAdministrasiScreen.routeName:(context) => const MainLaporanAdministrasiScreen(),
 
+            //Form
             FormMasterPelangganScreen.routeName:(context)=> const FormMasterPelangganScreen(),
             FormMasterSupplierScreen.routeName:(context)=> const FormMasterSupplierScreen(),
             FormMasterPegawaiScreen.routeName:(context)=> const FormMasterPegawaiScreen(),
