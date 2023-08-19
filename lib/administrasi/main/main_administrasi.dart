@@ -4,6 +4,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/home_screen_admini
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_supplier.dart';
@@ -64,7 +66,9 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             FormMasterPelangganScreen.routeName:(context)=> const FormMasterPelangganScreen(),
             FormMasterSupplierScreen.routeName:(context)=> const FormMasterSupplierScreen(),
             FormMasterPegawaiScreen.routeName:(context)=> const FormMasterPegawaiScreen(),
-            FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen()
+            FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
+            FormMasterMesinScreen.routeName:(context)=> const FormMasterMesinScreen(),
+            FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen()
           });
   }
 }
