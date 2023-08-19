@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_supplier.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/notifikasi_screen.dart';
@@ -82,7 +83,7 @@ class _MainMasterAdministrasiScreenState extends State<MainMasterAdministrasiScr
                     const CardItem(icon: Icons.emoji_people_sharp, textA: 'Master Supplier', textB: 'Memodifikasi dan melihat data supplier', pageRoute: FormMasterSupplierScreen()),
                     const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: FormMasterPelangganScreen()),
                     const CardItem(icon: Icons.precision_manufacturing, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: FormMasterPelangganScreen()),
-                    const CardItem(icon: Icons.emoji_people_outlined, textA: 'Master Pegawai', textB: 'Memodifikasi dan melihat data pegawai', pageRoute: FormMasterPelangganScreen()),
+                    const CardItem(icon: Icons.emoji_people_outlined, textA: 'Master Pegawai', textB: 'Memodifikasi dan melihat data pegawai', pageRoute: FormMasterPegawaiScreen()),
                     const CardItem(icon: Icons.warehouse, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: FormMasterPelangganScreen()),
                   ],
                 ),

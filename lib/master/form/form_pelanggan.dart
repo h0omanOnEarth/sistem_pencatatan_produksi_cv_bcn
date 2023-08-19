@@ -70,7 +70,7 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                   ),
                 ),
                 const SizedBox(height: 24.0), // Add spacing between header and cards
-                RoundedTextField(label: 'Nama', placeholder: 'Nama Pelanggan'),
+                RoundedTextField(label: 'Nama', placeholder: 'Nama'),
                 SizedBox(height: 16.0),
                 RoundedTextField(label: 'Alamat', placeholder: 'Alamat'),
                 SizedBox(height: 28.0),
