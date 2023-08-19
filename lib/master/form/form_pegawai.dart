@@ -64,52 +64,66 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
     );
   }
 
- buildDropdown(String label, List<String> items) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
+ Widget buildDropdown(String label, List<String> items) {
+    List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
+    String? selectedValue;
+
+    if (label == 'Posisi') {
+      selectedValue = selectedPosisi;
+    } else if (label == 'Jenis Kelamin') {
+      selectedValue = selectedJenisKelamin;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
         ),
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey[400]!),
-        ),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          underline: Container(),
-          items: items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
+        SizedBox(height: 8.0),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+            border: Border.all(color: Colors.grey[400]!),
+          ),
+          child: DropdownButton<String>(
+            isExpanded: true,
+            value: selectedValue,
+            underline: Container(),
+            items: uniqueItems.map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16.0,
+                  ),
+                  child: Text(
+                    value,
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
-                child: Text(value),
-              ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              if (label == 'Posisi') {
-                selectedPosisi = newValue;
-              } else if (label == 'Jenis Kelamin') {
-                selectedJenisKelamin = newValue;
-              }
-            });
-          },
+              );
+            }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                if (label == 'Posisi') {
+                  selectedPosisi = newValue;
+                } else if (label == 'Jenis Kelamin') {
+                  selectedJenisKelamin = newValue;
+                }
+              });
+            },
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
+
 
 Widget buildDateButton() {
   return Expanded(
@@ -237,7 +251,7 @@ Widget buildDateButton() {
                     buildDateButton(),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildDropdown('Jenis Kelamin', ['Laki-laki', 'Perempuan']),
+                      child: buildDropdown('Status', ['Aktif', 'Tidak Aktif']),
                     ),
                   ],
                 ),
