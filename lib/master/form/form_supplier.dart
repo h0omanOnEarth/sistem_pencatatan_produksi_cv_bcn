@@ -5,12 +5,13 @@ class FormMasterSupplierScreen extends StatefulWidget {
 
   const FormMasterSupplierScreen({super.key});
   @override
-  State<FormMasterSupplierScreen> createState() => _FormMasterSupplierScreenState();
+  State<FormMasterSupplierScreen> createState() =>
+      _FormMasterSupplierScreenState();
 }
 
 class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
   String selectedOption = 'Option 1'; // Set initial selected option
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +53,8 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                                   ),
                                   child: const CircleAvatar(
                                     backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back, color: Colors.black),
+                                    child:
+                                        Icon(Icons.arrow_back, color: Colors.black),
                                   ),
                                 ),
                               ),
@@ -76,9 +78,11 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                 SizedBox(height: 16.0),
                 RoundedTextField(label: 'Alamat', placeholder: 'Alamat'),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Nomor Telepon', placeholder: '(+62)xxxx-xxx-xxx'),
+                RoundedTextField(
+                    label: 'Nomor Telepon', placeholder: '(+62)xxxx-xxx-xxx'),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Nomor Telepon Kantor', placeholder: 'Nomor Telepon Kantor'),
+                RoundedTextField(
+                    label: 'Nomor Telepon Kantor', placeholder: 'Nomor Telepon Kantor'),
                 SizedBox(height: 16.0),
                 RoundedTextField(label: 'Email', placeholder: 'Email'),
                 SizedBox(height: 16.0),
@@ -108,6 +112,10 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.grey[400]!),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                       borderSide: BorderSide(color: Colors.grey[400]!),
@@ -198,9 +206,14 @@ class RoundedTextField extends StatelessWidget {
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(color: Colors.grey[400]!),
             ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: Colors.grey[400]!),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
             hintStyle: TextStyle(
-              color: Colors.grey[500], 
+              color: Colors.grey[500],
             ),
           ),
         ),
