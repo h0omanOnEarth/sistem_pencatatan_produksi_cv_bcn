@@ -11,7 +11,12 @@ import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_supplier.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/master/form/list_pelanggan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_mesin.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_pegawai.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_pelanggan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/master/list/list_supplier_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/profil_screen.dart';
 
@@ -73,11 +78,18 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
             FormMasterMesinScreen.routeName:(context)=> const FormMasterMesinScreen(),
             FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
+
+            //list master
             ListMasterPelangganScreen.routeName:(context) => const ListMasterPelangganScreen(),
+            ListMasterMesinScreen.routeName:(context) => const ListMasterMesinScreen(),
+            ListMasterSupplierScreen.routeName:(context)=> const ListMasterSupplierScreen(),
+            ListMasterPegawaiScreen.routeName:(context)=> const ListMasterPegawaiScreen(),
+            ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
+            ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
 
             //Form Pembelian
             FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
-            FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen()
+            FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen(),
           });
   }
 }
