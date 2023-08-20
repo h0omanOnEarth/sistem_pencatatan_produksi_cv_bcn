@@ -3,6 +3,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/bottom_navigation_
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/pembelian/form_pengembalian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/pembelian/form_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_barang.dart';
@@ -73,7 +74,10 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             FormMasterMesinScreen.routeName:(context)=> const FormMasterMesinScreen(),
             FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
             ListMasterPelangganScreen.routeName:(context) => const ListMasterPelangganScreen(),
-            FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen()
+
+            //Form Pembelian
+            FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
+            FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen()
           });
   }
 }
