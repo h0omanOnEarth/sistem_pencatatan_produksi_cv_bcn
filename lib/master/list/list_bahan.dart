@@ -10,6 +10,9 @@ class ListMasterBahanScreen extends StatefulWidget {
 }
 
 class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
+  int _currentPage = 1;
+  int _totalPages = 10; // Change this to the total number of pages
+  
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -117,6 +120,8 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
                 buildCard('Card 4', 'This is a small description for Card 4'),
                 buildCard('Card 5', 'This is a small description for Card 5'),
                 buildCard('Card 6', 'This is a small description for Card 6'),
+                // Pagination Row
+                buildPaginationRow(),
               ],
             ),
           ),
@@ -124,6 +129,60 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
       ),
     );
   }
+
+Widget buildPaginationRow() {
+  int startIndex = (_currentPage - 1).clamp(1, _totalPages - 4);
+  int endIndex = (_currentPage + 1).clamp(startIndex + 2, _totalPages);
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (_currentPage > 2) buildPageIndicator(_currentPage - 2),
+        if (_currentPage > 1) buildPageIndicator(_currentPage - 1),
+        buildPageIndicator(_currentPage),
+        if (_currentPage < _totalPages) buildPageIndicator(_currentPage + 1),
+        if (_currentPage < _totalPages - 1) buildPageIndicator(_currentPage + 2),
+      ],
+    ),
+  );
+}
+
+
+Widget buildPageIndicator(int pageNumber) {
+  bool isSelected = pageNumber == _currentPage;
+
+  return GestureDetector(
+    onTap: () {
+      setState(() {
+        _currentPage = pageNumber;
+      });
+    },
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      width: 32.0,
+      height: 32.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle, // Set to rectangle
+        borderRadius: BorderRadius.circular(16.0), // Add border radius
+        color: isSelected ? const Color.fromRGBO(59, 51, 51, 1) : Colors.transparent,
+        border: Border.all(
+          color: isSelected ? Colors.transparent : Colors.grey,
+          width: 1.5,
+        ),
+      ),
+      child: Center(
+        child: Text(
+          pageNumber.toString(),
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey,
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   Widget buildCard(String title, String description) {
     return Card(
