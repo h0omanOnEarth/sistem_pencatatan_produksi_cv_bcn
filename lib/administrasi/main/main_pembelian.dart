@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/pembelian/form_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/notifikasi_screen.dart';
 
 class MainPembelianAdministrasiScreen extends StatefulWidget {
@@ -74,8 +75,8 @@ class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasi
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pembelian', textB: 'Memodifikasi dan melihat pesanan pembelian', pageRoute: '/page1'),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pesanan Pengembalian', textB: 'Memodifikasi dan melihat pesanan pengembalian', pageRoute: '/page2'),
+                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pembelian', textB: 'Memodifikasi dan melihat pesanan pembelian', pageRoute: FormPesananPembelianScreen()),
+                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pesanan Pengembalian', textB: 'Memodifikasi dan melihat pesanan pengembalian', pageRoute: FormPesananPembelianScreen()),
                   ],
                 ),
               ),
@@ -93,7 +94,7 @@ class CardItem extends StatelessWidget {
   final IconData icon;
   final String textA;
   final String textB;
-  final String pageRoute; // New property to specify the page route
+  final Widget pageRoute; // New property to specify the page route
 
   const CardItem({
     required this.icon,
@@ -106,7 +107,8 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, pageRoute);
+              Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
+            );
       },
       child: Card(
         color: Colors.white,
