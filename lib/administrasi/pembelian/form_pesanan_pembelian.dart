@@ -60,7 +60,7 @@ Future<void> _selectDate(BuildContext context, String label) async {
           decoration: InputDecoration(
             hintText: placeholder,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: isEnabled ? Colors.white : Colors.grey[300], // Change background color
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.0),
               borderSide: BorderSide(color: Colors.grey[400]!),
