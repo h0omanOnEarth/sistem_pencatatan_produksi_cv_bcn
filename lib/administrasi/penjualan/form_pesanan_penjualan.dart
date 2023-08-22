@@ -1,6 +1,26 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
+class ProductCardData {
+  String kodeProduk;
+  String namaProduk;
+  String jumlah;
+  String satuan;
+  String hargaSatuan;
+  String subtotal;
+  String selectedDropdownValue = '';
+
+  ProductCardData({
+    required this.kodeProduk,
+    required this.namaProduk,
+    required this.jumlah,
+    required this.satuan,
+    required this.hargaSatuan,
+    required this.subtotal,
+    this.selectedDropdownValue = '',
+  });
+}
+
 class FormPesananPelangganScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pelanggan_screen';
 
@@ -143,7 +163,6 @@ Future<void> _selectDate(BuildContext context, String label) async {
   );
 }
 
-
 Widget buildDateButton(String label) {
   String dateText = 'Pilih Tanggal';
   Color textColor = Colors.grey[500]!;
@@ -250,8 +269,6 @@ Widget buildDropdownDetail(String label, List<String> items, String selectedValu
   );
 }
 
-
-
 Widget buildProductCard(ProductCardData productCardData) {
   return Card(
     elevation: 2,
@@ -329,6 +346,12 @@ Widget buildProductCard(ProductCardData productCardData) {
       ],
     ),
   );
+}
+
+@override
+void initState() {
+  super.initState();
+  addProductCard(); // Tambahkan product card secara default pada initState
 }
 
 @override
@@ -492,22 +515,3 @@ Widget build(BuildContext context) {
 }
 }
 
-class ProductCardData {
-  String kodeProduk;
-  String namaProduk;
-  String jumlah;
-  String satuan;
-  String hargaSatuan;
-  String subtotal;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.kodeProduk,
-    required this.namaProduk,
-    required this.jumlah,
-    required this.satuan,
-    required this.hargaSatuan,
-    required this.subtotal,
-    this.selectedDropdownValue = '',
-  });
-}

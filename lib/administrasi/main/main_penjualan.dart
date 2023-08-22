@@ -76,7 +76,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
                     ),
                     const SizedBox(height: 16),
                     const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pelanggan', textB: 'Memodifikasi dan melihat pesanan pelanggan', pageRoute: FormPesananPelangganScreen()),
-                    const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Supplier', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: FormPesananPelangganScreen()),
+                    const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Pengiriman', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: FormPesananPelangganScreen()),
                     const CardItem(icon: Icons.file_present_rounded, textA: 'Faktur', textB: 'Memodifikasi dan melihat data faktur', pageRoute: FormPesananPelangganScreen()),
                   ],
                 ),
