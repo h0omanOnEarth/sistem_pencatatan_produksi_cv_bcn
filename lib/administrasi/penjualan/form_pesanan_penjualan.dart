@@ -203,7 +203,55 @@ Widget buildDateButton(String label) {
   );
 }
 
-@override
+Widget buildDropdownDetail(String label, List<String> items, String selectedValue, void Function(String) onChanged) {
+  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey[600],
+        ),
+      ),
+      SizedBox(height: 8.0),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10.0),
+          border: Border.all(color: Colors.grey[400]!),
+        ),
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: selectedValue.isEmpty ? null : selectedValue,
+          underline: Container(),
+          items: uniqueItems.map((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            onChanged(newValue ?? ''); // Make sure to pass an empty string if newValue is null
+          },
+        ),
+      ),
+    ],
+  );
+}
+
+
+
 Widget buildProductCard(ProductCardData productCardData) {
   return Card(
     elevation: 2,
@@ -218,13 +266,31 @@ Widget buildProductCard(ProductCardData productCardData) {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              buildDropdown('Kode Produk', ['Kode 1', 'Kode 2']),
+              buildDropdownDetail(
+                'Kode Produk',
+                ['Kode 1', 'Kode 2'],
+                productCardData.kodeProduk,
+                (newValue) {
+                  setState(() {
+                    productCardData.kodeProduk = newValue;
+                  });
+                },
+              ),
               const SizedBox(height: 8.0),
               buildTextField('Nama Produk', 'Nama Produk'),
               const SizedBox(height: 8.0),
               buildTextField('Jumlah', 'Jumlah'),
               const SizedBox(height: 8.0),
-              buildDropdown('Satuan', ['Satuan 1', 'Satuan 2']),
+              buildDropdownDetail(
+                'Satuan',
+                ['Satuan 1', 'Satuan 2'],
+                productCardData.satuan,
+                (newValue) {
+                  setState(() {
+                    productCardData.satuan = newValue;
+                  });
+                },
+              ),
               const SizedBox(height: 8.0),
               buildTextField('Harga Satuan', 'Harga Satuan', isEnabled: false),
               const SizedBox(height: 8.0),
@@ -264,6 +330,7 @@ Widget buildProductCard(ProductCardData productCardData) {
     ),
   );
 }
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -432,6 +499,7 @@ class ProductCardData {
   String satuan;
   String hargaSatuan;
   String subtotal;
+  String selectedDropdownValue = '';
 
   ProductCardData({
     required this.kodeProduk,
@@ -440,5 +508,6 @@ class ProductCardData {
     required this.satuan,
     required this.hargaSatuan,
     required this.subtotal,
+    this.selectedDropdownValue = '',
   });
 }
