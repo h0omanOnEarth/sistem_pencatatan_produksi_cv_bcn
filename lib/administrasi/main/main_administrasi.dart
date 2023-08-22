@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_laporan.
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/pembelian/form_pengembalian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/pembelian/form_pesanan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/penjualan/form_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/master/form/form_mesin.dart';
@@ -90,6 +91,10 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             //Form Pembelian
             FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
             FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen(),
+            
+            //Form Penjualan
+            FormPesananPelangganScreen.routeName:(context) => const FormPesananPelangganScreen(),
+            
           });
   }
 }
