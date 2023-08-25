@@ -7,7 +7,8 @@ class TextFieldWidget extends StatelessWidget {
   final bool isEnabled;
   final bool isNumeric;
   final bool isEmail;
-  final bool isPassword; // Tambahkan parameter untuk input teks password
+  final bool isPassword;
+  final bool isController; // Tambahkan parameter untuk input apakah controller harus ada
   final TextEditingController? controller;
 
   const TextFieldWidget({
@@ -17,7 +18,8 @@ class TextFieldWidget extends StatelessWidget {
     this.isEnabled = true,
     this.isNumeric = false,
     this.isEmail = false,
-    this.isPassword = false, // Defaultnya false
+    this.isPassword = false,
+    this.isController = true, // Defaultnya true
     this.controller,
   });
 
@@ -35,10 +37,10 @@ class TextFieldWidget extends StatelessWidget {
         ),
         SizedBox(height: 8.0),
         TextField(
-          controller: controller,
+          controller: isController ? controller : null, // Tambahkan kondisi apakah controller harus digunakan
           maxLines: multiline ? 3 : 1,
           enabled: isEnabled,
-          obscureText: isPassword, // Set obscured text based on isPassword
+          obscureText: isPassword,
           keyboardType: isNumeric
               ? TextInputType.number
               : isEmail

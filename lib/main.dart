@@ -1,29 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/home_screen_administrasi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_administrasi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_master.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_pembelian.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_penjualan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/edit_profil_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/gudang/home_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_gudang.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_master.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_pembelian.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/login_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/main_menu_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/notifikasi_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/produksi/home_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_laporan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_master.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_produksi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_proses.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/profil_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/splash_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_penjualan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/splash_screen.dart';
 
-import 'administrasi/main/main_laporan.dart';
-import 'gudang/main/main_laporan.dart';
-import 'gudang/main/main_penjualan.dart';
-import 'gudang/main/main_produksi.dart';
+import '/screens/administrasi/main/main_laporan.dart';
+import '/screens/gudang/main/main_laporan.dart';
+import '/screens/gudang/main/main_penjualan.dart';
+import '/screens/gudang/main/main_produksi.dart';
 
 void main() {
   runApp(const MyApp());
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
          
          //administrasi
          MainAdministrasi.routeName:(context)=>MainAdministrasi(),
-         HomeScreen.routeName:(context) =>const HomeScreen(),
+         HomeScreenAdministrasi.routeName:(context) =>const HomeScreenAdministrasi(),
          MainMasterAdministrasiScreen.routeName:(context) => const MainMasterAdministrasiScreen(),
          MainPembelianAdministrasiScreen.routeName:(context) => const MainPembelianAdministrasiScreen(),
          MainPenjulanAdministrasiScreen.routeName:(context) => const MainPenjulanAdministrasiScreen(),
