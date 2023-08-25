@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterSupplierScreen extends StatefulWidget {
   static const routeName = '/form_master_supplier_screen';
@@ -10,10 +12,15 @@ class FormMasterSupplierScreen extends StatefulWidget {
 }
 
 class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
-  String selectedOption = 'Option 1'; // Set initial selected option
+  String selectedJenis = 'Option 1'; // Set initial selected option
 
   @override
   Widget build(BuildContext context) {
+    var namaController;
+    var alamatController;
+    var nomorTeleponController;
+    var nomorKantorController;
+    var emailController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -73,55 +80,52 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0), // Add spacing between header and cards
-                RoundedTextField(label: 'Nama', placeholder: 'Nama'),
+                const SizedBox(height: 24.0), 
+                TextFieldWidget(
+                label: 'Nama Supplier',
+                placeholder: 'Nama',
+                controller: namaController,
+
+              ),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Alamat', placeholder: 'Alamat'),
-                SizedBox(height: 16.0),
-                RoundedTextField(
-                    label: 'Nomor Telepon', placeholder: '(+62)xxxx-xxx-xxx'),
-                SizedBox(height: 16.0),
-                RoundedTextField(
-                    label: 'Nomor Telepon Kantor', placeholder: 'Nomor Telepon Kantor'),
-                SizedBox(height: 16.0),
-                RoundedTextField(label: 'Email', placeholder: 'Email'),
-                SizedBox(height: 16.0),
-                Text(
-                  'Jenis Supplier', // Label for the dropdown
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                TextFieldWidget(
+                  label: 'Alamat',
+                  placeholder: 'Alamat',
+                  controller: alamatController,
+                  multiline: true,
                 ),
+                SizedBox(height: 16.0),
+                TextFieldWidget(
+                label: 'Nomor Telepon',
+                placeholder: '(+62)xxxx-xxx-xxx',
+                controller: nomorTeleponController,
+                ),
+                SizedBox(height: 16.0),
+                 TextFieldWidget(
+                  label: 'Nomor Telepon Kantor',
+                  placeholder: 'Nomor Telepon Kantor',
+                  controller: nomorKantorController,
+                ),
+                SizedBox(height: 16.0),
+                TextFieldWidget(
+                label: 'Email',
+                placeholder: 'Email',
+                controller: emailController,
+                isEmail: true,
+              ),
+                SizedBox(height: 16.0),
                 SizedBox(height: 8.0),
-                DropdownButtonFormField<String>(
-                  value: selectedOption,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedOption = newValue!;
-                    });
-                  },
-                  items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4']
-                      .map<DropdownMenuItem<String>>(
-                        (String value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                      )
-                      .toList(),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: Colors.grey[400]!),
+                DropdownWidget(
+                      label: 'Jenis Supplier',
+                      selectedValue: selectedJenis, // Isi dengan nilai yang sesuai
+                      items: ['Option 1','Option 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedJenis = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: Colors.grey[400]!),
-                    ),
-                  ),
-                ),
                 SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -177,47 +181,3 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
   }
 }
 
-class RoundedTextField extends StatelessWidget {
-  final String label;
-  final String placeholder;
-
-  RoundedTextField({required this.label, required this.placeholder});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0), // Add spacing between label and text field
-        TextField(
-          maxLines: label == 'Alamat' ? 3 : 1, // Set maxLines for "Alamat" field
-          decoration: InputDecoration(
-            hintText: placeholder,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            hintStyle: TextStyle(
-              color: Colors.grey[500],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}

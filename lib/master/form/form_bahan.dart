@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterBahanScreen extends StatefulWidget {
   static const routeName = '/form_master_bahan_screen';
@@ -11,116 +13,17 @@ class FormMasterBahanScreen extends StatefulWidget {
 }
 
 class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
-  String? selectedSupplier;
-  String? selectedKategori;
-  String? selectedSatuan;
-  String? selectedStatus;
-
-
-  Widget buildTextField(String label, String placeholder,
-      {bool multiline = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          maxLines: multiline ? 3 : 1,
-          decoration: InputDecoration(
-            hintText: placeholder,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            hintStyle: TextStyle(
-              color: Colors.grey[500],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
- Widget buildDropdown(String label, List<String> items) {
-  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
-  String? selectedValue;
-
-  if (label == 'Supplier') {
-    selectedValue = selectedSupplier;
-  } else if (label == 'Kategori') {
-    selectedValue = selectedKategori;
-  } else if (label == 'Status') {
-    selectedValue = selectedStatus;
-  } else if (label == 'Satuan'){
-    selectedValue = selectedSatuan;
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey[400]!),
-        ),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: selectedValue,
-          underline: Container(),
-          items: uniqueItems.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
-                child: Text(
-                  value,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              if (label == 'Kategori') {
-                selectedKategori = newValue;
-              } else if (label == 'Supplier') {
-                selectedSupplier = newValue;
-              } else if (label == 'Status') {
-                selectedStatus = newValue;
-              }else if (label == 'Satuan') {
-                selectedSatuan = newValue;
-              }
-            });
-          },
-        ),
-      ),
-    ],
-  );
-}
+  String selectedSupplier = "Supplier 1";
+  String selectedKategori = "Kategori 1";
+  String selectedSatuan = "Kg";
+  String selectedStatus = "Aktif";
 
   @override
   Widget build(BuildContext context) {
+    var namaBahanController;
+    var hargaController;
+    var stokController;
+    var keteranganController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -164,35 +67,92 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
                   ],
                 ),
                 SizedBox(height: 24.0),
-                buildTextField('Nama Bahan', 'Nama'),
+                  TextFieldWidget(
+                  label: 'Nama Bahan',
+                  placeholder: 'Naman',
+                  controller: namaBahanController,
+                ),
                 SizedBox(height: 16.0),
-                buildDropdown('Supplier', ['Supplier 1', 'Supplier 2']),
+                DropdownWidget(
+                      label: 'Satuan',
+                      selectedValue: selectedSupplier, // Isi dengan nilai yang sesuai
+                      items: ['Supplier 1', 'Supplier 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedSupplier = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+                ),
                 SizedBox(height: 16.0),
-                buildTextField('Harga', 'Harga'),
+                TextFieldWidget(
+                  label: 'Harga',
+                  placeholder: 'Harga',
+                  controller: hargaController,
+                ),
                 SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(
-                      child: buildDropdown('Kategori', ['Kategori 1', 'Kategori 2', 'Kategori 3']),
+                      child: DropdownWidget(
+                      label: 'Satuan',
+                      selectedValue: selectedKategori, // Isi dengan nilai yang sesuai
+                      items: ['Kategori 1', 'Kategori 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedKategori = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+                    ),
                     ),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildDropdown('Satuan', ['Kg', 'Pcs', 'Sak', 'Ton', 'Ons', 'Gram']),
+                      child: DropdownWidget(
+                      label: 'Satuan',
+                      selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
+                      items: ['Kg','Ons','Pcs','Gram','Sak'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+                    ),
                     ),
                   ],
                 ),
                 SizedBox(height: 24.0),
                 Row(
                   children: [
-                    Expanded(child: buildTextField('Stok', 'Stok')),
+                    Expanded(child: TextFieldWidget(
+                        label: 'Stok',
+                        placeholder: 'Stok',
+                        controller: stokController,
+                      ),
+                    ),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildDropdown('Status', ['Aktif', 'Tidak Aktif']),
+                      child: DropdownWidget(
+                      label: 'Status',
+                      selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                      items: ['Aktif', 'Tidak Aktif'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+                    ),
                     ),
                   ],
                 ),
                 SizedBox(height: 16),
-                buildTextField('Keterangan', 'Keterangan'),
+                TextFieldWidget(
+                  label: 'Keterangan',
+                  placeholder: 'Keterangan',
+                  controller: keteranganController,
+                ),
                 SizedBox(height: 16.0,),
                 Row(
                   children: [

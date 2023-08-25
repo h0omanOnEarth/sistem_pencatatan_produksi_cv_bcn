@@ -1,5 +1,9 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
+
+import '../../widgets/date_picker_button.dart';
 
 class ProductCardData {
   String kodeProduk;
@@ -34,28 +38,11 @@ class FormPesananPelangganScreen extends StatefulWidget {
 class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen> {
   DateTime? _selectedTanggalPesan;
   DateTime? _selectedTanggalKirim;
-  String? selectedKode;
+  String selectedKode = "Kode 1";
+  
+  var catatanController;
 
-Future<void> _selectDate(BuildContext context, String label) async {
-  final DateTime? pickedDate = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2101),
-  );
-  if (pickedDate != null && pickedDate != _selectedTanggalPesan && pickedDate !=_selectedTanggalKirim) {
-    print("Picked Date: $pickedDate"); // Check if pickedDate is correct
-    setState(() {
-      if(label=='Tanggal Pesan'){
-        _selectedTanggalPesan = pickedDate;
-        print("_selectedDate: $_selectedTanggalPesan"); // Check if _selectedDate is updated
-      }else if(label== 'Tanggal Kirim'){
-        _selectedTanggalKirim = pickedDate;
-        print("_selectedDate: $_selectedTanggalKirim"); // Check if _selectedDate is updated
-      }
-    });
-  }
-}
+
 
  List<ProductCardData> productCards = [];
 
@@ -72,203 +59,6 @@ Future<void> _selectDate(BuildContext context, String label) async {
     });
   }
 
-  Widget buildTextField(String label, String placeholder,
-    {bool multiline = false, bool isEnabled = true}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          maxLines: multiline ? 3 : 1,
-          enabled: isEnabled,
-          decoration: InputDecoration(
-            hintText: placeholder,
-            filled: true,
-            fillColor: isEnabled ? Colors.white : Colors.grey[300], // Change background color
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            hintStyle: TextStyle(
-              color: Colors.grey[500],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
- Widget buildDropdown(String label, List<String> items) {
-  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
-  String? selectedValue;
-
-  if (label == 'Kode Pelanggan') {
-    selectedValue = selectedKode;
-  } 
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey[400]!),
-        ),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: selectedValue,
-          underline: Container(),
-          items: uniqueItems.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
-                child: Text(
-                  value,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              if (label == 'Kode Pelanggan') {
-                selectedKode = newValue;
-              } 
-            });
-          },
-        ),
-      ),
-    ],
-  );
-}
-
-Widget buildDateButton(String label) {
-  String dateText = 'Pilih Tanggal';
-  Color textColor = Colors.grey[500]!;
-
-  if (label == 'Tanggal Pesan') {
-    dateText = _selectedTanggalPesan == null
-        ? 'Pilih Tanggal'
-        : DateFormat.yMMMMd().format(_selectedTanggalPesan!);
-    textColor = _selectedTanggalPesan == null ? Colors.grey[500]! : Colors.black;
-  } else if (label == 'Tanggal Kirim') {
-    dateText = _selectedTanggalKirim == null
-        ? 'Pilih Tanggal'
-        : DateFormat.yMMMMd().format(_selectedTanggalKirim!);
-    textColor = _selectedTanggalKirim == null ? Colors.grey[500]! : Colors.black;
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      ElevatedButton(
-        onPressed: () {
-          _selectDate(context, label);
-        },
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            side: BorderSide(color: Colors.grey[400]!),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.calendar_today,
-              color: Colors.grey[600],
-            ),
-            SizedBox(width: 8.0),
-            Text(
-              dateText,
-              style: TextStyle(
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-Widget buildDropdownDetail(String label, List<String> items, String selectedValue, void Function(String) onChanged) {
-  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey[400]!),
-        ),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: selectedValue.isEmpty ? null : selectedValue,
-          underline: Container(),
-          items: uniqueItems.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
-                child: Text(
-                  value,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            onChanged(newValue ?? ''); // Make sure to pass an empty string if newValue is null
-          },
-        ),
-      ),
-    ],
-  );
-}
-
 Widget buildProductCard(ProductCardData productCardData) {
   return Card(
     elevation: 2,
@@ -283,35 +73,52 @@ Widget buildProductCard(ProductCardData productCardData) {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              buildDropdownDetail(
-                'Kode Produk',
-                ['Kode 1', 'Kode 2'],
-                productCardData.kodeProduk,
-                (newValue) {
-                  setState(() {
-                    productCardData.kodeProduk = newValue;
-                  });
-                },
+              DropdownDetailWidget(
+              label: 'Kode Produk',
+              items: ['Kode 1', 'Kode 2'],
+              selectedValue: productCardData.kodeProduk,
+              onChanged: (newValue) {
+                setState(() {
+                  productCardData.kodeProduk = newValue;
+                });
+              },
+            ),
+              const SizedBox(height: 8.0),
+              TextFieldWidget(
+              label: 'Nama Produk',
+              placeholder: 'Nama Produk',
+              controller: TextEditingController(text: productCardData.namaProduk),
+            ),
+              const SizedBox(height: 8.0),
+              TextFieldWidget(
+              label: 'Jumlah',
+              placeholder: 'Jumlah',
+              controller: TextEditingController(text: productCardData.jumlah),
+            ),
+              const SizedBox(height: 8.0),
+             DropdownDetailWidget(
+            label: 'Satuan',
+            items: ['Satuan 1', 'Satuan 2'],
+            selectedValue: productCardData.satuan,
+            onChanged: (newValue) {
+              setState(() {
+                productCardData.satuan = newValue;
+              });
+            },
+          ),
+              const SizedBox(height: 8.0),
+              TextFieldWidget(
+                label: 'Harga Satuan',
+                placeholder: 'Harga Satuan',
+                controller: TextEditingController(text: productCardData.hargaSatuan),
               ),
               const SizedBox(height: 8.0),
-              buildTextField('Nama Produk', 'Nama Produk'),
-              const SizedBox(height: 8.0),
-              buildTextField('Jumlah', 'Jumlah'),
-              const SizedBox(height: 8.0),
-              buildDropdownDetail(
-                'Satuan',
-                ['Satuan 1', 'Satuan 2'],
-                productCardData.satuan,
-                (newValue) {
-                  setState(() {
-                    productCardData.satuan = newValue;
-                  });
-                },
+             TextFieldWidget(
+                label: 'Subtotal',
+                placeholder: 'Subtotal',
+                controller: TextEditingController(text: productCardData.subtotal),
+                isEnabled: false,
               ),
-              const SizedBox(height: 8.0),
-              buildTextField('Harga Satuan', 'Harga Satuan', isEnabled: false),
-              const SizedBox(height: 8.0),
-              buildTextField('Subtotal', 'Subtotal', isEnabled: false),
             ],
           ),
         ),
@@ -356,6 +163,13 @@ void initState() {
 
 @override
 Widget build(BuildContext context) {
+  var namaPelangganController;
+  var alamatPengirimanController;
+
+
+  var totalHargaController;
+  var totalProdukController;
+  var statusController;
   return Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
@@ -399,35 +213,93 @@ Widget build(BuildContext context) {
                 ],
               ),
               const SizedBox(height: 16.0),
-              buildDropdown('Kode Pelanggan', ['Kode A', 'Kode B']),
+              // Di dalam widget buildProductCard atau tempat lainnya
+              DropdownWidget(
+                      label: 'Kode Pelangan',
+                      selectedValue: selectedKode, // Isi dengan nilai yang sesuai
+                      items: ['Kode 1', 'Kode 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedKode = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+              ),
               const SizedBox(height: 16.0,),
-              buildTextField('Nama Pelanggan', 'Nama Pelanggan', isEnabled: false),
+              TextFieldWidget(
+                label: 'Nama Pelanggan',
+                placeholder: 'Nama Pelanggan',
+                controller: namaPelangganController,
+                isEnabled: false,
+              ),
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  Expanded(child: buildDateButton('Tanggal Pesan')),
+                  Expanded(child: DatePickerButton(
+                        label: 'Tanggal Pesan',
+                        selectedDate: _selectedTanggalPesan,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            _selectedTanggalPesan = newDate;
+                          });
+                        },
+                      ), 
+                  ),
                   SizedBox(width: 16.0),
-                  Expanded(child: buildDateButton('Tanggal Kirim')),
+                  Expanded(child: DatePickerButton(
+                      label: 'Tanggal Kirim',
+                      selectedDate: _selectedTanggalKirim,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          _selectedTanggalKirim = newDate;
+                        });
+                      },
+                    ), 
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              buildTextField('Alamat Pengiriman', 'Alamat', multiline: true),
+               TextFieldWidget(
+                label: 'Alamat Pengiriman',
+                placeholder: 'Alamat Pengiriman',
+                controller: alamatPengirimanController,
+                multiline: true,
+              ),
               const SizedBox(height: 16.0,),
-              buildTextField('Catatan', 'Catatan'),
+               TextFieldWidget(
+                label: 'Catatan',
+                placeholder: 'Catatan',
+                controller: catatanController,
+              ),
               const SizedBox(height: 16.0,),
               Row(
                 children: [
                   Expanded(
-                    child: buildTextField('Total Harga', 'Total Harga', isEnabled: false),
+                    child:  TextFieldWidget(
+                      label: 'Total Harga',
+                      placeholder: 'Total Harga',
+                      controller: totalHargaController,
+                      isEnabled: false,
+                    ),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
-                    child: buildTextField('Total Produk', 'Total Produk', isEnabled: false),
+                    child:  TextFieldWidget(
+                      label: 'Total Produk',
+                      placeholder: 'Total Produk',
+                      controller: totalProdukController,
+                      isEnabled: false,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 16.0,),
-              buildTextField('Status', 'In Process', isEnabled: false),
+               TextFieldWidget(
+                label: 'Status',
+                placeholder: 'In Process',
+                controller: statusController,
+                isEnabled: false,
+              ),
               const SizedBox(height: 16.0,),
               // Add Product Card Section
               const Text(

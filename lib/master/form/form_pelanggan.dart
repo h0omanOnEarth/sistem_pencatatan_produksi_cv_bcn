@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterPelangganScreen extends StatefulWidget {
   static const routeName = '/form_master_pelanggan_screen';
@@ -11,6 +12,13 @@ class FormMasterPelangganScreen extends StatefulWidget {
 class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
   @override
   Widget build(BuildContext context) {
+
+    var namaController;
+    var alamatController;
+    var nomorTeleponController;
+
+    var nomorKantorController;
+    var emailController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,15 +78,37 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                   ),
                 ),
                 const SizedBox(height: 24.0), // Add spacing between header and cards
-                RoundedTextField(label: 'Nama', placeholder: 'Nama'),
+                TextFieldWidget(
+                  label: 'Nama Pelanggan',
+                  placeholder: 'Nama',
+                  controller: namaController,
+                ),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Alamat', placeholder: 'Alamat'),
+                TextFieldWidget(
+                  label: 'Alamat',
+                  placeholder: 'Alamat',
+                  controller: alamatController,
+                  multiline: true,
+                ),
                 SizedBox(height: 28.0),
-                RoundedTextField(label: 'Nomor Telepon', placeholder: '(+62)xxxx-xxx-xxx'),
+                TextFieldWidget(
+                  label: 'Nomor Telepon',
+                  placeholder: '(+62)xxxx-xxx-xxx',
+                  controller: nomorTeleponController,
+                ),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Nomor Telepon Kantor', placeholder: 'Nomor Telepon Kantor'),
+                TextFieldWidget(
+                label: 'Nomor Telepon Kantor',
+                placeholder: 'Nomor Telepon Kantor',
+                controller: nomorKantorController,
+              ),
                 SizedBox(height: 16.0),
-                RoundedTextField(label: 'Email', placeholder: 'Email'),
+                 TextFieldWidget(
+                  label: 'Email',
+                  placeholder: 'Email',
+                  controller: emailController,
+                  isEmail: true,
+                ),
                 SizedBox(height: 24.0),
                 Row(
                 children: [
@@ -134,42 +164,4 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
   }
 }
 
-class RoundedTextField extends StatelessWidget {
-  final String label;
-  final String placeholder;
 
-  RoundedTextField({required this.label, required this.placeholder});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0), // Add spacing between label and text field
-        TextField(
-          maxLines: label == 'Alamat' ? 3 : 1, // Set maxLines for "Alamat" field
-          decoration: InputDecoration(
-            hintText: placeholder,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            hintStyle: TextStyle(
-              color: Colors.grey[500], 
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}

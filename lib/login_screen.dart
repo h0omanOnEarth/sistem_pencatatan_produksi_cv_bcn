@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/main_menu_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/bloc/authentication_bloc.dart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/produksi/main/main_produksi.dart'; // Pastikan import ini sesuai dengan lokasi AuthenticationBloc
 
 class LoginPageScreen extends StatefulWidget {

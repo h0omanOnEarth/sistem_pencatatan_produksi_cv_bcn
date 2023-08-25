@@ -1,5 +1,7 @@
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterPegawaiScreen extends StatefulWidget {
   static const routeName = '/form_master_pegawai_screen';
@@ -13,175 +15,22 @@ class FormMasterPegawaiScreen extends StatefulWidget {
 
 class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   DateTime? _selectedDate;
-  String? selectedPosisi;
-  String? selectedJenisKelamin;
-  String? selectedStatus;
-
-Future<void> _selectDate(BuildContext context) async {
-  final DateTime? pickedDate = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2101),
-  );
-  if (pickedDate != null && pickedDate != _selectedDate) {
-    print("Picked Date: $pickedDate"); // Check if pickedDate is correct
-    setState(() {
-      _selectedDate = pickedDate;
-      print("_selectedDate: $_selectedDate"); // Check if _selectedDate is updated
-    });
-  }
-}
-
-  Widget buildTextField(String label, String placeholder,
-      {bool multiline = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          maxLines: multiline ? 3 : 1,
-          decoration: InputDecoration(
-            hintText: placeholder,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.0),
-              borderSide: BorderSide(color: Colors.grey[400]!),
-            ),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-            hintStyle: TextStyle(
-              color: Colors.grey[500],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
- Widget buildDropdown(String label, List<String> items) {
-  List<String> uniqueItems = items.toSet().toList(); // Remove duplicates
-  String? selectedValue;
-
-  if (label == 'Posisi') {
-    selectedValue = selectedPosisi;
-  } else if (label == 'Jenis Kelamin') {
-    selectedValue = selectedJenisKelamin;
-  } else if (label == 'Status') {
-    selectedValue = selectedStatus;
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
-          border: Border.all(color: Colors.grey[400]!),
-        ),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: selectedValue,
-          underline: Container(),
-          items: uniqueItems.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
-                child: Text(
-                  value,
-                  style: TextStyle(color: Colors.black),
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              if (label == 'Posisi') {
-                selectedPosisi = newValue;
-              } else if (label == 'Jenis Kelamin') {
-                selectedJenisKelamin = newValue;
-              } else if (label == 'Status') {
-                selectedStatus = newValue;
-              }
-            });
-          },
-        ),
-      ),
-    ],
-  );
-}
-
-
-Widget buildDateButton() {
-  String dateText = _selectedDate == null
-      ? "Pilih Tanggal"
-      : DateFormat.yMMMMd().format(_selectedDate!);
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'Tanggal',
-        style: TextStyle(
-          fontSize: 14,
-          color: Colors.grey[600],
-        ),
-      ),
-      SizedBox(height: 8.0),
-      ElevatedButton(
-        onPressed: () {
-          _selectDate(context);
-        },
-        style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            side: BorderSide(color: Colors.grey[400]!),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.calendar_today,
-              color: Colors.grey[600],
-            ),
-            SizedBox(width: 8.0),
-            Text(
-              dateText,
-              style: TextStyle(
-                color: _selectedDate == null ? Colors.grey[500] : Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
-}
+  String selectedPosisi = "Produksi";
+  String selectedJenisKelamin = "Perempuan";
+  String selectedStatus = "Aktif";
 
   @override
   Widget build(BuildContext context) {
+
+    var namaController;
+    var usernameController;
+    var emailController;
+    var passwordController;
+    var nomorTeleponController;
+    var alamatController;
+    
+    var gajiHarianController;
+    var gajiLemburController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -215,7 +64,7 @@ Widget buildDateButton() {
                       ),
                     ),
                     SizedBox(width: 24.0),
-                    Text(
+                    const Text(
                       'Pegawai',
                       style: TextStyle(
                         fontSize: 26,
@@ -225,36 +74,100 @@ Widget buildDateButton() {
                   ],
                 ),
                 SizedBox(height: 24.0),
-                buildTextField('Nama', 'Nama'),
+                TextFieldWidget(
+                  label: 'Nama Pegawai',
+                  placeholder: 'Nama',
+                  controller: namaController,
+                ),
                 SizedBox(height: 16.0),
-                buildTextField('Username', 'Username'),
+                TextFieldWidget(
+                  label: 'Username',
+                  placeholder: 'Username',
+                  controller: usernameController,
+                ),
                 SizedBox(height: 16.0),
-                buildTextField('Email', 'Email'),
+                TextFieldWidget(
+                  label: 'Email',
+                  placeholder: 'Email',
+                  controller: emailController,
+                  isEmail: true,
+                ),
                 SizedBox(height: 24.0),
-                buildTextField('Password', 'Password'),
+                TextFieldWidget(
+                  label: 'Password',
+                  placeholder: 'Password',
+                  controller: passwordController,
+                ),
                 SizedBox(height: 16.0),
-                buildTextField('Alamat', 'Alamat', multiline: true),
+                TextFieldWidget(
+                  label: 'Alamat',
+                  placeholder: 'Alamat',
+                  controller: alamatController,
+                  multiline: true,
+                ),
                 SizedBox(height: 28.0),
-                buildTextField('Nomor Telepon', '(+62)xxxx-xxx-xxx'),
+                TextFieldWidget(
+                  label: 'Nomor Telepon',
+                  placeholder: '(+62)xxxx-xxx-xxx',
+                  controller: nomorTeleponController,
+                ),
                 SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(
-                      child: buildDropdown('Posisi', ['Posisi 1', 'Posisi 2', 'Posisi 3']),
+                      child: DropdownWidget(
+                          label: 'Posisi',
+                          selectedValue: selectedPosisi, // Isi dengan nilai yang sesuai
+                          items: ['Produksi', 'Gudang', 'Administrasi'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedPosisi = newValue; // Update _selectedValue saat nilai berubah
+                              print('Selected value: $newValue');
+                            });
+                          },
+                      ),
                     ),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildDropdown('Jenis Kelamin', ['Laki-laki', 'Perempuan']),
+                      child: DropdownWidget(
+                          label: 'Jenis Kelamin',
+                          selectedValue: selectedJenisKelamin, // Isi dengan nilai yang sesuai
+                          items: ['Perempuan','Laki-laki'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedJenisKelamin = newValue; // Update _selectedValue saat nilai berubah
+                              print('Selected value: $newValue');
+                            });
+                          },
+                      ),
                     ),
                   ],
                 ),
                 SizedBox(height: 24.0),
                 Row(
                   children: [
-                    buildDateButton(),
+                    DatePickerButton(
+                        label: 'Tanggal Pesanan',
+                        selectedDate: _selectedDate,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            _selectedDate = newDate;
+                          });
+                        },
+                    ),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildDropdown('Status', ['Aktif', 'Tidak Aktif']),
+                      child: DropdownWidget(
+                        label: 'Status',
+                        selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                        items: ['Aktif', 'Tidak Aktif'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                            print('Selected value: $newValue');
+                          });
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -262,11 +175,21 @@ Widget buildDateButton() {
                  Row(
                   children: [
                     Expanded(
-                      child: buildTextField('Gaji Harian', 'Gaji Harian'),
+                      child: TextFieldWidget(
+                        label: 'Gaji Harian',
+                        placeholder: 'Gaji Harian',
+                        controller: gajiHarianController,
+                        isNumeric: true,
+                      ),
                     ),
                     SizedBox(width: 16.0),
                     Expanded(
-                      child: buildTextField('Gaji Lembur', 'Gaji Lembur'),
+                      child: TextFieldWidget(
+                        label: 'Gaji Lembur Harian',
+                        placeholder: 'Gaji Lembur',
+                        controller: gajiLemburController,
+                        isNumeric: true,
+                      ),
                     ),
                   ],
                 ),
