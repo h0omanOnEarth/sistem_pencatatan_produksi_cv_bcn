@@ -181,7 +181,7 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0,),
               const Text(
-                'Detail Pesanan',
+                'Detail Bahan',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

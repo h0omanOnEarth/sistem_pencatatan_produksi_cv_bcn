@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_permintaan_bahan.dart';
 
 class MainProsesProduksiScreen extends StatefulWidget {
   static const routeName = '/main_proses_produksi';
@@ -76,7 +77,7 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
                     ),
                     const SizedBox(height: 16),
                     const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: FormPerintahProduksiScreen()),
-                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: FormPermintaanBahanScreen()),
                     const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: FormPerintahProduksiScreen()),
                     const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: FormPerintahProduksiScreen()),
                     const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: FormPerintahProduksiScreen()),
