@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/bottom_navigation.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
@@ -60,6 +61,7 @@ class _MainProduksiState extends State<MainProduksi> {
           FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
           FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
           FormMasterMesinScreen.routeName: (context)=> const FormMasterMesinScreen(),
+          FormMasterBOMScreen.routeName:(context)=> const FormMasterBOMScreen()
 
           });
   }

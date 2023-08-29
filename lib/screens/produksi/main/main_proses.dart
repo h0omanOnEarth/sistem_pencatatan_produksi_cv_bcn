@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
 
 class MainProsesProduksiScreen extends StatefulWidget {
   static const routeName = '/main_proses_produksi';
@@ -74,13 +75,13 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: '/page1'),
-                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.sticky_note_2, textA: 'Hasil Produksi', textB: 'Memodifikasi dan melihat hasil produksi', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.check_circle, textA: 'Konfirmasi Produksi', textB: 'Memodifikasi dan melihat Konfirmasi Produksi', pageRoute: '/page2'),
+                    const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.sticky_note_2, textA: 'Hasil Produksi', textB: 'Memodifikasi dan melihat hasil produksi', pageRoute: FormPerintahProduksiScreen()),
+                    const CardItem(icon: Icons.check_circle, textA: 'Konfirmasi Produksi', textB: 'Memodifikasi dan melihat Konfirmasi Produksi', pageRoute: FormPerintahProduksiScreen()),
                   ],
                 ),
               ),
@@ -96,7 +97,7 @@ class CardItem extends StatelessWidget {
   final IconData icon;
   final String textA;
   final String textB;
-  final String pageRoute; // New property to specify the page route
+  final Widget pageRoute; // New property to specify the page route
 
   const CardItem({
     required this.icon,
@@ -109,7 +110,8 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, pageRoute);
+        Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
+      );
       },
       child: Card(
         color: Colors.white,

@@ -164,7 +164,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                       child:   
                        TextFieldWidget(
                         label: 'Stok',
-                        placeholder: 'Stok Controller',
+                        placeholder: 'Stok',
                         controller: stokController,
                         isEnabled: false,
                       ),

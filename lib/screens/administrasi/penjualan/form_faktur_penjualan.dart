@@ -1,29 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
-
-class ProductCardData {
-  String kodeProduk;
-  String namaProduk;
-  String jumlah;
-  String satuan;
-  String hargaSatuan;
-  String subtotal;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.kodeProduk,
-    required this.namaProduk,
-    required this.jumlah,
-    required this.satuan,
-    required this.hargaSatuan,
-    required this.subtotal,
-    this.selectedDropdownValue = '',
-  });
-}
 
 class FormFakturPenjualanScreen extends StatefulWidget {
   static const routeName = '/form_faktur_penjualan_screen';
@@ -48,124 +27,6 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   var statusController;
   var nomorPesananPelanggan;
   var kodePelangganController;
-
-
- List<ProductCardData> productCards = [];
-
-  void addProductCard() {
-    setState(() {
-      productCards.add(ProductCardData(
-        kodeProduk: '',
-        namaProduk: '',
-        jumlah: '',
-        satuan: '',
-        hargaSatuan: '',
-        subtotal: '',
-      ));
-    });
-  }
-
-Widget buildProductCard(ProductCardData productCardData) {
-  return Card(
-    elevation: 2,
-    margin: EdgeInsets.symmetric(vertical: 8),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: BorderSide(color: Colors.grey[300]!),
-    ),
-    child: Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [
-              DropdownDetailWidget(
-              label: 'Kode Produk',
-              items: ['Kode 1', 'Kode 2'],
-              selectedValue: productCardData.kodeProduk,
-              onChanged: (newValue) {
-                setState(() {
-                  productCardData.kodeProduk = newValue;
-                });
-              },
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Nama Produk',
-              placeholder: 'Nama Produk',
-              controller: TextEditingController(text: productCardData.namaProduk),
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Jumlah',
-              placeholder: 'Jumlah',
-              controller: TextEditingController(text: productCardData.jumlah),
-            ),
-              const SizedBox(height: 8.0),
-             DropdownDetailWidget(
-            label: 'Satuan',
-            items: ['Satuan 1', 'Satuan 2'],
-            selectedValue: productCardData.satuan,
-            onChanged: (newValue) {
-              setState(() {
-                productCardData.satuan = newValue;
-              });
-            },
-          ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-                label: 'Harga Satuan',
-                placeholder: 'Harga Satuan',
-                controller: TextEditingController(text: productCardData.hargaSatuan),
-              ),
-              const SizedBox(height: 8.0),
-             TextFieldWidget(
-                label: 'Subtotal',
-                placeholder: 'Subtotal',
-                controller: TextEditingController(text: productCardData.subtotal),
-                isEnabled: false,
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0), // Add the desired margin
-          child: Container(
-            width: double.infinity, // Make the button full width
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle delete button press
-                setState(() {
-                  productCards.remove(productCardData);
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(10), // Add padding to the button
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Hapus',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-@override
-void initState() {
-  super.initState();
-  addProductCard(); // Tambahkan product card secara default pada initState
-}
 
 @override
 Widget build(BuildContext context) {
