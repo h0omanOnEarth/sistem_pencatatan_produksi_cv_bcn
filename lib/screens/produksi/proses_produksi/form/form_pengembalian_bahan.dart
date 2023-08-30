@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -21,21 +20,19 @@ class ProductCardData {
   });
 }
 
-class FormPenggunaanBahanScreen extends StatefulWidget {
-  static const routeName = '/form_penggunaan_bahan_screen';
+class FormPengembalianBahanScreen extends StatefulWidget {
+  static const routeName = '/form_pengembalian_bahan_screen';
 
-  const FormPenggunaanBahanScreen({super.key});
+  const FormPengembalianBahanScreen({super.key});
   
   @override
-  State<FormPenggunaanBahanScreen> createState() =>
-      _FormPenggunaanBahanScreenState();
+  State<FormPengembalianBahanScreen> createState() =>
+      _FormPengembalianBahanScreenState();
 }
 
 
-class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
-  String selectedNomorPerintah = "Perintah 1";
-  String selectedNomorPermintaan = "Permintaan 1";
-  String selectedKodeBatch = "Batch 1";
+class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScreen> {
+  String selectedNomorPenggunaan = "Penggunaan 1";
   DateTime? selectedDate;
 
   List<ProductCardData> productCards = [];
@@ -59,9 +56,8 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
   @override
   Widget build(BuildContext context) {
     var catatanController;
-    var kodeProdukControler;
-    var namaProdukController;
     var namaBatchController;
+    var kodeBatchController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -96,76 +92,36 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                     ),
                     SizedBox(width: 24.0),
                     const Flexible(
-                      child: Text(
-                        'Penggunaan Bahan',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          'Pengembalian Bahan',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
-                SizedBox(height: 24.0),
-                DropdownWidget(
-                  label: 'Nomor Perintah Produksi',
-                  selectedValue: selectedNomorPerintah, // Isi dengan nilai yang sesuai
-                  items: ['Perintah 1', 'Perintah 2'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorPerintah = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
-                ),
-                SizedBox(height: 16.0),
-                DropdownWidget(
-                  label: 'Nomor Permintaan Bahan',
-                  selectedValue: selectedNomorPermintaan, // Isi dengan nilai yang sesuai
-                  items: ['Permintaan 1', 'Permintaan 2'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorPermintaan = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(child: 
-                    TextFieldWidget(
-                      label: 'Kode Produk',
-                      placeholder: 'Kode Produk',
-                      controller: kodeProdukControler,
-                      isEnabled: false,
-                    ),),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Nama Produk',
-                        placeholder: 'Nama Produk',
-                        controller: namaProdukController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
+                SizedBox(height: 16.0,),
+                DatePickerButton(
+                      label: 'Tanggal Pengembalian',
+                      selectedDate: selectedDate,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
                 ),
                 SizedBox(height: 16.0,),
                 Row(
                   children: [
                     Expanded(child: 
-                      DropdownWidget(
-                      label: 'Kode Batch',
-                      selectedValue: selectedKodeBatch, // Isi dengan nilai yang sesuai
-                      items: ['Batch 1', 'Batch 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedKodeBatch = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
+                      TextFieldWidget(
+                        label: 'Kode Batch',
+                        placeholder: 'Kode Batch',
+                        controller: kodeBatchController,
+                        isEnabled: false,
+                      ),
                     ),
                     SizedBox(width: 16.0),
                     Expanded(
@@ -179,16 +135,6 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                     ),
                   ],
                 ),    
-                SizedBox(height: 16.0,),
-                DatePickerButton(
-                      label: 'Tanggal Penggunaan',
-                      selectedDate: selectedDate,
-                      onDateSelected: (newDate) {
-                        setState(() {
-                          selectedDate = newDate;
-                        });
-                      },
-                ),
                 SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Status',

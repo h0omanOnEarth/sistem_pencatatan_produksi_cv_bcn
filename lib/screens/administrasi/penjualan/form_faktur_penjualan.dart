@@ -64,13 +64,15 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(width: 16.0),
-                  const Text(
-                    'Faktur Penjualan',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+                  const Flexible(
+                      child: Text(
+                        'Pesanan Penjualan',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 16.0),

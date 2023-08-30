@@ -62,13 +62,15 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(width: 16.0),
-                  const Text(
-                    'Perintah Produksi',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+                  const Flexible(
+                      child: Text(
+                        'Perintah Produksi',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: 16.0),
