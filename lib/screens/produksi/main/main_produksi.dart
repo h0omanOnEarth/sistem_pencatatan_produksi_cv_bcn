@@ -4,6 +4,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/bottom_navigat
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_directlabor_overhead.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_hasil_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_konfirmasi_hasil.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_pengembalian_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_penggunaan_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
@@ -67,7 +69,9 @@ class _MainProduksiState extends State<MainProduksi> {
           FormMasterBOMScreen.routeName:(context)=> const FormMasterBOMScreen(),
           FormPenggunaanBahanScreen.routeName:(context)=> const FormPenggunaanBahanScreen(),
           FormPengembalianBahanScreen.routeName:(context)=> const FormPengembalianBahanScreen(),
-          FormPencatatanDirectLaborScreen.routeName:(context)=> const FormPencatatanDirectLaborScreen()
+          FormPencatatanDirectLaborScreen.routeName:(context)=> const FormPencatatanDirectLaborScreen(),
+          FormHasilProduksiScreen.routeName:(context)=> const FormHasilProduksiScreen(),
+          FormKonfirmasiProduksiScreen.routeName:(context)=> const FormKonfirmasiProduksiScreen()
 
           });
   }

@@ -148,30 +148,31 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                   controller: catatanController,
                 ),
                 SizedBox(height: 16.0,),
-                const Text(
-                'Detail Bahan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  addProductCard();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(59, 51, 51, 1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Detail Pengembalian',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Tambah',
-                    style: TextStyle(fontSize: 18),
+                  InkWell(
+                    onTap: () {
+                      addProductCard();
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               const SizedBox(height: 16.0),
               if (productCards.isNotEmpty)
@@ -278,7 +279,6 @@ class _ProductCardChildrenState extends State<ProductCardChildren> {
               isEnabled: false,
        ),
       const SizedBox(height: 16.0,),  
-      const SizedBox(height: 16.0,),
       Row(
         children: [
           Expanded(child:

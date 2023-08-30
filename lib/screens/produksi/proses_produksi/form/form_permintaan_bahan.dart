@@ -111,7 +111,7 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0,),
               const Text(
-                'Detail Pesanan',
+                'Detail Bahan',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -119,23 +119,21 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0,),
               CustomCard(
-                title: 'Kode Barang : B0001',
-                content: [
-                  'Nama Barang : Gelas Pop 22 oz',
-                  'Jumlah : 100.000 pcs',
-                  'Harga : Rp 40,00',
-                  'Total Harga : Rp 4.000.000,00',
-                ],
-              ),
+              content: [
+                CustomCardContent(text: 'Nama Barang : Gelas Pop 22 oz'),
+                CustomCardContent(text: 'Jumlah : 100.000 pcs'),
+                CustomCardContent(text: 'Harga : Rp 40,00'),
+                CustomCardContent(text: 'Total Harga : Rp 4.000.000,00'),
+              ],
+            ),
               CustomCard(
-                title: 'Kode Barang : B0002',
-                content: [
-                  'Nama Barang : Sendok Plastik',
-                  'Jumlah : 50.000 pcs',
-                  'Harga : Rp 20,00',
-                  'Total Harga : Rp 1.000.000,00',
-                ],
-              ),
+              content: [
+                CustomCardContent(text: 'Nama Barang : Gelas Pop 22 oz'),
+                CustomCardContent(text: 'Jumlah : 100.000 pcs'),
+                CustomCardContent(text: 'Harga : Rp 40,00'),
+                CustomCardContent(text: 'Total Harga : Rp 4.000.000,00'),
+              ],
+            ),
               const SizedBox(height: 16.0,),
               Row(
                 children: [

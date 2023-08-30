@@ -1,51 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class ProductCardData {
-  String kodeBahan;
-  String namaBahan;
-  String jumlah;
+  String nomorHasilProduksi;
+  String kodeBarang;
+  String namaBarang;
+  String jumlahHasil;
   String satuan;
+  String jumlahKonfirmasi;
   String selectedDropdownValue = '';
 
   ProductCardData({
-    required this.kodeBahan,
-    required this.namaBahan,
-    required this.jumlah,
+    required this.nomorHasilProduksi,
+    required this.kodeBarang,
+    required this.namaBarang,
+    required this.jumlahHasil,
     required this.satuan,
+    required this.jumlahKonfirmasi,
     this.selectedDropdownValue = '',
   });
 }
 
-class FormPenggunaanBahanScreen extends StatefulWidget {
-  static const routeName = '/form_penggunaan_bahan_screen';
+class FormKonfirmasiProduksiScreen extends StatefulWidget {
+  static const routeName = '/form_konfirmasi_produksi_screen';
 
-  const FormPenggunaanBahanScreen({super.key});
+  const FormKonfirmasiProduksiScreen({super.key});
   
   @override
-  State<FormPenggunaanBahanScreen> createState() =>
-      _FormPenggunaanBahanScreenState();
+  State<FormKonfirmasiProduksiScreen> createState() =>
+      _FormKonfirmasiProduksiScreenState();
 }
 
 
-class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
-  String selectedNomorPerintah = "Perintah 1";
-  String selectedNomorPermintaan = "Permintaan 1";
-  String selectedKodeBatch = "Batch 1";
+class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScreen> {
   DateTime? selectedDate;
 
   List<ProductCardData> productCards = [];
     void addProductCard() {
     setState(() {
       productCards.add(ProductCardData(
-        kodeBahan: '',
-        namaBahan: '',
-        jumlah: '',
+        nomorHasilProduksi: '',
+        kodeBarang: '',
+        namaBarang: '',
+        jumlahHasil: '',
         satuan: '',
+        jumlahKonfirmasi: '',
       ));
     });
   }
@@ -59,9 +61,6 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
   @override
   Widget build(BuildContext context) {
     var catatanController;
-    var kodeProdukControler;
-    var namaProdukController;
-    var namaBatchController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -96,92 +95,19 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                     ),
                     SizedBox(width: 24.0),
                     const Flexible(
-                      child: Text(
-                        'Penggunaan Bahan',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                        child: Text(
+                          'Konfirmasi Produksi',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
-                SizedBox(height: 24.0),
-                DropdownWidget(
-                  label: 'Nomor Perintah Produksi',
-                  selectedValue: selectedNomorPerintah, // Isi dengan nilai yang sesuai
-                  items: ['Perintah 1', 'Perintah 2'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorPerintah = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
-                ),
-                SizedBox(height: 16.0),
-                DropdownWidget(
-                  label: 'Nomor Permintaan Bahan',
-                  selectedValue: selectedNomorPermintaan, // Isi dengan nilai yang sesuai
-                  items: ['Permintaan 1', 'Permintaan 2'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorPermintaan = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(child: 
-                    TextFieldWidget(
-                      label: 'Kode Produk',
-                      placeholder: 'Kode Produk',
-                      controller: kodeProdukControler,
-                      isEnabled: false,
-                    ),),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Nama Produk',
-                        placeholder: 'Nama Produk',
-                        controller: namaProdukController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(child: 
-                      DropdownWidget(
-                      label: 'Kode Batch',
-                      selectedValue: selectedKodeBatch, // Isi dengan nilai yang sesuai
-                      items: ['Batch 1', 'Batch 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedKodeBatch = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      child:   
-                       TextFieldWidget(
-                        label: 'Nama Batch',
-                        placeholder: 'Nama Batch',
-                        controller: namaBatchController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
-                ),    
                 SizedBox(height: 16.0,),
                 DatePickerButton(
-                      label: 'Tanggal Penggunaan',
+                      label: 'Tanggal Pencatatan',
                       selectedDate: selectedDate,
                       onDateSelected: (newDate) {
                         setState(() {
@@ -202,32 +128,32 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                   controller: catatanController,
                 ),
                 SizedBox(height: 16.0,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Detail Penggunaan',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      addProductCard();
-                    },
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color.fromRGBO(59, 51, 51, 1),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 24,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Detail Konfirmasi',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
+                    InkWell(
+                      onTap: () {
+                        addProductCard();
+                      },
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               const SizedBox(height: 16.0),
               if (productCards.isNotEmpty)
               ...productCards.map((productCardData) {
@@ -316,49 +242,67 @@ class _ProductCardChildrenState extends State<ProductCardChildren> {
     return Column(
       children: [
         DropdownDetailWidget(
-          label: 'Kode Bahan',
-          items: ['Kode 1', 'Kode 2'],
-          selectedValue: widget.productCardData.kodeBahan,
+          label: 'Nomor Hasil Produksi',
+          items: ['Hasil 1', 'Hasil 2'],
+          selectedValue: widget.productCardData.nomorHasilProduksi,
           onChanged: (newValue) {
                 setState(() {
-                  widget.productCardData.kodeBahan = newValue;
+                  widget.productCardData.nomorHasilProduksi = newValue;
                 });
               },
         ),
-        const SizedBox(height: 8.0),
-        TextFieldWidget(
-              label: 'Nama Bahan',
-              placeholder: 'Nama Bahan',
-              controller: TextEditingController(text: widget.productCardData.namaBahan),
-              isEnabled: false,
-       ),
-      const SizedBox(height: 16.0,),  
       const SizedBox(height: 16.0,),
       Row(
         children: [
           Expanded(child:
             TextFieldWidget(
-                label: 'Jumlah',
+                label: 'Kode Barang',
                 placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.jumlah),
+                controller: TextEditingController(text: widget.productCardData.kodeBarang),
+                isEnabled: false,
               ), 
           ),
           SizedBox(width: 16.0),
           Expanded(
             child:   
-            DropdownDetailWidget(
-              label: 'Satuan',
-              items: ['Pcs', 'Kg', 'Ons'],
-              selectedValue: widget.productCardData.satuan,
-              onChanged: (newValue) {
-                    setState(() {
-                      widget.productCardData.satuan = newValue;
-                    });
-                  },
-            ),
+            TextFieldWidget(
+                label: 'Nama Barang',
+                placeholder: 'Nama Barang',
+                controller: TextEditingController(text: widget.productCardData.namaBarang),
+                isEnabled: false,
+            ), 
           ),
         ],
-      ),    
+       ),   
+      const SizedBox(height: 16.0,),
+      Row(
+        children: [
+          Expanded(child:
+            TextFieldWidget(
+                label: 'Jumlah Hasil',
+                placeholder: '0',
+                controller: TextEditingController(text: widget.productCardData.jumlahHasil),
+                isEnabled: false,
+              ), 
+          ),
+          SizedBox(width: 16.0),
+          Expanded(
+            child:   
+            TextFieldWidget(
+                label: 'Satuan',
+                placeholder: 'Satuan',
+                controller: TextEditingController(text: widget.productCardData.satuan),
+                isEnabled: false,
+            ), 
+          ),
+        ],
+       ),   
+      const SizedBox(height: 16.0,),
+      TextFieldWidget(
+            label: 'Jumlah Konfirmasi',
+            placeholder: '0',
+            controller: TextEditingController(text: widget.productCardData.jumlahKonfirmasi),
+        ), 
       ],
     );
   }

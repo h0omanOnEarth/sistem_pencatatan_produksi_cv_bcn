@@ -20,6 +20,9 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   DateTime? _selectedTanggalSelesai;
   String selectedKodeProduk = 'Produk 1';
   String selectedKodeBOM = 'BOM 1';
+  String selectedMesinMixer = 'Mixer 1';
+  String selectedMesinSheet = 'Sheet 1';
+  String selectedMesinCetak = 'Cetak 1';
   
 @override
 Widget build(BuildContext context) {
@@ -182,8 +185,8 @@ Widget build(BuildContext context) {
                 controller: catatanController,
               ),
               const SizedBox(height: 16.0,),
-              const Text(
-                'Detail Bahan',
+               const Text(
+                'Instruksi Produksi',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -191,21 +194,80 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0,),
               CustomCard(
-                title: 'Kode Barang : B0001',
                 content: [
-                  'Nama Barang : Gelas Pop 22 oz',
-                  'Jumlah : 100.000 pcs',
-                  'Harga : Rp 40,00',
-                  'Total Harga : Rp 4.000.000,00',
+                  CustomCardContent(text: '1. Campur bahan recycle dan biji plastik PP.'),
+                  CustomCardContent(text: '2. Ekstruksi dan Bentuk PP Sheet.'),
+                  CustomCardContent(text: '3. Cetak PP Sheet menjadi gelas plastik'),
+                  CustomCardContent(text: '4. Uji kualitas dan pengemasan'),
                 ],
               ),
-              CustomCard(
-                title: 'Kode Barang : B0002',
+              const SizedBox(height: 16.0,),
+              const Text(
+                'Mesin',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16.0,),
+              DropdownWidget(
+                      label: 'Mixer',
+                      selectedValue: selectedMesinMixer, // Isi dengan nilai yang sesuai
+                      items: ['Mixer 1', 'Mixer 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedMesinMixer = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+              ),
+              const SizedBox(height: 16.0,),
+              DropdownWidget(
+                    label: 'Sheet',
+                    selectedValue: selectedMesinSheet, // Isi dengan nilai yang sesuai
+                    items: ['Sheet 1', 'Sheet 2'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedMesinSheet = newValue; // Update _selectedValue saat nilai berubah
+                        print('Selected value: $newValue');
+                      });
+                    },
+              ),
+             const SizedBox(height: 16.0,),
+            DropdownWidget(
+                      label: 'Cetak',
+                      selectedValue: selectedMesinCetak, // Isi dengan nilai yang sesuai
+                      items: ['Cetak 1', 'Cetak 2'],
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedMesinCetak = newValue; // Update _selectedValue saat nilai berubah
+                          print('Selected value: $newValue');
+                        });
+                      },
+              ),
+              const SizedBox(height: 16.0,),
+               const Text(
+                'Bahan',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16.0,),
+               CustomCard(
                 content: [
-                  'Nama Barang : Sendok Plastik',
-                  'Jumlah : 50.000 pcs',
-                  'Harga : Rp 20,00',
-                  'Total Harga : Rp 1.000.000,00',
+                  CustomCardContent(text: 'Nama Barang : Gelas Pop 22 oz'),
+                  CustomCardContent(text: 'Jumlah : 100.000 pcs'),
+                  CustomCardContent(text: 'Harga : Rp 40,00'),
+                  CustomCardContent(text: 'Total Harga : Rp 4.000.000,00'),
+                ],
+              ),
+               CustomCard(
+                content: [
+                  CustomCardContent(text: 'Nama Barang : Gelas Pop 22 oz'),
+                  CustomCardContent(text: 'Jumlah : 100.000 pcs'),
+                  CustomCardContent(text: 'Harga : Rp 40,00'),
+                  CustomCardContent(text: 'Total Harga : Rp 4.000.000,00'),
                 ],
               ),
               const SizedBox(height: 16.0,),

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CustomCard extends StatelessWidget {
-  final String title;
-  final List<String> content;
+  final List<CustomCardContent> content;
 
   const CustomCard({
-    required this.title,
     required this.content,
   });
 
@@ -22,20 +20,33 @@ class CustomCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8.0),
             for (var item in content)
-              Text(
-                item,
-                style: TextStyle(fontSize: 16),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 4.0),
+                child: Text(
+                  item.text,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: item.isBold ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  strutStyle: StrutStyle.disabled,
+                ),
               ),
           ],
         ),
       ),
     );
   }
+}
+
+class CustomCardContent {
+  final String text;
+  final bool isBold;
+
+  CustomCardContent({
+    required this.text,
+    this.isBold = false,
+  });
 }
