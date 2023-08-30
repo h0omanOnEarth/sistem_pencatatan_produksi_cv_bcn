@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_penerimaan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_permintaan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainPembelianGudangScreen extends StatefulWidget {
@@ -74,8 +76,8 @@ class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.shopping_cart, textA: 'Permintaan Pembelian', textB: 'Memodifikasi dan melihat permintaan pembelian', pageRoute: '/page1'),
-                    const CardItem(icon: Icons.note_add_sharp, textA: 'Penerimaan Bahan', textB: 'Memodifikasi dan melihat penerimaan bahan', pageRoute: '/page2'),
+                    const CardItem(icon: Icons.shopping_cart, textA: 'Permintaan Pembelian', textB: 'Memodifikasi dan melihat permintaan pembelian', pageRoute: FormPermintaanPembelianScreen()),
+                    const CardItem(icon: Icons.note_add_sharp, textA: 'Penerimaan Bahan', textB: 'Memodifikasi dan melihat penerimaan bahan', pageRoute: FormPenerimaanBahanScreen()),
                   ],
                 ),
               ),
@@ -91,7 +93,7 @@ class CardItem extends StatelessWidget {
   final IconData icon;
   final String textA;
   final String textB;
-  final String pageRoute; // New property to specify the page route
+  final Widget pageRoute; // New property to specify the page route
 
   const CardItem({
     required this.icon,
@@ -103,8 +105,9 @@ class CardItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, pageRoute);
+       onTap: () {
+        Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
+      );
       },
       child: Card(
         color: Colors.white,

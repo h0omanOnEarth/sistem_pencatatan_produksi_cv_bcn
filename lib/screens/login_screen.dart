@@ -214,10 +214,10 @@ class LoginPage extends StatelessWidget {
                             
                             // Navigator.pushNamed(context,
                             //   '/main_admnistrasi'); // Pindahkan ke halaman administrasi
-                            //  Navigator.pushNamed(context,
-                            //   '/main_gudang'); // Pindahkan ke halaman gudang
-                              Navigator.pushNamed(context,
-                              '/main_produksi'); // Pindahkan ke halaman produksi
+                             Navigator.pushNamed(context,
+                              '/main_gudang'); // Pindahkan ke halaman gudang
+                              // Navigator.pushNamed(context,
+                              // '/main_produksi'); // Pindahkan ke halaman produksi
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
