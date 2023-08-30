@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class CustomWithTextFieldCard extends StatelessWidget {
   final List<CustomWithTextFieldCardContent> content;
 
@@ -37,6 +36,9 @@ class CustomWithTextFieldCard extends StatelessWidget {
                               color: Colors.grey[400]!, // Set the desired border color here
                             ),
                           ),
+                          filled: true,
+                          fillColor: item.isEnabled ? Colors.white : Colors.grey[300],
+                          enabled: item.isEnabled,
                         ),
                       )
                     : (item.isRow
@@ -54,6 +56,9 @@ class CustomWithTextFieldCard extends StatelessWidget {
                                         color: Colors.grey[400]!,
                                       ),
                                     ),
+                                    filled: true,
+                                    fillColor: item.leftEnabled ? Colors.white : Colors.grey[300],
+                                    enabled: item.leftEnabled,
                                   ),
                                 ),
                               ),
@@ -70,6 +75,9 @@ class CustomWithTextFieldCard extends StatelessWidget {
                                         color: Colors.grey[400]!,
                                       ),
                                     ),
+                                    filled: true,
+                                    fillColor: item.rightEnabled ? Colors.white : Colors.grey[300],
+                                    enabled: item.rightEnabled,
                                   ),
                                 ),
                               ),
@@ -100,6 +108,8 @@ class CustomWithTextFieldCardContent {
   final String? rightHintText;
   final bool leftEnabled; // Kontrol enable/disable TextField kiri
   final bool rightEnabled; // Kontrol enable/disable TextField kanan
+  final bool isEnabled; // Kontrol enable/disable TextField
+
   final TextEditingController? controller; // Controller untuk text field
   final TextEditingController? leftController; // Controller untuk text field kiri
   final TextEditingController? rightController; // Controller untuk text field kanan
@@ -113,6 +123,7 @@ class CustomWithTextFieldCardContent {
     this.rightHintText,
     this.leftEnabled = true,
     this.rightEnabled = true,
+    this.isEnabled = true,
     this.controller, // Tambahkan controller
     this.leftController, // Tambahkan controller untuk kiri
     this.rightController, // Tambahkan controller untuk kanan
