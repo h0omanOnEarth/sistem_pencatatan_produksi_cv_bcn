@@ -1,7 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/employee.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -21,20 +20,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   String selectedPosisi = "Produksi";
   String selectedJenisKelamin = "Perempuan";
   String selectedStatus = "Aktif";
-
-   // Initialize AuthenticationBloc
-  final AuthenticationBloc _authenticationBloc = AuthenticationBloc();
-
-  @override
-  void dispose() {
-    _authenticationBloc.close();
-    super.dispose();
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-
+  
     TextEditingController namaController = TextEditingController();
     TextEditingController usernameController = TextEditingController();
     TextEditingController emailController = TextEditingController();
@@ -43,7 +29,27 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
     TextEditingController alamatController = TextEditingController();
     TextEditingController gajiHarianController = TextEditingController();
     TextEditingController gajiLemburController = TextEditingController();
+      
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi nilai controller dan dropdown di sini
+    namaController = TextEditingController();
+    usernameController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    nomorTeleponController = TextEditingController();
+    alamatController = TextEditingController();
+    gajiHarianController = TextEditingController();
+    gajiLemburController = TextEditingController();
+    selectedPosisi = 'Produksi';
+    selectedJenisKelamin = 'Perempuan';
+    selectedStatus = 'Aktif';
+  }
 
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -160,7 +166,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                 Row(
                   children: [
                     DatePickerButton(
-                        label: 'Tanggal Pesanan',
+                        label: 'Tanggal Masuk',
                         selectedDate: _selectedDate,
                         onDateSelected: (newDate) {
                           setState(() {
@@ -209,45 +215,62 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                 SizedBox(height: 16.0,),
                 Row(
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Menginisialisasi objek Employee dengan data yang sesuai
-                          final employee = Employee(
-                            email: emailController.text,
-                            password: passwordController.text,
-                            alamat: alamatController.text,
-                            gajiHarian: int.tryParse(gajiHarianController.text) ?? 0,
-                            gajiLemburJam: int.tryParse(gajiLemburController.text) ?? 0,
-                            jenisKelamin: selectedJenisKelamin,
-                            nama: namaController.text,
-                            nomorTelepon: nomorTeleponController.text,
-                            posisi: selectedPosisi,
-                            status: selectedStatus == 'Aktif' ? 1 : 0,
-                            tanggalMasuk: _selectedDate ?? DateTime.now(),
-                            username: usernameController.text,
-                          );
+                    ElevatedButton(
+                      onPressed: () async {
+                        final email = emailController.text;
+                        final password = passwordController.text;
 
-                          // Membuat event SignupEvent dengan objek employee
-                          // final signupEvent = SignupEvent(employee);
+                        // Periksa apakah kedua kolom email dan password sudah diisi
+                        if (email.isNotEmpty && password.isNotEmpty) {
+                          try {
+                            // // Langkah 1: Sign up dengan Firebase Auth
+                            // await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                            //   email: email,
+                            //   password: password,
+                            // ).then((value) async {
+                             
+                            // });
+                             await FirebaseFirestore.instance
+                                  .collection('employees')
+                                  .add({
+                                'email': email,
+                                'password': password,
+                                'alamat': alamatController.text,
+                                'gaji_harian': int.tryParse(gajiHarianController.text) ?? 0,
+                                'gaji_lembur_jam': int.tryParse(gajiLemburController.text) ?? 0,
+                                'jenis_kelamin': selectedJenisKelamin,
+                                'nama': namaController.text,
+                                'nomor_telepon': nomorTeleponController.text,
+                                'posisi': selectedPosisi,
+                                'status': selectedStatus == 'Aktif' ? 1 : 0,
+                                'tanggal_masuk': _selectedDate ?? DateTime.now(),
+                                'username': usernameController.text,
+                              });
 
-                          // // Mengirim event ke bloc
-                          // BlocProvider.of<AuthenticationBloc>(context).add(signupEvent);
+                              _showSuccessMessageAndNavigateBack();
 
-                          _showSuccessMessageAndNavigateBack();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
+                          } on FirebaseAuthException catch (e) {
+                            // Handle FirebaseAuthException jika sign up gagal
+                            final snackbar = SnackBar(content: Text(e.message ?? 'Sign-up failed. Please check your credentials.'));
+                            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                          }
+                        } else {
+                          // Tampilkan pesan kesalahan jika kolom email atau password kosong
+                          final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
+                          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Text(
-                            'Simpan',
-                            style: TextStyle(fontSize: 18),
-                          ),
+                      ),
+                      child: const Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Text(
+                          'Simpan',
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
                     ),
