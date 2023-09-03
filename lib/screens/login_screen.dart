@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 
 class LoginPageScreen extends StatefulWidget {
   static const routeName = '/login_page_screen';
@@ -45,14 +48,44 @@ class LoginForm extends StatelessWidget {
     final loginBloc = BlocProvider.of<LoginBloc>(context);
 
     return BlocListener<LoginBloc, LoginState>(
-       listener: (context, state) {
-        if (state is LoginSuccess) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainAdministrasi(),
-            ),
-          );
+       listener: (context, state) async{
+         if (state is LoginSuccess){
+          final email = _emailController.text;
+
+          // Mencocokkan email pengguna dengan Firestore
+          final userDoc = await FirebaseFirestore.instance
+              .collection('employees')
+              .where('email', isEqualTo: email)
+              .get()
+              .then((querySnapshot) => querySnapshot.docs.firstOrNull);
+
+          if (userDoc != null) {
+            final posisi = userDoc.get('posisi');
+            if (posisi == 'Administrasi') {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainAdministrasi(),
+                  ),
+                );
+            } else if (posisi == 'Gudang') {
+              // Pindah ke halaman MainGudang
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MainGudang(),
+                  ),
+                );
+            } else if (posisi == 'Produksi') {
+              // Pindah ke halaman MainProduksi
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MainProduksi(),
+                ),
+              );
+            }
+          }
         } else if (state is LoginFailure) {
           final snackbar = SnackBar(content: Text(state.error));
           ScaffoldMessenger.of(context).showSnackBar(snackbar);
