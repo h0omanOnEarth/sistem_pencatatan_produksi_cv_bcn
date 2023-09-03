@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterPelangganScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
   @override
   Widget build(BuildContext context) {
 
+    String selectedStatus = 'Aktif';
     var namaController;
     var alamatController;
     var nomorTeleponController;
@@ -77,7 +79,7 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0), // Add spacing between header and cards
+                const SizedBox(height: 16.0), // Add spacing between header and cards
                 TextFieldWidget(
                   label: 'Nama Pelanggan',
                   placeholder: 'Nama',
@@ -90,7 +92,7 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                   controller: alamatController,
                   multiline: true,
                 ),
-                SizedBox(height: 28.0),
+                SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Nomor Telepon',
                   placeholder: '(+62)xxxx-xxx-xxx',
@@ -109,7 +111,19 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                   controller: emailController,
                   isEmail: true,
                 ),
-                SizedBox(height: 24.0),
+                SizedBox(height: 16.0),
+                DropdownWidget(
+                        label: 'Status',
+                        selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                        items: ['Aktif', 'Tidak Aktif'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                            print('Selected value: $newValue');
+                          });
+                        },
+                      ),
+                SizedBox(height: 24.0,),
                 Row(
                 children: [
                   Expanded(

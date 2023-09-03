@@ -22,6 +22,8 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
 Widget build(BuildContext context) {
  
   var catatanController;
+  String selectedStatus = 'Dalam Proses';
+
   return Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
@@ -94,6 +96,17 @@ Widget build(BuildContext context) {
                 label: 'Catatan',
                 placeholder: 'Catatan',
                 controller: catatanController,
+              ),
+              DropdownWidget(
+                        label: 'Status',
+                        selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                        items: ['Dalam Proses', 'Selesai'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                            print('Selected value: $newValue');
+                          });
+                        },
               ),
               const SizedBox(height: 16.0,),
               const Text(

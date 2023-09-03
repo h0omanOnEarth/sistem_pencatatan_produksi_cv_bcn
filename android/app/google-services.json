@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "514128904326",
+    "project_id": "pencatatanproduksibcn",
+    "storage_bucket": "pencatatanproduksibcn.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514128904326:android:c360a5404963dca0585107",
+        "android_client_info": {
+          "package_name": "com.example.sistem_manajemen_produksi_cv_bcn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514128904326-7mi5tej04ll01hshleou1mm89c48uifk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRZ6iG8OQO3TAYEoyYOvYfgZJ0M_ZOxwg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514128904326-7mi5tej04ll01hshleou1mm89c48uifk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

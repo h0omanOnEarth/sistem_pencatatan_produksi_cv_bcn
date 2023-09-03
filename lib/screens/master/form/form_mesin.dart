@@ -1,32 +1,87 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/mesin_bloc.dart' as MesinBloc;
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/machine.dart';
 
 class FormMasterMesinScreen extends StatefulWidget {
   static const routeName = '/form_master_mesin_screen';
 
-  const FormMasterMesinScreen({super.key});
-  
+  const FormMasterMesinScreen({Key? key}) : super(key: key);
+
   @override
-  State<FormMasterMesinScreen> createState() =>
-      _FormMasterMesinScreenState();
+  State<FormMasterMesinScreen> createState() => _FormMasterMesinScreenState();
 }
 
 class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
   String selectedTipe = "Penggiling";
-  String selectedSupplier = "Supplier 1";
+  String selectedSupplier = "";
   String selectedKondisi = "Baru";
   String selectedStatus = "Aktif";
   String selectedSatuan = "Kg";
 
+  final TextEditingController namaController = TextEditingController();
+  final TextEditingController nomorSeriController = TextEditingController();
+  final TextEditingController kapasitasController = TextEditingController();
+  final TextEditingController tahunPembutanController = TextEditingController();
+  final TextEditingController tahunPerolehanController = TextEditingController();
+  final TextEditingController catatanController = TextEditingController();
+  final MesinBloc.MesinBloc _machineBloc = MesinBloc.MesinBloc();
+
+
+  @override
+  void dispose() {
+    _machineBloc.close();
+    super.dispose();
+  }
+
+  void addMachine() {
+    final Mesin newMachine = Mesin(
+      kapasitasProduksi: int.parse(kapasitasController.text),
+      keterangan: catatanController.text,
+      kondisi: selectedKondisi,
+      nama: namaController.text,
+      nomorSeri: nomorSeriController.text,
+      satuan: selectedSatuan,
+      status: selectedStatus == 'Aktif' ? 1 : 0,
+      supplierId: selectedSupplier, // Sesuaikan dengan ID supplier yang dipilih
+      tahunPembuatan: int.parse(tahunPembutanController.text),
+      tahunPerolehan: int.parse(tahunPerolehanController.text),
+      tipe: selectedTipe,
+    );
+
+    final MesinBloc.AddMesinEvent addEvent = MesinBloc.AddMesinEvent(newMachine);
+    _machineBloc.add(addEvent);
+
+    _showSuccessMessageAndNavigateBack();
+  }
+
+  void _showSuccessMessageAndNavigateBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sukses'),
+          content: const Text('Berhasil menyimpan mesin.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var namaController;
-    var nomorSeriController;
-    var kapasitasController;
-    var tahunPembutanController;
-    var tahunPerolehanController;
-    var catatanController;
+    
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -59,7 +114,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     const Text(
                       'Mesin',
                       style: TextStyle(
@@ -69,50 +124,49 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 TextFieldWidget(
                   label: 'Nama Mesin',
                   placeholder: 'Nama',
                   controller: namaController,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 DropdownWidget(
-                      label: 'Tipe',
-                      selectedValue: selectedTipe, // Isi dengan nilai yang sesuai
-                      items: ['Penggiling', 'Pencampur', 'Pencetak'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedTipe = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
-                SizedBox(height: 16.0),
+                  label: 'Tipe',
+                  selectedValue: selectedTipe,
+                  items: const ['Penggiling', 'Pencampur', 'Pencetak', 'Sheet'],
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedTipe = newValue;
+                      print('Selected value: $newValue');
+                    });
+                  },
+                ),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Nomor Seri',
                   placeholder: 'Nomor Seri',
                   controller: nomorSeriController,
                 ),
-                SizedBox(height: 16.0,),
-                 Row(
+                const SizedBox(height: 16.0),
+                Row(
                   children: [
                     Expanded(
-                      child: 
-                        TextFieldWidget(
+                      child: TextFieldWidget(
                         label: 'Kapasitas Produksi',
                         placeholder: 'Kapasitas Produksi',
                         controller: kapasitasController,
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: DropdownWidget(
                         label: 'Satuan',
-                        selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
-                        items: ['Kg','Ons','Pcs','Gram','Sak'],
+                        selectedValue: selectedSatuan,
+                        items: const ['Kg', 'Ons', 'Pcs', 'Gram', 'Sak'],
                         onChanged: (newValue) {
                           setState(() {
-                            selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
+                            selectedSatuan = newValue;
                             print('Selected value: $newValue');
                           });
                         },
@@ -120,19 +174,19 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
-                 Row(
+                const SizedBox(height: 16.0),
+                Row(
                   children: [
                     Expanded(
-                      child:    TextFieldWidget(
+                      child: TextFieldWidget(
                         label: 'Tahun Pembuatan',
                         placeholder: '20XX',
                         controller: tahunPembutanController,
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
-                      child:    TextFieldWidget(
+                      child: TextFieldWidget(
                         label: 'Tahun Perolehan',
                         placeholder: '20XX',
                         controller: tahunPerolehanController,
@@ -140,73 +194,89 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
-                DropdownWidget(
+                const SizedBox(height: 16.0),
+                Builder(
+                  builder: (context) {
+                    final supplierBloc = context.read<SupplierBloc>();
+                    return DropdownWidget(
                       label: 'Supplier',
-                      selectedValue: selectedSupplier, // Isi dengan nilai yang sesuai
-                      items: ['Supplier 1', 'Supplier 2'],
+                      selectedValue: selectedSupplier,
+                      items: supplierBloc.state is LoadedState
+                          ? (supplierBloc.state as LoadedState)
+                              .suppliers
+                              .map((supplier) => supplier.nama)
+                              .toList()
+                          : [],
                       onChanged: (newValue) {
+                        final selectedSupplierObject =
+                            (supplierBloc.state as LoadedState)
+                                .suppliers
+                                .firstWhere(
+                                    (supplier) => supplier.nama == newValue);
                         setState(() {
-                          selectedSupplier = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
+                          selectedSupplier = selectedSupplierObject.supplierId ?? ''; // Memberikan nilai default jika null
+                          print('Selected value: $selectedSupplier');
                         });
                       },
+                    );
+                  },
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Catatan',
                   placeholder: 'Catatan',
                   controller: catatanController,
                   multiline: true,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(
                       child: DropdownWidget(
-                            label: 'Status',
-                            selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                            items: ['Aktif', 'Tidak Aktif'],
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                                print('Selected value: $newValue');
-                              });
-                            },
-                          ),
+                        label: 'Status',
+                        selectedValue: selectedStatus,
+                        items: ['Aktif', 'Tidak Aktif'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedStatus = newValue;
+                            print('Selected value: $newValue');
+                          });
+                        },
+                      ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: DropdownWidget(
-                          label: 'Kondisi',
-                          selectedValue: selectedKondisi, // Isi dengan nilai yang sesuai
-                          items: ['Baru', 'Bekas'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedKondisi = newValue; // Update _selectedValue saat nilai berubah
-                              print('Selected value: $newValue');
-                            });
-                          },
+                        label: 'Kondisi',
+                        selectedValue: selectedKondisi,
+                        items: ['Baru', 'Bekas'],
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedKondisi = newValue;
+                            print('Selected value: $newValue');
+                          });
+                        },
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addMachine(); // Panggil method addMachine saat tombol "Simpan" ditekan
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Simpan',
                             style: TextStyle(fontSize: 18),
@@ -214,14 +284,26 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          namaController.clear();
+                          nomorSeriController.clear();
+                          kapasitasController.clear();
+                          tahunPembutanController.clear();
+                          tahunPerolehanController.clear();
+                          catatanController.clear();
+                          selectedTipe = "Penggiling";
+                          selectedSupplier = "Supplier 1";
+                          selectedKondisi = "Baru";
+                          selectedStatus = "Aktif";
+                          selectedSatuan = "Kg";
+                          setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),

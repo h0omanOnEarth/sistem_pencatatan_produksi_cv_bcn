@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/employee.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -19,18 +22,28 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   String selectedJenisKelamin = "Perempuan";
   String selectedStatus = "Aktif";
 
+   // Initialize AuthenticationBloc
+  final AuthenticationBloc _authenticationBloc = AuthenticationBloc();
+
+  @override
+  void dispose() {
+    _authenticationBloc.close();
+    super.dispose();
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
-    var namaController;
-    var usernameController;
-    var emailController;
-    var passwordController;
-    var nomorTeleponController;
-    var alamatController;
-    
-    var gajiHarianController;
-    var gajiLemburController;
+    TextEditingController namaController = TextEditingController();
+    TextEditingController usernameController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
+    TextEditingController passwordController = TextEditingController();
+    TextEditingController nomorTeleponController = TextEditingController();
+    TextEditingController alamatController = TextEditingController();
+    TextEditingController gajiHarianController = TextEditingController();
+    TextEditingController gajiLemburController = TextEditingController();
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -57,7 +70,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                             ),
                           ],
                         ),
-                        child: CircleAvatar(
+                        child: const CircleAvatar(
                           backgroundColor: Colors.white,
                           child: Icon(Icons.arrow_back, color: Colors.black),
                         ),
@@ -185,7 +198,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                     SizedBox(width: 16.0),
                     Expanded(
                       child: TextFieldWidget(
-                        label: 'Gaji Lembur Harian',
+                        label: 'Gaji Lembur Per Jam',
                         placeholder: 'Gaji Lembur',
                         controller: gajiLemburController,
                         isNumeric: true,
@@ -199,7 +212,29 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Handle save button press
+                          // Menginisialisasi objek Employee dengan data yang sesuai
+                          final employee = Employee(
+                            email: emailController.text,
+                            password: passwordController.text,
+                            alamat: alamatController.text,
+                            gajiHarian: int.tryParse(gajiHarianController.text) ?? 0,
+                            gajiLemburJam: int.tryParse(gajiLemburController.text) ?? 0,
+                            jenisKelamin: selectedJenisKelamin,
+                            nama: namaController.text,
+                            nomorTelepon: nomorTeleponController.text,
+                            posisi: selectedPosisi,
+                            status: selectedStatus == 'Aktif' ? 1 : 0,
+                            tanggalMasuk: _selectedDate ?? DateTime.now(),
+                            username: usernameController.text,
+                          );
+
+                          // Membuat event SignupEvent dengan objek employee
+                          // final signupEvent = SignupEvent(employee);
+
+                          // // Mengirim event ke bloc
+                          // BlocProvider.of<AuthenticationBloc>(context).add(signupEvent);
+
+                          _showSuccessMessageAndNavigateBack();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(59, 51, 51, 1),
@@ -207,7 +242,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Simpan',
@@ -220,7 +255,23 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Handle clear button press
+                           // Membersihkan semua field input
+                          namaController.text = '';
+                          usernameController.text = '';
+                          emailController.text = '';
+                          passwordController.text = '';
+                          alamatController.text = '';
+                          nomorTeleponController.text = '';
+                          gajiHarianController.text = '';
+                          gajiLemburController.text = '';
+
+                          // Mengatur ulang nilai dropdown ke default
+                          setState(() {
+                            selectedPosisi = 'Produksi';
+                            selectedJenisKelamin = 'Perempuan';
+                            selectedStatus = 'Aktif';
+                            _selectedDate = null;
+                          });
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(59, 51, 51, 1),
@@ -228,7 +279,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Bersihkan',
@@ -246,4 +297,27 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
       ),
     );
   }
+
+    void _showSuccessMessageAndNavigateBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sukses'),
+          content: Text('Berhasil menyimpan pegawai.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop(); // Kembali ke halaman daftar supplier
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
 }

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/materials_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/mesin_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
@@ -25,9 +30,19 @@ import '/screens/gudang/main/main_laporan.dart';
 import '/screens/gudang/main/main_penjualan.dart';
 import '/screens/gudang/main/main_produksi.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -75,7 +90,7 @@ class MyApp extends StatelessWidget {
          MainLaporanProduksiScreen.routeName:(context)=> const MainLaporanProduksiScreen(),
 
       },
-    );
+      );
   }
 }
 

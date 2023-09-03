@@ -1,9 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart'; // Pastikan import ini sesuai dengan lokasi AuthenticationBloc
 
 class LoginPageScreen extends StatefulWidget {
@@ -15,6 +14,7 @@ class LoginPageScreen extends StatefulWidget {
 }
 
 class _LoginPageScreenState extends State<LoginPageScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,6 +38,7 @@ class _LoginPageScreenState extends State<LoginPageScreen> {
 class LoginPage extends StatelessWidget {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
 
   LoginPage({super.key});
   @override
@@ -46,9 +47,8 @@ class LoginPage extends StatelessWidget {
     double desiredHeightPercentage =
         0.1; // Adjust the desired height percentage (e.g., 0.5 for 50%)
 
-    return BlocProvider(
-      create: (context) => AuthenticationBloc(),
-      child: Scaffold(
+    
+    return Scaffold(
         body: Stack(
           children: [
             Container(
@@ -197,41 +197,48 @@ class LoginPage extends StatelessWidget {
                         margin: const EdgeInsets.all(10),
                         child: ElevatedButton(
                           onPressed: () async {
-                            // try {
-                            //   final email = _emailController.text;
-                            //   final password = _passwordController.text;
+                            final email = _emailController.text;
+                            final password = _passwordController.text;
 
-                            //   // Dispatch SignInEvent to the AuthenticationBloc
-                            //   BlocProvider.of<AuthenticationBloc>(context).add(
-                            //     SignInEvent(email, password),
-                            //   );
-                            // } on Exception catch (e) {
-                            //   final snackbar =
-                            //       SnackBar(content: Text(e.toString()));
-                            //   ScaffoldMessenger.of(context)
-                            //       .showSnackBar(snackbar);
-                            // } finally {}
-                            
-                            // Navigator.pushNamed(context,
-                            //   '/main_admnistrasi'); // Pindahkan ke halaman administrasi
-                             Navigator.pushNamed(context,
-                              '/main_gudang'); // Pindahkan ke halaman gudang
-                              // Navigator.pushNamed(context,
-                              // '/main_produksi'); // Pindahkan ke halaman produksi
+                            // Periksa apakah kedua kolom email dan password sudah diisi
+                            if (email.isNotEmpty && password.isNotEmpty) {
+                              try {
+                                await FirebaseAuth.instance
+                                    .signInWithEmailAndPassword(email: email, password: password);
+                                
+                                // Contoh: Pindah ke halaman utama
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => MainAdministrasi(),
+                                  ),
+                                );
+
+                                
+                              } on FirebaseAuthException catch (e) {
+                                // Handle FirebaseAuthException jika masuk gagal
+                                print("FirebaseAuthException: ${e.code} - ${e.message}");
+                                final snackbar = SnackBar(content: Text(e.message ?? 'Sign-in failed. Please check your credentials.'));
+                                ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                              }
+                            } else {
+                              // Tampilkan pesan kesalahan jika kolom email atau password kosong
+                              final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
+                              ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                            }
                           },
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
                                 const Color.fromRGBO(59, 51, 51, 1)),
-                            shape:
-                                MaterialStateProperty.all<RoundedRectangleBorder>(
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                               RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                    15), // Set your desired border radius here
+                                borderRadius: BorderRadius.circular(15),
                               ),
                             ),
                           ),
-                          child: const Text('Sign In'),
+                          child: const Text('Log In'), // Mengganti label tombol menjadi "Log In"
                         ),
+
+
                       ),
                     ],
                   ),
@@ -240,7 +247,6 @@ class LoginPage extends StatelessWidget {
             )
           ],
         ),
-      ),
-    );
+      );
   }
 }

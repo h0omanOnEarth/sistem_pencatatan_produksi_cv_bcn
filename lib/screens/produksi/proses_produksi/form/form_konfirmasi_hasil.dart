@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -37,6 +38,7 @@ class FormKonfirmasiProduksiScreen extends StatefulWidget {
 
 class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScreen> {
   DateTime? selectedDate;
+  String selectedStatus = 'Aktif';
 
   List<ProductCardData> productCards = [];
     void addProductCard() {
@@ -116,10 +118,16 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                       },
                 ),
                 SizedBox(height: 16.0,),
-                TextFieldWidget(
+                DropdownWidget(
                   label: 'Status',
-                  placeholder: 'Dalam Proses',
-                  isEnabled: false,
+                  selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                  items: ['Aktif', 'Tidak Aktif'],
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                      print('Selected value: $newValue');
+                    });
+                  },
                 ),
                 SizedBox(height: 16.0,),
                 TextFieldWidget(
