@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/employees_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/materials_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/mesin_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
@@ -55,7 +56,18 @@ class MyApp extends StatelessWidget {
         BlocProvider<LoginBloc>(
           create: (BuildContext context) => LoginBloc(),
         ),
-        // Daftarkan BLoC lain jika diperlukan
+        BlocProvider<SupplierBloc>(
+          create: (BuildContext context) => SupplierBloc(),
+        ),
+        BlocProvider<EmployeeBloc>(
+          create: (BuildContext context) => EmployeeBloc(),
+        ),
+        BlocProvider<MesinBloc>(
+          create: (BuildContext context) => MesinBloc(),
+        ),
+         BlocProvider<MaterialBloc>(
+          create: (BuildContext context) => MaterialBloc(),
+        ),
       ],
     child : MaterialApp(
       title: 'Flutter Demo',

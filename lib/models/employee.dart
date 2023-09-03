@@ -29,10 +29,29 @@ class Employee {
     required this.username,
   });
 
+  // Metode untuk mengonversi JSON menjadi objek Employee
+  factory Employee.fromJson(Map<String, dynamic> json) {
+    return Employee(
+      id: json['id'] as String,
+      alamat: json['alamat'] as String,
+      email: json['email'] as String,
+      gajiHarian: json['gajiHarian'] as int,
+      gajiLemburJam: json['gajiLemburJam'] as int,
+      jenisKelamin: json['jenisKelamin'] as String,
+      nomorTelepon: json['nomorTelepon'] as String,
+      nama: json['nama'] as String,
+      password: json['password'] as String,
+      posisi: json['posisi'] as String,
+      status: json['status'] as int,
+      tanggalMasuk: DateTime.parse(json['tanggalMasuk'] as String),
+      username: json['username'] as String,
+    );
+  }
+
   // Metode untuk mengonversi objek Employee menjadi map JSON
   Map<String, dynamic> toJson() {
     return {
-      'id' : id,
+      'id': id,
       'alamat': alamat,
       'email': email,
       'gajiHarian': gajiHarian,

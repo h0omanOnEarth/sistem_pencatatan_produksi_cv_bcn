@@ -53,14 +53,16 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       try {
         final String nextSupplierId = await _generateNextSupplierId();
 
-        await suppliersRef.doc(nextSupplierId).set({
-          'supplierId': nextSupplierId,
-          'alamat': event.supplier.alamat,
-          'email': event.supplier.email,
-          'jenis_supplier': event.supplier.jenisSupplier,
-          'nama': event.supplier.nama,
-          'no_telepon': event.supplier.noTelepon,
-          'no_telepon_kantor': event.supplier.noTeleponKantor,
+        await FirebaseFirestore.instance
+            .collection('suppliers')
+            .add({
+                'id': nextSupplierId,
+                'alamat': event.supplier.alamat,
+                'email': event.supplier.email,
+                'jenis_supplier': event.supplier.jenisSupplier,
+                'nama': event.supplier.nama,
+                'no_telepon': event.supplier.noTelepon,
+                'no_telepon_kantor': event.supplier.noTeleponKantor,
         });
 
         yield LoadedState(await _getSuppliers());
