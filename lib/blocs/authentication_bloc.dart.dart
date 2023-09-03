@@ -1,67 +1,56 @@
-import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// Events
-abstract class AuthenticationEvent {}
 
-class SignInEvent extends AuthenticationEvent {
+// Event
+abstract class LoginEvent {}
+
+class LoginButtonPressed extends LoginEvent {
   final String email;
   final String password;
-  SignInEvent({required this.email, required this.password});
+
+  LoginButtonPressed({required this.email, required this.password});
 }
 
-class SignOutEvent extends AuthenticationEvent {}
+class LogoutButtonPressed extends LoginEvent {}
 
-// States
-abstract class AuthenticationState {}
+// State
+abstract class LoginState {}
 
-class InitialAuthenticationState extends AuthenticationState {}
+class LoginInitial extends LoginState {}
 
-class AuthenticatedState extends AuthenticationState {
+class LoginSuccess extends LoginState {
   final User user;
-  AuthenticatedState({required this.user});
+
+  LoginSuccess({required this.user});
 }
 
-class UnauthenticatedState extends AuthenticationState {}
+class LoginFailure extends LoginState {
+  final String error;
 
-// BLoC
-class AuthenticationBloc
-    extends Bloc<AuthenticationEvent, AuthenticationState> {
+  LoginFailure({required this.error});
+}
+
+class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  AuthenticationBloc() : super(InitialAuthenticationState());
+  LoginBloc() : super(LoginInitial());
 
   @override
-  Stream<AuthenticationState> mapEventToState(
-    AuthenticationEvent event,
-  ) async* {
-    if (event is SignInEvent) {
-      yield* _mapSignInEventToState(event);
-    } else if (event is SignOutEvent) {
-      yield* _mapSignOutEventToState();
-    }
-  }
+  Stream<LoginState> mapEventToState(LoginEvent event) async* {
+    if (event is LoginButtonPressed) {
+      try {
+        final userCredential = await _auth.signInWithEmailAndPassword(
+          email: event.email,
+          password: event.password,
+        );
 
-  Stream<AuthenticationState> _mapSignInEventToState(
-      SignInEvent event) async* {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: event.email,
-        password: event.password,
-      );
-
-      if (userCredential.user != null) {
-        yield AuthenticatedState(user: userCredential.user!);
-      } else {
-        yield UnauthenticatedState();
+        yield LoginSuccess(user: userCredential.user!);
+      } catch (e) {
+        yield LoginFailure(error: e.toString()); // Menambahkan informasi kesalahan
       }
-    } catch (e) {
-      yield UnauthenticatedState();
+    } else if (event is LogoutButtonPressed) {
+      await _auth.signOut();
+      yield LoginInitial();
     }
-  }
-
-  Stream<AuthenticationState> _mapSignOutEventToState() async* {
-    await _auth.signOut();
-    yield UnauthenticatedState();
   }
 }

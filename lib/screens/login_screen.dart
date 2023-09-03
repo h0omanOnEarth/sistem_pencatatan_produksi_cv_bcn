@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 
 class LoginPageScreen extends StatefulWidget {
@@ -21,19 +22,43 @@ class _LoginPageScreenState extends State<LoginPageScreen> {
 }
 
 class LoginPage extends StatelessWidget {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _auth = FirebaseAuth.instance;
-
   LoginPage({Key? key}) : super(key: key);
 
+   @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: BlocProvider(
+        create: (context) => LoginBloc(),
+        child: LoginForm(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
     double screenHeight = MediaQuery.of(context).size.height;
     double desiredHeightPercentage = 0.1;
+    final loginBloc = BlocProvider.of<LoginBloc>(context);
 
-    return Scaffold(
-      body: Stack(
+    return BlocListener<LoginBloc, LoginState>(
+       listener: (context, state) {
+        if (state is LoginSuccess) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainAdministrasi(),
+            ),
+          );
+        } else if (state is LoginFailure) {
+          final snackbar = SnackBar(content: Text(state.error));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        }
+      },
+      child: Stack(
         children: [
           Container(
             decoration: const BoxDecoration(
@@ -175,25 +200,10 @@ class LoginPage extends StatelessWidget {
                           final password = _passwordController.text;
 
                           if (email.isNotEmpty && password.isNotEmpty) {
-                            try {
-                              await _auth.signInWithEmailAndPassword(
-                                email: email,
-                                password: password,
-                              );
+                              final email = _emailController.text;
+                              final password = _passwordController.text;
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainAdministrasi(),
-                                ),
-                              );
-                            } on FirebaseAuthException catch (e) {
-                              print("FirebaseAuthException: ${e.code} - ${e.message}");
-                              final snackbar = SnackBar(
-                                content: Text(e.message ?? 'Sign-in failed. Please check your credentials.'),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(snackbar);
-                            }
+                              loginBloc.add(LoginButtonPressed(email: email, password: password));
                           } else {
                             final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
                             ScaffoldMessenger.of(context).showSnackBar(snackbar);

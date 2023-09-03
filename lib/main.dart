@@ -52,8 +52,8 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         // Daftarkan AuthenticationBloc di sini
-        BlocProvider<AuthenticationBloc>(
-          create: (BuildContext context) => AuthenticationBloc(),
+        BlocProvider<LoginBloc>(
+          create: (BuildContext context) => LoginBloc(),
         ),
         // Daftarkan BLoC lain jika diperlukan
       ],
