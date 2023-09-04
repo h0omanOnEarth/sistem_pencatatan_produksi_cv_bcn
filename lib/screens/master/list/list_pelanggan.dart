@@ -1,5 +1,12 @@
+import 'dart:js_interop';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/customers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pelanggan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMasterPelangganScreen extends StatefulWidget {
   static const routeName = '/list_master_pelanggan_screen';
@@ -10,10 +17,17 @@ class ListMasterPelangganScreen extends StatefulWidget {
 }
 
 class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
+
+  final CollectionReference customerRef = FirebaseFirestore.instance.collection('customers');
+  String searchTerm = '';
+  int selectedStatus = -1;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
+     return BlocProvider(
+      create: (context) => CustomerBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -89,9 +103,13 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                   // Search Bar and Filter Button
                         Row(
                           children: [
-                            Container(
-                              child: buildSearchBar(),
-                              width: screenWidth * 0.75, // Adjust the width as needed
+                           Container(
+                              child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+                                setState(() {
+                                  searchTerm = value;
+                                });
+                              }),
+                              width: screenWidth * 0.6,
                             ),
                             SizedBox(width: 16.0), // Add spacing between search bar and filter button
                             Container(
@@ -104,6 +122,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                                 icon: Icon(Icons.filter_list),
                                 onPressed: () {
                                   // Handle filter button press
+                                  _showFilterDialog(context);
                                 },
                               ),
                             ),
@@ -111,82 +130,135 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                         ),
                 // Create 6 cards
                 SizedBox(height: 16.0,),
-                buildCard('Card 1', 'This is a small description for Card 1'),
-                buildCard('Card 2', 'This is a small description for Card 2'),
-                buildCard('Card 3', 'This is a small description for Card 3'),
-                buildCard('Card 4', 'This is a small description for Card 4'),
-                buildCard('Card 5', 'This is a small description for Card 5'),
-                buildCard('Card 6', 'This is a small description for Card 6'),
+                StreamBuilder<QuerySnapshot>(
+                    stream: customerRef.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                         return const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+                        return const Text('Tidak ada data pelanggan.');
+                      } else {
+                        final querySnapshot = snapshot.data!;
+                        final customerDocs = querySnapshot.docs;
+
+                        final filteredCustomerDocs = customerDocs.where((doc) {
+                          final nama = doc['nama'] as String;
+                          final status = doc['status'] as int;
+                          return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                              (selectedStatus.toInt() == -1 || status == selectedStatus));
+                        }).toList();
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filteredCustomerDocs.length,
+                          itemBuilder: (context, index) {
+                            final data = filteredCustomerDocs[index].data() as Map<String, dynamic>;
+                            final nama = data['nama'] as String;
+                            final info = {
+                            'Alamat': data['alamat'] as String,
+                            'No Telepon': data['nomor_telepon'] as String,
+                            'email': data['email'] as String,
+                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
+                          };
+                            return ListCard(
+                              title: nama,
+                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                              onDeletePressed: () async {
+                                final confirmed = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Konfirmasi Hapus"),
+                                      content: const Text("Anda yakin ingin menghapus pegawai ini?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text("Batal"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text("Hapus"),
+                                          onPressed: () async {
+                                            final customerBloc =BlocProvider.of<CustomerBloc>(context);
+                                            customerBloc.add(DeleteCustomerEvent(data['id']));
+                                            Navigator.of(context).pop(true);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (confirmed == true) {
+                                  // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                }
+                              },
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                  BlocBuilder<CustomerBloc, CustomerBlocState>(
+                    builder: (context, state) {
+                      if (state is ErrorState) {
+                        Text(state.errorMessage);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
               ],
             ),
           ),
         ),
       ),
-    );
+    ))
+    ;
   }
 
-  Widget buildCard(String title, String description) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(
-          color: Colors.grey[300]!,
-          width: 1.0,
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.normal,
-              ),
-              textAlign: TextAlign.start,
+    Future<void> _showFilterDialog(BuildContext context) async {
+    String? selectedValue = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Filter Berdasarkan Posisi'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, '');
+              },
+              child: const Text('Semua'),
             ),
-            SizedBox(height: 4), // Add spacing between title and description
-            Text(
-              description,
-              style: const TextStyle(
-                color: Colors.grey, // Set text color to grey
-                fontSize: 12, // Set a smaller font size
-              ),
-              textAlign: TextAlign.start,
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Aktif');
+              },
+              child: const Text('Aktif'),
             ),
-            SizedBox(height: 8.0,),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Tidak Aktif');
+              },
+              child: const Text('Tidak Aktif'),
+            ),
           ],
-        ),
-      ),
+        );
+      },
     );
+
+    if (selectedValue != null) {
+      setState(() {
+        selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
+      });
+    }
   }
-  
-// Search Bar
-Widget buildSearchBar() {
-  return TextField(
-    decoration: InputDecoration(
-      hintText: 'Search...',
-      prefixIcon: Icon(
-        Icons.search,
-        color: Colors.grey[400], // Ubah warna ikon search menjadi abu-abu 400
-      ),
-      filled: true,
-      fillColor: Colors.white,
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: BorderSide(color: Colors.grey[400]!),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: BorderSide(color: Colors.grey[400]!),
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-    ),
-  );
-}
 
 }
 

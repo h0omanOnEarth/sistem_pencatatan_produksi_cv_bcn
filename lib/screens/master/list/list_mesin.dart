@@ -171,7 +171,7 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
                                   builder: (BuildContext context) {
                                     return AlertDialog(
                                       title: const Text("Konfirmasi Hapus"),
-                                      content: const Text("Anda yakin ingin menghapus pegawai ini?"),
+                                      content: const Text("Anda yakin ingin menghapus mesin ini?"),
                                       actions: <Widget>[
                                         TextButton(
                                           child: const Text("Batal"),
@@ -249,6 +249,12 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
                 Navigator.pop(context, 'Pencetak');
               },
               child: const Text('Pencetak'),
+            ),
+             SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Mesin');
+              },
+              child: const Text('Mesin'),
             ),
           ],
         );

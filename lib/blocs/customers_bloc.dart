@@ -86,7 +86,13 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
     } else if (event is DeleteCustomerEvent) {
       yield LoadingState();
       try {
-        await customersRef.doc(event.customerId).delete();
+        // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+          QuerySnapshot querySnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            await documentSnapshot.reference.delete();
+          }
         yield LoadedState(await _getCustomers());
       } catch (e) {
         yield ErrorState("Gagal menghapus customer.");

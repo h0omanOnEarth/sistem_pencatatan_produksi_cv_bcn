@@ -198,7 +198,6 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                         label: 'Stok',
                         placeholder: 'Stok',
                         controller: stokController,
-                        isEnabled: false,
                       ),
                     ),
                   ],

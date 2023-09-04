@@ -86,7 +86,13 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
     } else if (event is DeleteMaterialEvent) {
       yield LoadingState();
       try {
-        await materialsRef.doc(event.materialId).delete();
+         // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+          QuerySnapshot querySnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            await documentSnapshot.reference.delete();
+          }
         yield LoadedState(await _getMaterials());
       } catch (e) {
         yield ErrorState("Gagal menghapus material.");
