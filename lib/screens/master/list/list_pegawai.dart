@@ -18,6 +18,7 @@ class ListMasterPegawaiScreen extends StatefulWidget {
 class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
   final CollectionReference employeesRef = FirebaseFirestore.instance.collection('employees');
   String searchTerm = '';
+  String selectedPosition = '';
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +106,10 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                             searchTerm = value;
                           });
                         }),
-                        width: screenWidth * 0.75,
+                        width: screenWidth * 0.6,
                       ),
                       SizedBox(width: 16.0),
-                      Container(
+                       Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.white,
@@ -118,18 +119,22 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                           icon: Icon(Icons.filter_list),
                           onPressed: () {
                             // Handle filter button press
+                             _showFilterDialog(context);
                           },
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 16.0),
-                  // Tampilkan daftar pegawai dengan StreamBuilder
                   StreamBuilder<QuerySnapshot>(
                     stream: employeesRef.snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                         return Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                          ),
+                        );
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
@@ -137,12 +142,13 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                       } else {
                         final querySnapshot = snapshot.data!;
                         final employeeDocs = querySnapshot.docs;
-                        final filteredEmployeeDocs = searchTerm.isEmpty
-                            ? employeeDocs
-                            : employeeDocs.where((doc) {
-                                final nama = doc['nama'] as String;
-                                return nama.toLowerCase().contains(searchTerm.toLowerCase());
-                              }).toList();
+
+                        final filteredEmployeeDocs = employeeDocs.where((doc) {
+                          final nama = doc['nama'] as String;
+                          final posisi = doc['posisi'] as String;
+                          return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                              (selectedPosition.isEmpty || posisi == selectedPosition));
+                        }).toList();
 
                         return ListView.builder(
                           shrinkWrap: true,
@@ -155,7 +161,6 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                               title: nama,
                               description: 'Alamat : $alamat',
                               onDeletePressed: () async {
-                                // Tampilkan dialog konfirmasi
                                 final confirmed = await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -166,15 +171,15 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                                         TextButton(
                                           child: Text("Batal"),
                                           onPressed: () {
-                                            Navigator.of(context).pop(false); // Tidak jadi menghapus
+                                            Navigator.of(context).pop(false);
                                           },
                                         ),
                                         TextButton(
                                           child: Text("Hapus"),
                                           onPressed: () async {
-                                            // Hapus data dari Firestore
-                                            await employeesRef.doc(filteredEmployeeDocs[index].id).delete();
-                                            Navigator.of(context).pop(true); // Menghapus
+                                            final employeeBloc =BlocProvider.of<EmployeeBloc>(context);
+                                            employeeBloc.add(DeleteEmployeeEvent(data['id'], data['password']));
+                                            Navigator.of(context).pop(true);
                                           },
                                         ),
                                       ],
@@ -207,5 +212,48 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showFilterDialog(BuildContext context) async {
+    String? selectedValue = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: Text('Filter Berdasarkan Posisi'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, '');
+              },
+              child: const Text('Semua'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Administrasi');
+              },
+              child: const Text('Administrasi'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Produksi');
+              },
+              child: const Text('Produksi'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Gudang');
+              },
+              child: const Text('Gudang'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (selectedValue != null) {
+      setState(() {
+        selectedPosition = selectedValue;
+      });
+    }
   }
 }
