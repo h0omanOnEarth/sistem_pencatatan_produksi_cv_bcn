@@ -5,6 +5,11 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/supplier.dart';
 // Events
 abstract class SupplierEvent {}
 
+class SelectSupplierEvent extends SupplierEvent {
+  final String supplierId;
+  SelectSupplierEvent(this.supplierId);
+}
+
 class AddSupplierEvent extends SupplierEvent {
   final Supplier supplier;
   AddSupplierEvent(this.supplier);
@@ -21,7 +26,7 @@ class DeleteSupplierEvent extends SupplierEvent {
   DeleteSupplierEvent(this.supplierId);
 }
 
-class LoadSuppliersEvent extends SupplierEvent {} // Event untuk memuat data pemasok
+class LoadSuppliersEvent extends SupplierEvent {}
 
 // States
 abstract class SupplierState {}
@@ -38,10 +43,17 @@ class ErrorState extends SupplierState {
   ErrorState(this.errorMessage);
 }
 
+class SupplierSelectionState extends SupplierState {
+  final String selectedSupplierId;
+  SupplierSelectionState(this.selectedSupplierId);
+}
+
 // BLoC
 class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
   late FirebaseFirestore _firestore;
   late CollectionReference suppliersRef;
+
+  String _selectedSupplierId = ""; // Simpan ID supplier yang dipilih
 
   SupplierBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
@@ -66,22 +78,25 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       }
     }
 
+    if (event is SelectSupplierEvent) {
+      _selectedSupplierId = event.supplierId;
+      yield SupplierSelectionState(_selectedSupplierId);
+    }
+
     if (event is AddSupplierEvent) {
       yield LoadingState();
       try {
         final String nextSupplierId = await _generateNextSupplierId();
 
-        await FirebaseFirestore.instance
-            .collection('suppliers')
-            .add({
-              'id': nextSupplierId,
-              'alamat': event.supplier.alamat,
-              'email': event.supplier.email,
-              'jenis_supplier': event.supplier.jenisSupplier,
-              'nama': event.supplier.nama,
-              'no_telepon': event.supplier.noTelepon,
-              'no_telepon_kantor': event.supplier.noTeleponKantor,
-            });
+        await FirebaseFirestore.instance.collection('suppliers').add({
+          'id': nextSupplierId,
+          'alamat': event.supplier.alamat,
+          'email': event.supplier.email,
+          'jenis_supplier': event.supplier.jenisSupplier,
+          'nama': event.supplier.nama,
+          'no_telepon': event.supplier.noTelepon,
+          'no_telepon_kantor': event.supplier.noTeleponKantor,
+        });
 
         yield LoadedState(await _getSuppliers());
       } catch (e) {
@@ -131,4 +146,6 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
     }
     return suppliers;
   }
+
+  String get selectedSupplierId => _selectedSupplierId;
 }
