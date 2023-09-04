@@ -220,7 +220,17 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                       }
 
                       return DropdownButtonFormField<String>(
-                        decoration: InputDecoration(labelText: 'Supplier'),
+                        decoration: InputDecoration(
+                          labelText: 'Supplier',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey[400]!), // Warna abu-abu 400
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide(color: Colors.grey[400]!), // Warna abu-abu 400 saat fokus
+                          ),
+                        ),
                         value: selectedSupplier,
                         items: supplierItems,
                         onChanged: (newValue) {
