@@ -1,4 +1,5 @@
 class Mesin {
+  final String id;
   final int kapasitasProduksi;
   final String keterangan;
   final String kondisi;
@@ -12,6 +13,7 @@ class Mesin {
   final String tipe;
 
   Mesin({
+    required this.id,
     required this.kapasitasProduksi,
     required this.keterangan,
     required this.kondisi,
@@ -27,6 +29,7 @@ class Mesin {
 
   factory Mesin.fromJson(Map<String, dynamic> json) {
     return Mesin(
+      id: json['id'] ?? "",
       kapasitasProduksi: json['kapasitas_produksi'] ?? 0,
       keterangan: json['keterangan'] ?? "",
       kondisi: json['kondisi'] ?? "",
@@ -43,6 +46,7 @@ class Mesin {
 
   Map<String, dynamic> toJson() {
     return {
+      'id' : id,
       'kapasitas_produksi': kapasitasProduksi,
       'keterangan': keterangan,
       'kondisi': kondisi,

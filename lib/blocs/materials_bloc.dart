@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/material.dart';
+
 // Events
 abstract class MaterialEvent {}
 
@@ -21,32 +22,32 @@ class DeleteMaterialEvent extends MaterialEvent {
 }
 
 // States
-abstract class MaterialState {}
+abstract class MaterialBlocState {}
 
-class LoadingState extends MaterialState {}
+class LoadingState extends MaterialBlocState {}
 
-class LoadedState extends MaterialState {
+class LoadedState extends MaterialBlocState {
   final List<Bahan> materials;
   LoadedState(this.materials);
 }
 
-class ErrorState extends MaterialState {
+class ErrorState extends MaterialBlocState {
   final String errorMessage;
   ErrorState(this.errorMessage);
 }
 
 // BLoC
-class MaterialBloc extends Bloc<MaterialEvent, MaterialState> {
+class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference materialsRef;
 
   MaterialBloc() : super(LoadingState()){
-     _firestore = FirebaseFirestore.instance; 
-    materialsRef =  _firestore.collection('materials');
+    _firestore = FirebaseFirestore.instance;
+    materialsRef = _firestore.collection('materials');
   }
 
   @override
-  Stream<MaterialState> mapEventToState(MaterialEvent event) async* {
+  Stream<MaterialBlocState> mapEventToState(MaterialEvent event) async* {
     if (event is AddMaterialEvent) {
       yield LoadingState();
       try {

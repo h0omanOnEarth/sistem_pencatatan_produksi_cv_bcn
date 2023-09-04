@@ -1,4 +1,5 @@
 class Bahan {
+  final String id;
   final String jenisBahan;
   final String keterangan;
   final String nama;
@@ -7,6 +8,7 @@ class Bahan {
   final int stok;
 
   Bahan({
+    required this.id,
     required this.jenisBahan,
     required this.keterangan,
     required this.nama,
@@ -17,6 +19,7 @@ class Bahan {
 
   factory Bahan.fromJson(Map<String, dynamic> json) {
     return Bahan(
+      id: json['id'] ?? '',
       jenisBahan: json['jenis_bahan'] ?? '',
       keterangan: json['keterangan'] ?? '',
       nama: json['nama'] ?? '',
@@ -28,6 +31,7 @@ class Bahan {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'jenis_bahan': jenisBahan,
       'keterangan': keterangan,
       'nama': nama,

@@ -16,41 +16,44 @@ class FormMasterSupplierScreen extends StatefulWidget {
 
 class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
   String selectedJenis = 'Bahan Baku'; // Set initial selected option
+  String selectedStatus = 'Aktif';
+    
+  TextEditingController namaController = TextEditingController();
+  TextEditingController alamatController = TextEditingController();
+  TextEditingController nomorTeleponController = TextEditingController();
+  TextEditingController nomorKantorController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Sukses'),
+        content: const Text('Berhasil menyimpan supplier.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+              Navigator.pop(context);
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+    Navigator.pop(context);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
-    String selectedStatus = 'Aktif';
-
-    final TextEditingController namaController = TextEditingController();
-    final TextEditingController alamatController = TextEditingController();
-    final TextEditingController nomorTeleponController = TextEditingController();
-    final TextEditingController nomorKantorController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-
-    final SupplierBloc _supplierBloc = BlocProvider.of<SupplierBloc>(context);
-
-    void _showSuccessMessageAndNavigateBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sukses'),
-          content: const Text('Berhasil menyimpan supplier.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                Navigator.of(context).pop(); // Kembali ke halaman daftar supplier
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => SupplierBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -171,9 +174,11 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final supplierBloc =BlocProvider.of<SupplierBloc>(context);
                           // Handle save button press
                            final Supplier newSupplier = Supplier(
+                            id: '', //auto generate
                             nama: namaController.text,
                             alamat: alamatController.text,
                             noTelepon: nomorTeleponController.text,
@@ -183,9 +188,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                             status: selectedStatus == 'Aktif' ? 1 : 0,
                           );
 
-                          final AddSupplierEvent addEvent =
-                              AddSupplierEvent(newSupplier);
-                          _supplierBloc.add(addEvent);
+                          supplierBloc.add(AddSupplierEvent(newSupplier));
 
                           _showSuccessMessageAndNavigateBack();
                         },
@@ -237,12 +240,26 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                     ),
                   ],
                 ),
+                BlocBuilder<SupplierBloc, SupplierState>(
+                  builder: (context, state) {
+                    if (state is ErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                          duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
-    );
+     )
+      );
     }
 }
 

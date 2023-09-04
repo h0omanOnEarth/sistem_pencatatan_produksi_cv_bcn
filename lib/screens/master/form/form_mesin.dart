@@ -22,12 +22,12 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
   String selectedStatus = "Aktif";
   String selectedSatuan = "Kg";
 
-  final TextEditingController namaController = TextEditingController();
-  final TextEditingController nomorSeriController = TextEditingController();
-  final TextEditingController kapasitasController = TextEditingController();
-  final TextEditingController tahunPembutanController = TextEditingController();
-  final TextEditingController tahunPerolehanController = TextEditingController();
-  final TextEditingController catatanController = TextEditingController();
+  TextEditingController namaController = TextEditingController();
+  TextEditingController nomorSeriController = TextEditingController();
+  TextEditingController kapasitasController = TextEditingController();
+  TextEditingController tahunPembutanController = TextEditingController();
+  TextEditingController tahunPerolehanController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
   final MesinBloc.MesinBloc _machineBloc = MesinBloc.MesinBloc();
 
 
@@ -38,7 +38,9 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
   }
 
   void addMachine() {
+    final machineBloc =BlocProvider.of<MesinBloc.MesinBloc>(context);
     final Mesin newMachine = Mesin(
+      id: '',
       kapasitasProduksi: int.parse(kapasitasController.text),
       keterangan: catatanController.text,
       kondisi: selectedKondisi,
@@ -52,37 +54,40 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
       tipe: selectedTipe,
     );
 
-    final MesinBloc.AddMesinEvent addEvent = MesinBloc.AddMesinEvent(newMachine);
-    _machineBloc.add(addEvent);
+     machineBloc.add(MesinBloc.AddMesinEvent(newMachine));
 
     _showSuccessMessageAndNavigateBack();
   }
 
   void _showSuccessMessageAndNavigateBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sukses'),
-          content: const Text('Berhasil menyimpan mesin.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Sukses'),
+        content: const Text('Berhasil menyimpan mesin.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+              Navigator.pop(context);
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+    Navigator.pop(context);
+  });
+}
 
   @override
   Widget build(BuildContext context) {
-    
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => MesinBloc.MesinBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -214,7 +219,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                                 .firstWhere(
                                     (supplier) => supplier.nama == newValue);
                         setState(() {
-                          selectedSupplier = selectedSupplierObject.supplierId ?? ''; // Memberikan nilai default jika null
+                          selectedSupplier = selectedSupplierObject.id ?? ''; // Memberikan nilai default jika null
                           print('Selected value: $selectedSupplier');
                         });
                       },
@@ -235,7 +240,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                       child: DropdownWidget(
                         label: 'Status',
                         selectedValue: selectedStatus,
-                        items: ['Aktif', 'Tidak Aktif'],
+                        items: const ['Aktif', 'Tidak Aktif'],
                         onChanged: (newValue) {
                           setState(() {
                             selectedStatus = newValue;
@@ -249,7 +254,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                       child: DropdownWidget(
                         label: 'Kondisi',
                         selectedValue: selectedKondisi,
-                        items: ['Baru', 'Bekas'],
+                        items: const ['Baru', 'Bekas', 'Baik', 'Buruk'],
                         onChanged: (newValue) {
                           setState(() {
                             selectedKondisi = newValue;
@@ -319,11 +324,25 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                     ),
                   ],
                 ),
+                BlocBuilder<MesinBloc.MesinBloc, MesinBloc.MesinState>(
+                    builder: (context, state) {
+                      if (state is MesinBloc.ErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                            duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
+                          ),
+                        );
+                      }
+                      return SizedBox.shrink();
+                    },
+                  ),
               ],
             ),
           ),
         ),
       ),
+      )
     );
   }
 }

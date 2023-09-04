@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'package:sistem_manajemen_produksi_cv_bcn/models/employee.dart';
 
 // Events
@@ -41,7 +42,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
   late FirebaseFirestore _firestore;
   late CollectionReference employeesRef;
 
-  EmployeeBloc() : super(LoadingState()){
+  EmployeeBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     employeesRef = _firestore.collection('employees');
   }
@@ -53,6 +54,13 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
       try {
         final String nextEmployeeId = await _generateNextEmployeeId();
 
+        // Langkah 1: Sign up dengan Firebase Auth
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: event.employee.email,
+          password: event.employee.password,
+        );
+
+        //Langkah 2 : Add data to Firestore employees
         await employeesRef.add({
           'id': nextEmployeeId,
           'alamat': event.employee.alamat,

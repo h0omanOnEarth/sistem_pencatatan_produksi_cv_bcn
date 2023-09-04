@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/materials_bloc.dart'; // Sesuaikan dengan alamat file MaterialBloc
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -19,10 +20,10 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
   String selectedSatuan = "Kg";
   String selectedStatus = "Aktif";
 
-  final TextEditingController namaBahanController = TextEditingController();
-  final TextEditingController hargaController = TextEditingController();
-  final TextEditingController stokController = TextEditingController();
-  final TextEditingController keteranganController = TextEditingController();
+  TextEditingController namaBahanController = TextEditingController();
+  TextEditingController hargaController = TextEditingController();
+  TextEditingController stokController = TextEditingController();
+  TextEditingController keteranganController = TextEditingController();
   final MaterialBloc _materialBloc = MaterialBloc(); // Tambahkan ini di dalam widget class
 
   @override
@@ -32,7 +33,9 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
   }
 
 void _addMaterial() {
+  final bahanBloc =BlocProvider.of<MaterialBloc>(context);
   final Bahan newMaterial = Bahan(
+    id: '', //auto generate
     jenisBahan: selectedKategori, // jenis bahan diambil dari controller namaBahanController
     keterangan: keteranganController.text, //keternangan diambil dari controller keteranganController
     nama: namaBahanController.text, // nama bahan diambil dari controller namaBahanController
@@ -41,36 +44,42 @@ void _addMaterial() {
     stok: int.parse(stokController.text), // stok diambil dari controller stokController
   );
 
-  final AddMaterialEvent addEvent = AddMaterialEvent(newMaterial);
-  _materialBloc.add(addEvent);
+  bahanBloc.add(AddMaterialEvent(newMaterial));
 
   _showSuccessMessageAndNavigateBack();
 }
 
 
-  void _showSuccessMessageAndNavigateBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sukses'),
-          content: const Text('Berhasil menyimpan material.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Sukses'),
+        content: const Text('Berhasil menyimpan bahan.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+              Navigator.pop(context);
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+    Navigator.pop(context);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => MaterialBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -220,11 +229,25 @@ void _addMaterial() {
                     ),
                   ],
                 ),
+                BlocBuilder<MaterialBloc, MaterialBlocState>(
+                  builder: (context, state) {
+                    if (state is ErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                          duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
+                        ),
+                      );
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
+    )
     );
   }
 }

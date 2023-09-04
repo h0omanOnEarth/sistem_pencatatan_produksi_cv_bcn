@@ -37,7 +37,7 @@ void _showSuccessMessageAndNavigateBack() {
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Sukses'),
-        content: Text('Berhasil menyimpan pegawai.'),
+        content: const Text('Berhasil menyimpan pegawai.'),
         actions: [
           TextButton(
             onPressed: () {
@@ -306,10 +306,14 @@ void _showSuccessMessageAndNavigateBack() {
                   BlocBuilder<EmployeeBloc, EmployeeState>(
                     builder: (context, state) {
                       if (state is ErrorState) {
-                        return Text(state.errorMessage);
-                      } else {
-                        return SizedBox.shrink();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                            duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
+                          ),
+                        );
                       }
+                      return SizedBox.shrink();
                     },
                   ),
                 ],

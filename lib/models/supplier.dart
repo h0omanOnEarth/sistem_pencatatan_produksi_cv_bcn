@@ -1,5 +1,5 @@
 class Supplier {
-  final String? supplierId;
+  final String id;
   final String alamat;
   final String email;
   final String jenisSupplier;
@@ -9,7 +9,7 @@ class Supplier {
   final int status;
 
   Supplier({
-    this.supplierId,
+    required this.id,
     required this.alamat,
     required this.email,
     required this.jenisSupplier,
@@ -21,7 +21,7 @@ class Supplier {
 
   factory Supplier.fromJson(Map<String, dynamic> json) {
     return Supplier(
-      supplierId: json['supplierId'] ?? '',
+      id: json['supplierId'] ?? '',
       alamat: json['alamat'] ?? '',
       email: json['email'] ?? '',
       jenisSupplier: json['jenis_supplier'] ?? '',

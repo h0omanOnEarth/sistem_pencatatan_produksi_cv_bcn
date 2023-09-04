@@ -53,19 +53,21 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
       try {
         final String nextMesinId = await _generateNextMesinId();
 
-        await mesinsRef.doc(nextMesinId).set({
-          'id': nextMesinId,
-          'kapasitas_produksi': event.mesin.kapasitasProduksi,
-          'keterangan': event.mesin.keterangan,
-          'kondisi': event.mesin.kondisi,
-          'nama': event.mesin.nama,
-          'nomor_seri': event.mesin.nomorSeri,
-          'satuan': event.mesin.satuan,
-          'status': event.mesin.status,
-          'supplier_id': event.mesin.supplierId,
-          'tahun_pembuatan': event.mesin.tahunPembuatan,
-          'tahun_perolehan': event.mesin.tahunPerolehan,
-          'tipe': event.mesin.tipe,
+         await FirebaseFirestore.instance
+            .collection('machines')
+            .add({
+                'id': nextMesinId,
+                'kapasitas_produksi': event.mesin.kapasitasProduksi,
+                'keterangan': event.mesin.keterangan,
+                'kondisi': event.mesin.kondisi,
+                'nama': event.mesin.nama,
+                'nomor_seri': event.mesin.nomorSeri,
+                'satuan': event.mesin.satuan,
+                'status': event.mesin.status,
+                'supplier_id': event.mesin.supplierId,
+                'tahun_pembuatan': event.mesin.tahunPembuatan,
+                'tahun_perolehan': event.mesin.tahunPerolehan,
+                'tipe': event.mesin.tipe,
         });
 
         yield LoadedState(await _getMesins());
