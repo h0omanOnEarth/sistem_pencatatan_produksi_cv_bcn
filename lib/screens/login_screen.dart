@@ -229,18 +229,26 @@ class LoginForm extends StatelessWidget {
                       margin: const EdgeInsets.all(10),
                       child: ElevatedButton(
                         onPressed: () async {
-                          final email = _emailController.text;
-                          final password = _passwordController.text;
+                          // final email = _emailController.text;
+                          // final password = _passwordController.text;
 
-                          if (email.isNotEmpty && password.isNotEmpty) {
-                              final email = _emailController.text;
-                              final password = _passwordController.text;
+                          // if (email.isNotEmpty && password.isNotEmpty) {
+                          //     final email = _emailController.text;
+                          //     final password = _passwordController.text;
 
-                              loginBloc.add(LoginButtonPressed(email: email, password: password));
-                          } else {
-                            final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
-                            ScaffoldMessenger.of(context).showSnackBar(snackbar);
-                          }
+                          //     loginBloc.add(LoginButtonPressed(email: email, password: password));
+                          // } else {
+                          //   final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
+                          //   ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                          // }
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MainAdministrasi(),
+                              ),
+                            );
+
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

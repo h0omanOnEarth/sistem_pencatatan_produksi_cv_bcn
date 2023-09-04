@@ -21,6 +21,8 @@ class DeleteSupplierEvent extends SupplierEvent {
   DeleteSupplierEvent(this.supplierId);
 }
 
+class LoadSuppliersEvent extends SupplierEvent {} // Event untuk memuat data pemasok
+
 // States
 abstract class SupplierState {}
 
@@ -38,16 +40,32 @@ class ErrorState extends SupplierState {
 
 // BLoC
 class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
-  late FirebaseFirestore _firestore; // Buat bidang _firestore
+  late FirebaseFirestore _firestore;
   late CollectionReference suppliersRef;
 
-  SupplierBloc() : super(LoadingState()){
-    _firestore = FirebaseFirestore.instance; // Inisialisasi _firestore di dalam konstruktor
-    suppliersRef = _firestore.collection('suppliers'); // Inisialisasi suppliersRef di dalam konstruktor
+  SupplierBloc() : super(LoadingState()) {
+    _firestore = FirebaseFirestore.instance;
+    suppliersRef = _firestore.collection('suppliers');
+    // Panggil _loadSuppliers saat konstruktor dipanggil
+    _loadSuppliers();
+  }
+
+  void _loadSuppliers() {
+    add(LoadSuppliersEvent()); // Tambahkan event untuk memuat data pemasok
   }
 
   @override
   Stream<SupplierState> mapEventToState(SupplierEvent event) async* {
+    if (event is LoadSuppliersEvent) {
+      yield LoadingState();
+      try {
+        final suppliers = await _getSuppliers();
+        yield LoadedState(suppliers);
+      } catch (e) {
+        yield ErrorState("Gagal memuat data pemasok.");
+      }
+    }
+
     if (event is AddSupplierEvent) {
       yield LoadingState();
       try {
@@ -56,14 +74,14 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         await FirebaseFirestore.instance
             .collection('suppliers')
             .add({
-                'id': nextSupplierId,
-                'alamat': event.supplier.alamat,
-                'email': event.supplier.email,
-                'jenis_supplier': event.supplier.jenisSupplier,
-                'nama': event.supplier.nama,
-                'no_telepon': event.supplier.noTelepon,
-                'no_telepon_kantor': event.supplier.noTeleponKantor,
-        });
+              'id': nextSupplierId,
+              'alamat': event.supplier.alamat,
+              'email': event.supplier.email,
+              'jenis_supplier': event.supplier.jenisSupplier,
+              'nama': event.supplier.nama,
+              'no_telepon': event.supplier.noTelepon,
+              'no_telepon_kantor': event.supplier.noTeleponKantor,
+            });
 
         yield LoadedState(await _getSuppliers());
       } catch (e) {
