@@ -36,13 +36,13 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                   SizedBox(
                     height: 80,
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              SizedBox(width: 8.0),
+                              const SizedBox(width: 8.0),
                               Align(
                                 alignment: Alignment.topLeft,
                                 child: InkWell(
@@ -68,7 +68,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 24.0),
+                              const SizedBox(width: 24.0),
                               const Text(
                                 'Pegawai',
                                 style: TextStyle(
@@ -83,11 +83,11 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                                   color: Colors.brown,
                                 ),
                                 child: IconButton(
-                                  icon: Icon(Icons.add),
+                                  icon: const Icon(Icons.add),
                                   color: Colors.white,
                                   onPressed: () {
                                     Navigator.push(
-                                        context, MaterialPageRoute(builder: (context) => FormMasterPegawaiScreen()));
+                                        context, MaterialPageRoute(builder: (context) => const FormMasterPegawaiScreen()));
                                   },
                                 ),
                               ),
@@ -97,7 +97,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 24.0),
+                  const SizedBox(height: 24.0),
                   Row(
                     children: [
                       Container(
@@ -108,7 +108,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                         }),
                         width: screenWidth * 0.6,
                       ),
-                      SizedBox(width: 16.0),
+                      const SizedBox(width: 16.0),
                        Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -116,7 +116,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                           border: Border.all(color: Colors.grey[400]!),
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.filter_list),
+                          icon: const Icon(Icons.filter_list),
                           onPressed: () {
                             // Handle filter button press
                              _showFilterDialog(context);
@@ -125,12 +125,12 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   StreamBuilder<QuerySnapshot>(
                     stream: employeesRef.snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                         return Center(
+                         return const Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
                           ),
@@ -138,7 +138,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                        return Text('Tidak ada data pegawai.');
+                        return const Text('Tidak ada data pegawai.');
                       } else {
                         final querySnapshot = snapshot.data!;
                         final employeeDocs = querySnapshot.docs;
@@ -156,26 +156,31 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                           itemBuilder: (context, index) {
                             final data = filteredEmployeeDocs[index].data() as Map<String, dynamic>;
                             final nama = data['nama'] as String;
-                            final alamat = data['alamat'] as String;
+                            final info = {
+                            'Alamat': data['alamat'] as String,
+                            'No Telepon': data['nomor_telepon'] as String,
+                            'Posisi': data['posisi'] as String,
+                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
+                          };
                             return ListCard(
                               title: nama,
-                              description: 'Alamat : $alamat',
+                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                               onDeletePressed: () async {
                                 final confirmed = await showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Text("Konfirmasi Hapus"),
-                                      content: Text("Anda yakin ingin menghapus pegawai ini?"),
+                                      title: const Text("Konfirmasi Hapus"),
+                                      content: const Text("Anda yakin ingin menghapus pegawai ini?"),
                                       actions: <Widget>[
                                         TextButton(
-                                          child: Text("Batal"),
+                                          child: const Text("Batal"),
                                           onPressed: () {
                                             Navigator.of(context).pop(false);
                                           },
                                         ),
                                         TextButton(
-                                          child: Text("Hapus"),
+                                          child: const Text("Hapus"),
                                           onPressed: () async {
                                             final employeeBloc =BlocProvider.of<EmployeeBloc>(context);
                                             employeeBloc.add(DeleteEmployeeEvent(data['id'], data['password']));
@@ -202,7 +207,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                       if (state is ErrorState) {
                         Text(state.errorMessage);
                       }
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     },
                   ),
                 ],
@@ -219,7 +224,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: Text('Filter Berdasarkan Posisi'),
+          title: const Text('Filter Berdasarkan Posisi'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {

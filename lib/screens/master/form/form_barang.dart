@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/products_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/product.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -17,16 +20,45 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
   String selectedSatuan = "Kg";
   String selectedStatus = "Aktif";
 
+    TextEditingController namaController = TextEditingController();
+    TextEditingController hargaController = TextEditingController();
+    TextEditingController deskripsiController = TextEditingController();
+    TextEditingController dimensiController = TextEditingController();
+    TextEditingController beratController = TextEditingController();
+    TextEditingController ketebalanController = TextEditingController();
+    TextEditingController stokController = TextEditingController();
+
+      void _showSuccessMessageAndNavigateBack() {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Sukses'),
+              content: const Text('Berhasil menyimpan barang.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+                    Navigator.pop(context);
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        ).then((_) {
+          // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+          Navigator.pop(context);
+        });
+      }
+
+
   @override
   Widget build(BuildContext context) {
-    var namaController;
-    var hargaController;
-    var deskripsiController;
-    var dimensiControler;
-    var beratController;
-    var ketebalanController;
-    var stokController;
-    return Scaffold(
+  
+    return BlocProvider(
+      create: (context) => ProductBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -135,14 +167,14 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                 Row(
                   children: [
                     Expanded(child: TextFieldWidget(
-                                    label: 'Dimensi',
+                                    label: 'Dimensi (cm)',
                                     placeholder: 'Dimensi',
-                                    controller: dimensiControler,
+                                    controller: dimensiController,
                                   ),),
                     SizedBox(width: 16.0),
                     Expanded(
                       child:    TextFieldWidget(
-                        label: 'Berat',
+                        label: 'Berat (gram)',
                         placeholder: 'Berat',
                         controller: beratController,
                       ),
@@ -154,7 +186,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                   children: [
                     Expanded(child: 
                        TextFieldWidget(
-                          label: 'Ketebalan',
+                          label: 'Ketebalan (mm)',
                           placeholder: 'Ketebalan',
                           controller: ketebalanController,
                         ),
@@ -178,6 +210,22 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          final productBloc =BlocProvider.of<ProductBloc>(context);
+                          final Product newProduct = Product(
+                            id: '', 
+                            nama: namaController.text, 
+                            deskripsi: deskripsiController.text, 
+                            jenis: selectedJenis, 
+                            satuan: selectedSatuan, 
+                            berat: double.parse(beratController.text),
+                            dimensi: int.parse(dimensiController.text), 
+                            harga: int.parse(hargaController.text), 
+                            ketebalan: int.parse(ketebalanController.text), 
+                            status: selectedStatus == 'Aktif' ? 1 : 0, 
+                            stok: int.parse(stokController.text)
+                            );
+                            productBloc.add(AddProductEvent(newProduct));
+                            _showSuccessMessageAndNavigateBack();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(59, 51, 51, 1),
@@ -185,7 +233,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Simpan',
@@ -194,11 +242,22 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          namaController.clear();
+                          hargaController.clear();
+                          deskripsiController.clear();
+                          dimensiController.clear();
+                          beratController.clear();
+                          ketebalanController.clear();
+                          stokController.clear();
+                          selectedJenis = "Gelas Pop";
+                          selectedSatuan = "Kg";
+                          selectedStatus = "Aktif";
+                          setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(59, 51, 51, 1),
@@ -206,7 +265,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
-                        child: Padding(
+                        child: const Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Bersihkan',
@@ -217,11 +276,20 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                     ),
                   ],
                 ),
+                 BlocBuilder<ProductBloc, ProductBlocState>(
+                  builder: (context, state) {
+                    if (state is ErrorState) {
+                       Text(state.errorMessage);
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
+    )
     );
   }
 }

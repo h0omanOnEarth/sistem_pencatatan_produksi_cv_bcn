@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/customers_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/customer.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -11,17 +14,43 @@ class FormMasterPelangganScreen extends StatefulWidget {
 }
 
 class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
-  @override
-  Widget build(BuildContext context) {
 
     String selectedStatus = 'Aktif';
-    var namaController;
-    var alamatController;
-    var nomorTeleponController;
+    TextEditingController namaController = TextEditingController();
+    TextEditingController alamatController = TextEditingController();
+    TextEditingController nomorTeleponController =  TextEditingController();
+    TextEditingController nomorKantorController = TextEditingController();
+    TextEditingController emailController = TextEditingController();
 
-    var nomorKantorController;
-    var emailController;
-    return Scaffold(
+    void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Sukses'),
+        content: const Text('Berhasil menyimpan customer.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+              Navigator.pop(context);
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  ).then((_) {
+    // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+    Navigator.pop(context);
+  });
+}
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CustomerBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -38,7 +67,7 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                       children: [
                         Row(
                           children: [
-                            SizedBox(width: 8.0),
+                            const SizedBox(width: 8.0),
                             Align(
                               alignment: Alignment.topLeft,
                               child: InkWell(
@@ -85,33 +114,33 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                   placeholder: 'Nama',
                   controller: namaController,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Alamat',
                   placeholder: 'Alamat',
                   controller: alamatController,
                   multiline: true,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Nomor Telepon',
                   placeholder: '(+62)xxxx-xxx-xxx',
                   controller: nomorTeleponController,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                 label: 'Nomor Telepon Kantor',
                 placeholder: 'Nomor Telepon Kantor',
                 controller: nomorKantorController,
               ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                  TextFieldWidget(
                   label: 'Email',
                   placeholder: 'Email',
                   controller: emailController,
                   isEmail: true,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 DropdownWidget(
                         label: 'Status',
                         selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
@@ -123,16 +152,28 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                           });
                         },
                       ),
-                SizedBox(height: 24.0,),
+                const SizedBox(height: 24.0,),
                 Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle save button press
+                       final customerBloc  =BlocProvider.of<CustomerBloc>(context);
+                       final Customer newCustomer = Customer(
+                        id: '', 
+                        nama: namaController.text, 
+                        alamat: alamatController.text, 
+                        nomorTelepon: nomorTeleponController.text, 
+                        nomorTeleponKantor: nomorKantorController.text, 
+                        email: emailController.text, 
+                        status: selectedStatus == 'Aktif' ? 1 : 0
+                        );
+                        customerBloc.add(AddCustomerEvent(newCustomer));
+                        _showSuccessMessageAndNavigateBack();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -146,14 +187,21 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16), // Add spacing between buttons
+                  const SizedBox(width: 16), // Add spacing between buttons
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        selectedStatus = 'Aktif';
+                        namaController.clear();
+                        alamatController.clear();
+                        nomorTeleponController.clear();
+                        nomorKantorController.clear();
+                        emailController.clear();
+                        setState(() {});
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -168,12 +216,21 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                     ),
                   ),
                 ],
-              )
+              ),
+               BlocBuilder<CustomerBloc, CustomerBlocState>(
+                  builder: (context, state) {
+                    if (state is ErrorState) {
+                       Text(state.errorMessage);
+                    }
+                    return SizedBox.shrink();
+                  },
+                ),
               ],
             ),
           ),
         ),
       ),
+    )
     );
   }
 }

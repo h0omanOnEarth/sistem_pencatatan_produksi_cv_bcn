@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/customers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/employees_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/materials_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/mesin_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/products_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
@@ -67,6 +69,12 @@ class MyApp extends StatelessWidget {
         ),
          BlocProvider<MaterialBloc>(
           create: (BuildContext context) => MaterialBloc(),
+        ),
+         BlocProvider<ProductBloc>(
+          create: (BuildContext context) => ProductBloc(),
+        ),
+         BlocProvider<CustomerBloc>(
+          create: (BuildContext context) => CustomerBloc(),
         ),
       ],
     child : MaterialApp(

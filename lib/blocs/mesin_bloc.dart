@@ -98,7 +98,13 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
     } else if (event is DeleteMesinEvent) {
       yield LoadingState();
       try {
-        await mesinsRef.doc(event.mesinId).delete();
+        // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+          QuerySnapshot querySnapshot = await mesinsRef.where('id', isEqualTo: event.mesinId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            await documentSnapshot.reference.delete();
+          }
         yield LoadedState(await _getMesins());
       } catch (e) {
         yield ErrorState("Gagal menghapus mesin.");

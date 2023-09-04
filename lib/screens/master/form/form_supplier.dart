@@ -48,7 +48,6 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
   });
 }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -243,12 +242,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                 BlocBuilder<SupplierBloc, SupplierState>(
                   builder: (context, state) {
                     if (state is ErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.errorMessage),
-                          duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
-                        ),
-                      );
+                       Text(state.errorMessage);
                     }
                     return SizedBox.shrink();
                   },

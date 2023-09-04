@@ -142,13 +142,20 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     }
   }
 
-  Future<String> _generateNextEmployeeId() async {
-    final QuerySnapshot snapshot = await employeesRef.get();
-    final int employeeCount = snapshot.docs.length;
-    final String nextEmployeeId =
-        'employee${(employeeCount + 1).toString().padLeft(3, '0')}';
-    return nextEmployeeId;
+Future<String> _generateNextEmployeeId() async {
+  final QuerySnapshot snapshot = await employeesRef.get();
+  final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+  int employeeCount = 1;
+
+  while (true) {
+    final nextEmployeeId = 'employee${employeeCount.toString().padLeft(3, '0')}';
+    if (!existingIds.contains(nextEmployeeId)) {
+      return nextEmployeeId;
+    }
+    employeeCount++;
   }
+}
+
 
   Future<List<Employee>> _getEmployees() async {
     final QuerySnapshot snapshot = await employeesRef.get();
