@@ -94,7 +94,13 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
     } else if (event is DeleteProductEvent) {
       yield LoadingState();
       try {
-        await productsRef.doc(event.productId).delete();
+        // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+          QuerySnapshot querySnapshot = await productsRef.where('id', isEqualTo: event.productId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            await documentSnapshot.reference.delete();
+          }
         yield LoadedState(await _getProducts());
       } catch (e) {
         yield ErrorState("Gagal menghapus produk.");

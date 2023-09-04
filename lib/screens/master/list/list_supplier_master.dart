@@ -1,5 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMasterSupplierScreen extends StatefulWidget {
   static const routeName = '/list_master_supplier_screen';
@@ -10,10 +15,15 @@ class ListMasterSupplierScreen extends StatefulWidget {
 }
 
 class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
+  final CollectionReference supplierRef = FirebaseFirestore.instance.collection('suppliers');
+  String searchTerm = '';
+  String selectedJenis = '';
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
+    return BlocProvider(
+      create: (context) => SupplierBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -89,9 +99,13 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                   // Search Bar and Filter Button
                         Row(
                           children: [
-                            Container(
-                              child: buildSearchBar(),
-                              width: screenWidth * 0.75, // Adjust the width as needed
+                             Container(
+                              child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+                                setState(() {
+                                  searchTerm = value;
+                                });
+                              }),
+                              width: screenWidth * 0.6,
                             ),
                             SizedBox(width: 16.0), // Add spacing between search bar and filter button
                             Container(
@@ -104,6 +118,7 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                                 icon: Icon(Icons.filter_list),
                                 onPressed: () {
                                   // Handle filter button press
+                                  _showFilterDialog(context);
                                 },
                               ),
                             ),
@@ -111,82 +126,137 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                         ),
                 // Create 6 cards
                 SizedBox(height: 16.0,),
-                buildCard('Card 1', 'This is a small description for Card 1'),
-                buildCard('Card 2', 'This is a small description for Card 2'),
-                buildCard('Card 3', 'This is a small description for Card 3'),
-                buildCard('Card 4', 'This is a small description for Card 4'),
-                buildCard('Card 5', 'This is a small description for Card 5'),
-                buildCard('Card 6', 'This is a small description for Card 6'),
+                StreamBuilder<QuerySnapshot>(
+                    stream: supplierRef.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                         return const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+                        return const Text('Tidak ada data bahan.');
+                      } else {
+                        final querySnapshot = snapshot.data!;
+                        final supplierDocs = querySnapshot.docs;
+
+                        final filterJenisDocs = supplierDocs.where((doc) {
+                          final nama = doc['nama'] as String;
+                          final jenis = doc['jenis_supplier'] as String;
+                          return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                              (selectedJenis.isEmpty || jenis == selectedJenis));
+                        }).toList();
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filterJenisDocs.length,
+                          itemBuilder: (context, index) {
+                            final data = filterJenisDocs[index].data() as Map<String, dynamic>;
+                            final nama = data['nama'] as String;
+                            final info = {
+                            'id' : data['id'] as String,
+                            'Jenis Supplier': data['jenis_supplier'] as String,
+                            'Alamat' : data['alamat'] as String,
+                            'Nomor Telepon' : data['no_telepon'] as String,
+                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
+                          };
+                            return ListCard(
+                              title: nama,
+                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                              onDeletePressed: () async {
+                                final confirmed = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text("Konfirmasi Hapus"),
+                                      content: const Text("Anda yakin ingin menghapus supplier ini?"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text("Batal"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                        ),
+                                        TextButton(
+                                          child: const Text("Hapus"),
+                                          onPressed: () async {
+                                            final supplierBloc =BlocProvider.of<SupplierBloc>(context);
+                                            supplierBloc.add(DeleteSupplierEvent(data['id']));
+                                            Navigator.of(context).pop(true);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+
+                                if (confirmed == true) {
+                                  // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                }
+                              },
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                  BlocBuilder<SupplierBloc, SupplierState>(
+                    builder: (context, state) {
+                      if (state is ErrorState) {
+                        Text(state.errorMessage);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
               ],
             ),
           ),
         ),
       ),
+    )
     );
   }
 
-  Widget buildCard(String title, String description) {
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(
-          color: Colors.grey[300]!,
-          width: 1.0,
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.normal,
-              ),
-              textAlign: TextAlign.start,
+ Future<void> _showFilterDialog(BuildContext context) async {
+    String? selectedValue = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Filter Berdasarkan Jenis Supplier'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, '');
+              },
+              child: const Text('Semua'),
             ),
-            SizedBox(height: 4), // Add spacing between title and description
-            Text(
-              description,
-              style: const TextStyle(
-                color: Colors.grey, // Set text color to grey
-                fontSize: 12, // Set a smaller font size
-              ),
-              textAlign: TextAlign.start,
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Bahan Baku');
+              },
+              child: const Text('Bahan Baku'),
             ),
-            SizedBox(height: 8.0,),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Bahan Tambahan');
+              },
+              child: const Text('Bahan Tambahan'),
+            ),
           ],
-        ),
-      ),
+        );
+      },
     );
+
+    if (selectedValue != null) {
+      setState(() {
+        selectedJenis = selectedValue;
+      });
+    }
   }
-  
-// Search Bar
-Widget buildSearchBar() {
-  return TextField(
-    decoration: InputDecoration(
-      hintText: 'Search...',
-      prefixIcon: Icon(
-        Icons.search,
-        color: Colors.grey[400], // Ubah warna ikon search menjadi abu-abu 400
-      ),
-      filled: true,
-      fillColor: Colors.white,
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: BorderSide(color: Colors.grey[400]!),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15.0),
-        borderSide: BorderSide(color: Colors.grey[400]!),
-      ),
-      contentPadding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-    ),
-  );
-}
+
 
 }
 

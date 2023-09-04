@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -161,6 +159,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                             final data = filteredCustomerDocs[index].data() as Map<String, dynamic>;
                             final nama = data['nama'] as String;
                             final info = {
+                            'Id' :data['id'] as String,
                             'Alamat': data['alamat'] as String,
                             'No Telepon': data['nomor_telepon'] as String,
                             'email': data['email'] as String,
@@ -175,7 +174,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                                   builder: (BuildContext context) {
                                     return AlertDialog(
                                       title: const Text("Konfirmasi Hapus"),
-                                      content: const Text("Anda yakin ingin menghapus pegawai ini?"),
+                                      content: const Text("Anda yakin ingin menghapus pelanggan ini?"),
                                       actions: <Widget>[
                                         TextButton(
                                           child: const Text("Batal"),

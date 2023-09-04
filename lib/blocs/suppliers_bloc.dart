@@ -96,6 +96,7 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
           'nama': event.supplier.nama,
           'no_telepon': event.supplier.noTelepon,
           'no_telepon_kantor': event.supplier.noTeleponKantor,
+          'status': event.supplier.status
         });
 
         yield LoadedState(await _getSuppliers());
@@ -112,6 +113,7 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
           'nama': event.updatedSupplier.nama,
           'no_telepon': event.updatedSupplier.noTelepon,
           'no_telepon_kantor': event.updatedSupplier.noTeleponKantor,
+          'status' : event.updatedSupplier.status
         });
 
         yield LoadedState(await _getSuppliers());
@@ -121,7 +123,12 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
     } else if (event is DeleteSupplierEvent) {
       yield LoadingState();
       try {
-        await suppliersRef.doc(event.supplierId).delete();
+          QuerySnapshot querySnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            await documentSnapshot.reference.delete();
+          }
         yield LoadedState(await _getSuppliers());
       } catch (e) {
         yield ErrorState("Gagal menghapus supplier.");
