@@ -19,8 +19,11 @@ class UpdateEmployeeEvent extends EmployeeEvent {
 
 class DeleteEmployeeEvent extends EmployeeEvent {
   final String employeeId;
-  DeleteEmployeeEvent(this.employeeId);
+  final String employeePassword; // Tambahkan atribut ini
+  DeleteEmployeeEvent(this.employeeId, this.employeePassword);
 }
+
+class LoadEmployeesEvent extends EmployeeEvent {} // Tambahkan event ini untuk memuat data pegawai
 
 // States
 abstract class EmployeeState {}
@@ -65,15 +68,15 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           'id': nextEmployeeId,
           'alamat': event.employee.alamat,
           'email': event.employee.email,
-          'gajiHarian': event.employee.gajiHarian,
-          'gajiLemburJam': event.employee.gajiLemburJam,
-          'jenisKelamin': event.employee.jenisKelamin,
+          'gaji_harian': event.employee.gajiHarian,
+          'gaji_lembur_jam': event.employee.gajiLemburJam,
+          'jenis_kelamin': event.employee.jenisKelamin,
           'nama': event.employee.nama,
-          'nomorTelepon': event.employee.nomorTelepon,
+          'nomor_telepon': event.employee.nomorTelepon,
           'password': event.employee.password,
           'posisi': event.employee.posisi,
           'status': event.employee.status,
-          'tanggalMasuk': event.employee.tanggalMasuk.toIso8601String(),
+          'tanggal_masuk': event.employee.tanggalMasuk.toIso8601String(),
           'username': event.employee.username,
         });
 
@@ -87,15 +90,15 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         await employeesRef.doc(event.employeeId).update({
           'alamat': event.updatedEmployee.alamat,
           'email': event.updatedEmployee.email,
-          'gajiHarian': event.updatedEmployee.gajiHarian,
-          'gajiLemburJam': event.updatedEmployee.gajiLemburJam,
-          'jenisKelamin': event.updatedEmployee.jenisKelamin,
+          'gaji_harian': event.updatedEmployee.gajiHarian,
+          'gaji_lembur_jam': event.updatedEmployee.gajiLemburJam,
+          'jenis_kelamin': event.updatedEmployee.jenisKelamin,
           'nama': event.updatedEmployee.nama,
-          'nomorTelepon': event.updatedEmployee.nomorTelepon,
+          'nomor_telepon': event.updatedEmployee.nomorTelepon,
           'password': event.updatedEmployee.password,
           'posisi': event.updatedEmployee.posisi,
           'status': event.updatedEmployee.status,
-          'tanggalMasuk': event.updatedEmployee.tanggalMasuk.toIso8601String(),
+          'tanggal_masuk': event.updatedEmployee.tanggalMasuk.toIso8601String(),
           'username': event.updatedEmployee.username,
         });
 
@@ -105,11 +108,36 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
       }
     } else if (event is DeleteEmployeeEvent) {
       yield LoadingState();
+        try {
+          // Cari dokumen dengan 'id' yang sesuai dengan event.employeeId
+          QuerySnapshot querySnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
+          
+          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+            final employeeEmail = documentSnapshot.get('email') as String;
+            
+            // Hapus akun Firebase Authentication dengan email yang sesuai
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: employeeEmail,
+              password: event.employeePassword, // Password karyawan yang sesuai
+            );
+
+            await FirebaseAuth.instance.currentUser!.delete();
+            
+            // Hapus dokumen Firestore setelah menghapus akun Firebase Authentication
+            await documentSnapshot.reference.delete();
+          }
+          
+          yield LoadedState(await _getEmployees());
+        } catch (e) {
+          yield ErrorState("Gagal menghapus employee.");
+        }
+    } else if (event is LoadEmployeesEvent) { // Tambahkan kondisi untuk memuat data pegawai
+      yield LoadingState();
       try {
-        await employeesRef.doc(event.employeeId).delete();
         yield LoadedState(await _getEmployees());
       } catch (e) {
-        yield ErrorState("Gagal menghapus employee.");
+        yield ErrorState("Gagal memuat data employee.");
       }
     }
   }
