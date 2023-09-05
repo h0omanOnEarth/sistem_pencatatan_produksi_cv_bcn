@@ -138,7 +138,7 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                        return const Text('Tidak ada data bahan.');
+                        return const Text('Tidak ada data supplier.');
                       } else {
                         final querySnapshot = snapshot.data!;
                         final supplierDocs = querySnapshot.docs;

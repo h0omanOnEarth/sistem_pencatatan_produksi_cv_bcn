@@ -7,7 +7,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 class FormPesananPembelianScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pembelian_screen';
 
-  const FormPesananPembelianScreen({super.key});
+  final String? purchaseOrderId; // Terima ID pegawai jika dalam mode edit
+  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId}) : super(key: key);
   
   @override
   State<FormPesananPembelianScreen> createState() =>

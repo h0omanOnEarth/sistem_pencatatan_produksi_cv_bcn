@@ -138,7 +138,7 @@ class _ListMasterBarangScreenState extends State<ListMasterBarangScreen> {
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                        return const Text('Tidak ada data pelanggan.');
+                        return const Text('Tidak ada data barang.');
                       } else {
                         final querySnapshot = snapshot.data!;
                         final productDocs = querySnapshot.docs;

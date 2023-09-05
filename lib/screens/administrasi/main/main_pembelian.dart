@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pengembalian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/list_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainPembelianAdministrasiScreen extends StatefulWidget {
@@ -76,7 +77,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasi
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pembelian', textB: 'Memodifikasi dan melihat pesanan pembelian', pageRoute: FormPesananPembelianScreen()),
+                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pembelian', textB: 'Memodifikasi dan melihat pesanan pembelian', pageRoute: ListPesananPembelian()),
                     const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pesanan Pengembalian', textB: 'Memodifikasi dan melihat pesanan pengembalian', pageRoute: FormPengembalianPesananScreen()),
                   ],
                 ),

@@ -170,14 +170,14 @@ void _showSuccessMessageAndNavigateBack() {
                     placeholder: 'Email',
                     controller: emailController,
                     isEmail: true,
-                    isVisible: !isEditMode,
+                    isEnabled: !isEditMode,
                   ),
                   const SizedBox(height: 24.0),
                   TextFieldWidget(
                     label: 'Password',
                     placeholder: 'Password',
                     controller: passwordController,
-                    isVisible: !isEditMode,
+                    isEnabled: !isEditMode,
                   ),
                   const SizedBox(height: 16.0),
                   TextFieldWidget(
