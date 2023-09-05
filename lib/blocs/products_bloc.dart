@@ -74,20 +74,27 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
     } else if (event is UpdateProductEvent) {
       yield LoadingState();
       try {
-        await productsRef.doc(event.productId).update({
-          'nama': event.updatedProduct.nama,
-          'deskripsi': event.updatedProduct.deskripsi,
-          'harga': event.updatedProduct.harga,
-          'berat': event.updatedProduct.berat,
-          'dimensi': event.updatedProduct.dimensi,
-          'jenis': event.updatedProduct.jenis,
-          'ketebalan': event.updatedProduct.ketebalan,
-          'satuan': event.updatedProduct.satuan,
-          'status': event.updatedProduct.status,
-          'stok': event.updatedProduct.stok,
-        });
-
-        yield LoadedState(await _getProducts());
+        final productSnapshot = await productsRef.where('id', isEqualTo: event.productId).get();
+        if (productSnapshot.docs.isNotEmpty) {
+          final materialDoc = productSnapshot.docs.first;
+          await materialDoc.reference.update({
+            'nama': event.updatedProduct.nama,
+            'deskripsi': event.updatedProduct.deskripsi,
+            'harga': event.updatedProduct.harga,
+            'berat': event.updatedProduct.berat,
+            'dimensi': event.updatedProduct.dimensi,
+            'jenis': event.updatedProduct.jenis,
+            'ketebalan': event.updatedProduct.ketebalan,
+            'satuan': event.updatedProduct.satuan,
+            'status': event.updatedProduct.status,
+            'stok': event.updatedProduct.stok,
+          });
+          final products = await _getProducts(); // Memuat data produk setelah pembaruan
+          yield LoadedState(products);
+        }else {
+          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data produk dengan ID ${event.productId} tidak ditemukan.');
+        }
       } catch (e) {
         yield ErrorState("Gagal mengubah produk.");
       }

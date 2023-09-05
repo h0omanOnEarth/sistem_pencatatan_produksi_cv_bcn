@@ -8,7 +8,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 class FormMasterSupplierScreen extends StatefulWidget {
   static const routeName = '/form_master_supplier_screen';
 
-  const FormMasterSupplierScreen({super.key});
+  final String? supplierId;
+  const FormMasterSupplierScreen({Key? key, this.supplierId}) : super(key: key);
   @override
   State<FormMasterSupplierScreen> createState() =>
       _FormMasterSupplierScreenState();

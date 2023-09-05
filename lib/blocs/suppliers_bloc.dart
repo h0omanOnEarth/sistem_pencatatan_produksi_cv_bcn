@@ -106,17 +106,25 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
     } else if (event is UpdateSupplierEvent) {
       yield LoadingState();
       try {
-        await suppliersRef.doc(event.supplierId).update({
-          'alamat': event.updatedSupplier.alamat,
-          'email': event.updatedSupplier.email,
-          'jenis_supplier': event.updatedSupplier.jenisSupplier,
-          'nama': event.updatedSupplier.nama,
-          'no_telepon': event.updatedSupplier.noTelepon,
-          'no_telepon_kantor': event.updatedSupplier.noTeleponKantor,
-          'status' : event.updatedSupplier.status
-        });
+        final supplierSnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
+        if (supplierSnapshot.docs.isNotEmpty) {
+          final supplierDoc = supplierSnapshot.docs.first;
+          await supplierDoc.reference.update({
+            'alamat': event.updatedSupplier.alamat,
+            'email': event.updatedSupplier.email,
+            'jenis_supplier': event.updatedSupplier.jenisSupplier,
+            'nama': event.updatedSupplier.nama,
+            'no_telepon': event.updatedSupplier.noTelepon,
+            'no_telepon_kantor': event.updatedSupplier.noTeleponKantor,
+            'status' : event.updatedSupplier.status
+          });
+          final suppliers = await _getSuppliers(); // Memuat data pemasok setelah pembaruan
+          yield LoadedState(suppliers);
+        }else {
+          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data produk dengan ID ${event.supplierId} tidak ditemukan.');
+        }
 
-        yield LoadedState(await _getSuppliers());
       } catch (e) {
         yield ErrorState("Gagal mengupdate supplier.");
       }

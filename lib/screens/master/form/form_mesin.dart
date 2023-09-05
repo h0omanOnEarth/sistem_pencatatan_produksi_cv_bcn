@@ -9,7 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FormMasterMesinScreen extends StatefulWidget {
   static const routeName = '/form_master_mesin_screen';
 
-  const FormMasterMesinScreen({Key? key}) : super(key: key);
+  final String? mesinId;
+  const FormMasterMesinScreen({Key? key, this.mesinId}) : super(key: key);
 
   @override
   State<FormMasterMesinScreen> createState() => _FormMasterMesinScreenState();

@@ -70,16 +70,23 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
     } else if (event is UpdateMaterialEvent) {
       yield LoadingState();
       try {
-        await materialsRef.doc(event.materialId).update({
-          'jenis_bahan': event.updatedMaterial.jenisBahan,
-          'keterangan': event.updatedMaterial.keterangan,
-          'nama': event.updatedMaterial.nama,
-          'satuan': event.updatedMaterial.satuan,
-          'status': event.updatedMaterial.status,
-          'stok': event.updatedMaterial.stok,
-        });
-
-        yield LoadedState(await _getMaterials());
+        final materialSnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
+        if (materialSnapshot.docs.isNotEmpty) {
+          final materialDoc = materialSnapshot.docs.first;
+          await materialDoc.reference.update({
+            'jenis_bahan': event.updatedMaterial.jenisBahan,
+            'keterangan': event.updatedMaterial.keterangan,
+            'nama': event.updatedMaterial.nama,
+            'satuan': event.updatedMaterial.satuan,
+            'status': event.updatedMaterial.status,
+            'stok': event.updatedMaterial.stok,
+          });
+          final materials = await _getMaterials(); // Memuat data pemasok setelah pembaruan
+          yield LoadedState(materials);
+        }else {
+          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data bahan dengan ID ${event.materialId} tidak ditemukan.');
+        }
       } catch (e) {
         yield ErrorState("Gagal mengubah material.");
       }

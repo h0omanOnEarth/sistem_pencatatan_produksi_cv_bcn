@@ -166,6 +166,16 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                             return ListCard(
                               title: nama,
                               description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                               onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FormMasterSupplierScreen(
+                                       supplierId: data['id'], // Mengirimkan ID pelanggan
+                                     ),
+                                  ),
+                                );
+                              },
                               onDeletePressed: () async {
                                 final confirmed = await showDialog(
                                   context: context,

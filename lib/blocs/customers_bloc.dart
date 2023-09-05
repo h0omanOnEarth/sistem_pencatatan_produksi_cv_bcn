@@ -70,16 +70,23 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
     } else if (event is UpdateCustomerEvent) {
       yield LoadingState();
       try {
-        await customersRef.doc(event.customerId).update({
-          'nama': event.updatedCustomer.nama,
-          'alamat': event.updatedCustomer.alamat,
-          'nomor_telepon': event.updatedCustomer.nomorTelepon,
-          'nomor_telepon_kantor': event.updatedCustomer.nomorTeleponKantor,
-          'email': event.updatedCustomer.email,
-          'status': event.updatedCustomer.status,
-        });
-
-        yield LoadedState(await _getCustomers());
+        final customerSnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
+        if (customerSnapshot.docs.isNotEmpty) {
+          final customerDoc = customerSnapshot.docs.first;
+          await customerDoc.reference.update({
+            'nama': event.updatedCustomer.nama,
+            'alamat': event.updatedCustomer.alamat,
+            'nomor_telepon': event.updatedCustomer.nomorTelepon,
+            'nomor_telepon_kantor': event.updatedCustomer.nomorTeleponKantor,
+            'email': event.updatedCustomer.email,
+            'status': event.updatedCustomer.status,
+          });
+           final customers = await _getCustomers(); // Memuat data pemasok setelah pembaruan
+           yield LoadedState(customers);
+        } else {
+          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data pelanggan dengan ID ${event.customerId} tidak ditemukan.');
+        }
       } catch (e) {
         yield ErrorState("Gagal mengubah customer.");
       }

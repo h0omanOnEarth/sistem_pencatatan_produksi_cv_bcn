@@ -168,6 +168,17 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                             return ListCard(
                               title: nama,
                               description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                              onTap: () {
+                                print(data['id']);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FormMasterPelangganScreen(
+                                       customerId: data['id'], // Mengirimkan ID pelanggan
+                                     ),
+                                  ),
+                                );
+                              },
                               onDeletePressed: () async {
                                 final confirmed = await showDialog(
                                   context: context,

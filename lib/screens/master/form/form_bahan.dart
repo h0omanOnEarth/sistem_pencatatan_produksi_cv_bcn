@@ -8,7 +8,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/material.dart';
 class FormMasterBahanScreen extends StatefulWidget {
   static const routeName = '/form_master_bahan_screen';
 
-  const FormMasterBahanScreen({super.key});
+  final String? materialId; // Terima ID pelanggan jika dalam mode edit
+  const FormMasterBahanScreen({Key?key, this.materialId}): super(key: key);
 
   @override
   State<FormMasterBahanScreen> createState() =>

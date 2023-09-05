@@ -77,21 +77,28 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
     } else if (event is UpdateMesinEvent) {
       yield LoadingState();
       try {
-        await mesinsRef.doc(event.mesinId).update({
-          'kapasitas_produksi': event.updatedMesin.kapasitasProduksi,
-          'keterangan': event.updatedMesin.keterangan,
-          'kondisi': event.updatedMesin.kondisi,
-          'nama': event.updatedMesin.nama,
-          'nomor_seri': event.updatedMesin.nomorSeri,
-          'satuan': event.updatedMesin.satuan,
-          'status': event.updatedMesin.status,
-          'supplier_id': event.updatedMesin.supplierId,
-          'tahun_pembuatan': event.updatedMesin.tahunPembuatan,
-          'tahun_perolehan': event.updatedMesin.tahunPerolehan,
-          'tipe': event.updatedMesin.tipe,
-        });
-
-        yield LoadedState(await _getMesins());
+        final mesinSnapshot = await mesinsRef.where('id', isEqualTo: event.mesinId).get();
+        if (mesinSnapshot.docs.isNotEmpty) {
+          final mesinDoc = mesinSnapshot.docs.first;
+          await mesinDoc.reference.update({
+            'kapasitas_produksi': event.updatedMesin.kapasitasProduksi,
+            'keterangan': event.updatedMesin.keterangan,
+            'kondisi': event.updatedMesin.kondisi,
+            'nama': event.updatedMesin.nama,
+            'nomor_seri': event.updatedMesin.nomorSeri,
+            'satuan': event.updatedMesin.satuan,
+            'status': event.updatedMesin.status,
+            'supplier_id': event.updatedMesin.supplierId,
+            'tahun_pembuatan': event.updatedMesin.tahunPembuatan,
+            'tahun_perolehan': event.updatedMesin.tahunPerolehan,
+            'tipe': event.updatedMesin.tipe,
+          });
+          final machines = await _getMesins(); // Memuat data pemasok setelah pembaruan
+          yield LoadedState(machines);
+        }else {
+          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data mesin dengan ID ${event.mesinId} tidak ditemukan.');
+        }
       } catch (e) {
         yield ErrorState("Gagal mengubah mesin.");
       }
