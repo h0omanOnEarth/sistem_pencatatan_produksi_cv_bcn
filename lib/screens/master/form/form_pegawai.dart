@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/employees_bloc.dart';
@@ -32,6 +33,54 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   TextEditingController gajiHarianController = TextEditingController();
   TextEditingController gajiLemburController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Jika dalam mode edit, isi form dengan data pelanggan yang sesuai
+   if (widget.pegawaiId != null) {
+      FirebaseFirestore.instance
+        .collection('employees')
+        .where('id', isEqualTo: widget.pegawaiId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+            setState(() {
+              selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              namaController.text = data['nama'] ?? '';
+              alamatController.text = data['alamat'] ?? '';
+              nomorTeleponController.text = data['nomor_telepon'] ?? '';
+              emailController.text = data['email'] ?? '';
+              gajiHarianController.text = data['gaji_harian'] != null
+                  ? data['gaji_harian'].toString()
+                  : '';
+              gajiLemburController.text = data['gaji_lembur_jam'] != null
+                  ? data['gaji_lembur_jam'].toString()
+                  : '';
+              selectedJenisKelamin = data['jenis_kelamin'] ?? '';
+              passwordController.text = data['password'] ?? '';
+              usernameController.text = data['username'] ?? '';
+              // Mengambil dan mengonversi data tanggal_masuk dari Firestore
+              final tanggalMasukFirestore = data['tanggal_masuk'];
+              if (tanggalMasukFirestore != null) {
+                final tanggalMasukFirestore = data['tanggal_masuk'];
+                if (tanggalMasukFirestore != null) {
+                  _selectedDate = tanggalMasukFirestore.toDate();
+                }
+
+              }
+
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        }).catchError((error) {
+          print('Error getting document: $error');
+        });
+    }
+  }
+
 void _showSuccessMessageAndNavigateBack() {
   showDialog(
     context: context,
@@ -43,7 +92,7 @@ void _showSuccessMessageAndNavigateBack() {
           TextButton(
             onPressed: () {
               // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
-              Navigator.pop(context);
+              Navigator.pop(context,null);
             },
             child: Text('OK'),
           ),
@@ -52,7 +101,7 @@ void _showSuccessMessageAndNavigateBack() {
     },
   ).then((_) {
     // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-    Navigator.pop(context);
+    Navigator.pop(context,null);
   });
 }
 
@@ -72,7 +121,7 @@ void _showSuccessMessageAndNavigateBack() {
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context,null);
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -227,12 +276,8 @@ void _showSuccessMessageAndNavigateBack() {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            final employeeBloc =
-                                BlocProvider.of<EmployeeBloc>(context);
-
-                            employeeBloc.add(
-                              AddEmployeeEvent(
-                                Employee(
+                            final employeeBloc =BlocProvider.of<EmployeeBloc>(context);
+                            final Employee newEmployee =   Employee(
                                   id: '', // Atur ID sesuai dengan yang dibutuhkan
                                   email: emailController.text,
                                   password: passwordController.text,
@@ -246,10 +291,12 @@ void _showSuccessMessageAndNavigateBack() {
                                   status: selectedStatus == 'Aktif' ? 1 : 0,
                                   tanggalMasuk: _selectedDate ?? DateTime.now(),
                                   username: usernameController.text,
-                                ),
-                              ),
-                            );
-
+                                );
+                            if (widget.pegawaiId != null) {
+                              employeeBloc.add(UpdateEmployeeEvent(widget.pegawaiId ?? '',newEmployee));
+                            } else {
+                              employeeBloc.add(AddEmployeeEvent(newEmployee));
+                            }
                             _showSuccessMessageAndNavigateBack();
                           },
                           style: ElevatedButton.styleFrom(

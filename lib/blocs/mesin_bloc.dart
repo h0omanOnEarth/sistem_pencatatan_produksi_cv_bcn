@@ -43,7 +43,7 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
 
   MesinBloc() : super(LoadingState()){
     _firestore = FirebaseFirestore.instance;
-    mesinsRef = _firestore.collection('mesins');
+    mesinsRef = _firestore.collection('machines');
   }
 
   @override
@@ -121,10 +121,16 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
 
   Future<String> _generateNextMesinId() async {
     final QuerySnapshot snapshot = await mesinsRef.get();
-    final int mesinCount = snapshot.docs.length;
-    final String nextMesinId =
-        'mesin${(mesinCount + 1).toString().padLeft(3, '0')}';
-    return nextMesinId;
+    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int customerCount = 1;
+
+    while (true) {
+      final nextCustomerId = 'mesin${customerCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextCustomerId)) {
+        return nextCustomerId;
+      }
+      customerCount++;
+    }
   }
 
   Future<List<Mesin>> _getMesins() async {

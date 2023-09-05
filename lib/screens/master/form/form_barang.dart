@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/products_bloc.dart';
@@ -21,42 +22,73 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
   String selectedSatuan = "Kg";
   String selectedStatus = "Aktif";
 
-    TextEditingController namaController = TextEditingController();
-    TextEditingController hargaController = TextEditingController();
-    TextEditingController deskripsiController = TextEditingController();
-    TextEditingController dimensiController = TextEditingController();
-    TextEditingController beratController = TextEditingController();
-    TextEditingController ketebalanController = TextEditingController();
-    TextEditingController stokController = TextEditingController();
+  TextEditingController namaController = TextEditingController();
+  TextEditingController hargaController = TextEditingController();
+  TextEditingController deskripsiController = TextEditingController();
+  TextEditingController dimensiController = TextEditingController();
+  TextEditingController beratController = TextEditingController();
+  TextEditingController ketebalanController = TextEditingController();
+  TextEditingController stokController = TextEditingController();
 
-      void _showSuccessMessageAndNavigateBack() {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Sukses'),
-              content: const Text('Berhasil menyimpan barang.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
-                    Navigator.pop(context);
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
-          },
-        ).then((_) {
-          // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-          Navigator.pop(context);
-        });
+    @override
+    void initState() {
+      super.initState();
+    if (widget.productId != null) {
+        FirebaseFirestore.instance
+          .collection('products')
+          .where('id', isEqualTo: widget.productId)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+            if (querySnapshot.docs.isNotEmpty) {
+              final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+              setState(() {
+                selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+                namaController.text = data['nama'] ?? '';
+                beratController.text = data['berat'].toString();
+                deskripsiController.text = data['deskripsi'] ?? '';
+                dimensiController.text = data['dimensi'].toString();
+                hargaController.text = data['harga'].toString();
+                selectedJenis = data['jenis'];
+                ketebalanController.text = data['ketebalan'].toString();
+                selectedSatuan = data['satuan'];
+                stokController.text = data['stok'].toString();
+              });
+            } else {
+              print('Document does not exist on Firestore');
+            }
+          }).catchError((error) {
+            print('Error getting document: $error');
+          });
       }
+    }
+
+  void _showSuccessMessageAndNavigateBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Sukses'),
+          content: const Text('Berhasil menyimpan barang.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    ).then((_) {
+      // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
+      Navigator.pop(context);
+    });
+  }
 
 
   @override
   Widget build(BuildContext context) {
-  
     return BlocProvider(
       create: (context) => ProductBloc(),
       child: Scaffold(
@@ -224,7 +256,11 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                             status: selectedStatus == 'Aktif' ? 1 : 0, 
                             stok: int.parse(stokController.text)
                             );
-                            productBloc.add(AddProductEvent(newProduct));
+                            if(widget.productId!=null){
+                              productBloc.add(UpdateProductEvent(widget.productId ?? '',newProduct));
+                            }else{
+                              productBloc.add(AddProductEvent(newProduct));
+                            }
                             _showSuccessMessageAndNavigateBack();
                         },
                         style: ElevatedButton.styleFrom(

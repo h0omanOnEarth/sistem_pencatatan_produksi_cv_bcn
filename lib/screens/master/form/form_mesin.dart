@@ -10,7 +10,8 @@ class FormMasterMesinScreen extends StatefulWidget {
   static const routeName = '/form_master_mesin_screen';
 
   final String? mesinId;
-  const FormMasterMesinScreen({Key? key, this.mesinId}) : super(key: key);
+  final String? supplierId;
+  const FormMasterMesinScreen({Key? key, this.mesinId, this.supplierId}) : super(key: key);
 
   @override
   State<FormMasterMesinScreen> createState() => _FormMasterMesinScreenState();
@@ -37,6 +38,43 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     super.dispose();
   }
 
+   @override
+  void initState() {
+    super.initState();
+  if (widget.mesinId != null) {
+      FirebaseFirestore.instance
+        .collection('machines')
+        .where('id', isEqualTo: widget.mesinId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+            setState(() {
+              selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              namaController.text = data['nama'] ?? '';
+              kapasitasController.text = data['kapasitas_produksi'].toString();
+              catatanController.text = data['keterangan'] ?? '';
+              selectedKondisi = data['kondisi'];
+              nomorSeriController.text = data['nomor_seri'];
+              selectedSatuan = data['satuan'];
+              tahunPembutanController.text = data['tahun_pembuatan'].toString();
+              tahunPerolehanController.text = data['tahun_perolehan'].toString();
+              selectedTipe = data['selected_tipe'];
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        }).catchError((error) {
+          print('Error getting document: $error');
+        });
+    }
+
+     // Periksa jika widget.supplierId tidak null
+    if (widget.supplierId != null) {
+      selectedSupplier = widget.supplierId;
+    }
+  }
+
   void addMachine() {
     final machineBloc = BlocProvider.of<MesinBloc.MesinBloc>(context);
     final Mesin newMachine = Mesin(
@@ -54,8 +92,12 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
       tipe: selectedTipe,
     );
 
-    machineBloc.add(MesinBloc.AddMesinEvent(newMachine));
-
+    if(widget.mesinId!=null){
+      machineBloc.add(MesinBloc.UpdateMesinEvent(widget.mesinId ?? '',newMachine));
+    }else{
+      machineBloc.add(MesinBloc.AddMesinEvent(newMachine));
+    }
+    
     _showSuccessMessageAndNavigateBack();
   }
 
@@ -69,7 +111,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context,null);
               },
               child: Text('OK'),
             ),
@@ -77,7 +119,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
         );
       },
     ).then((_) {
-      Navigator.pop(context);
+      Navigator.pop(context,null);
     });
   }
 
@@ -127,7 +169,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
       children: [
         InkWell(
           onTap: () {
-            Navigator.pop(context);
+            Navigator.pop(context,null);
           },
           child: Container(
             decoration: BoxDecoration(
@@ -243,7 +285,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String supplierName = document['nama'] ?? '';
-          String supplierId = document.id;
+          String supplierId = document['id'];
           supplierItems.add(
             DropdownMenuItem<String>(
               value: supplierId,
@@ -277,6 +319,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                 onChanged: (newValue) {
                   setState(() {
                     selectedSupplier = newValue;
+                    print(selectedSupplier);
                   });
                 },
                 isExpanded: true,

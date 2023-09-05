@@ -76,7 +76,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           'password': event.employee.password,
           'posisi': event.employee.posisi,
           'status': event.employee.status,
-          'tanggal_masuk': event.employee.tanggalMasuk.toIso8601String(),
+          'tanggal_masuk': event.employee.tanggalMasuk,
           'username': event.employee.username,
         });
 
@@ -87,28 +87,54 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     } else if (event is UpdateEmployeeEvent) {
       yield LoadingState();
       try {
-        await employeesRef.doc(event.employeeId).update({
-          'alamat': event.updatedEmployee.alamat,
-          'email': event.updatedEmployee.email,
-          'gaji_harian': event.updatedEmployee.gajiHarian,
-          'gaji_lembur_jam': event.updatedEmployee.gajiLemburJam,
-          'jenis_kelamin': event.updatedEmployee.jenisKelamin,
-          'nama': event.updatedEmployee.nama,
-          'nomor_telepon': event.updatedEmployee.nomorTelepon,
-          'password': event.updatedEmployee.password,
-          'posisi': event.updatedEmployee.posisi,
-          'status': event.updatedEmployee.status,
-          'tanggal_masuk': event.updatedEmployee.tanggalMasuk.toIso8601String(),
-          'username': event.updatedEmployee.username,
-        });
+        final employeeSnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
+        if (employeeSnapshot.docs.isNotEmpty) {
+          final employeeDoc = employeeSnapshot.docs.first;
+          final Map<String, dynamic> updatedData = {
+            'alamat': event.updatedEmployee.alamat,
+            'email': event.updatedEmployee.email,
+            'gaji_harian': event.updatedEmployee.gajiHarian,
+            'gaji_lembur_jam': event.updatedEmployee.gajiLemburJam,
+            'jenis_kelamin': event.updatedEmployee.jenisKelamin,
+            'nama': event.updatedEmployee.nama,
+            'nomor_telepon': event.updatedEmployee.nomorTelepon,
+            'password': event.updatedEmployee.password, // Update password
+            'posisi': event.updatedEmployee.posisi,
+            'status': event.updatedEmployee.status,
+            'tanggal_masuk': event.updatedEmployee.tanggalMasuk,
+            'username': event.updatedEmployee.username,
+          };
 
-        yield LoadedState(await _getEmployees());
+          final employeeEmail = employeeDoc.get('email') as String;
+          final employeePassword = event.updatedEmployee.password; // Password baru
+
+          // Langkah 1: Periksa apakah email berubah
+          if (employeeEmail != event.updatedEmployee.email) {
+            final user = FirebaseAuth.instance.currentUser;
+            final credential = EmailAuthProvider.credential(email: employeeEmail, password: employeePassword);
+
+            // Re-authenticate pengguna dengan password lama
+            await user!.reauthenticateWithCredential(credential);
+
+            // Perbarui email pengguna
+            await user.updateEmail(event.updatedEmployee.email);
+          }
+
+          // Langkah 2: Perbarui data pegawai di Firestore
+          await employeeDoc.reference.update(updatedData);
+
+          final employees = await _getEmployees();
+          yield LoadedState(employees);
+        } else {
+          // Handle jika data pegawai dengan ID tersebut tidak ditemukan
+          yield ErrorState('Data pegawai dengan ID ${event.employeeId} tidak ditemukan.');
+        }
       } catch (e) {
         yield ErrorState("Gagal mengubah employee.");
       }
     } else if (event is DeleteEmployeeEvent) {
       yield LoadingState();
-        try {
+      try {
           // Cari dokumen dengan 'id' yang sesuai dengan event.employeeId
           QuerySnapshot querySnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
           
@@ -142,20 +168,19 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
     }
   }
 
-Future<String> _generateNextEmployeeId() async {
-  final QuerySnapshot snapshot = await employeesRef.get();
-  final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
-  int employeeCount = 1;
+  Future<String> _generateNextEmployeeId() async {
+    final QuerySnapshot snapshot = await employeesRef.get();
+    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int employeeCount = 1;
 
-  while (true) {
-    final nextEmployeeId = 'employee${employeeCount.toString().padLeft(3, '0')}';
-    if (!existingIds.contains(nextEmployeeId)) {
-      return nextEmployeeId;
+    while (true) {
+      final nextEmployeeId = 'employee${employeeCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextEmployeeId)) {
+        return nextEmployeeId;
+      }
+      employeeCount++;
     }
-    employeeCount++;
   }
-}
-
 
   Future<List<Employee>> _getEmployees() async {
     final QuerySnapshot snapshot = await employeesRef.get();

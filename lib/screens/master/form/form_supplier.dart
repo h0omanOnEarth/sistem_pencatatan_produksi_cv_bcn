@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/suppliers_bloc.dart';
@@ -25,6 +26,35 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
   TextEditingController nomorKantorController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+   if (widget.supplierId != null) {
+      FirebaseFirestore.instance
+        .collection('suppliers')
+        .where('id', isEqualTo: widget.supplierId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+            setState(() {
+              selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              namaController.text = data['nama'] ?? '';
+              alamatController.text = data['alamat'] ?? '';
+              nomorTeleponController.text = data['no_telepon'] ?? '';
+              nomorKantorController.text = data['no_telepon_kantor'] ?? '';
+              emailController.text = data['email'] ?? '';
+              selectedJenis = data['jenis_supplier'];
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        }).catchError((error) {
+          print('Error getting document: $error');
+        });
+    }
+  }
+
   void _showSuccessMessageAndNavigateBack() {
   showDialog(
     context: context,
@@ -36,7 +66,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
           TextButton(
             onPressed: () {
               // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
-              Navigator.pop(context);
+              Navigator.pop(context,null);
             },
             child: Text('OK'),
           ),
@@ -45,7 +75,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
     },
   ).then((_) {
     // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-    Navigator.pop(context);
+    Navigator.pop(context,null);
   });
 }
 
@@ -76,7 +106,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                               child: InkWell(
                                 onTap: () {
                                   // Handle back button press
-                                  Navigator.pop(context); // Navigates back
+                                  Navigator.pop(context,null); // Navigates back
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -187,9 +217,11 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                             jenisSupplier: selectedJenis,
                             status: selectedStatus == 'Aktif' ? 1 : 0,
                           );
-
-                          supplierBloc.add(AddSupplierEvent(newSupplier));
-
+                         if (widget.supplierId != null) {
+                            supplierBloc.add(UpdateSupplierEvent(widget.supplierId ?? '',newSupplier));
+                          } else {
+                            supplierBloc.add(AddSupplierEvent(newSupplier));
+                          }
                           _showSuccessMessageAndNavigateBack();
                         },
                         style: ElevatedButton.styleFrom(

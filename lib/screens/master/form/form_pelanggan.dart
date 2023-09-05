@@ -30,28 +30,28 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
 
     // Jika dalam mode edit, isi form dengan data pelanggan yang sesuai
    if (widget.customerId != null) {
-  FirebaseFirestore.instance
-    .collection('customers')
-    .where('id', isEqualTo: widget.customerId)
-    .get()
-    .then((QuerySnapshot querySnapshot) {
-      if (querySnapshot.docs.isNotEmpty) {
-        final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
-        setState(() {
-          selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
-          namaController.text = data['nama'] ?? '';
-          alamatController.text = data['alamat'] ?? '';
-          nomorTeleponController.text = data['nomor_telepon'] ?? '';
-          nomorKantorController.text = data['nomor_telepon_kantor'] ?? '';
-          emailController.text = data['email'] ?? '';
+      FirebaseFirestore.instance
+        .collection('customers')
+        .where('id', isEqualTo: widget.customerId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+            setState(() {
+              selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              namaController.text = data['nama'] ?? '';
+              alamatController.text = data['alamat'] ?? '';
+              nomorTeleponController.text = data['nomor_telepon'] ?? '';
+              nomorKantorController.text = data['nomor_telepon_kantor'] ?? '';
+              emailController.text = data['email'] ?? '';
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        }).catchError((error) {
+          print('Error getting document: $error');
         });
-      } else {
-        print('Document does not exist on Firestore');
-      }
-    }).catchError((error) {
-      print('Error getting document: $error');
-    });
-}
+    }
   }
 
   void _showSuccessMessageAndNavigateBack() {

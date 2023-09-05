@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/materials_bloc.dart'; // Sesuaikan dengan alamat file MaterialBloc
@@ -28,6 +29,34 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
   final MaterialBloc _materialBloc = MaterialBloc(); // Tambahkan ini di dalam widget class
 
   @override
+  void initState() {
+    super.initState();
+   if (widget.materialId != null) {
+      FirebaseFirestore.instance
+        .collection('materials')
+        .where('id', isEqualTo: widget.materialId)
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+            setState(() {
+              selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              namaBahanController.text = data['nama'] ?? '';
+              keteranganController.text = data['keterangan'] ?? '';
+              selectedSatuan = data['satuan'] ?? '';
+              stokController.text = data['stok'].toString();
+              selectedKategori = data['jenis_bahan'] ?? '';
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        }).catchError((error) {
+          print('Error getting document: $error');
+        });
+    }
+  }
+
+  @override
   void dispose() {
     _materialBloc.close();
     super.dispose();
@@ -45,8 +74,12 @@ void _addMaterial() {
     stok: int.parse(stokController.text), // stok diambil dari controller stokController
   );
 
-  bahanBloc.add(AddMaterialEvent(newMaterial));
-
+  if(widget.materialId!=null){
+    bahanBloc.add(UpdateMaterialEvent(widget.materialId ?? '', newMaterial));
+  }else{
+    bahanBloc.add(AddMaterialEvent(newMaterial));
+  }
+  
   _showSuccessMessageAndNavigateBack();
 }
 
@@ -62,7 +95,7 @@ void _showSuccessMessageAndNavigateBack() {
           TextButton(
             onPressed: () {
               // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
-              Navigator.pop(context);
+              Navigator.pop(context,null);
             },
             child: Text('OK'),
           ),
@@ -71,7 +104,7 @@ void _showSuccessMessageAndNavigateBack() {
     },
   ).then((_) {
     // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-    Navigator.pop(context);
+    Navigator.pop(context,null);
   });
 }
 
@@ -92,7 +125,7 @@ void _showSuccessMessageAndNavigateBack() {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,null);
                       },
                       child: Container(
                         decoration: BoxDecoration(

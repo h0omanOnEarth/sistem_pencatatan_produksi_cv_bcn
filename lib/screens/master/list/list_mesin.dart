@@ -170,7 +170,8 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => FormMasterMesinScreen(
-                                       mesinId: data['id'], // Mengirimkan ID pelanggan
+                                       mesinId: data['id'],
+                                       supplierId: data['supplier_id'], // Mengirimkan ID pelanggan
                                      ),
                                   ),
                                 );
