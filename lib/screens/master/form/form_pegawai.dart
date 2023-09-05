@@ -86,7 +86,7 @@ void _showSuccessMessageAndNavigateBack() {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Sukses'),
+        title: const Text('Sukses'),
         content: const Text('Berhasil menyimpan pegawai.'),
         actions: [
           TextButton(
@@ -94,7 +94,7 @@ void _showSuccessMessageAndNavigateBack() {
               // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
               Navigator.pop(context,null);
             },
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       );
@@ -107,6 +107,7 @@ void _showSuccessMessageAndNavigateBack() {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEditMode = widget.pegawaiId != null;
     return BlocProvider(
       create: (context) => EmployeeBloc(),
       child: Scaffold(
@@ -141,7 +142,7 @@ void _showSuccessMessageAndNavigateBack() {
                           ),
                         ),
                       ),
-                      SizedBox(width: 24.0),
+                      const SizedBox(width: 24.0),
                       const Text(
                         'Pegawai',
                         style: TextStyle(
@@ -151,45 +152,47 @@ void _showSuccessMessageAndNavigateBack() {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24.0),
+                  const SizedBox(height: 24.0),
                   TextFieldWidget(
                     label: 'Nama Pegawai',
                     placeholder: 'Nama',
                     controller: namaController,
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextFieldWidget(
                     label: 'Username',
                     placeholder: 'Username',
                     controller: usernameController,
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextFieldWidget(
                     label: 'Email',
                     placeholder: 'Email',
                     controller: emailController,
                     isEmail: true,
+                    isVisible: !isEditMode,
                   ),
-                  SizedBox(height: 24.0),
+                  const SizedBox(height: 24.0),
                   TextFieldWidget(
                     label: 'Password',
                     placeholder: 'Password',
                     controller: passwordController,
+                    isVisible: !isEditMode,
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextFieldWidget(
                     label: 'Alamat',
                     placeholder: 'Alamat',
                     controller: alamatController,
                     multiline: true,
                   ),
-                  SizedBox(height: 28.0),
+                  const SizedBox(height: 28.0),
                   TextFieldWidget(
                     label: 'Nomor Telepon',
                     placeholder: '(+62)xxxx-xxx-xxx',
                     controller: nomorTeleponController,
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   Row(
                     children: [
                       Expanded(
@@ -204,7 +207,7 @@ void _showSuccessMessageAndNavigateBack() {
                           },
                         ),
                       ),
-                      SizedBox(width: 16.0),
+                      const SizedBox(width: 16.0),
                       Expanded(
                         child: DropdownWidget(
                           label: 'Jenis Kelamin',
@@ -219,7 +222,7 @@ void _showSuccessMessageAndNavigateBack() {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24.0),
+                  const SizedBox(height: 24.0),
                   Row(
                     children: [
                       Expanded(
@@ -233,7 +236,7 @@ void _showSuccessMessageAndNavigateBack() {
                           },
                         ),
                       ),
-                      SizedBox(width: 16.0),
+                      const SizedBox(width: 16.0),
                       Expanded(
                         child: DropdownWidget(
                           label: 'Status',
@@ -248,7 +251,7 @@ void _showSuccessMessageAndNavigateBack() {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -259,7 +262,7 @@ void _showSuccessMessageAndNavigateBack() {
                           isNumeric: true,
                         ),
                       ),
-                      SizedBox(width: 16.0),
+                      const SizedBox(width: 16.0),
                       Expanded(
                         child: TextFieldWidget(
                           label: 'Gaji Lembur Per Jam',
@@ -270,7 +273,7 @@ void _showSuccessMessageAndNavigateBack() {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   Row(
                     children: [
                       Expanded(
@@ -300,7 +303,7 @@ void _showSuccessMessageAndNavigateBack() {
                             _showSuccessMessageAndNavigateBack();
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),
@@ -314,7 +317,7 @@ void _showSuccessMessageAndNavigateBack() {
                           ),
                         ),
                       ),
-                      SizedBox(width: 16.0),
+                      const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () {
@@ -335,7 +338,7 @@ void _showSuccessMessageAndNavigateBack() {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),
@@ -357,11 +360,11 @@ void _showSuccessMessageAndNavigateBack() {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(state.errorMessage),
-                            duration: Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
+                            duration: const Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
                           ),
                         );
                       }
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     },
                   ),
                 ],
