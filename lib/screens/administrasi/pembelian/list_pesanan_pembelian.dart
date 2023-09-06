@@ -107,13 +107,13 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                 // Search Bar and Filter Button
                 Row(
                   children: [
-                    Container(
+                    SizedBox(
+                      width: screenWidth * 0.6,
                       child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
                         setState(() {
                           searchTerm = value;
                         });
                       }),
-                      width: screenWidth * 0.6,
                     ),
                     const SizedBox(width: 16.0),// Add spacing between calendar icon and filter button
                     Container(
@@ -137,7 +137,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                   children: [
                     Column(
                       children: [
-                        Text("Tanggal Mulai: "),
+                      const Text( "Tanggal Mulai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
@@ -156,10 +156,9 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                       ],
                     ),
                     const SizedBox(width: 16.0),
-                      // Tampilkan tanggal filter yang dipilih
-                    Expanded(child: Column(
+                    Column(
                       children: [
-                          Text('Tanggal Selesai: '),
+                          const Text( "Tanggal Selesai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
                           Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -175,10 +174,10 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                             ),
                          Text(endDateText), 
                       ],
-                    ))
+                    )
                   ],
                 ),
-                // Create 6 cards
+                //cards
                 const SizedBox(height: 16.0),
                 StreamBuilder<QuerySnapshot>(
                   stream: purchaseOrderRef.snapshots(),
@@ -186,7 +185,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                         ),
                       );
                     } else if (snapshot.hasError) {
@@ -233,6 +232,8 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                                 MaterialPageRoute(
                                   builder: (context) => FormPesananPembelianScreen(
                                     purchaseOrderId: data['id'], // Mengirimkan ID pelanggan
+                                    supplierId:  data['supplier_id'],
+                                    bahanId: data['material_id'],
                                   ),
                                 ),
                               );

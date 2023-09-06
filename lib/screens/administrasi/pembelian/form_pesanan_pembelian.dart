@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -7,8 +10,10 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 class FormPesananPembelianScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pembelian_screen';
 
-  final String? purchaseOrderId; // Terima ID pegawai jika dalam mode edit
-  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId}) : super(key: key);
+  final String? purchaseOrderId; // Terima ID PO jika dalam mode edit
+  final String? supplierId;
+  final String? bahanId;
+  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId, this.supplierId, this.bahanId}) : super(key: key);
   
   @override
   State<FormPesananPembelianScreen> createState() =>
@@ -18,20 +23,222 @@ class FormPesananPembelianScreen extends StatefulWidget {
 class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen> {
   DateTime? _selectedTanggalPengiriman;
   DateTime? _selectedTanggalPesanan;
-  String selectedKode = "Kode A";
-  String selectedSupplier = "Supplier 1";
+  String? selectedKode; //kode bahan
+  String? selectedSupplier; //kode
   String selectedSatuan = "Kg";
   String selectedStatusPembayaran = "Belum Bayar";
   String selectedStatusPengiriman = "Dalam Proses";
 
+  // controller
+  TextEditingController namaBahanController = TextEditingController();
+  TextEditingController jumlahController = TextEditingController();
+  TextEditingController hargaSatuanController = TextEditingController();
+  TextEditingController totalController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+
+  @override
+  void initState() {
+  super.initState();
+    if (widget.purchaseOrderId != null) {
+        FirebaseFirestore.instance
+          .collection('purchase_orders')
+          .where('id', isEqualTo: widget.purchaseOrderId)
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+            if (querySnapshot.docs.isNotEmpty) {
+              final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+              setState(() {
+                jumlahController.text = data['jumlah'].toString();
+                catatanController.text = data['keterangan'] ?? '';
+                hargaSatuanController.text = data['harga_satuan'].toString();
+                selectedSatuan = data['satuan'];
+                totalController.text = data['total'].toString();
+                selectedStatusPembayaran = data['status_pembayaran'];
+                selectedStatusPengiriman = data['status_pengiriman'];
+                final tanggalKirimFirestore = data['tanggal_kirim'];
+                if (tanggalKirimFirestore != null) {
+                  if (tanggalKirimFirestore != null) {
+                    _selectedTanggalPengiriman = tanggalKirimFirestore.toDate();
+                  }
+                }
+                final tanggalPesanFirestore = data['tanggal_pesan'];
+                if (tanggalPesanFirestore != null) {
+                  if (tanggalPesanFirestore != null) {
+                    _selectedTanggalPesanan = tanggalPesanFirestore.toDate();
+                  }
+                }
+              });
+            } else {
+              print('Document does not exist on Firestore');
+            }
+          }).catchError((error) {
+            print('Error getting document: $error');
+          });
+      }
+     // Periksa jika widget.supplierId tidak null
+    if (widget.supplierId != null) {
+      selectedSupplier = widget.supplierId;
+    }
+    if(widget.bahanId!=null){
+      selectedKode = widget.bahanId;
+      print(widget.bahanId);
+      selectedKode = widget.bahanId;
+          FirebaseFirestore.instance
+          .collection('materials')
+          .where('id', isEqualTo: selectedKode) // Gunakan .where untuk mencocokkan ID
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final materialData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+          final namaBahan = materialData['nama'];
+          namaBahanController.text = namaBahan ?? '';
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      }).catchError((error) {
+        print('Error getting document: $error');
+      });
+    }
+  }
+
+
+  Widget buildSupplierDropdown() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const CircularProgressIndicator();
+        }
+
+        List<DropdownMenuItem<String>> supplierItems = [];
+
+        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+          String supplierName = document['nama'] ?? '';
+          String supplierId = document['id'];
+          supplierItems.add(
+            DropdownMenuItem<String>(
+              value: supplierId,
+              child: Text(
+                supplierName,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Supplier',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(color: Colors.grey[400]!),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: selectedSupplier,
+                items: supplierItems,
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedSupplier = newValue;
+                    print(selectedSupplier);
+                  });
+                },
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16.0,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+   Widget buildBahanDropDown() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('materials').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const CircularProgressIndicator();
+        }
+
+        List<DropdownMenuItem<String>> materialItems = [];
+
+        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+          String materialId = document['id'];
+          materialItems.add(
+            DropdownMenuItem<String>(
+              value: materialId,
+              child: Text(
+                materialId,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Kode Bahan',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                border: Border.all(color: Colors.grey[400]!),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: selectedKode,
+                items: materialItems,
+                onChanged: (newValue) {
+                  setState(() {
+                    selectedKode = newValue;
+                    final selectedMaterial = snapshot.data!.docs.firstWhere(
+                      (document) => document['id'] == newValue,
+                    );
+                     namaBahanController.text = selectedMaterial['nama'] ?? '';
+                  });
+                },
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16.0,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    var namaBahanController;
-    var jumlahController;
-    var hargaSatuanController;
-    var totalController;
-    var catatanController;
-    return Scaffold(
+     return BlocProvider(
+      create: (context) => PurchaseOrderBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -77,19 +284,9 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: DropdownWidget(
-                      label: 'Satuan',
-                      selectedValue: selectedKode, // Isi dengan nilai yang sesuai
-                      items: ['Kode A', 'Kode B', 'Kode C'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
+                      child: buildBahanDropDown()
                     ),
-                    ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child:    TextFieldWidget(
                       label: 'Nama Bahan',
@@ -101,17 +298,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                   ],
                 ),
                 const SizedBox(height: 16.0,),
-                DropdownWidget(
-                      label: 'Supplie',
-                      selectedValue: selectedSupplier, // Isi dengan nilai yang sesuai
-                      items: ['Supplier 1', 'Supplier 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedSupplier = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                ),
+                buildSupplierDropdown(),
                 const SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -121,12 +308,12 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       placeholder: 'Jumlah',
                       controller: jumlahController,
                     ),),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: DropdownWidget(
                       label: 'Satuan',
                       selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
-                      items: ['Kg','Ons','Pcs','Gram','Sak'],
+                      items: const ['Kg','Ons','Pcs','Gram','Sak'],
                       onChanged: (newValue) {
                         setState(() {
                           selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
@@ -147,7 +334,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       controller: hargaSatuanController,
                     ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child:    TextFieldWidget(
                         label: 'Total',
@@ -172,7 +359,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                         },
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: DatePickerButton(
                         label: 'Tanggal Pengirman',
@@ -193,7 +380,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       child: DropdownWidget(
                       label: 'Status Pemayaran',
                       selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
-                      items: ['Belum Bayar', 'Dalam Proses', 'Selesai'],
+                      items: const ['Belum Bayar', 'Dalam Proses', 'Selesai'],
                       onChanged: (newValue) {
                         setState(() {
                           selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
@@ -202,12 +389,12 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       },
                     ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: DropdownWidget(
                       label: 'Status Pengiriman',
                       selectedValue: selectedStatusPengiriman, // Isi dengan nilai yang sesuai
-                      items: ['Dalam Proses', 'Selesai'],
+                      items: const ['Dalam Proses', 'Selesai'],
                       onChanged: (newValue) {
                         setState(() {
                           selectedStatusPengiriman = newValue; // Update _selectedValue saat nilai berubah
@@ -234,7 +421,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                           // Handle save button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -248,14 +435,14 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -276,6 +463,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
           ),
         ),
       ),
+    )
     );
   }
 }
