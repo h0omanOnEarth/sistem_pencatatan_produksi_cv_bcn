@@ -1,12 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/purchase_return.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/pesanan_pembelian_dropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPengembalianPesananScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_pesanan_pembelian_screen';
 
-  const FormPengembalianPesananScreen({super.key});
+  final String? purchaseReturnId; 
+  final String? purchaseOrderId;
+  const FormPengembalianPesananScreen({Key? key, this.purchaseReturnId, this.purchaseOrderId}) : super(key: key);
   
   @override
   State<FormPengembalianPesananScreen> createState() =>
@@ -15,23 +24,132 @@ class FormPengembalianPesananScreen extends StatefulWidget {
 
 class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananScreen> {
   DateTime? _selectedDate;
-  String selectedPesanan = "Pesanan 1";
+  String? selectedPesanan;
   String _selectedSatuan = "Kg";
-  String _selectedStatus = "Aktif";
+
+  TextEditingController tanggalPemesananController = TextEditingController();
+  TextEditingController kodeBahanController = TextEditingController();
+  TextEditingController namaBahanController = TextEditingController();
+  TextEditingController supplierController = TextEditingController();
+  TextEditingController alamatPengembalianController = TextEditingController();
+  TextEditingController jumlahController = TextEditingController();
+  TextEditingController alasanController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+
+ // init state
+@override
+void initState() {
+  super.initState();
+
+  // Ambil data Purchase Return jika purchaseReturnId tidak null
+  if (widget.purchaseReturnId != null) {
+    FirebaseFirestore.instance
+      .collection('purchase_returns')
+      .where('id', isEqualTo: widget.purchaseReturnId)
+      .get()
+      .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+          setState(() {
+            alamatPengembalianController.text = data['alamat_pengembalian'];
+            jumlahController.text = data['jumlah'].toString();
+            alasanController.text = data['alasan'].toString();
+            catatanController.text = data['keterangan'].toString();
+            final tanggalPengembalianFirestore = data['tanggal_pengembalian'];
+            if (tanggalPengembalianFirestore != null) {
+              _selectedDate = tanggalPengembalianFirestore.toDate();
+            }
+          });
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      }).catchError((error) {
+        print('Error getting document: $error');
+      });
+  }
+
+  // Periksa jika widget.purchaseOrderId tidak null
+  if (widget.purchaseOrderId != null) {
+    selectedPesanan = widget.purchaseOrderId;
+    FirebaseFirestore.instance
+      .collection('purchase_orders')
+      .where('id', isEqualTo: widget.purchaseOrderId)
+      .get()
+      .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final purchaseOrderData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+          Timestamp timestamp = purchaseOrderData['tanggal_pesan'] as Timestamp;
+          DateTime date = timestamp.toDate();
+          String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+          tanggalPemesananController.text = formattedDate;
+          kodeBahanController.text = purchaseOrderData['material_id'];
+          String materialId = purchaseOrderData['material_id'];
+          // Ambil data nama bahan dan supplier dari koleksi 'materials' dan 'suppliers'
+          FirebaseFirestore.instance
+            .collection('materials')
+            .where('id', isEqualTo: materialId)
+            .get()
+            .then((QuerySnapshot materialSnapshot) {
+              if (materialSnapshot.docs.isNotEmpty) {
+                var materialDoc = materialSnapshot.docs[0];
+                String namaBahan = materialDoc['nama'] ?? '';
+                namaBahanController.text = namaBahan;
+              }
+            });
+            
+          String supplierId = purchaseOrderData['supplier_id'];
+          FirebaseFirestore.instance
+            .collection('suppliers')
+            .where('id', isEqualTo: supplierId)
+            .get()
+            .then((QuerySnapshot supplierSnapshot) {
+              if (supplierSnapshot.docs.isNotEmpty) {
+                var supplierDoc = supplierSnapshot.docs[0];
+                String namaSupplier = supplierDoc['nama'] ?? '';
+                supplierController.text = namaSupplier;
+              }
+            });
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      }).catchError((error) {
+        print('Error getting document: $error');
+      });
+  }
+}
+
+
+  void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SuccessDialog(
+        message: 'Berhasil menyimpan pesan pengembalian.',
+      );
+    },
+    ).then((_) {
+      Navigator.pop(context,null);
+    });
+  }
+
+   void addOrUpdatePurchaseReturn() {
+    final purchaseReturnBloc = BlocProvider.of<PurchaseReturnBloc>(context);
+    final PurchaseReturn newPurchaseReturn =  PurchaseReturn(id: '', purchaseOrderId: selectedPesanan??'', jumlah: int.parse(jumlahController.text), satuan: _selectedSatuan, alamatPengembalian: alamatPengembalianController.text, alasan: alasanController.text, status: 1, tanggalPengembalian: _selectedDate ?? DateTime.now(), jenis_bahan: '', keterangan: catatanController.text);
+
+    if(widget.purchaseReturnId!=null){
+      purchaseReturnBloc.add(UpdatePurchaseReturnEvent(widget.purchaseReturnId ?? '',newPurchaseReturn));
+    }else{
+      purchaseReturnBloc.add(AddPurchaseReturnEvent(newPurchaseReturn));
+    }
+    
+    _showSuccessMessageAndNavigateBack();
+  }
   
   @override
   Widget build(BuildContext context) {
-    var tanggalPemesananController;
-    var kodeBahanController;
-    var namaBahanController;
-    var supplierController;
-    var alamatPengembalianController;
-
-    var jumlahController;
-    var alasanController;
-    var catatanController;
-
-    return Scaffold(
+     return BlocProvider(
+      create: (context) => PurchaseReturnBloc(),
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -74,17 +192,7 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
                   ],
                 ),
                 const SizedBox(height: 16.0),
-                DropdownWidget(
-                label: 'Nomor Pesanan',
-                selectedValue: selectedPesanan, // Isi dengan nilai yang sesuai
-                items: ['Pesanan 1', 'Pesanan 2'],
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedPesanan = newValue; // Update _selectedValue saat nilai berubah
-                    print('Selected value: $newValue');
-                  });
-                },
-              ),
+                PesananPembelianDropdown(kodeBahanController: kodeBahanController, namaBahanController: namaBahanController, namaSupplierController: supplierController, tanggalPemesananController: tanggalPemesananController, selectedKode: selectedPesanan,),
                 const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Tanggal Pemesanan',
@@ -148,12 +256,12 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
                         controller: jumlahController,
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child:  DropdownWidget(
                       label: 'Satuan',
                       selectedValue: _selectedSatuan, // Isi dengan nilai yang sesuai
-                      items: ['Kg','Ons','Pcs','Gram','Sak'],
+                      items: const ['Kg','Ons','Pcs','Gram','Sak'],
                       onChanged: (newValue) {
                         setState(() {
                           _selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
@@ -165,18 +273,6 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
                     ),
                   ],
                 ),
-                const SizedBox(height: 16.0,),
-                 DropdownWidget(
-                      label: 'Status',
-                      selectedValue: _selectedStatus, // Isi dengan nilai yang sesuai
-                      items: ['Aktif', 'Tidak Aktif'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          _selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
                 const SizedBox(height: 16.0,),
                   TextFieldWidget(
                   label: 'Alasan',
@@ -197,9 +293,10 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdatePurchaseReturn();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -213,14 +310,26 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                             _selectedDate =  null;
+                            selectedPesanan = null;
+                            _selectedSatuan = "Kg";
+                            tanggalPemesananController.clear();
+                            kodeBahanController.clear(); 
+                            namaBahanController.clear();  
+                            supplierController.clear();  
+                            alamatPengembalianController.clear(); 
+                            jumlahController.clear(); 
+                            alasanController.clear(); 
+                            catatanController.clear();
+                            setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -241,6 +350,7 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
           ),
         ),
       ),
-    );
+    )
+     );
   }
 }

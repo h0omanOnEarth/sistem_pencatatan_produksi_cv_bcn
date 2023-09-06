@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
@@ -149,73 +150,6 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
     _showSuccessMessageAndNavigateBack();
   }
 
-   Widget buildBahanDropDown() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('materials').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
-
-        List<DropdownMenuItem<String>> materialItems = [];
-
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String materialId = document['id'];
-          materialItems.add(
-            DropdownMenuItem<String>(
-              value: materialId,
-              child: Text(
-                materialId,
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Kode Bahan',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: selectedKode,
-                items: materialItems,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedKode = newValue;
-                    final selectedMaterial = snapshot.data!.docs.firstWhere(
-                      (document) => document['id'] == newValue,
-                    );
-                     namaBahanController.text = selectedMaterial['nama'] ?? '';
-                  });
-                },
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
      return BlocProvider(
@@ -266,7 +200,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: buildBahanDropDown()
+                      child: BahanDropdown(namaBahanController:namaBahanController,selectedKode: selectedKode,)
                     ),
                     const SizedBox(width: 16.0),
                     Expanded(
@@ -444,6 +378,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                           hargaSatuanController.clear();
                           totalController.clear();
                           catatanController.clear();
+                          setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

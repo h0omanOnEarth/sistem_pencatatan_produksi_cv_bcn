@@ -6,6 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pengembalian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/list_pesanan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/list_pesanan_pengembalian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_pengiriman.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_penjualan.dart';
@@ -95,6 +96,7 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
             FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen(),
             ListPesananPembelian.routeName:(context)=> const ListPesananPembelian(),
+            ListPesananPengembalianPembelian.routeName:(context)=> const ListPesananPengembalianPembelian(),
             
             //Form Penjualan
             FormPesananPelangganScreen.routeName:(context) => const FormPesananPelangganScreen(),

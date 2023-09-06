@@ -245,6 +245,7 @@ void _showSuccessMessageAndNavigateBack() {
                           selectedKategori = "Bahan Baku";
                           selectedSatuan = "Kg";
                           selectedStatus = "Aktif";
+                          setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(59, 51, 51, 1),
