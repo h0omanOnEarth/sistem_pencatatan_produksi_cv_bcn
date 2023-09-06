@@ -2,8 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 
@@ -37,8 +40,26 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   TextEditingController catatanController = TextEditingController();
 
   @override
+  void dispose() {
+    jumlahController.removeListener(_updateTotal);
+    hargaSatuanController.removeListener(_updateTotal);
+    super.dispose();
+  }
+
+  void _updateTotal() {
+    if (jumlahController.text.isNotEmpty && hargaSatuanController.text.isNotEmpty) {
+      final jumlah = int.parse(jumlahController.text);
+      final hargaSatuan = int.parse(hargaSatuanController.text);
+      final total = jumlah * hargaSatuan;
+      totalController.text = total.toString();
+    }
+  }
+
+  @override
   void initState() {
   super.initState();
+  jumlahController.addListener(_updateTotal);
+  hargaSatuanController.addListener(_updateTotal);
     if (widget.purchaseOrderId != null) {
         FirebaseFirestore.instance
           .collection('purchase_orders')
@@ -101,70 +122,31 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
     }
   }
 
+  void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SuccessDialog(
+        message: 'Berhasil menyimpan mesin.',
+      );
+    },
+    ).then((_) {
+      Navigator.pop(context,null);
+    });
+  }
 
-  Widget buildSupplierDropdown() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
-
-        List<DropdownMenuItem<String>> supplierItems = [];
-
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String supplierName = document['nama'] ?? '';
-          String supplierId = document['id'];
-          supplierItems.add(
-            DropdownMenuItem<String>(
-              value: supplierId,
-              child: Text(
-                supplierName,
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Supplier',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: selectedSupplier,
-                items: supplierItems,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedSupplier = newValue;
-                    print(selectedSupplier);
-                  });
-                },
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
-        );
-      },
+    void addOrUpdatePurchaseOrder() {
+    final purchaseOrderBloc = BlocProvider.of<PurchaseOrderBloc>(context);
+    final PurchaseOrder newPurchaseOrder = PurchaseOrder(id: '', supplierId: selectedSupplier??'', materialId: selectedKode??'', jumlah: int.parse(jumlahController.text), satuan: selectedSatuan, hargaSatuan: int.parse(hargaSatuanController.text), tanggalPesan:  _selectedTanggalPesanan ?? DateTime.now(), tanggalKirim:  _selectedTanggalPengiriman ?? DateTime.now(), statusPembayaran: selectedStatusPembayaran, statusPengiriman: selectedStatusPengiriman, keterangan: catatanController.text, status: 1, total: int.parse(totalController.text)
     );
+
+    if(widget.purchaseOrderId!=null){
+      purchaseOrderBloc.add(UpdatePurchaseOrderEvent(widget.purchaseOrderId ?? '',newPurchaseOrder));
+    }else{
+      purchaseOrderBloc.add(AddPurchaseOrderEvent(newPurchaseOrder));
+    }
+    
+    _showSuccessMessageAndNavigateBack();
   }
 
    Widget buildBahanDropDown() {
@@ -250,7 +232,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, null);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -298,7 +280,16 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                   ],
                 ),
                 const SizedBox(height: 16.0,),
-                buildSupplierDropdown(),
+                 // Menggunakan SupplierDropdown
+                SupplierDropdown(
+                  selectedSupplier: selectedSupplier,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedSupplier = newValue;
+                      print(selectedSupplier);
+                    });
+                  },
+                ),
                 const SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -419,6 +410,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdatePurchaseOrder();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -440,6 +432,18 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          _selectedTanggalPengiriman = null;
+                          _selectedTanggalPesanan = null;
+                          selectedKode = null;
+                          selectedSupplier = null;
+                          selectedSatuan = "Kg";
+                          selectedStatusPembayaran = "Belum Bayar";
+                          selectedStatusPengiriman = "Dalam Proses";
+                          namaBahanController.clear(); 
+                          jumlahController.clear();
+                          hargaSatuanController.clear();
+                          totalController.clear();
+                          catatanController.clear();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

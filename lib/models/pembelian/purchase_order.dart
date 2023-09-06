@@ -4,14 +4,14 @@ class PurchaseOrder {
   final String materialId;
   final int jumlah;
   final String satuan;
-  final double hargaSatuan;
+  final int hargaSatuan;
   final DateTime tanggalPesan;
   final DateTime tanggalKirim;
   final String statusPembayaran;
   final String statusPengiriman;
   final String keterangan;
   final int status;
-  final String total;
+  final int total;
 
   PurchaseOrder({
     required this.id,
@@ -36,7 +36,7 @@ class PurchaseOrder {
       materialId: json['material_id'],
       jumlah: json['jumlah'],
       satuan: json['satuan'],
-      hargaSatuan: double.parse(json['harga_satuan'].toString()),
+      hargaSatuan: int.parse(json['harga_satuan'].toString()),
       tanggalPesan: json['tanggal_pesan'],
       tanggalKirim: json['tanggal_kirim'],
       statusPembayaran: json['status_pembayaran'],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/mesin_bloc.dart' as MesinBloc;
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/machine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -146,7 +147,16 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
                   const SizedBox(height: 16.0),
                   buildTahunRow(),
                   const SizedBox(height: 16.0),
-                  buildSupplierDropdown(),
+                   // Menggunakan SupplierDropdown
+                  SupplierDropdown(
+                  selectedSupplier: selectedSupplier,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedSupplier = newValue;
+                      print(selectedSupplier);
+                    });
+                  },
+                ),
                   const SizedBox(height: 16.0),
                   buildTextField('Catatan', 'Catatan', catatanController, multiline: true),
                   const SizedBox(height: 16.0),
@@ -269,72 +279,6 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget buildSupplierDropdown() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return CircularProgressIndicator();
-        }
-
-        List<DropdownMenuItem<String>> supplierItems = [];
-
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String supplierName = document['nama'] ?? '';
-          String supplierId = document['id'];
-          supplierItems.add(
-            DropdownMenuItem<String>(
-              value: supplierId,
-              child: Text(
-                supplierName,
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          );
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Supplier',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: selectedSupplier,
-                items: supplierItems,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedSupplier = newValue;
-                    print(selectedSupplier);
-                  });
-                },
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 
