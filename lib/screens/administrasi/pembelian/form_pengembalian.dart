@@ -42,11 +42,10 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
 @override
 void initState() {
   super.initState();
-   selectedKodeNotifier.addListener(_selectedKodeListener);
-
+    // untuk mengganti selected kode dari file dropdown 
+    selectedKodeNotifier.addListener(_selectedKodeListener);
     // Inisialisasi selectedPesanan berdasarkan nilai awal selectedKodeNotifier
     selectedPesanan = selectedKodeNotifier.value;
-    print(selectedPesanan);
 
   // Ambil data Purchase Return jika purchaseReturnId tidak null
   if (widget.purchaseReturnId != null) {

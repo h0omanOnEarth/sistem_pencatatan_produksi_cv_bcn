@@ -32,6 +32,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   String selectedSatuan = "Kg";
   String selectedStatusPembayaran = "Belum Bayar";
   String selectedStatusPengiriman = "Dalam Proses";
+  String? dropdownValue;
 
   // controller
   TextEditingController namaBahanController = TextEditingController();
@@ -44,7 +45,15 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   void dispose() {
     jumlahController.removeListener(_updateTotal);
     hargaSatuanController.removeListener(_updateTotal);
+    selectedBahanNotifier.removeListener(_selectedKodeListener);
     super.dispose();
+  }
+
+  // Fungsi yang akan dipanggil ketika selectedKode berubah
+  void _selectedKodeListener() {
+    setState(() {
+      selectedKode = selectedBahanNotifier.value;
+    });
   }
 
   void _updateTotal() {
@@ -59,6 +68,12 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   @override
   void initState() {
   super.initState();
+
+  // untuk mengganti selected kode dari file dropdown 
+  selectedBahanNotifier.addListener(_selectedKodeListener);
+    // Inisialisasi selectedPesanan berdasarkan nilai awal selectedKodeNotifier
+  selectedKode = selectedBahanNotifier.value;
+
   jumlahController.addListener(_updateTotal);
   hargaSatuanController.addListener(_updateTotal);
     if (widget.purchaseOrderId != null) {
@@ -128,7 +143,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
     context: context,
     builder: (BuildContext context) {
       return SuccessDialog(
-        message: 'Berhasil menyimpan mesin.',
+        message: 'Berhasil menyimpan pesanan pembelian bahan.',
       );
     },
     ).then((_) {
@@ -200,7 +215,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: BahanDropdown(namaBahanController:namaBahanController,selectedKode: selectedKode,)
+                      child: BahanDropdown(namaBahanController:namaBahanController)
                     ),
                     const SizedBox(width: 16.0),
                     Expanded(
