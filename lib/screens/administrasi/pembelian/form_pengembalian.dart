@@ -26,6 +26,8 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
   DateTime? _selectedDate;
   String? selectedPesanan;
   String _selectedSatuan = "Kg";
+  String? dropdownValue;
+
 
   TextEditingController tanggalPemesananController = TextEditingController();
   TextEditingController kodeBahanController = TextEditingController();
@@ -40,6 +42,11 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
 @override
 void initState() {
   super.initState();
+   selectedKodeNotifier.addListener(_selectedKodeListener);
+
+    // Inisialisasi selectedPesanan berdasarkan nilai awal selectedKodeNotifier
+    selectedPesanan = selectedKodeNotifier.value;
+    print(selectedPesanan);
 
   // Ambil data Purchase Return jika purchaseReturnId tidak null
   if (widget.purchaseReturnId != null) {
@@ -118,6 +125,20 @@ void initState() {
   }
 }
 
+  @override
+  void dispose() {
+    // Hapus listener pada saat widget di dispose
+    selectedKodeNotifier.removeListener(_selectedKodeListener);
+    super.dispose();
+  }
+
+  // Fungsi yang akan dipanggil ketika selectedKode berubah
+  void _selectedKodeListener() {
+    setState(() {
+      selectedPesanan = selectedKodeNotifier.value;
+    });
+  }
+
 
   void _showSuccessMessageAndNavigateBack() {
   showDialog(
@@ -192,7 +213,7 @@ void initState() {
                   ],
                 ),
                 const SizedBox(height: 16.0),
-                PesananPembelianDropdown(kodeBahanController: kodeBahanController, namaBahanController: namaBahanController, namaSupplierController: supplierController, tanggalPemesananController: tanggalPemesananController, selectedKode: selectedPesanan,),
+                PesananPembelianDropdown(kodeBahanController: kodeBahanController, namaBahanController: namaBahanController, namaSupplierController: supplierController, tanggalPemesananController: tanggalPemesananController,),
                 const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Tanggal Pemesanan',

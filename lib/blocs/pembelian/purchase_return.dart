@@ -161,13 +161,14 @@ Future<String> _getJenisBahanByMaterialId(String materialId) async {
 
 Future<String> _getMaterialIdByPurchaseOrderId(String purchaseOrderId) async {
   try {
-    final purchaseOrderQuery = await FirebaseFirestore.instance
+     final purchaseOrderQuery = await FirebaseFirestore.instance
         .collection('purchase_orders')
-        .doc(purchaseOrderId)
+        .where('id', isEqualTo: purchaseOrderId) // Menggunakan where dan isEqualTo
         .get();
 
-    if (purchaseOrderQuery.exists) {
-      final materialId = purchaseOrderQuery['material_id'] ?? '';
+     if (purchaseOrderQuery.docs.isNotEmpty) {
+      final purchaseOrderDoc = purchaseOrderQuery.docs.first;
+      final materialId = purchaseOrderDoc['material_id'] ?? '';
       return materialId;
     } else {
       return ''; // Atau nilai default sesuai kebutuhan Anda jika tidak ditemukan.
