@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_pengiriman.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_penjualan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainPenjulanAdministrasiScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('images/background_white.jpg'),
                 fit: BoxFit.cover,
@@ -52,7 +52,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -77,7 +77,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pelanggan', textB: 'Memodifikasi dan melihat pesanan pelanggan', pageRoute: FormPesananPelangganScreen()),
+                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pelanggan', textB: 'Memodifikasi dan melihat pesanan pelanggan', pageRoute: ListPesananPelanggan()),
                     const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Pengiriman', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: FormPesananPengirimanScreen()),
                     const CardItem(icon: Icons.file_present_rounded, textA: 'Faktur', textB: 'Memodifikasi dan melihat data faktur', pageRoute: FormFakturPenjualanScreen()),
                   ],
@@ -90,8 +90,6 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
     );
   }
 }
-
-
 
 class CardItem extends StatelessWidget {
   final IconData icon;
@@ -137,7 +135,7 @@ class CardItem extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 16.0),
+              const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically

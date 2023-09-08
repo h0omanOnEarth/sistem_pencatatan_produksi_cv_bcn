@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdown_produk_detail.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/pelanggan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class ProductCardData {
@@ -26,8 +28,9 @@ class ProductCardData {
 
 class FormPesananPelangganScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pelanggan_screen';
+  final String? customerOrderId;
 
-  const FormPesananPelangganScreen({super.key});
+  const FormPesananPelangganScreen({Key? key, this.customerOrderId}) : super(key: key);
   
   @override
   State<FormPesananPelangganScreen> createState() =>
@@ -37,16 +40,29 @@ class FormPesananPelangganScreen extends StatefulWidget {
 class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen> {
   DateTime? _selectedTanggalPesan;
   DateTime? _selectedTanggalKirim;
-  String selectedKode = "Kode 1";
+  String? selectedKode;
+  String? dropdownValue;
+  List<Map<String, dynamic>> productData = []; // Inisialisasi daftar produk
   
-  var catatanController;
-  var namaPelangganController;
-  var alamatPengirimanController;
-  var totalHargaController;
-  var totalProdukController;
-  var statusController;
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController namaPelangganController = TextEditingController();
+  TextEditingController alamatPengirimanController = TextEditingController();
+  TextEditingController totalHargaController = TextEditingController();
+  TextEditingController totalProdukController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
 
+  @override
+  void dispose() {
+    selectedPelangganNotifier.removeListener(_selectedKodeListener);
+    super.dispose();
+  }
 
+  // Fungsi yang akan dipanggil ketika selectedKode berubah
+  void _selectedKodeListener() {
+    setState(() {
+      selectedKode = selectedPelangganNotifier.value;
+    });
+  }
 
  List<ProductCardData> productCards = [];
 
@@ -66,7 +82,7 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
 Widget buildProductCard(ProductCardData productCardData) {
   return Card(
     elevation: 2,
-    margin: EdgeInsets.symmetric(vertical: 8),
+    margin: const EdgeInsets.symmetric(vertical: 8),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
       side: BorderSide(color: Colors.grey[300]!),
@@ -74,24 +90,30 @@ Widget buildProductCard(ProductCardData productCardData) {
     child: Column(
       children: [
         Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              DropdownDetailWidget(
+              DropdownProdukDetailWidget(
               label: 'Kode Produk',
-              items: ['Kode 1', 'Kode 2'],
               selectedValue: productCardData.kodeProduk,
               onChanged: (newValue) {
                 setState(() {
                   productCardData.kodeProduk = newValue;
+                  final selectedProduct = productData.firstWhere(
+                        (product) => product['id'] == newValue,
+                        orElse: () => {'nama': 'Nama Produk Tidak Ditemukan'},
+                      );
+                  productCardData.namaProduk = selectedProduct['nama'];
                 });
               },
+              products: productData, // productData adalah daftar produk dari Firestore
             ),
               const SizedBox(height: 8.0),
               TextFieldWidget(
               label: 'Nama Produk',
               placeholder: 'Nama Produk',
               controller: TextEditingController(text: productCardData.namaProduk),
+              isEnabled: false,
             ),
               const SizedBox(height: 8.0),
               TextFieldWidget(
@@ -102,7 +124,7 @@ Widget buildProductCard(ProductCardData productCardData) {
               const SizedBox(height: 8.0),
              DropdownDetailWidget(
             label: 'Satuan',
-            items: ['Satuan 1', 'Satuan 2'],
+            items: const ['Satuan 1', 'Satuan 2'],
             selectedValue: productCardData.satuan,
             onChanged: (newValue) {
               setState(() {
@@ -138,7 +160,7 @@ Widget buildProductCard(ProductCardData productCardData) {
                 });
               },
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(10), // Add padding to the button
+                padding: const EdgeInsets.all(10), // Add padding to the button
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),
@@ -162,7 +184,22 @@ Widget buildProductCard(ProductCardData productCardData) {
 @override
 void initState() {
   super.initState();
-  addProductCard(); // Tambahkan product card secara default pada initState
+  addProductCard(); 
+  selectedPelangganNotifier.addListener(_selectedKodeListener);
+  selectedKode = selectedPelangganNotifier.value;
+
+  // Ambil data produk dari Firestore di initState
+    FirebaseFirestore.instance.collection('products').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> product = {
+          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+          'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+        };
+        setState(() {
+          productData.add(product); // Tambahkan produk ke daftar produk
+        });
+      });
+    });
 }
 
 @override
@@ -214,17 +251,7 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0),
               // Di dalam widget buildProductCard atau tempat lainnya
-              DropdownWidget(
-                      label: 'Kode Pelangan',
-                      selectedValue: selectedKode, // Isi dengan nilai yang sesuai
-                      items: ['Kode 1', 'Kode 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedKode = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-              ),
+              PelangganDropdownWidget(namaPelangganController: namaPelangganController),
               const SizedBox(height: 16.0,),
               TextFieldWidget(
                 label: 'Nama Pelanggan',
@@ -245,7 +272,7 @@ Widget build(BuildContext context) {
                         },
                       ), 
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(child: DatePickerButton(
                       label: 'Tanggal Kirim',
                       selectedDate: _selectedTanggalKirim,
@@ -282,7 +309,7 @@ Widget build(BuildContext context) {
                       isEnabled: false,
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child:  TextFieldWidget(
                       label: 'Total Produk',
@@ -316,7 +343,7 @@ Widget build(BuildContext context) {
                     onTap: () {
                       addProductCard();
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 20,
                       backgroundColor: Color.fromRGBO(59, 51, 51, 1),
                       child: Icon(
@@ -342,7 +369,7 @@ Widget build(BuildContext context) {
                         // Handle save button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -356,14 +383,14 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),

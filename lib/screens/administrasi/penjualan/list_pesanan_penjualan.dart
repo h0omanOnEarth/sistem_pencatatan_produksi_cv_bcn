@@ -3,20 +3,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
-class ListPesananPembelian extends StatefulWidget {
-  static const routeName = '/list_pesanan_pembelian_screen';
+class ListPesananPelanggan extends StatefulWidget {
+  static const routeName = '/list_pesanan_pelanggan_screen';
 
-  const ListPesananPembelian({super.key});
+  const ListPesananPelanggan({super.key});
   @override
-  State<ListPesananPembelian> createState() => _ListPesananPembelianState();
+  State<ListPesananPelanggan> createState() => _ListPesananPelangganState();
 }
 
-class _ListPesananPembelianState extends State<ListPesananPembelian> {
-  final CollectionReference purchaseOrderRef = FirebaseFirestore.instance.collection('purchase_orders');
+class _ListPesananPelangganState extends State<ListPesananPelanggan> {
+  final CollectionReference customerOrderRef = FirebaseFirestore.instance.collection('customer_orders');
   String searchTerm = '';
   String selectedStatus = '';
   Timestamp? selectedStartDate;
@@ -72,7 +72,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                             ),
                             const SizedBox(width: 24.0),
                             const Text(
-                              'Pesanan Pembelian',
+                              'Pesanan Pelanggan',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const FormPesananPembelianScreen(),
+                                      builder: (context) => const FormPesananPelangganScreen(),
                                     ),
                                   );
                                 },
@@ -103,8 +103,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0), // Add spacing between header and cards
-                // Search Bar and Filter Button
+                const SizedBox(height: 24.0), 
                 Row(
                   children: [
                     SizedBox(
@@ -180,7 +179,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                 //cards
                 const SizedBox(height: 16.0),
                 StreamBuilder<QuerySnapshot>(
-                  stream: purchaseOrderRef.snapshots(),
+                  stream: customerOrderRef.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -197,8 +196,8 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                       final itemDocs = querySnapshot.docs;
 
                       final filteredDocs = itemDocs.where((doc) {
-                        final keterangan = doc['keterangan'] as String;
-                        final status = doc['status_pembayaran'] as String;
+                        final keterangan = doc['catatan'] as String;
+                        final status = doc['status_pesanan'] as String;
                         final tanggalPesan = doc['tanggal_pesan'] as Timestamp; // Tanggal Pesan
                         final tanggalKirim = doc['tanggal_kirim'] as Timestamp; // Tanggal Kirim
 
@@ -230,10 +229,8 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FormPesananPembelianScreen(
-                                    purchaseOrderId: data['id'], // Mengirimkan ID pelanggan
-                                    supplierId:  data['supplier_id'],
-                                    bahanId: data['material_id'],
+                                  builder: (context) => FormPesananPelangganScreen(
+                                    customerOrderId: data['id'], // Mengirimkan ID customer order
                                   ),
                                 ),
                               );
@@ -244,7 +241,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus pesanan pembelian ini?"),
+                                    content: const Text("Anda yakin ingin menghapus pesanan penjualan ini?"),
                                     actions: <Widget>[
                                       TextButton(
                                         child: const Text("Batal"),
