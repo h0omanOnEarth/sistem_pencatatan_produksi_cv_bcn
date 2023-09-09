@@ -42,7 +42,7 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
         final nextCustomerOrderId = await _generateNextCustomerId();
 
         // Buat referensi dokumen customer order menggunakan ID yang sesuai
-        final customerOrderRef = _firestore.collection('customer_orders');
+        final customerOrderRef = _firestore.collection('customer_orders').doc(nextCustomerOrderId);
 
         // Set data customer order
         final Map<String, dynamic> customerOrderData = {
@@ -60,18 +60,18 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
         };
 
         // Tambahkan data customer order ke Firestore
-        await customerOrderRef.add(customerOrderData);
+        await customerOrderRef.set(customerOrderData);
 
-        // Buat koleksi 'detail_customer_order' dalam dokumen customer order
-        final detailCustomerOrderRef = _firestore.collection('detail_customer_orders');
+        // Buat referensi ke subcollection 'detail_customer_orders' dalam dokumen customer order
+        final detailCustomerOrderRef = customerOrderRef.collection('detail_customer_orders');
 
         if (event.customerOrder.detailCustomerOrderList != null &&
             event.customerOrder.detailCustomerOrderList!.isNotEmpty) {
           int detailCount = 1;
           for (var detailCustomerOrder in event.customerOrder.detailCustomerOrderList!) {
             final nextDetailCustomerId ='$nextCustomerOrderId${'D${detailCount.toString().padLeft(3, '0')}'}';
-            
-            // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_order'
+
+            // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_orders'
             await detailCustomerOrderRef.add({
               'id' : nextDetailCustomerId,
               'customer_id' : nextCustomerOrderId,
