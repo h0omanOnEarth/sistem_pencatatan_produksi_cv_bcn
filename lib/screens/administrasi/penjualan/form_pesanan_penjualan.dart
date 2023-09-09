@@ -41,6 +41,7 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
   
   final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
   final customerOrderBloc = CustomerOrderBloc();
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
 
   @override
   void dispose() {
@@ -133,7 +134,6 @@ void addOrUpdateCustomerOrder() {
   }
 }
 
-
 void _showSuccessMessageAndNavigateBack() {
   showDialog(
     context: context,
@@ -149,7 +149,7 @@ void _showSuccessMessageAndNavigateBack() {
 
   void fetchData(){
     // Ambil data produk dari Firestore di initState
-    FirebaseFirestore.instance.collection('products').get().then((querySnapshot) {
+    firestore.collection('products').get().then((querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         Map<String, dynamic> product = {
           'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
@@ -162,10 +162,47 @@ void _showSuccessMessageAndNavigateBack() {
     });
   }
 
+  // Fungsi untuk mengambil data detail_customer_orders
+void fetchDataDetailCustomerOrder() {
+  firestore
+      .collection('customer_orders')
+      .doc(widget.customerOrderId!) // Menggunakan widget.customerOrderId
+      .collection('detail_customer_orders') // Ganti dengan nama collection yang sesuai
+      .get()
+      .then((querySnapshot) {
+    final newProductCards = <ProductCardDataCustomerOrder>[];
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data() as Map<String, dynamic>;
+
+        final productId = detailData['product_id'] as String;
+        // Mencari nama produk berdasarkan productId
+        final product = productData.firstWhere(
+          (product) => product['id'] == productId,
+          orElse: () => {'nama': 'Produk Tidak Ditemukan'}, // Default jika tidak ditemukan
+        );
+
+      final productCardData = ProductCardDataCustomerOrder(
+        kodeProduk: detailData['product_id'] as String,
+        namaProduk: product['nama'], // Anda dapat mengisi nama produk berdasarkan productData
+        jumlah: detailData['jumlah'].toString(),
+        satuan: detailData['satuan'] as String,
+        hargaSatuan: detailData['harga_satuan'].toString(),
+        subtotal: detailData['subtotal'].toString(),
+      );
+
+      newProductCards.add(productCardData);
+    });
+
+    setState(() {
+      productCards = newProductCards;
+    });
+  });
+}
+
   void initializeCustomer(){
     selectedKode = widget.customerId;
     _selectedKodeListener();
-    FirebaseFirestore.instance
+    firestore
     .collection('customers')
     .where('id', isEqualTo: selectedKode) // Gunakan .where untuk mencocokkan ID
     .get()
@@ -222,6 +259,8 @@ void initState() {
     }).catchError((error) {
       print('Error getting document: $error');
     });
+
+     fetchDataDetailCustomerOrder(); // Ambil data detail_customer_orders
   }
 
   if(widget.customerId!=null){
