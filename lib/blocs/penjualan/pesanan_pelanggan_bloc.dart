@@ -38,20 +38,72 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
     if (event is AddCustomerOrderEvent) {
       yield LoadingState();
       try {
-        // Tambahkan customer order ke Firestore
-        await _firestore.collection('customer_orders').add(event.customerOrder.toJson());
+        // Generate a new customer order ID (or use an existing one if you have it)
+        final nextCustomerOrderId = await _generateNextCustomerId();
 
-        // Setelah menambahkan customer order, buat detail customer order jika ada
-        if (event.customerOrder.detailCustomerOrderList.isNotEmpty) {
-          for (var detailCustomerOrder in event.customerOrder.detailCustomerOrderList) {
-            await _firestore.collection('detail_customer_order').add(detailCustomerOrder.toJson());
+        // Buat referensi dokumen customer order menggunakan ID yang sesuai
+        final customerOrderRef = _firestore.collection('customer_orders');
+
+        // Set data customer order
+        final Map<String, dynamic> customerOrderData = {
+          'id': nextCustomerOrderId,
+          'customer_id': event.customerOrder.customerId,
+          'alamat_pengiriman': event.customerOrder.alamatPengiriman,
+          'catatan': event.customerOrder.catatan,
+          'satuan': event.customerOrder.satuan,
+          'status': event.customerOrder.status,
+          'status_pesanan': event.customerOrder.statusPesanan,
+          'tanggal_kirim': event.customerOrder.tanggalKirim,
+          'tanggal_pesan': event.customerOrder.tanggalPesan,
+          'total_harga': event.customerOrder.totalHarga,
+          'total_produk': event.customerOrder.totalProduk,
+        };
+
+        // Tambahkan data customer order ke Firestore
+        await customerOrderRef.add(customerOrderData);
+
+        // Buat koleksi 'detail_customer_order' dalam dokumen customer order
+        final detailCustomerOrderRef = _firestore.collection('detail_customer_orders');
+
+        if (event.customerOrder.detailCustomerOrderList != null &&
+            event.customerOrder.detailCustomerOrderList!.isNotEmpty) {
+          int detailCount = 1;
+          for (var detailCustomerOrder in event.customerOrder.detailCustomerOrderList!) {
+            final nextDetailCustomerId ='$nextCustomerOrderId${'D${detailCount.toString().padLeft(3, '0')}'}';
+            
+            // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_order'
+            await detailCustomerOrderRef.add({
+              'id' : nextDetailCustomerId,
+              'customer_id' : nextCustomerOrderId,
+              'product_id' : detailCustomerOrder.productId,
+              'jumlah': detailCustomerOrder.jumlah,
+              'harga_satuan': detailCustomerOrder.hargaSatuan,
+              'satuan' : detailCustomerOrder.satuan,
+              'status' : detailCustomerOrder.status,
+              'subtotal' : detailCustomerOrder.subtotal
+            });
+            detailCount++;
           }
         }
-
         yield LoadedState(event.customerOrder);
       } catch (e) {
         yield ErrorState("Gagal menambahkan Customer Order.");
       }
+    }
+  }
+
+  Future<String> _generateNextCustomerId() async {
+    final customerOrdersRef = _firestore.collection('customer_orders');
+    final QuerySnapshot snapshot = await customerOrdersRef.get();
+    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int customerCount = 1;
+
+    while (true) {
+      final nextCustomerId = 'CO${customerCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextCustomerId)) {
+        return nextCustomerId;
+      }
+      customerCount++;
     }
   }
 }

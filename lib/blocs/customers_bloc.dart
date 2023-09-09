@@ -130,4 +130,5 @@ Future<String> _generateNextCustomerId() async {
     }
     return customers;
   }
+  
 }

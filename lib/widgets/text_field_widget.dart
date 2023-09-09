@@ -11,6 +11,7 @@ class TextFieldWidget extends StatelessWidget {
   final bool isController;
   final bool isVisible; // Add isVisible parameter
   final TextEditingController? controller;
+  final void Function(String)? onChanged; // Added onChanged callback
 
   const TextFieldWidget({
     required this.label,
@@ -23,6 +24,7 @@ class TextFieldWidget extends StatelessWidget {
     this.isController = true,
     this.isVisible = true, // Initialize isVisible with true
     this.controller,
+    this.onChanged, // Initialize onChanged callback
   });
 
   @override
@@ -53,6 +55,7 @@ class TextFieldWidget extends StatelessWidget {
               : isEmail
                   ? TextInputType.emailAddress
                   : TextInputType.text,
+          onChanged: onChanged, // Set the onChanged callback
           decoration: InputDecoration(
             hintText: placeholder,
             filled: true,
