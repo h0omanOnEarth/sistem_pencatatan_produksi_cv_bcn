@@ -6,10 +6,12 @@ ValueNotifier<String?> selectedBahanNotifier = ValueNotifier<String?>(null);
 
 class BahanDropdown extends StatefulWidget {
   final TextEditingController namaBahanController;
+  final String? bahanId; // Tambahkan parameter customerId
 
   BahanDropdown({
     required this.namaBahanController,
-  });
+    this.bahanId
+  }): super();
 
   @override
   _BahanDropdownState createState() => _BahanDropdownState();
@@ -17,6 +19,14 @@ class BahanDropdown extends StatefulWidget {
 
 class _BahanDropdownState extends State<BahanDropdown> {
   late String? dropdownValue;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.bahanId != null) {
+      selectedBahanNotifier.value = widget.bahanId;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

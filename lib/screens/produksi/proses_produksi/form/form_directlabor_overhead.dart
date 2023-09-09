@@ -59,7 +59,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         ),
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     const Flexible(
                       child: Text(
                         'Direct Labor and Overhead Cost',
@@ -71,7 +71,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     ),
                   ],
                 ),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 DatePickerButton(
                       label: 'Tanggal Pencatatan',
                       selectedDate: _selectedDate,
@@ -81,7 +81,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         });
                       },
                   ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 DropdownWidget(
                         label: 'Nomor Penggunaan Bahan',
                         selectedValue: selectedPenggunaanBahan, // Isi dengan nilai yang sesuai
@@ -104,7 +104,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         isEnabled: false,
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: TextFieldWidget(
                         label: 'Batch',
@@ -115,7 +115,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 Row(
                   children: [
                     Expanded(
@@ -125,7 +125,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         controller: jumlahTenagaKerjaController,
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: TextFieldWidget(
                         label: 'Jum. Jam Tenaga Kerja',
@@ -135,7 +135,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 Row(
                   children: [
                     Expanded(
@@ -145,8 +145,8 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         controller: upahTenagaKerjaPerJamController,
                       ),
                     ),
-                    SizedBox(width: 16.0),
-                    Expanded(
+                    const SizedBox(width: 16.0),
+                    const Expanded(
                       child: TextFieldWidget(
                         label: 'Biaya Tenaga Kerja',
                         placeholder: 'Biaya Tenaga Kerja',
@@ -155,31 +155,31 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                     label: 'Biaya Overhead',
                     placeholder: 'Biaya Overhead',
                     controller: biayaOverheadController,
                 ),
-                SizedBox(height: 16.0,),
-                TextFieldWidget(
+                const SizedBox(height: 16.0,),
+                const TextFieldWidget(
                     label: 'Total Biaya',
                     placeholder: 'Total Biaya',
                     isEnabled: false,
                 ),
-                SizedBox(height: 16.0,),
-                TextFieldWidget(
+                const SizedBox(height: 16.0,),
+                const TextFieldWidget(
                   label: 'Status',
                   placeholder: 'Dalam Proses',
                   isEnabled: false,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Catatan',
                   placeholder: 'Catatan',
                   controller: catatanController,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 Row(
                   children: [
                     Expanded(
@@ -188,7 +188,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                           // Handle save button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -202,14 +202,14 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),

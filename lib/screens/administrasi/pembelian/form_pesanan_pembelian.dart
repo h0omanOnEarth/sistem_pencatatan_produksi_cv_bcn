@@ -118,8 +118,6 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
     }
     if(widget.bahanId!=null){
       selectedKode = widget.bahanId;
-      print(widget.bahanId);
-      selectedKode = widget.bahanId;
           FirebaseFirestore.instance
           .collection('materials')
           .where('id', isEqualTo: selectedKode) // Gunakan .where untuk mencocokkan ID
@@ -215,7 +213,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                 Row(
                   children: [
                     Expanded(
-                      child: BahanDropdown(namaBahanController:namaBahanController)
+                      child: BahanDropdown(namaBahanController:namaBahanController, bahanId: widget.bahanId,)
                     ),
                     const SizedBox(width: 16.0),
                     Expanded(

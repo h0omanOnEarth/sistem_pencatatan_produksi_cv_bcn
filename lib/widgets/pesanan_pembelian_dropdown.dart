@@ -10,13 +10,15 @@ class PesananPembelianDropdown extends StatefulWidget {
   final TextEditingController kodeBahanController;
   final TextEditingController namaBahanController;
   final TextEditingController namaSupplierController;
+  final String? purchaseOrderId;
 
   PesananPembelianDropdown({
     required this.tanggalPemesananController,
     required this.kodeBahanController,
     required this.namaBahanController,
     required this.namaSupplierController,
-  });
+    this.purchaseOrderId
+  }): super();
 
   @override
   _PesananPembelianDropdownState createState() => _PesananPembelianDropdownState();
@@ -28,6 +30,9 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
   @override
   void initState() {
     super.initState();
+     if (widget.purchaseOrderId != null) {
+      selectedKodeNotifier.value = widget.purchaseOrderId;
+    }
   }
 
   @override

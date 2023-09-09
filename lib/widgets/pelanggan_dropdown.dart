@@ -6,10 +6,12 @@ ValueNotifier<String?> selectedPelangganNotifier = ValueNotifier<String?>(null);
 
 class PelangganDropdownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
+  final String? customerId; // Tambahkan parameter customerId
 
   PelangganDropdownWidget({
     required this.namaPelangganController,
-  });
+    this.customerId, // Jadikan customerId sebagai parameter opsional
+  }): super();
 
   @override
   _PelangganDropdownWidgetState createState() => _PelangganDropdownWidgetState();
@@ -17,6 +19,15 @@ class PelangganDropdownWidget extends StatefulWidget {
 
 class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
   late String? dropdownValue;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi selectedPelangganNotifier dengan customerId jika ada
+    if (widget.customerId != null) {
+      selectedPelangganNotifier.value = widget.customerId;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

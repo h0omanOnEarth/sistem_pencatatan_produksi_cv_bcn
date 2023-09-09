@@ -5,55 +5,20 @@ import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/pesanan_pelanggan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_pesanan_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/pesanan_pelanggan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/class/product_card_cust_widget_build.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/class/product_card_customer_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdown_produk_detail.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/pelanggan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
-class ProductCardData {
-  String kodeProduk;
-  String namaProduk;
-  String jumlah;
-  String satuan;
-  String hargaSatuan;
-  String subtotal;
-  String selectedDropdownValue = '';
-  TextEditingController? jumlahController; // Ubah tipe data menjadi TextEditingController?
-  TextEditingController? hargaSatuanController; // Ubah tipe data menjadi TextEditingController?
-
-  ProductCardData({
-    required this.kodeProduk,
-    required this.namaProduk,
-    required this.jumlah,
-    required this.satuan,
-    required this.hargaSatuan,
-    required this.subtotal,
-    this.selectedDropdownValue = '',
-  }){
-    // Initialize the controller with the current 'jumlah' value
-    jumlahController = TextEditingController(text: jumlah);;
-    hargaSatuanController =  TextEditingController(text: hargaSatuan);
-  }
-  
-  void calculateSubtotal() {
-  if (jumlah.isNotEmpty && hargaSatuan.isNotEmpty) {
-    int jumlahValue = int.tryParse(jumlah) ?? 0;
-    int hargaSatuanValue = int.tryParse(hargaSatuan) ?? 0;
-    int result = jumlahValue * hargaSatuanValue;
-    subtotal = result.toString().replaceAll(RegExp(r'^0+(?=\d)'), ''); // Format sebagai string dengan 2 desimal dan hapus nol di depan
-  } else {
-    subtotal = ''; // Atur subtotal menjadi kosong jika jumlah atau harga satuan kosong
-  }
-}
-}
 
 class FormPesananPelangganScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pelanggan_screen';
   final String? customerOrderId;
+  final String? customerId;
 
-  const FormPesananPelangganScreen({Key? key, this.customerOrderId}) : super(key: key);
+  const FormPesananPelangganScreen({Key? key, this.customerOrderId, this.customerId}) : super(key: key);
   
   @override
   State<FormPesananPelangganScreen> createState() =>
@@ -91,11 +56,11 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
     });
   }
 
- List<ProductCardData> productCards = [];
+ List<ProductCardDataCustomerOrder> productCards = [];
 
   void addProductCard() {
     setState(() {
-      productCards.add(ProductCardData(
+      productCards.add(ProductCardDataCustomerOrder(
         kodeProduk: '',
         namaProduk: '',
         jumlah: '',
@@ -110,7 +75,6 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
   void updateTotalHargaProduk() {
   int totalHarga = 0;
   int totalProduk = 0;
-
   for (var productCardData in productCards) {
     if (productCardData.subtotal.isNotEmpty) {
       int subtotalValue = int.tryParse(productCardData.subtotal) ?? 0;
@@ -118,7 +82,6 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
       totalProduk++;
     }
   }
-
   setState(() {
     totalHargaController.text = currencyFormat.format(totalHarga); // Format total harga
     totalProdukController.text = totalProduk.toString();
@@ -184,133 +147,8 @@ void _showSuccessMessageAndNavigateBack() {
     });
   }
 
-Widget buildProductCard(ProductCardData productCardData) {
-  return Card(
-    elevation: 2,
-    margin: const EdgeInsets.symmetric(vertical: 8),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: BorderSide(color: Colors.grey[300]!),
-    ),
-    child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              DropdownProdukDetailWidget(
-              label: 'Kode Produk',
-              selectedValue: productCardData.kodeProduk,
-              onChanged: (newValue) {
-                setState(() {
-                  productCardData.kodeProduk = newValue;
-                  final selectedProduct = productData.firstWhere(
-                        (product) => product['id'] == newValue,
-                        orElse: () => {'nama': 'Nama Produk Tidak Ditemukan'},
-                      );
-                  productCardData.namaProduk = selectedProduct['nama'];
-                  print(selectedProduct);
-                });
-              },
-              products: productData, // productData adalah daftar produk dari Firestore
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Nama Produk',
-              placeholder: 'Nama Produk',
-              controller: TextEditingController(text: productCardData.namaProduk),
-              isEnabled: false,
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Jumlah',
-              placeholder: 'Jumlah',
-              controller: productCardData.jumlahController,
-              onChanged: (value) {
-              setState(() {
-                productCardData.jumlah = value;
-                productCardData.calculateSubtotal();
-                updateTotalHargaProduk(); // Panggil updateTotalHargaProduk
-              });
-            },
-            ),
-              const SizedBox(height: 8.0),
-             DropdownDetailWidget(
-            label: 'Satuan',
-            items: const ['Pcs', 'Kg', 'Ons','Dus'],
-            selectedValue: productCardData.satuan,
-            onChanged: (newValue) {
-              setState(() {
-                productCardData.satuan = newValue;
-              });
-            },
-          ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-                label: 'Harga Satuan',
-                placeholder: 'Harga Satuan',
-                controller: productCardData.hargaSatuanController,
-                onChanged: (value) {
-                setState(() {
-                  productCardData.hargaSatuan = value;
-                  productCardData.calculateSubtotal();
-                  updateTotalHargaProduk(); // Panggil updateTotalHargaProduk
-                });
-              },
-              ),
-              const SizedBox(height: 8.0),
-             TextFieldWidget(
-                label: 'Subtotal',
-                placeholder: 'Subtotal',
-                controller: TextEditingController(text: productCardData.subtotal),
-                isEnabled: false,
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0), // Add the desired margin
-          child: Container(
-            width: double.infinity, // Make the button full width
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle delete button press
-                setState(() {
-                  productCards.remove(productCardData);
-                  updateTotalHargaProduk(); // Panggil updateTotalHargaProduk saat menghapus produk
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(10), // Add padding to the button
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Hapus',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-@override
-void initState() {
-  super.initState();
-  addProductCard(); 
-  selectedPelangganNotifier.addListener(_selectedKodeListener);
-  selectedKode = selectedPelangganNotifier.value;
-  statusController.text = 'Dalam Proses';
-
-  // Ambil data produk dari Firestore di initState
+  void fetchData(){
+    // Ambil data produk dari Firestore di initState
     FirebaseFirestore.instance.collection('products').get().then((querySnapshot) {
       querySnapshot.docs.forEach((doc) {
         Map<String, dynamic> product = {
@@ -322,6 +160,73 @@ void initState() {
         });
       });
     });
+  }
+
+  void initializeCustomer(){
+    selectedKode = widget.customerId;
+    _selectedKodeListener();
+    FirebaseFirestore.instance
+    .collection('customers')
+    .where('id', isEqualTo: selectedKode) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) {
+    if (querySnapshot.docs.isNotEmpty) {
+      final customerData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      final namaCustomer = customerData['nama'];
+      namaPelangganController.text = namaCustomer ?? '';
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
+
+@override
+void initState() {
+  super.initState();
+  addProductCard();
+  selectedPelangganNotifier.addListener(_selectedKodeListener);
+  selectedKode = selectedPelangganNotifier.value;
+  statusController.text = 'Dalam Proses';
+  fetchData();
+
+  if (widget.customerOrderId != null) {
+    // Jika ada customerOrderId, ambil data dari Firestore
+    FirebaseFirestore.instance
+        .collection('customer_orders')
+        .doc(widget.customerOrderId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          alamatPengirimanController.text = data['alamat_pengiriman'];
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_pesanan'];
+          totalHargaController.text = data['total_harga'].toString();
+          totalProdukController.text = data['total_produk'].toString();
+          final tanggalKirimFirestore = data['tanggal_kirim'];
+          if (tanggalKirimFirestore != null) {
+            _selectedTanggalKirim = (tanggalKirimFirestore as Timestamp).toDate();
+          }
+          final tanggalPesanFirestore = data['tanggal_pesan'];
+          if (tanggalPesanFirestore != null) {
+            _selectedTanggalPesan = (tanggalPesanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+  if(widget.customerId!=null){
+    initializeCustomer();
+  }
 }
 
 @override
@@ -374,7 +279,7 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 16.0),
               // Di dalam widget buildProductCard atau tempat lainnya
-              PelangganDropdownWidget(namaPelangganController: namaPelangganController),
+              PelangganDropdownWidget(namaPelangganController: namaPelangganController, customerId: widget.customerId,),
               const SizedBox(height: 16.0,),
               TextFieldWidget(
                 label: 'Nama Pelanggan',
@@ -481,7 +386,7 @@ Widget build(BuildContext context) {
               const SizedBox(height: 16.0),
               if (productCards.isNotEmpty)
                 ...productCards.map((productCardData) {
-                  return buildProductCard(productCardData);
+                  return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards);
                 }).toList(),
               const SizedBox(height: 16.0,),
               Row(
