@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/pesanan_pelanggan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
@@ -253,8 +253,8 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                                       TextButton(
                                         child: const Text("Hapus"),
                                         onPressed: () async {
-                                          final purchaseOrderBloc = BlocProvider.of<PurchaseOrderBloc>(context);
-                                          purchaseOrderBloc.add(DeletePurchaseOrderEvent(data['id']));
+                                          final customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);
+                                          customerOrderBloc.add(DeleteCustomerOrderEvent(filteredDocs[index].id));
                                           Navigator.of(context).pop(true);
                                         },
                                       ),
@@ -318,7 +318,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Filter Berdasarkan Status Pembayaran'),
+          title: const Text('Filter Berdasarkan Status Pesanan'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {
@@ -328,9 +328,9 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Belum Bayar');
+                Navigator.pop(context, 'Dalam Proses');
               },
-              child: const Text('Belum Bayar'),
+              child: const Text('Dalam Proses'),
             ),
             SimpleDialogOption(
               onPressed: () {

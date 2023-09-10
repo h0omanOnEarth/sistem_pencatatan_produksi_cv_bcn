@@ -125,8 +125,13 @@ void addOrUpdateCustomerOrder() {
 
     print(customerOrder.detailCustomerOrderList);
 
-    // Dispatch event untuk menambahkan customer order
+    if(widget.customerId!=null){
+      _customerOrderBloc.add(UpdateCustomerOrderEvent(widget.customerOrderId??'', customerOrder));
+    }else{
+       // Dispatch event untuk menambahkan customer order
     _customerOrderBloc.add(AddCustomerOrderEvent(customerOrder));
+    }
+   
     _showSuccessMessageAndNavigateBack();
   } catch (e) {
     // Tangani pengecualian di sini
@@ -284,7 +289,7 @@ Widget build(BuildContext context) {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context,null);
                     },
                     child: Container(
                       decoration: BoxDecoration(
