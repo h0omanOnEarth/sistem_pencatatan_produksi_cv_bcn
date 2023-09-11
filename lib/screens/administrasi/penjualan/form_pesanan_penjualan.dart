@@ -89,9 +89,32 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
   });
 }
 
+void clearForm() {
+  setState(() {
+    _selectedTanggalPesan = null;
+    _selectedTanggalKirim = null;
+    selectedKode = null;
+    dropdownValue = null;
+    catatanController.clear();
+    alamatPengirimanController.clear();
+    totalHargaController.clear();
+    totalProdukController.clear();
+    statusController.clear();
+    productCards.clear();
+    productCards.add(ProductCardDataCustomerOrder(
+      kodeProduk: '',
+      namaProduk: '',
+      jumlah: '',
+      satuan: '',
+      hargaSatuan: '',
+      subtotal: '',
+    ));
+  });
+}
+
+
 void addOrUpdateCustomerOrder() {
-  final _customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);
-  
+  final _customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);  
   try {
     final customerOrder = CustomerOrder(
       id: '',
@@ -122,8 +145,6 @@ void addOrUpdateCustomerOrder() {
       );
       customerOrder.detailCustomerOrderList?.add(detailCustomerOrder);
     }
-
-    print(customerOrder.detailCustomerOrderList);
 
     if(widget.customerId!=null){
       _customerOrderBloc.add(UpdateCustomerOrderEvent(widget.customerOrderId??'', customerOrder));
@@ -461,6 +482,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        clearForm();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

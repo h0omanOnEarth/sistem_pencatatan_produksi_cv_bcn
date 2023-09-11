@@ -102,6 +102,7 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
             detailCount++;
           }
         }
+        
         yield LoadedState(event.customerOrder);
       } catch (e) {
         yield ErrorState("Gagal menambahkan Customer Order.");

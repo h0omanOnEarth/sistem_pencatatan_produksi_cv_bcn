@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_pengiriman.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_delivery_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -78,7 +78,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
                     ),
                     const SizedBox(height: 16),
                     const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pelanggan', textB: 'Memodifikasi dan melihat pesanan pelanggan', pageRoute: ListPesananPelanggan()),
-                    const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Pengiriman', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: FormPesananPengirimanScreen()),
+                    const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Pengiriman', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: ListPesananPengiriman()),
                     const CardItem(icon: Icons.file_present_rounded, textA: 'Faktur', textB: 'Memodifikasi dan melihat data faktur', pageRoute: FormFakturPenjualanScreen()),
                   ],
                 ),

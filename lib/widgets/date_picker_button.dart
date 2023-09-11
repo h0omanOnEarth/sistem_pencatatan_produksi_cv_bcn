@@ -45,8 +45,9 @@ class DatePickerButton extends StatelessWidget {
             }
           },
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // Meningkatkan padding vertikal
             backgroundColor: Colors.white,
+            elevation: 0, // Menonaktifkan bayangan
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
               side: BorderSide(color: Colors.grey[400]!),

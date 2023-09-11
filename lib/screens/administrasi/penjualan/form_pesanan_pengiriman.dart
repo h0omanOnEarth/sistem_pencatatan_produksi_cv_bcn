@@ -1,33 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/delivery_order_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/delivery_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_delivery_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/class/product_card_cust_widget_build.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/class/product_card_customer_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customer_order_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
-
-class ProductCardData {
-  String kodeProduk;
-  String namaProduk;
-  String jumlah;
-  String satuan;
-  String hargaSatuan;
-  String subtotal;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.kodeProduk,
-    required this.namaProduk,
-    required this.jumlah,
-    required this.satuan,
-    required this.hargaSatuan,
-    required this.subtotal,
-    this.selectedDropdownValue = '',
-  });
-}
 
 class FormPesananPengirimanScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pengiriman_screen';
 
-  const FormPesananPengirimanScreen({super.key});
+  final String? deliveryOrderId;
+  final String? customerOrderId;
+  const FormPesananPengirimanScreen({Key? key, this.deliveryOrderId, this.customerOrderId}) : super(key: key);
   
   @override
   State<FormPesananPengirimanScreen> createState() =>
@@ -36,22 +27,29 @@ class FormPesananPengirimanScreen extends StatefulWidget {
 
 class _FormPesananPengirimanScreenState extends State<FormPesananPengirimanScreen> {
   DateTime? _selectedDate;
-  String selectedPesanan = "Pesanan 1";
+  DateTime? _selectedReqDate;
+  String? selectedPesanan;
   String selectedMetode = "Pengiriman Truk Pabrik";
+  String? dropdownValue;
   
-  var statusController;
-  var pelangganController;
-  var alamatController;
-  var totalBarangController;
-  var totalHargaController;
-  var catatanController;
-  var statusPembayaranController;
+  TextEditingController statusController = TextEditingController();
+  TextEditingController pelangganController = TextEditingController();
+  TextEditingController alamatController = TextEditingController();
+  TextEditingController totalBarangController = TextEditingController();
+  TextEditingController totalHargaController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController waktuPengirimanController = TextEditingController();
   
- List<ProductCardData> productCards = [];
+  List<ProductCardDataCustomerOrder> productCards = [];
+  List<Map<String, dynamic>> productData = []; // Inisialisasi daftar produk
+  List<Map<String, dynamic>> customerOrderData = []; // Inisialisasi daftar produk
+  final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final deliveryOrderBloc = DeliveryOrderBloc();
 
   void addProductCard() {
     setState(() {
-      productCards.add(ProductCardData(
+      productCards.add(ProductCardDataCustomerOrder(
         kodeProduk: '',
         namaProduk: '',
         jumlah: '',
@@ -59,117 +57,241 @@ class _FormPesananPengirimanScreenState extends State<FormPesananPengirimanScree
         hargaSatuan: '',
         subtotal: '',
       ));
+      //void update
+      updateTotalHargaProduk(); 
+    });
+}
+
+ @override
+  void dispose() {
+    selectedCustomerOrderNotifier.removeListener(_selectedCustomerOrderListener);
+    deliveryOrderBloc.close();
+    super.dispose();
+  }
+
+ // Fungsi yang akan dipanggil ketika selectedPesanan berubah
+void _selectedCustomerOrderListener() {
+  setState(() {
+    selectedPesanan = selectedCustomerOrderNotifier.value;
+  });
+}
+
+void addOrUpdateData(){
+  final deliveryOrderBloc = BlocProvider.of<DeliveryOrderBloc>(context);
+    try {
+    final deliveryOrder = DeliveryOrder(id: '', customerOrderId: selectedPesanan??'', metodePengiriman: selectedMetode, satuan: 'Pcs', status: 1, catatan: catatanController.text,alamatPengiriman: alamatController.text,statusPesananPengiriman: statusController.text, tanggalPesananPengiriman: _selectedDate?? DateTime.now(), tanggalRequestPengiriman: _selectedReqDate??DateTime.now(), totalBarang: int.parse(totalBarangController.text), totalHarga: currencyFormat.parse(totalHargaController.text).toInt(), estimasiWaktu: int.parse(waktuPengirimanController.text), detailDeliveryOrderList: []);
+
+    // Loop melalui productCards untuk menambahkan detail customer order
+    for (var productCardData in productCards) {
+      final detailDeliveryOrder = DetailDeliveryOrder(
+        id: '',
+        deliveryOrderId: '',
+        product_id: productCardData.kodeProduk,
+        jumlah: int.parse(productCardData.jumlah),
+        hargaSatuan: int.parse(productCardData.hargaSatuan),
+        satuan: productCardData.satuan,
+        status: 1,
+        subtotal: int.parse(productCardData.subtotal),
+      );
+      deliveryOrder.detailDeliveryOrderList?.add(detailDeliveryOrder);
+    }
+
+    if(widget.deliveryOrderId!=null){
+      //berarti update
+      deliveryOrderBloc.add(UpdateDeliveryOrderEvent(widget.deliveryOrderId??'', deliveryOrder));
+    }else{
+      deliveryOrderBloc.add(AddDeliveryOrderEvent(deliveryOrder));
+    }
+    
+    _showSuccessMessageAndNavigateBack();
+  } catch (e) {
+    // Tangani pengecualian di sini
+    print('Error: $e');
+  }
+}
+
+void fetchDataProduct(){
+    firestore.collection('products').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> product = {
+          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+          'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+        };
+        setState(() {
+          productData.add(product); // Tambahkan produk ke daftar produk
+        });
+      });
+    });
+}
+
+void fetchDataCustomerOrder(){
+    // Ambil data produk dari Firestore di initState
+    firestore.collection('customer_orders').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> customerOrder = {
+          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+        };
+        setState(() {
+          customerOrderData.add(customerOrder); // Tambahkan produk ke daftar produk
+        });
+      });
+    });
+}
+
+void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SuccessDialog(
+        message: 'Berhasil menyimpan pesanan pengiriman.',
+      );
+    },
+    ).then((_) {
+      Navigator.pop(context,null);
     });
   }
 
-Widget buildProductCard(ProductCardData productCardData) {
-  return Card(
-    elevation: 2,
-    margin: EdgeInsets.symmetric(vertical: 8),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: BorderSide(color: Colors.grey[300]!),
-    ),
-    child: Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: [
-              DropdownDetailWidget(
-              label: 'Kode Produk',
-              items: ['Kode 1', 'Kode 2'],
-              selectedValue: productCardData.kodeProduk,
-              onChanged: (newValue) {
-                setState(() {
-                  productCardData.kodeProduk = newValue;
-                });
-              },
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Nama Produk',
-              placeholder: 'Nama Produk',
-              controller: TextEditingController(text: productCardData.namaProduk),
-            ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-              label: 'Jumlah',
-              placeholder: 'Jumlah',
-              controller: TextEditingController(text: productCardData.jumlah),
-            ),
-              const SizedBox(height: 8.0),
-             DropdownDetailWidget(
-            label: 'Satuan',
-            items: ['Satuan 1', 'Satuan 2'],
-            selectedValue: productCardData.satuan,
-            onChanged: (newValue) {
-              setState(() {
-                productCardData.satuan = newValue;
-              });
-            },
-          ),
-              const SizedBox(height: 8.0),
-              TextFieldWidget(
-                label: 'Harga Satuan',
-                placeholder: 'Harga Satuan',
-                controller: TextEditingController(text: productCardData.hargaSatuan),
-              ),
-              const SizedBox(height: 8.0),
-             TextFieldWidget(
-                label: 'Subtotal',
-                placeholder: 'Subtotal',
-                controller: TextEditingController(text: productCardData.subtotal),
-                isEnabled: false,
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0), // Add the desired margin
-          child: Container(
-            width: double.infinity, // Make the button full width
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle delete button press
-                setState(() {
-                  productCards.remove(productCardData);
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(10), // Add padding to the button
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  'Hapus',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
+void updateTotalHargaProduk() {
+  int totalHarga = 0;
+  int totalProduk = 0;
+  for (var productCardData in productCards) {
+    if (productCardData.subtotal.isNotEmpty) {
+      int subtotalValue = int.tryParse(productCardData.subtotal) ?? 0;
+      totalHarga += subtotalValue;
+      totalProduk++;
+    }
+  }
+  setState(() {
+    totalHargaController.text = currencyFormat.format(totalHarga); // Format total harga
+    totalBarangController.text = totalProduk.toString();
+  });
+}
+
+  Future<void> fetchCustomerName(String customerId) async {
+    final customerQuery = await firestore
+        .collection('customers')
+        .where('id', isEqualTo: customerId)
+        .get();
+
+    if (customerQuery.docs.isNotEmpty) {
+      final customerDocument = customerQuery.docs.first;
+      setState(() {
+        pelangganController.text = customerDocument['nama'] ?? '';
+      });
+    }
+}
+
+void initializeCustomerOrder(){
+    selectedPesanan = widget.customerOrderId;
+    _selectedCustomerOrderListener();
+    firestore
+    .collection('customer_orders')
+    .where('id', isEqualTo: selectedPesanan) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) {
+    if (querySnapshot.docs.isNotEmpty) {
+      final customerData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      fetchCustomerName(customerData['customer_id']);
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
+  // Fungsi untuk mengambil data detail_customer_orders
+void fetchDataDetailDeliveryOrder() {
+  firestore
+      .collection('delivery_orders')
+      .doc(widget.deliveryOrderId!) // Menggunakan widget.customerOrderId
+      .collection('detail_delivery_orders') // Ganti dengan nama collection yang sesuai
+      .get()
+      .then((querySnapshot) {
+    final newProductCards = <ProductCardDataCustomerOrder>[];
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data() as Map<String, dynamic>;
+
+        final productId = detailData['product_id'] as String;
+        // Mencari nama produk berdasarkan productId
+        final product = productData.firstWhere(
+          (product) => product['id'] == productId,
+          orElse: () => {'nama': 'Produk Tidak Ditemukan'}, // Default jika tidak ditemukan
+        );
+
+      final productCardData = ProductCardDataCustomerOrder(
+        kodeProduk: detailData['product_id'] as String,
+        namaProduk: product['nama'], // Anda dapat mengisi nama produk berdasarkan productData
+        jumlah: detailData['jumlah'].toString(),
+        satuan: detailData['satuan'] as String,
+        hargaSatuan: detailData['harga_satuan'].toString(),
+        subtotal: detailData['subtotal'].toString(),
+      );
+
+      newProductCards.add(productCardData);
+    });
+
+    setState(() {
+      productCards = newProductCards;
+    });
+  });
 }
 
 @override
 void initState() {
   super.initState();
-  addProductCard(); // Tambahkan product card secara default pada initState
+  selectedCustomerOrderNotifier.addListener(_selectedCustomerOrderListener);
+  selectedPesanan = selectedCustomerOrderNotifier.value;
+  statusController.text = 'Dalam Proses';
+  fetchDataCustomerOrder();
+  fetchDataProduct();
+  addProductCard(); 
+   
+  if (widget.deliveryOrderId != null) {
+  // Jika ada customerOrderId, ambil data dari Firestore
+  FirebaseFirestore.instance
+      .collection('delivery_orders')
+      .doc(widget.deliveryOrderId) // Menggunakan widget.customerOrderId
+      .get()
+      .then((DocumentSnapshot documentSnapshot) {
+    if (documentSnapshot.exists) {
+      final data = documentSnapshot.data() as Map<String, dynamic>;
+      setState(() {
+        alamatController.text = data['alamat_pengiriman'];
+        catatanController.text = data['catatan'] ?? '';
+        totalHargaController.text = data['total_harga'].toString();
+        totalBarangController.text = data['total_barang'].toString();
+        statusController.text = data['status_pesanan_pengiriman'];
+        final tanggalDeliveryOrderFirestore = data['tanggal_pesanan_pengiriman'];
+        if (tanggalDeliveryOrderFirestore != null) {
+          _selectedDate = (tanggalDeliveryOrderFirestore as Timestamp).toDate();
+        }
+        final tanggalRequestFirestore = data['tanggal_request_pengiriman'];
+        if (tanggalRequestFirestore != null) {
+          _selectedReqDate = (tanggalRequestFirestore as Timestamp).toDate();
+        }
+        waktuPengirimanController.text = data['estimasi_waktu'].toString();
+      });
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+
+  fetchDataDetailDeliveryOrder(); // Ambil data detail_customer_orders
+}
+
+if(widget.customerOrderId!=null){
+  initializeCustomerOrder();
+}
 }
 
 @override
 Widget build(BuildContext context) {
-
-
-  var waktuPengirimanController;
-  return Scaffold(
+  return BlocProvider(
+    create: (context) => DeliveryOrderBloc(),
+    child: Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
         child: Container(
@@ -181,7 +303,7 @@ Widget build(BuildContext context) {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context,null);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -214,17 +336,13 @@ Widget build(BuildContext context) {
                 ],
               ),
               const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-              DropdownWidget(
-                      label: 'Nomor Pesanan Pelanggan',
-                      selectedValue: selectedPesanan, // Isi dengan nilai yang sesuai
-                      items: ['Pesanan 1', 'Pesanan 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedPesanan = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
+              CustomerOrderDropDownWidget(namaPelangganController: pelangganController, alamatPengirimanController: alamatController, customerOrderId: widget.customerOrderId,),
+              const SizedBox(height: 16.0,),
+              TextFieldWidget(
+                label: 'Pelanggan',
+                placeholder: 'Pelanggan',
+                controller: pelangganController,
+                isEnabled: false,
               ),
               const SizedBox(height: 16.0,),
               DatePickerButton(
@@ -236,14 +354,17 @@ Widget build(BuildContext context) {
                   });
                 },
               ),
-              const SizedBox(height: 16.0),
-              TextFieldWidget(
-                label: 'Pelanggan',
-                placeholder: 'Pelanggan',
-                controller: pelangganController,
-                isEnabled: false,
-              ),
               const SizedBox(height: 16.0,),
+              DatePickerButton(
+                label: 'Tanggal Permintaan Pengiriman',
+                selectedDate: _selectedReqDate,
+                onDateSelected: (newDate) {
+                  setState(() {
+                    _selectedReqDate = newDate;
+                  });
+                },
+              ),
+              const SizedBox(height: 16.0),
               TextFieldWidget(
                 label: 'Alamat',
                 placeholder: 'Alamat',
@@ -254,7 +375,7 @@ Widget build(BuildContext context) {
                DropdownWidget(
                 label: 'Metode Pengiriman',
                 selectedValue: selectedMetode, // Isi dengan nilai yang sesuai
-                items: ['Pengiriman Truk Pabrik'],
+                items: const ['Pengiriman Truk Pabrik', 'Ekspedisi'],
                 onChanged: (newValue) {
                   setState(() {
                     selectedMetode = newValue; // Update _selectedValue saat nilai berubah
@@ -272,7 +393,7 @@ Widget build(BuildContext context) {
                       isEnabled: false,
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   const Expanded(child: TextFieldWidget(
                       label: 'Satuan',
                       placeholder: 'Pcs',
@@ -296,13 +417,6 @@ Widget build(BuildContext context) {
                 controller: catatanController,
               ),
               const SizedBox(height: 16.0,),
-                 TextFieldWidget(
-                label: 'Status Pembayaran',
-                placeholder: 'Belum Bayar',
-                controller: statusPembayaranController,
-                isEnabled: false,
-              ),
-              const SizedBox(height: 16.0,),
                Row(
                 children: [
                   Expanded(child: TextFieldWidget(
@@ -311,7 +425,7 @@ Widget build(BuildContext context) {
                       controller: waktuPengirimanController,
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   const Expanded(child: TextFieldWidget(
                       label: '',
                       placeholder: 'Days',
@@ -344,7 +458,7 @@ Widget build(BuildContext context) {
                     onTap: () {
                       addProductCard();
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 20,
                       backgroundColor: Color.fromRGBO(59, 51, 51, 1),
                       child: Icon(
@@ -359,7 +473,7 @@ Widget build(BuildContext context) {
               const SizedBox(height: 16.0),
               if (productCards.isNotEmpty)
                 ...productCards.map((productCardData) {
-                  return buildProductCard(productCardData);
+                  return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards);
                 }).toList(),
               const SizedBox(height: 16.0,),
               Row(
@@ -368,9 +482,10 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle save button press
+                        addOrUpdateData();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -384,14 +499,14 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -412,7 +527,8 @@ Widget build(BuildContext context) {
         ),
       ),
     ),
-  );
+  ))
+  ;
 }
 }
 

@@ -1,0 +1,191 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/delivery_order.dart';
+
+// Events
+abstract class DeliveryOrderEvent {}
+
+class AddDeliveryOrderEvent extends DeliveryOrderEvent {
+  final DeliveryOrder deliveryOrder;
+  AddDeliveryOrderEvent(this.deliveryOrder);
+}
+
+class UpdateDeliveryOrderEvent extends DeliveryOrderEvent {
+  final String deliveryOrderId;
+  final DeliveryOrder deliveryOrder;
+  UpdateDeliveryOrderEvent(this.deliveryOrderId, this.deliveryOrder);
+}
+
+class DeleteDeliveryOrderEvent extends DeliveryOrderEvent {
+  final String deliveryOrderId;
+  DeleteDeliveryOrderEvent(this.deliveryOrderId);
+}
+
+// States
+abstract class DeliveryOrderBlocState {}
+
+class LoadingState extends DeliveryOrderBlocState {}
+
+class LoadedState extends DeliveryOrderBlocState {
+  final DeliveryOrder deliveryOrder;
+  LoadedState(this.deliveryOrder);
+}
+
+class DeliveryOrderUpdatedState extends DeliveryOrderBlocState {}
+
+class DeliveryOrderDeletedState extends DeliveryOrderBlocState {}
+
+class ErrorState extends DeliveryOrderBlocState {
+  final String errorMessage;
+  ErrorState(this.errorMessage);
+}
+
+// BLoC
+class DeliveryOrderBloc extends Bloc<DeliveryOrderEvent, DeliveryOrderBlocState> {
+  late FirebaseFirestore _firestore;
+
+  DeliveryOrderBloc() : super(LoadingState()) {
+    _firestore = FirebaseFirestore.instance;
+  }
+
+  @override
+  Stream<DeliveryOrderBlocState> mapEventToState(DeliveryOrderEvent event) async* {
+    if (event is AddDeliveryOrderEvent) {
+      yield LoadingState();
+      try {
+        final nextDeliveryOrderId = await _generateNextDeliveryOrderId();
+        final deliveryOrderRef = _firestore.collection('delivery_orders').doc(nextDeliveryOrderId);
+
+        final Map<String, dynamic> deliveryOrderData = {
+          'id': nextDeliveryOrderId,
+          'customer_order_id': event.deliveryOrder.customerOrderId,
+          'estimasi_waktu': event.deliveryOrder.estimasiWaktu,
+          'metode_pengiriman': event.deliveryOrder.metodePengiriman,
+          'alamat_pengiriman': event.deliveryOrder.alamatPengiriman,
+          'satuan': event.deliveryOrder.satuan,
+          'status': event.deliveryOrder.status,
+          'status_pesanan_pengiriman': event.deliveryOrder.statusPesananPengiriman,
+          'tanggal_pesanan_pengiriman': event.deliveryOrder.tanggalPesananPengiriman,
+          'tanggal_request_pengiriman': event.deliveryOrder.tanggalRequestPengiriman,
+          'total_barang': event.deliveryOrder.totalBarang,
+          'total_harga': event.deliveryOrder.totalHarga,
+          'catatan': event.deliveryOrder.catatan
+        };
+
+        await deliveryOrderRef.set(deliveryOrderData);
+
+         // Buat referensi ke subcollection 'detail_customer_orders' dalam dokumen customer order
+        final detailDeliveryOrderRef = deliveryOrderRef.collection('detail_delivery_orders');
+
+        if (event.deliveryOrder.detailDeliveryOrderList != null &&
+            event.deliveryOrder.detailDeliveryOrderList!.isNotEmpty) {
+          int detailCount = 1;
+          for (var detailDeliveryOrder in event.deliveryOrder.detailDeliveryOrderList!) {
+            final nextDetailDeliveryId ='$nextDeliveryOrderId${'D${detailCount.toString().padLeft(3, '0')}'}';
+
+            // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_orders'
+            await detailDeliveryOrderRef.add({
+              'id' : nextDetailDeliveryId,
+              'customer_id' : nextDeliveryOrderId,
+              'product_id' : detailDeliveryOrder.product_id,
+              'jumlah': detailDeliveryOrder.jumlah,
+              'harga_satuan': detailDeliveryOrder.hargaSatuan,
+              'satuan' : detailDeliveryOrder.satuan,
+              'status' : detailDeliveryOrder.status,
+              'subtotal' : detailDeliveryOrder.subtotal
+            });
+            detailCount++;
+          }
+        }
+
+        yield LoadedState(event.deliveryOrder);
+      } catch (e) {
+        yield ErrorState("Gagal menambahkan Delivery Order.");
+      }
+    } else if (event is UpdateDeliveryOrderEvent) {
+      yield LoadingState();
+      try {
+        final deliveryOrderToUpdateRef = _firestore.collection('delivery_orders').doc(event.deliveryOrderId);
+
+        final Map<String, dynamic> deliveryOrderData = {
+          'id': event.deliveryOrderId,
+          'customer_order_id': event.deliveryOrder.customerOrderId,
+          'estimasi_waktu': event.deliveryOrder.estimasiWaktu,
+          'metode_pengiriman': event.deliveryOrder.metodePengiriman,
+          'alamat_pengiriman': event.deliveryOrder.alamatPengiriman,
+          'satuan': event.deliveryOrder.satuan,
+          'status': event.deliveryOrder.status,
+          'status_pesanan_pengiriman': event.deliveryOrder.statusPesananPengiriman,
+          'tanggal_pesanan_pengiriman': event.deliveryOrder.tanggalPesananPengiriman,
+          'tanggal_request_pengiriman': event.deliveryOrder.tanggalRequestPengiriman,
+          'total_barang': event.deliveryOrder.totalBarang,
+          'total_harga': event.deliveryOrder.totalHarga,
+          'catatan': event.deliveryOrder.catatan
+        };
+
+        await deliveryOrderToUpdateRef.set(deliveryOrderData);
+
+        final detailDeliveryOrderCollectionRef = deliveryOrderToUpdateRef.collection('detail_delivery_orders');
+        final detailDeliveryOrderDocs = await detailDeliveryOrderCollectionRef.get();
+        for (var doc in detailDeliveryOrderDocs.docs) {
+          await doc.reference.delete();
+        }
+
+        if (event.deliveryOrder.detailDeliveryOrderList != null &&
+            event.deliveryOrder.detailDeliveryOrderList!.isNotEmpty) {
+          int detailCount = 1;
+          for (var detailDeliveryOrder in event.deliveryOrder.detailDeliveryOrderList!) {
+            final nextDetailDeliveryOrderId = 'D${detailCount.toString().padLeft(3, '0')}';
+            final detailId = event.deliveryOrderId + nextDetailDeliveryOrderId;
+
+            await detailDeliveryOrderCollectionRef.add({
+              'id': detailId,
+              'delivery_order_id': event.deliveryOrderId,
+              'product_id': detailDeliveryOrder.product_id,
+              'jumlah': detailDeliveryOrder.jumlah,
+              'harga_satuan': detailDeliveryOrder.hargaSatuan,
+              'satuan': detailDeliveryOrder.satuan,
+              'status': detailDeliveryOrder.status,
+              'subtotal': detailDeliveryOrder.subtotal,
+            });
+            detailCount++;
+          }
+        }
+        yield DeliveryOrderUpdatedState();
+      } catch (e) {
+        yield ErrorState("Gagal memperbarui Delivery Order.");
+      }
+    } else if (event is DeleteDeliveryOrderEvent) {
+      yield LoadingState();
+      try {
+        final deliveryOrderToDeleteRef = _firestore.collection('delivery_orders').doc(event.deliveryOrderId);
+        final detailDeliveryOrderCollectionRef = deliveryOrderToDeleteRef.collection('detail_delivery_orders');
+
+        final detailDeliveryOrderDocs = await detailDeliveryOrderCollectionRef.get();
+        for (var doc in detailDeliveryOrderDocs.docs) {
+          await doc.reference.delete();
+        }
+
+        await deliveryOrderToDeleteRef.delete();
+        yield DeliveryOrderDeletedState();
+      } catch (e) {
+        yield ErrorState("Gagal menghapus Delivery Order.");
+      }
+    }
+  }
+
+  Future<String> _generateNextDeliveryOrderId() async {
+    final deliveryOrdersRef = _firestore.collection('delivery_orders');
+    final QuerySnapshot snapshot = await deliveryOrdersRef.get();
+    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int deliveryCount = 1;
+
+    while (true) {
+      final nextDeliveryOrderId = 'DO${deliveryCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextDeliveryOrderId)) {
+        return nextDeliveryOrderId;
+      }
+      deliveryCount++;
+    }
+  }
+}
