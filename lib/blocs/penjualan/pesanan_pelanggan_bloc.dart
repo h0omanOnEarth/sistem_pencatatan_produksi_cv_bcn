@@ -91,7 +91,7 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
             // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_orders'
             await detailCustomerOrderRef.add({
               'id' : nextDetailCustomerId,
-              'customer_id' : nextCustomerOrderId,
+              'customer_order_id' : nextCustomerOrderId,
               'product_id' : detailCustomerOrder.productId,
               'jumlah': detailCustomerOrder.jumlah,
               'harga_satuan': detailCustomerOrder.hargaSatuan,
@@ -148,7 +148,7 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
             // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_orders'
             await detailCustomerOrderCollectionRef.add({
               'id': detailId,
-              'customer_id': event.customerOrderId,
+              'customer_order_id': event.customerOrderId,
               'product_id': detailCustomerOrder.productId,
               'jumlah': detailCustomerOrder.jumlah,
               'harga_satuan': detailCustomerOrder.hargaSatuan,

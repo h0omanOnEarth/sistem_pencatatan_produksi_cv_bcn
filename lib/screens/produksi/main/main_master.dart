@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_mesin.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bom.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainMasterProduksiScreen extends StatefulWidget {
@@ -77,9 +78,10 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: FormMasterBahanScreen()),
-                    const CardItem(icon: Icons.notes_rounded, textA: 'Master Bill of Material', textB: 'Memodifikasi dan melihat data BOM', pageRoute: FormMasterBOMScreen()),
-                    const CardItem(icon: Icons.factory_outlined, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: FormMasterMesinScreen()),
+                    const CardItem(icon: Icons.warehouse, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: ListMasterBahanScreen()),
+                    const CardItem(icon: Icons.notes_rounded, textA: 'Master Bill of Material', textB: 'Memodifikasi dan melihat data BOM', pageRoute: ListBOMScreen()),
+                    const CardItem(icon: Icons.factory_outlined, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: ListMasterMesinScreen()),
+                    const CardItem(icon: Icons.gif_box, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: ListMasterBarangScreen()),
                   ],
                 ),
               ),

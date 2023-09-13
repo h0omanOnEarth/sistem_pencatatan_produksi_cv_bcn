@@ -47,19 +47,45 @@ class _FormPesananPengirimanScreenState extends State<FormPesananPengirimanScree
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final deliveryOrderBloc = DeliveryOrderBloc();
 
-  void addProductCard() {
-    setState(() {
-      productCards.add(ProductCardDataCustomerOrder(
-        kodeProduk: '',
-        namaProduk: '',
-        jumlah: '',
-        satuan: '',
-        hargaSatuan: '',
-        subtotal: '',
-      ));
-      //void update
-      updateTotalHargaProduk(); 
-    });
+void addProductCard() {
+  setState(() {
+    productCards.add(ProductCardDataCustomerOrder(
+      kodeProduk: '',
+      namaProduk: '',
+      jumlah: '',
+      satuan: '',
+      hargaSatuan: '',
+      subtotal: '',
+    ));
+    //void update
+    updateTotalHargaProduk(); 
+  });
+}
+
+void clearForm() {
+  setState(() {
+    _selectedDate = null;
+    _selectedReqDate = null;
+    selectedPesanan = null;
+    selectedMetode = "Pengiriman Truk Pabrik";
+    dropdownValue = null;
+    catatanController.clear();
+    statusController.clear();
+    pelangganController.clear();
+    alamatController.clear();
+    totalBarangController.clear();
+    totalHargaController.clear();
+    waktuPengirimanController.clear();
+    productCards.clear();
+    productCards.add(ProductCardDataCustomerOrder(
+      kodeProduk: '',
+      namaProduk: '',
+      jumlah: '',
+      satuan: '',
+      hargaSatuan: '',
+      subtotal: '',
+    ));
+  });
 }
 
  @override
@@ -504,6 +530,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        clearForm();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

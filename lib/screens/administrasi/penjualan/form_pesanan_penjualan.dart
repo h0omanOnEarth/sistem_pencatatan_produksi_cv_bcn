@@ -112,7 +112,6 @@ void clearForm() {
   });
 }
 
-
 void addOrUpdateCustomerOrder() {
   final _customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);  
   try {
@@ -255,7 +254,7 @@ void initState() {
   statusController.text = 'Dalam Proses';
   fetchData();
 
-  if (widget.customerOrderId != null) {
+if (widget.customerOrderId != null) {
     // Jika ada customerOrderId, ambil data dari Firestore
     FirebaseFirestore.instance
         .collection('customer_orders')

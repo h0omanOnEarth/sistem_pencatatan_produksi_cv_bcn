@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bom.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/bottom_navigation.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
@@ -71,7 +75,12 @@ class _MainProduksiState extends State<MainProduksi> {
           FormPengembalianBahanScreen.routeName:(context)=> const FormPengembalianBahanScreen(),
           FormPencatatanDirectLaborScreen.routeName:(context)=> const FormPencatatanDirectLaborScreen(),
           FormHasilProduksiScreen.routeName:(context)=> const FormHasilProduksiScreen(),
-          FormKonfirmasiProduksiScreen.routeName:(context)=> const FormKonfirmasiProduksiScreen()
+          FormKonfirmasiProduksiScreen.routeName:(context)=> const FormKonfirmasiProduksiScreen(),
+          ListBOMScreen.routeName:(context)=> const ListBOMScreen(),
+          ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
+          ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
+          ListMasterMesinScreen.routeName:(context)=> const ListMasterMesinScreen()
+
 
           });
   }

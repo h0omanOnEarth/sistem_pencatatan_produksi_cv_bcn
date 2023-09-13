@@ -245,7 +245,7 @@ class LoginForm extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MainAdministrasi(),
+                                builder: (context) => MainProduksi(),
                               ),
                             );
 

@@ -1,38 +1,25 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/bom_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/billofmaterial.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/detail_billofmaterial.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardBahanWidget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardDataBahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_dropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
-class ProductCardData {
-  String kodeBahan;
-  String namaBahan;
-  String hargaBahan;
-  String kodeBatch;
-  String namaBatch;
-  String jumlah;
-  String satuan;
-  String hargaSatuan;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.kodeBahan,
-    required this.namaBahan,
-    required this.hargaBahan,
-    required this.kodeBatch,
-    required this.namaBatch,
-    required this.jumlah,
-    required this.satuan,
-    required this.hargaSatuan,
-    this.selectedDropdownValue = '',
-  });
-}
 
 class FormMasterBOMScreen extends StatefulWidget {
   static const routeName = '/form_master_bom_screen';
+  final String? bomId; // Terima ID pelanggan jika dalam mode edit
+  final String? productId;
 
-  const FormMasterBOMScreen({super.key});
+  const FormMasterBOMScreen({Key?key, this.bomId, this.productId}): super(key: key);
   
   @override
   State<FormMasterBOMScreen> createState() =>
@@ -41,38 +28,247 @@ class FormMasterBOMScreen extends StatefulWidget {
 
 
 class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
-  String selectedKodeProduk = "Produk 1";
+  String? selectedKodeProduk;
   String selectedStatus = "Aktif";
   DateTime? selectedDate;
+  String? dropdownValue;
 
-  List<ProductCardData> productCards = [];
+  TextEditingController kodeBOMController = TextEditingController();
+  TextEditingController namaProdukController = TextEditingController();
+  TextEditingController dimensiControler = TextEditingController();
+  TextEditingController beratController = TextEditingController();
+  TextEditingController ketebalanController =TextEditingController();
+  TextEditingController satuanController = TextEditingController();
+  TextEditingController versiBOMController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+  List<Map<String, dynamic>> productDataBahan = []; // Inisialisasi daftar bahan
+  List<ProductCardDataBahan> productCards = [];
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final bomBloc = BillOfMaterialBloc();
+
+   @override
+  void dispose() {
+    bomBloc.close();
+    selectedProdukNotifier.removeListener(_selectedKodeListener);
+    super.dispose();
+  }
+
+  // Fungsi yang akan dipanggil ketika selectedKode berubah
+  void _selectedKodeListener() {
+    setState(() {
+      selectedKodeProduk = selectedProdukNotifier.value;
+    });
+  }
+    
     void addProductCard() {
     setState(() {
-      productCards.add(ProductCardData(
+      productCards.add(ProductCardDataBahan(
         kodeBahan: '',
         namaBahan: '',
-        hargaBahan: '',
-        kodeBatch: '',
         namaBatch: '',
         jumlah: '',
         satuan: '',
-        hargaSatuan: '',
       ));
     });
   }
 
+  Future<String> _generateNextBomId() async {
+    final bomsRef = firestore.collection('bill_of_materials');
+    final QuerySnapshot snapshot = await bomsRef.get();
+    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int bomCount = 1;
+
+    while (true) {
+      final nextBomId = 'BOM${bomCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextBomId)) {
+        return nextBomId;
+      }
+      bomCount++;
+    }
+  }
+
+   void fetchDataBahan(){
+    // Ambil data produk dari Firestore di initState
+    firestore.collection('materials').get().then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        Map<String, dynamic> bahan = {
+          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+          'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+        };
+        setState(() {
+          productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
+        });
+      });
+    });
+  }
+
+ void addOrUpdateData() {
+  final _bomBloc = BlocProvider.of<BillOfMaterialBloc>(context);
+  try {
+    final billOfMaterial = BillOfMaterial(
+      id: '',
+      productId: selectedKodeProduk ?? '',
+      statusBOM: selectedStatus == 'Aktif' ? 1 : 0,
+      tanggalPembuatan: selectedDate ?? DateTime.now(),
+      versiBOM: 0,
+      detailBOMList: []
+    );
+
+    // Loop melalui productCards untuk menambahkan detail customer order
+  for (var productCardData in productCards) {
+    int jumlah = 0;
+    if (productCardData.jumlah.isNotEmpty) {
+      try {
+        jumlah = int.parse(productCardData.jumlah);
+      } catch (e) {
+        print('Error parsing jumlah: $e');
+        // Handle error parsing jika diperlukan
+      }
+    }
+
+    final detailBOM = BomDetail(
+      bomId: '',
+      id: '',
+      jumlah: jumlah,
+      materialId: productCardData.kodeBahan,
+      batch: productCardData.namaBatch,
+      satuan: productCardData.satuan,
+      status: 1,
+    );
+    billOfMaterial.detailBOMList?.add(detailBOM);
+  }
+
+  if (widget.bomId != null) {
+    _bomBloc.add(UpdateBillOfMaterialEvent(widget.bomId ?? '', billOfMaterial));
+  } else {
+    // Dispatch event untuk menambahkan customer order
+    _bomBloc.add(AddBillOfMaterialEvent(billOfMaterial));
+  }
+
+  _showSuccessMessageAndNavigateBack();
+} catch (e) {
+  // Tangani pengecualian di sini
+  print('Error: $e');
+}
+}
+
+
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan BOM.',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
+// Fungsi untuk mengambil data detail_customer_orders
+void fetchDataDetail() {
+  firestore
+      .collection('bill_of_materials')
+      .doc(widget.bomId!) // Menggunakan widget.bomId
+      .collection('detail_bill_of_materials') 
+      .get()
+      .then((querySnapshot) {
+    final newProductCards = <ProductCardDataBahan>[];
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data() as Map<String, dynamic>;
+
+      final bahanId = detailData['material_id'] as String;
+      // Mencari nama produk berdasarkan productId
+      final material = productDataBahan.firstWhere(
+        (material) => material['id'] == bahanId,
+        orElse: () => {'nama': 'Produk Tidak Ditemukan'}, // Default jika tidak ditemukan
+      );
+
+      final productCardData = ProductCardDataBahan(kodeBahan: detailData['material_id'] as String, namaBahan: material['nama'] as String, namaBatch: detailData['batch'] as String, jumlah: detailData['jumlah'].toString(), satuan: detailData['satuan'] as String);
+
+      newProductCards.add(productCardData);
+    });
+
+    setState(() {
+      productCards = newProductCards;
+    });
+  });
+}
+
+void initializeProduct(){
+    selectedKodeProduk = widget.productId;
+    _selectedKodeListener();
+    firestore
+    .collection('products')
+    .where('id', isEqualTo: selectedKodeProduk) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) {
+    if (querySnapshot.docs.isNotEmpty) {
+      final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      final namaProduk = productData['nama'];
+      namaProdukController.text = namaProduk ?? '';
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
+
   @override
-  Widget build(BuildContext context) {
-   
-    var kodeBOMController;
-    var namaProdukController;
-    var dimensiControler;
-    var beratController;
-    var ketebalanController;
-    var satuanController;
-    var versiBOMController;
-    var catatanController;
-    return Scaffold(
+void initState() {
+  super.initState();
+  addProductCard();
+  selectedProdukNotifier.addListener(_selectedKodeListener);
+  selectedKodeProduk = selectedProdukNotifier.value;
+  fetchDataBahan();
+   // Panggil _generateNextBomId() dan isi kodeBOMController dengan hasilnya
+  _generateNextBomId().then((nextBomId) {
+    kodeBOMController.text = nextBomId;
+  });
+
+  if (widget.bomId != null) {
+    // Jika ada customerOrderId, ambil data dari Firestore
+       firestore
+        .collection('bill_of_materials')
+        .doc(widget.bomId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          kodeBOMController.text = data['id'];
+          versiBOMController.text = data['versi_bom'].toString();
+          selectedStatus = data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';;
+          final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
+          if (tanggalPembuatanFirestore != null) {
+            selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+
+     fetchDataDetail(); // Ambil data detail_customer_orders
+  }
+
+  if(widget.productId!=null){
+    initializeProduct();
+  }
+
+}
+
+  @override
+  Widget build(BuildContext context) {   
+    return BlocProvider(
+    create: (context) => BillOfMaterialBloc(),
+    child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -84,7 +280,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,null);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -104,7 +300,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     const Text(
                       'Bill of Material',
                       style: TextStyle(
@@ -114,32 +310,23 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 TextFieldWidget(
                   label: 'Kode BOM',
                   placeholder: 'Kode BOM',
                   controller: kodeBOMController,
+                  isEnabled: false,
                 ),
-                SizedBox(height: 16.0),
-                DropdownWidget(
-                  label: 'Kode Produk',
-                  selectedValue: selectedKodeProduk, // Isi dengan nilai yang sesuai
-                  items: ['Produk 1', 'Produk 2'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedKodeProduk = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
-                ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
+                ProdukDropDown(namaProdukController: namaProdukController,versionController: versiBOMController, dimensiControler: dimensiControler, beratController: beratController, ketebalanController: ketebalanController,satuanController: satuanController, productId: widget.productId,),
+                const SizedBox(height: 16.0),
                 TextFieldWidget(
                   label: 'Nama Produk',
                   placeholder: 'Nama Produk',
                   controller: namaProdukController,
                   isEnabled: false,
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(child: 
@@ -147,18 +334,20 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                       label: 'Dimensi',
                       placeholder: 'Dimensi',
                       controller: dimensiControler,
+                      isEnabled: false,
                     ),),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child:    TextFieldWidget(
                         label: 'Berat',
                         placeholder: 'Berat',
                         controller: beratController,
+                        isEnabled: false,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 Row(
                   children: [
                     Expanded(child: 
@@ -166,9 +355,10 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                           label: 'Ketebalan',
                           placeholder: 'Ketebalan',
                           controller: ketebalanController,
+                          isEnabled: false,
                         ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child:   
                        TextFieldWidget(
@@ -180,7 +370,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                     ),
                   ],
                 ),    
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 DatePickerButton(
                       label: 'Tanggal Pembuatan BOM',
                       selectedDate: selectedDate,
@@ -190,18 +380,18 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                         });
                       },
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Versi BOM',
                   placeholder: '1',
                   controller: versiBOMController,
                   isEnabled: false,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 DropdownWidget(
                   label: 'Status BOM',
                   selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                  items: ['Aktif', 'Tidak Aktif'],
+                  items: const ['Aktif', 'Tidak Aktif'],
                   onChanged: (newValue) {
                     setState(() {
                       selectedStatus = newValue; // Update _selectedValue saat nilai berubah
@@ -209,13 +399,13 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                     });
                   },
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Catatan',
                   placeholder: 'Catatan',
                   controller: catatanController,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -230,7 +420,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                     onTap: () {
                       addProductCard();
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 20,
                       backgroundColor: Color.fromRGBO(59, 51, 51, 1),
                       child: Icon(
@@ -253,8 +443,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                     });
                   },
                   children: [
-                    ProductCardChildren(productCardData: productCardData),
-                    // ... Add other child widgets here
+                    ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, ),
                   ],
                 );
               }).toList(),
@@ -265,9 +454,10 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdateData();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -281,14 +471,14 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -309,103 +499,9 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
           ),
         ),
       ),
+    )
     );
   }
 }
 
 
-class ProductCardChildren extends StatefulWidget {
-  final ProductCardData productCardData;
-
-  ProductCardChildren({required this.productCardData});
-
-  @override
-  _ProductCardChildrenState createState() => _ProductCardChildrenState();
-}
-
-class _ProductCardChildrenState extends State<ProductCardChildren> {
-  
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        DropdownDetailWidget(
-          label: 'Kode Bahan',
-          items: ['Kode 1', 'Kode 2'],
-          selectedValue: widget.productCardData.kodeBahan,
-          onChanged: (newValue) {
-                setState(() {
-                  widget.productCardData.kodeBahan = newValue;
-                });
-              },
-        ),
-        const SizedBox(height: 8.0),
-        TextFieldWidget(
-              label: 'Nama Bahan',
-              placeholder: 'Nama Bahan',
-              controller: TextEditingController(text: widget.productCardData.namaBahan),
-              isEnabled: false,
-       ),
-       const SizedBox(height: 16.0,),
-       TextFieldWidget(
-              label: 'Harga Bahan',
-              placeholder: 'Harga Bahan',
-              controller: TextEditingController(text: widget.productCardData.hargaBahan),
-      ),
-      const SizedBox(height: 16.0,),
-      Row(
-        children: [
-          Expanded(child: 
-            DropdownDetailWidget(
-              label: 'Kode Batch',
-              items: ['Batch 1', 'Batch 2'],
-              selectedValue: widget.productCardData.kodeBatch,
-              onChanged: (newValue) {
-                    setState(() {
-                      widget.productCardData.kodeBatch = newValue;
-                    });
-                  },
-            ),
-          ),
-          SizedBox(width: 16.0),
-          Expanded(
-            child:   
-              TextFieldWidget(
-              label: 'Nama Batch',
-              placeholder: 'Nama Batch',
-              controller: TextEditingController(text: widget.productCardData.namaBatch),
-              isEnabled: false,
-            ),
-          ),
-        ],
-      ),    
-      const SizedBox(height: 16.0,),
-      Row(
-        children: [
-          Expanded(child:
-            TextFieldWidget(
-                label: 'Jumlah',
-                placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.jumlah),
-              ), 
-          ),
-          SizedBox(width: 16.0),
-          Expanded(
-            child:   
-            DropdownDetailWidget(
-              label: 'Satuan',
-              items: ['Pcs', 'Kg', 'Ons'],
-              selectedValue: widget.productCardData.satuan,
-              onChanged: (newValue) {
-                    setState(() {
-                      widget.productCardData.satuan = newValue;
-                    });
-                  },
-            ),
-          ),
-        ],
-      ),    
-      ],
-    );
-  }
-}
