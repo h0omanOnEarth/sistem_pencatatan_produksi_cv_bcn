@@ -54,8 +54,8 @@ class DeliveryOrder {
 
    Future<void> fetchDetailDeliveryOrders() async {
     final detailDeliveryOrdersQuery = FirebaseFirestore.instance
-        .collection('detail_delivery_order')
-        .where('customer_order_id', isEqualTo: customerOrderId);
+        .collection('detail_delivery_orders')
+        .where('delivery_order_id', isEqualTo: id);
 
     final detailDeliveryOrdersSnapshot = await detailDeliveryOrdersQuery.get();
     final detailDeliveryOrdersData = detailDeliveryOrdersSnapshot.docs.map((doc) {

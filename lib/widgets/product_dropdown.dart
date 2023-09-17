@@ -6,20 +6,20 @@ ValueNotifier<String?> selectedProdukNotifier = ValueNotifier<String?>(null);
 
 class ProdukDropDown extends StatefulWidget {
   final TextEditingController namaProdukController;
-  final TextEditingController versionController;
-  final TextEditingController dimensiControler;
-  final TextEditingController beratController;
-  final TextEditingController ketebalanController;
-  final TextEditingController satuanController;
+  late final TextEditingController? versionController;
+  late final TextEditingController? dimensiControler;
+  late final TextEditingController? beratController;
+  late final TextEditingController? ketebalanController;
+  late final TextEditingController? satuanController;
   final String? productId; // Tambahkan parameter customerId
 
   ProdukDropDown({
     required this.namaProdukController,
-    required this.versionController,
-    required this.dimensiControler,
-    required this.beratController,
-    required this.ketebalanController,
-    required this.satuanController,
+    this.versionController,
+    this.dimensiControler,
+    this.beratController,
+    this.ketebalanController,
+    this.satuanController,
     this.productId
   }): super();
 
@@ -121,13 +121,13 @@ Future<int> _generateNextVersion(String productId) async {
                       widget.namaProdukController.text =
                           selectedProduk['nama'] ?? '';
 
-                      widget.dimensiControler.text = selectedProduk['dimensi'].toString();
-                      widget.beratController.text = selectedProduk['berat'].toString();
-                      widget.ketebalanController.text = selectedProduk['ketebalan'].toString();
-                      widget.satuanController.text = selectedProduk['satuan'].toString();
+                      widget.dimensiControler?.text = selectedProduk['dimensi'].toString();
+                      widget.beratController?.text = selectedProduk['berat'].toString();
+                      widget.ketebalanController?.text = selectedProduk['ketebalan'].toString();
+                      widget.satuanController?.text = selectedProduk['satuan'].toString();
 
                       final nextVersion = await _generateNextVersion(selectedProduk['id']);
-                      widget.versionController.text = nextVersion.toString();
+                      widget.versionController?.text = nextVersion.toString();
 
                     },
                     isExpanded: true,

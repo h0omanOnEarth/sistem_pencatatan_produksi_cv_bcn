@@ -196,7 +196,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
                       final itemDocs = querySnapshot.docs;
 
                       final filteredDocs = itemDocs.where((doc) {
-                        final keterangan = doc['catatan'] as String;
+                        final id = doc['id'] as String;
                         final status = doc['status_pesanan_pengiriman'] as String;
                         final tanggalPesan = doc['tanggal_pesanan_pengiriman'] as Timestamp; // Tanggal Pesan
                         final tanggalKirim = doc['tanggal_request_pengiriman'] as Timestamp; // Tanggal Kirim
@@ -207,7 +207,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
                               (tanggalKirim.toDate().isAfter(selectedStartDate!.toDate()) && tanggalKirim.toDate().isBefore(selectedEndDate!.toDate()));
                         }
 
-                        return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                        return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
                             (selectedStatus.isEmpty || status == selectedStatus) &&
                             isWithinDateRange);
                       }).toList();
@@ -219,6 +219,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
                           final data = filteredDocs[index].data() as Map<String, dynamic>;
                           final id = data['id'] as String;
                           final info = {
+                            'Id': data['id'],
                             'Tanggal Pesanan Pengiriman': DateFormat('dd/MM/yyyy').format((data['tanggal_pesanan_pengiriman'] as Timestamp).toDate()), // Format tanggal
                             'Tanggal Request Pengiriman': DateFormat('dd/MM/yyyy').format((data['tanggal_request_pengiriman'] as Timestamp).toDate()), // Format tanggal
                           };
