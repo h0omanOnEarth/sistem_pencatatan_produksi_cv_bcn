@@ -2,11 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_order_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_mesin_production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/billofmaterialdropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/machine_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_dropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPerintahProduksiScreen extends StatefulWidget {
@@ -37,9 +41,14 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   TextEditingController perkiraanLamaWaktuController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
   TextEditingController jumlahTenagaKerjaController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   List<Map<String, dynamic>> productDataProduk = []; // Inisialisasi daftar produk
-
+  List<Map<String, dynamic>> billOfMaterialsData = []; // Initialize the list
+  Map<String, dynamic> mesinPencampuran = {};
+  Map<String, dynamic> mesinSheet = {};
+  Map<String, dynamic> mesinPencetak = {}; 
+   
    void fetchData(){
     // Ambil data produk dari Firestore di initState
     firestore.collection('products').get().then((querySnapshot) {
@@ -55,18 +64,76 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
     });
   }
 
- @override
-  void dispose() {
-    selectedProdukNotifier.removeListener(_selectedKodeListener);
-    super.dispose();
-  }
+@override
+void dispose() {
+  selectedProdukNotifier.removeListener(_selectedKodeListener);
+  super.dispose();
+}
 
-  // Fungsi yang akan dipanggil ketika selectedKode berubah
-  void _selectedKodeListener() {
-    setState(() {
-      selectedKodeProduk = selectedProdukNotifier.value;
-    });
+// Fungsi yang akan dipanggil ketika selectedKode berubah
+void _selectedKodeListener() {
+  setState(() {
+    selectedKodeProduk = selectedProdukNotifier.value;
+  });
+}
+
+void initializeProduct(){
+  selectedKodeProduk = widget.productId;
+  _selectedKodeListener();
+  firestore
+  .collection('products')
+  .where('id', isEqualTo: selectedKodeProduk) // Gunakan .where untuk mencocokkan ID
+  .get()
+  .then((QuerySnapshot querySnapshot) {
+  if (querySnapshot.docs.isNotEmpty) {
+    final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+    final productName = productData['nama'];
+    namaProdukController.text = productName ?? '';
+  } else {
+    print('Document does not exist on Firestore');
   }
+}).catchError((error) {
+  print('Error getting document: $error');
+});
+}
+
+void fetchMachines(){
+  firestore
+      .collection('production_orders')
+      .doc(widget.productionOrderId!) // Menggunakan widget.customerOrderId
+      .collection('detail_machines') // Ganti dengan nama collection yang sesuai
+      .get()
+      .then((querySnapshot) {
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data() as Map<String, dynamic>;
+      if(detailData['batch']=='Pencampuran'){
+        mesinPencampuran = {
+          'batch' : 'Pencampuran',
+          'machine_id' : detailData['machine_id']
+        };
+         setState(() {
+          selectedMesinMixer = detailData['machine_id'];
+        });
+      }else if(detailData['batch']=='Sheet'){
+        mesinSheet = {
+          'batch' : 'Sheet',
+          'machine_id' : detailData['machine_id']
+        };
+        setState(() {
+          selectedMesinSheet = detailData['machine_id'];
+        });
+      }else{
+        mesinPencetak = {
+          'batch' : 'Pencetakan',
+          'machine_id' : detailData['machine_id']
+        };
+        setState(() {
+          selectedMesinCetak = detailData['machine_id'];
+        });
+      }
+    });
+  });
+}
 
 @override
 void initState() {
@@ -74,8 +141,114 @@ void initState() {
   selectedProdukNotifier.addListener(_selectedKodeListener);
   selectedKodeProduk = selectedProdukNotifier.value;
   fetchData();
+
+  if(widget.productionOrderId!=null){
+        firestore.collection('production_orders').doc(widget.productionOrderId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          jumlahProduksiController.text = data['jumlah_produksi_est'].toString();
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_pro'];
+          jumlahTenagaKerjaController.text = data['jumlah_tenaga_kerja_est'].toString();
+          perkiraanLamaWaktuController.text = data['lama_waktu_est'].toString();
+          final tanggalProduksiFirestore = data['tanggal_produksi'];
+          if (tanggalProduksiFirestore != null) {
+            _selectedTanggalProduksi = (tanggalProduksiFirestore as Timestamp).toDate();
+          }
+          final tanggalRencanaFirestore = data['tanggal_rencana'];
+          if (tanggalRencanaFirestore != null) {
+            _selectedTanggalRencana = (tanggalRencanaFirestore as Timestamp).toDate();
+          }
+          final tanggalSelesaiFirestore = data['tanggal_selesai'];
+          if (tanggalSelesaiFirestore != null) {
+            _selectedTanggalSelesai = (tanggalSelesaiFirestore as Timestamp).toDate();
+          }
+          selectedKodeBOM = data['bom_id'];
+          selectedKodeProduk = data['product_id'];
+          fetchMachines();
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+   if(widget.productId!=null){
+    initializeProduct();
+  }
+
 }
 
+void addOrUpdate(){
+   // ignore: no_leading_underscores_for_local_identifiers
+   final _productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
+   try{
+    final productionOrder = ProductionOrder(id: '', bomId: selectedKodeBOM??'', jumlahProduksiEst: int.parse(jumlahProduksiController.text), jumlahTenagaKerjaEst: int.parse(jumlahTenagaKerjaController.text), lamaWaktuEst: int.parse(perkiraanLamaWaktuController.text), productId: selectedKodeProduk??'', status: 1, statusPro: statusController.text, tanggalProduksi: _selectedTanggalProduksi?? DateTime.now(), tanggalRencana: _selectedTanggalRencana ?? DateTime.now(), tanggalSelesai: _selectedTanggalSelesai ?? DateTime.now(), detailProductionOrderList: [], detailMesinProductionOrderList: []);
+
+     for (var productCardData in billOfMaterialsData) {
+      final detailProductionOrder = DetailProductionOrder(id: '', jumlahBOM: productCardData['jumlahBom'], materialId: productCardData['materialId'], productionOrderId: '', satuan: productCardData['satuan'], status: 1);
+      productionOrder.detailProductionOrderList?.add(detailProductionOrder);
+    }
+
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinPencampuran['batch'], id: '', machineId: mesinPencampuran['machine_id'], productionOrderId: '', status: 1));
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinSheet['batch'], id: '', machineId: mesinSheet['machine_id'], productionOrderId: '', status: 1));
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinPencetak['batch'], id: '', machineId: mesinPencetak['machine_id'], productionOrderId: '', status: 1));
+
+    if(widget.productionOrderId!=null){
+      _productionOrderBloc.add(UpdateProductionOrderEvent(widget.productionOrderId??'', productionOrder));
+    }else{
+      _productionOrderBloc.add(AddProductionOrderEvent(productionOrder));
+    }
+
+    _showSuccessMessageAndNavigateBack();
+   }catch(e){
+     // ignore: avoid_print
+     print('Error: $e');
+   }
+}
+
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan perintah produksi.',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
+void clearForm() {
+  setState(() {
+    _selectedTanggalRencana = null;
+    _selectedTanggalProduksi = null;
+    _selectedTanggalSelesai = null;
+    selectedKodeProduk = null;
+    selectedKodeBOM = null;
+    selectedMesinMixer = null;
+    selectedMesinSheet = null;
+    selectedMesinCetak = null;
+
+    namaProdukController.clear();
+    jumlahProduksiController.clear();
+    perkiraanLamaWaktuController.clear();
+    catatanController.clear();
+    jumlahTenagaKerjaController.clear();
+    billOfMaterialsData.clear();
+    mesinPencampuran.clear();
+    mesinSheet.clear();
+    mesinPencetak.clear();
+
+    statusController.text = "Dalam Proses";
+  });
+}
   
 @override
 Widget build(BuildContext context) {
@@ -94,7 +267,7 @@ Widget build(BuildContext context) {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context,null);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -161,7 +334,7 @@ Widget build(BuildContext context) {
               Row(
                 children: [
                   Expanded(
-                    child:  ProdukDropDown(namaProdukController: namaProdukController)
+                    child:  ProdukDropDown(namaProdukController: namaProdukController,productId: widget.productId,)
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(child:
@@ -178,6 +351,7 @@ Widget build(BuildContext context) {
               BillOfMaterialDropDown(selectedBOM: selectedKodeBOM, onChanged: (newValue) {
                     setState(() {
                       selectedKodeBOM = newValue;
+                      billOfMaterialsData.clear();
                     });
               },),
               const SizedBox(height: 16.0,),
@@ -207,10 +381,11 @@ Widget build(BuildContext context) {
                     controller: jumlahTenagaKerjaController,
               ),
               const SizedBox(height: 16.0,),
-             const TextFieldWidget(
+            TextFieldWidget(
                     label: 'Status',
                     placeholder: 'Dalam Proses',
                     isEnabled: false,
+                    controller: statusController,
               ),
               const SizedBox(height: 16.0,),
               TextFieldWidget(
@@ -247,20 +422,35 @@ Widget build(BuildContext context) {
               MachineDropdown(selectedMachine: selectedMesinMixer, onChanged: (newValue) {
                     setState(() {
                       selectedMesinMixer = newValue;
+                      mesinPencampuran.clear();
+                      mesinPencampuran = {
+                        'batch' : 'Pencampuran',
+                        'machine_id' : newValue,
+                      };
                     });
-              }, title: 'Mesin Pencampur',),
+              }, title: 'Pencampuran',),
             const SizedBox(height: 16.0,),
             MachineDropdown(selectedMachine: selectedMesinSheet, onChanged: (newValue) {
                     setState(() {
                       selectedMesinSheet = newValue;
+                      mesinSheet.clear();
+                      mesinSheet = {
+                        'batch' : 'Sheet',
+                        'machine_id' : newValue
+                      };
                     });
-              }, title: 'Mesin Sheet',),
+              }, title: 'Sheet',),
             const SizedBox(height: 16.0,),
              MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
                     setState(() {
                       selectedMesinCetak = newValue;
+                      mesinPencetak.clear();
+                      mesinPencetak = {
+                        'batch' : 'Pencetakan',
+                        'machine_id' : newValue
+                      };
                     });
-              }, title: 'Mesin Cetak',),
+              }, title: 'Cetak',),
               const SizedBox(height: 16.0,),
              if (isBomSelected)
               Column(
@@ -288,7 +478,7 @@ Widget build(BuildContext context) {
                         return Text('Error: ${snapshot.error}');
                       }
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return Text('Tidak ada data bahan.');
+                        return const Text('Tidak ada data bahan.');
                       }
 
                       final List<CustomCard> customCards = [];
@@ -305,8 +495,14 @@ Widget build(BuildContext context) {
                             ],
                           ),
                         );
+                        Map<String, dynamic> billOfMaterial = {
+                          'materialId': doc['material_id'], // Add fields you need
+                          'jumlahBom': doc['jumlah'],
+                          'satuan': doc['satuan'],
+                          'batch': doc['batch'],
+                        };
+                        billOfMaterialsData.add(billOfMaterial); // Add to the list
                       }
-
                       return ListView.builder(
                         shrinkWrap: true,
                         itemCount: customCards.length,
@@ -325,6 +521,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle save button press
+                        addOrUpdate();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -346,6 +543,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        clearForm();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

@@ -70,9 +70,9 @@ class ProductionOrderBloc
           'product_id': event.productionOrder.productId,
           'status': event.productionOrder.status,
           'status_pro': event.productionOrder.statusPro,
-          'tanggal_produksi': event.productionOrder.tanggalProduksi.toIso8601String(),
-          'tanggal_rencana': event.productionOrder.tanggalRencana.toIso8601String(),
-          'tanggal_selesai': event.productionOrder.tanggalSelesai.toIso8601String(),
+          'tanggal_produksi': event.productionOrder.tanggalProduksi,
+          'tanggal_rencana': event.productionOrder.tanggalRencana,
+          'tanggal_selesai': event.productionOrder.tanggalSelesai,
         };
 
         await productionOrderRef.set(productionOrderData);
@@ -94,7 +94,7 @@ class ProductionOrderBloc
               'material_id': detailProductionOrder.materialId,
               'production_order_id': nextProductionOrderId,
               'satuan': detailProductionOrder.satuan,
-              'status': detailProductionOrder.status,
+              'status': 1
             });
             detailCount++;
           }
@@ -141,9 +141,9 @@ class ProductionOrderBloc
           'product_id': event.productionOrder.productId,
           'status': event.productionOrder.status,
           'status_pro': event.productionOrder.statusPro,
-          'tanggal_produksi': event.productionOrder.tanggalProduksi.toIso8601String(),
-          'tanggal_rencana': event.productionOrder.tanggalRencana.toIso8601String(),
-          'tanggal_selesai': event.productionOrder.tanggalSelesai.toIso8601String(),
+          'tanggal_produksi': event.productionOrder.tanggalProduksi,
+          'tanggal_rencana': event.productionOrder.tanggalRencana,
+          'tanggal_selesai': event.productionOrder.tanggalSelesai,
         };
 
         await productionOrderToUpdateRef.set(productionOrderData);
@@ -172,7 +172,7 @@ class ProductionOrderBloc
               'material_id': detailProductionOrder.materialId,
               'production_order_id': event.productionOrderId,
               'satuan': detailProductionOrder.satuan,
-              'status': detailProductionOrder.status,
+              'status': 1,
             });
             detailCount++;
           }
@@ -190,11 +190,11 @@ class ProductionOrderBloc
             event.productionOrder.detailMesinProductionOrderList!.isNotEmpty) {
           int machineCount = 1;
           for (var machineDetail in event.productionOrder.detailMesinProductionOrderList!) {
-            final nextMachineDetailId =
-                '$event.productionOrderId${'DM${machineCount.toString().padLeft(3, '0')}'}';
+            final nextMachineDetailId ='DM${machineCount.toString().padLeft(3, '0')}';
+            final detailMachineId = event.productionOrderId + nextMachineDetailId;
 
             await detailMachinesRef.add({
-              'id': nextMachineDetailId,
+              'id': detailMachineId,
               'batch': machineDetail.batch,
               'machine_id': machineDetail.machineId,
               'production_order_id': event.productionOrderId,

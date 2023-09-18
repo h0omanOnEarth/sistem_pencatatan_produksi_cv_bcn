@@ -4,7 +4,7 @@ class DetailProductionOrder {
   String materialId;
   String productionOrderId;
   String satuan;
-  String status;
+  int status;
 
   DetailProductionOrder({
     required this.id,
@@ -22,7 +22,7 @@ class DetailProductionOrder {
       materialId: json['material_id'] as String,
       productionOrderId: json['production_order_id'] as String,
       satuan: json['satuan'],
-      status: json['status'] as String,
+      status: json['status'] as int,
     );
   }
 

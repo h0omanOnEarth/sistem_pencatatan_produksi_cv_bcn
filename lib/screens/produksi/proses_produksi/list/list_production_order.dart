@@ -293,7 +293,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
     if (pickedDate != null && pickedDate != selectedStartDate?.toDate()) {
       setState(() {
         selectedStartDate = Timestamp.fromDate(pickedDate);
-        startDateText = '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+        startDateText = DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
       });
     }
   }
@@ -309,7 +309,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
     if (pickedDate != null && pickedDate != selectedEndDate?.toDate()) {
       setState(() {
         selectedEndDate = Timestamp.fromDate(pickedDate);
-        endDateText = '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+        endDateText = DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
       });
     }
   }
