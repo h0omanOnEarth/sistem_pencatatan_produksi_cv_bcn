@@ -3,6 +3,7 @@ class DetailProductionOrder {
   int jumlahBOM;
   String materialId;
   String productionOrderId;
+  String batch;
   String satuan;
   int status;
 
@@ -11,6 +12,7 @@ class DetailProductionOrder {
     required this.jumlahBOM,
     required this.materialId,
     required this.productionOrderId,
+    required this.batch,
     required this.satuan,
     required this.status,
   });
@@ -21,6 +23,7 @@ class DetailProductionOrder {
       jumlahBOM: json['jumlah_bom'] as int,
       materialId: json['material_id'] as String,
       productionOrderId: json['production_order_id'] as String,
+      batch: json['batch'],
       satuan: json['satuan'],
       status: json['status'] as int,
     );
@@ -32,6 +35,7 @@ class DetailProductionOrder {
       'jumlah_bom': jumlahBOM,
       'material_id': materialId,
       'production_order_id': productionOrderId,
+      'batch' : batch,
       'satuan': satuan,
       'status': status,
     };

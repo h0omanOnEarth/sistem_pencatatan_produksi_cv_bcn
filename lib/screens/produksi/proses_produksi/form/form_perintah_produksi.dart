@@ -35,6 +35,7 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   String? selectedMesinMixer;
   String? selectedMesinSheet;
   String? selectedMesinCetak;
+  bool isFirstTime = false;
 
   TextEditingController namaProdukController = TextEditingController();
   TextEditingController jumlahProduksiController = TextEditingController();
@@ -138,6 +139,7 @@ void fetchMachines(){
 @override
 void initState() {
   super.initState();
+  statusController.text = "Dalam Proses";
   selectedProdukNotifier.addListener(_selectedKodeListener);
   selectedKodeProduk = selectedProdukNotifier.value;
   fetchData();
@@ -173,6 +175,7 @@ void initState() {
       } else {
         print('Document does not exist on Firestore');
       }
+      isFirstTime = true;
     }).catchError((error) {
       print('Error getting document: $error');
     });
@@ -181,7 +184,6 @@ void initState() {
    if(widget.productId!=null){
     initializeProduct();
   }
-
 }
 
 void addOrUpdate(){
@@ -191,7 +193,7 @@ void addOrUpdate(){
     final productionOrder = ProductionOrder(id: '', bomId: selectedKodeBOM??'', jumlahProduksiEst: int.parse(jumlahProduksiController.text), jumlahTenagaKerjaEst: int.parse(jumlahTenagaKerjaController.text), lamaWaktuEst: int.parse(perkiraanLamaWaktuController.text), productId: selectedKodeProduk??'', status: 1, statusPro: statusController.text, tanggalProduksi: _selectedTanggalProduksi?? DateTime.now(), tanggalRencana: _selectedTanggalRencana ?? DateTime.now(), tanggalSelesai: _selectedTanggalSelesai ?? DateTime.now(), detailProductionOrderList: [], detailMesinProductionOrderList: []);
 
      for (var productCardData in billOfMaterialsData) {
-      final detailProductionOrder = DetailProductionOrder(id: '', jumlahBOM: productCardData['jumlahBom'], materialId: productCardData['materialId'], productionOrderId: '', satuan: productCardData['satuan'], status: 1);
+      final detailProductionOrder = DetailProductionOrder(id: '', jumlahBOM: productCardData['jumlahBom'], materialId: productCardData['materialId'], productionOrderId: '', batch: productCardData['batch'], satuan: productCardData['satuan'], status: 1);
       productionOrder.detailProductionOrderList?.add(detailProductionOrder);
     }
 
@@ -465,11 +467,17 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16.0,),
                   FutureBuilder<QuerySnapshot>(
-                    future: firestore
-                        .collection('bill_of_materials')
-                        .doc(selectedKodeBOM)
-                        .collection('detail_bill_of_materials')
-                        .get(),
+                    future: (widget.productionOrderId != null && isFirstTime == true)
+                      ? firestore
+                          .collection('production_orders')
+                          .doc(widget.productionOrderId)
+                          .collection('detail_production_orders')
+                          .get()
+                      : firestore
+                          .collection('bill_of_materials')
+                          .doc(selectedKodeBOM)
+                          .collection('detail_bill_of_materials')
+                          .get(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();
@@ -485,11 +493,17 @@ Widget build(BuildContext context) {
 
                       for (final doc in snapshot.data!.docs) {
                         final data = doc.data() as Map<String, dynamic>;
+                        int jumlah = 0;
+                        if(widget.productionOrderId!=null){
+                           jumlah = data['jumlah_bom'];
+                        }else{
+                           jumlah = data['jumlah'];
+                        }
                         customCards.add(
                           CustomCard(
                             content: [
                               CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
-                              CustomCardContent(text: 'Jumlah: ${data['jumlah'].toString()}'),
+                              CustomCardContent(text: 'Jumlah: ${jumlah}'),
                               CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
                               CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
                             ],
@@ -497,11 +511,12 @@ Widget build(BuildContext context) {
                         );
                         Map<String, dynamic> billOfMaterial = {
                           'materialId': doc['material_id'], // Add fields you need
-                          'jumlahBom': doc['jumlah'],
+                          'jumlahBom': jumlah,
                           'satuan': doc['satuan'],
                           'batch': doc['batch'],
                         };
                         billOfMaterialsData.add(billOfMaterial); // Add to the list
+                        isFirstTime = false;
                       }
                       return ListView.builder(
                         shrinkWrap: true,

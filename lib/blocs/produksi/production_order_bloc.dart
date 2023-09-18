@@ -93,6 +93,7 @@ class ProductionOrderBloc
               'jumlah_bom': detailProductionOrder.jumlahBOM,
               'material_id': detailProductionOrder.materialId,
               'production_order_id': nextProductionOrderId,
+              'batch' : detailProductionOrder.batch,
               'satuan': detailProductionOrder.satuan,
               'status': 1
             });
@@ -171,6 +172,7 @@ class ProductionOrderBloc
               'jumlah_bom': detailProductionOrder.jumlahBOM,
               'material_id': detailProductionOrder.materialId,
               'production_order_id': event.productionOrderId,
+              'batch' : detailProductionOrder.batch,
               'satuan': detailProductionOrder.satuan,
               'status': 1,
             });

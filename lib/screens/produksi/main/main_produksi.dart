@@ -12,6 +12,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_konfirmasi_hasil.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_pengembalian_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_penggunaan_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_permintaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
@@ -81,7 +82,8 @@ class _MainProduksiState extends State<MainProduksi> {
           ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
           ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
           ListMasterMesinScreen.routeName:(context)=> const ListMasterMesinScreen(),
-          ListProductionOrder.routeName:(context) => const ListProductionOrder()
+          ListProductionOrder.routeName:(context) => const ListProductionOrder(),
+          ListMaterialRequest.routeName:(context) => const ListMaterialRequest()
 
 
           });
