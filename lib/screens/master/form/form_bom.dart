@@ -242,7 +242,7 @@ void initState() {
           catatanController.text = data['catatan'] ?? '';
           kodeBOMController.text = data['id'];
           versiBOMController.text = data['versi_bom'].toString();
-          selectedStatus = data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';;
+          selectedStatus = data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';
           final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
           if (tanggalPembuatanFirestore != null) {
             selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();

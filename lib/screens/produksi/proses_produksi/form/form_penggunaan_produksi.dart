@@ -54,12 +54,116 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
     });
 }
 
+// Fungsi untuk mengambil data detail_customer_orders
+void fetchDataDetail() {
+  firestore
+      .collection('material_usages')
+      .doc(widget.materialUsageId!) // Menggunakan widget.bomId
+      .collection('detail_material_usages') 
+      .get()
+      .then((querySnapshot) {
+    final newProductCards = <ProductCardDataBahan>[];
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data();
+
+      final bahanId = detailData['material_id'] as String;
+      // Mencari nama produk berdasarkan productId
+      final material = productDataBahan.firstWhere(
+        (material) => material['id'] == bahanId,
+        orElse: () => {'nama': 'Produk Tidak Ditemukan'}, // Default jika tidak ditemukan
+      );
+
+      final productCardData = ProductCardDataBahan(kodeBahan: detailData['material_id'] as String, namaBahan: material['nama'] as String, jumlah: detailData['jumlah'].toString(), satuan: detailData['satuan'] as String);
+
+      newProductCards.add(productCardData);
+    });
+
+    setState(() {
+      productCards = newProductCards;
+    });
+  });
+}
+
+Future<String?> getProductName(String productId) async {
+  try {
+    final productQuery = await firestore
+        .collection('products')
+        .where('id', isEqualTo: productId) // Ganti 'product_id' dengan nama field yang sesuai
+        .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
+        .get();
+
+    if (productQuery.docs.isNotEmpty) {
+      final productName = productQuery.docs.first['nama'] as String?;
+      return productName;
+    }
+    return null;
+  } catch (e) {
+    print('Error fetching product name: $e');
+    return null;
+  }
+}
+
+void initializeProductionOrder(){
+    selectedNomorPermintaan = widget.productionOrderId;
+    firestore
+    .collection('production_orders')
+    .where('id', isEqualTo: selectedNomorPermintaan) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) async {
+    if (querySnapshot.docs.isNotEmpty) {
+      final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      kodeProdukController.text = productData['product_id'];
+      final namaProduk = await getProductName(productData['product_id']);;
+      namaProdukController.text = namaProduk ?? '';
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
+
 @override
 void initState() {
   super.initState();
   addProductCard(); // Tambahkan product card secara default pada initState
   fetchDataBahan();
   statusController.text = "Dalam Proses";
+
+  if (widget.materialUsageId != null) {
+    // Jika ada customerOrderId, ambil data dari Firestore
+       firestore
+        .collection('material_usages')
+        .doc(widget.materialUsageId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_mu'];
+          selectedKodeBatch = data['batch'];
+          final tanggalPenggunaanFirestore = data['tanggal_penggunaan'];
+          if (tanggalPenggunaanFirestore != null) {
+            selectedDate = (tanggalPenggunaanFirestore as Timestamp).toDate();
+          }
+          selectedNomorPermintaan = data['material_request_id'];
+          selectedNomorPerintah = data['production_order_id'];
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+
+     fetchDataDetail(); // Ambil data detail_customer_orders
+  }
+
+  if(widget.productionOrderId!=null){
+    initializeProductionOrder();
+  }
 }
 
 @override
@@ -99,7 +203,7 @@ void fetchDataBahan(){
 void addOrUpdate(){
  final _materialUsageBloc = BlocProvider.of<MaterialUsageBloc>(context);
   try {
-    final materialUsage = MaterialUsage(batch: selectedKodeBatch, catatan: catatanController.text, id: '', productionOrderId: selectedNomorPerintah??'', status: 1, statusMu: statusController.text , tanggalPenggunaan: selectedDate??DateTime.now(), detailMaterialUsageList: []);
+    final materialUsage = MaterialUsage(batch: selectedKodeBatch, catatan: catatanController.text, id: '', productionOrderId: selectedNomorPerintah??'', status: 1, statusMu: statusController.text , tanggalPenggunaan: selectedDate??DateTime.now(), detailMaterialUsageList: [], materialRequestId: selectedNomorPermintaan??'');
 
     // Loop melalui productCards untuk menambahkan detail customer order
   for (var productCardData in productCards) {

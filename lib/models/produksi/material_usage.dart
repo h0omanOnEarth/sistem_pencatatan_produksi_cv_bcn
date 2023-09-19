@@ -5,6 +5,7 @@ class MaterialUsage {
   String catatan;
   String id;
   String productionOrderId;
+  String materialRequestId;
   int status;
   String statusMu;
   DateTime tanggalPenggunaan;
@@ -15,6 +16,7 @@ class MaterialUsage {
     required this.catatan,
     required this.id,
     required this.productionOrderId,
+    required this.materialRequestId,
     required this.status,
     required this.statusMu,
     required this.tanggalPenggunaan,
@@ -32,6 +34,7 @@ class MaterialUsage {
       catatan: json['catatan'] ?? '',
       id: json['id'] ?? '',
       productionOrderId: json['production_order_id'] ?? '',
+      materialRequestId: json['material_request_id'] ?? '',
       status: json['status'] ?? 0,
       statusMu: json['status_mu'] ?? '',
       tanggalPenggunaan: DateTime.parse(json['tanggal_penggunaan'] ?? ''),
@@ -48,6 +51,7 @@ class MaterialUsage {
       'catatan': catatan,
       'id': id,
       'production_order_id': productionOrderId,
+      'material_requeset_id' : materialRequestId,
       'status': status,
       'status_mu': statusMu,
       'tanggal_penggunaan': tanggalPenggunaan.toUtc().toIso8601String(),
