@@ -63,6 +63,35 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
   });
 }
 
+void fetchDataDetail() {
+  firestore
+      .collection('material_returns')
+      .doc(widget.materialReturnId!) // Menggunakan widget.bomId
+      .collection('detail_material_returns') 
+      .get()
+      .then((querySnapshot) {
+    final newProductCards = <ProductCardDataBahan>[];
+    querySnapshot.docs.forEach((doc) async {
+      final detailData = doc.data();
+
+      final bahanId = detailData['material_id'] as String;
+      // Mencari nama produk berdasarkan productId
+      final material = productDataBahan.firstWhere(
+        (material) => material['id'] == bahanId,
+        orElse: () => {'nama': 'Produk Tidak Ditemukan'}, // Default jika tidak ditemukan
+      );
+
+      final productCardData = ProductCardDataBahan(kodeBahan: detailData['material_id'] as String, namaBahan: material['nama'] as String, jumlah: detailData['jumlah'].toString(), satuan: detailData['satuan'] as String);
+
+      newProductCards.add(productCardData);
+    });
+
+    setState(() {
+      productCards = newProductCards;
+    });
+  });
+}
+
 void clearForm() {
   setState(() {
     selectedNomorPenggunaan = null;
@@ -74,12 +103,62 @@ void clearForm() {
   });
 }
 
+void initializeMaterialUsage(){
+    selectedNomorPenggunaan = widget.materialUsageId;
+    firestore
+    .collection('material_usages')
+    .where('id', isEqualTo: selectedNomorPenggunaan) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) async {
+    if (querySnapshot.docs.isNotEmpty) {
+      final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      namaBatchController.text = productData['batch'];
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
   @override
   void initState() {
     super.initState();
     addProductCard(); // Tambahkan product card secara default pada initState
     fetchDataBahan();
     statusController.text ="Dalam Proses";
+
+    if (widget.materialReturnId != null) {
+    // Jika ada customerOrderId, ambil data dari Firestore
+       firestore
+        .collection('material_returns')
+        .doc(widget.materialReturnId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_mrt'];
+          selectedNomorPenggunaan = data['material_usage_id'];
+          final tanggalPengembalianFirestore = data['tanggal_pengembalian'];
+          if (tanggalPengembalianFirestore != null) {
+            selectedDate = (tanggalPengembalianFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+
+     fetchDataDetail(); // Ambil data detail_customer_orders
+  }
+
+  if(widget.materialUsageId!=null){
+    initializeMaterialUsage();
+  }
   }
 
   void addOrUpdate(){
