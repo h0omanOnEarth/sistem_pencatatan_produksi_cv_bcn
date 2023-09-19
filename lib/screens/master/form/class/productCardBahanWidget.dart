@@ -9,8 +9,10 @@ class ProductCardBahanWidget extends StatefulWidget {
   final List<Map<String, dynamic>> productData;
   final List<ProductCardDataBahan> productCards;
 
-  ProductCardBahanWidget({required this.productCardData,  required this.productData,
-    required this.productCards,});
+  const ProductCardBahanWidget({
+  required this.productCardData,  
+  required this.productData,
+  required this.productCards,});
 
   @override
   _ProductCardBahanWidgetState createState() => _ProductCardBahanWidgetState();
@@ -53,17 +55,19 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
               isEnabled: false,
        ),
        const SizedBox(height: 16.0,),
-      DropdownDetailWidget(
-          label: 'Batch',
-          items: ['Penggilingan', 'Pencampuran', 'Sheet', 'Pencetakan'],
-          selectedValue: widget.productCardData.namaBatch,
-          onChanged: (newValue) {
-            setState(() {
-              widget.productCardData.namaBatch = newValue;
-            });
-          },
-        ),    
-      const SizedBox(height: 16.0,),
+       if (widget.productCardData.namaBatch != null) // Periksa apakah namaBatch tidak null
+          DropdownDetailWidget(
+            label: 'Batch',
+            items: const ['Penggilingan', 'Pencampuran', 'Sheet', 'Pencetakan'],
+            selectedValue: widget.productCardData.namaBatch ?? '',
+            onChanged: (newValue) {
+              setState(() {
+                widget.productCardData.namaBatch = newValue;
+              });
+            },
+      ),
+      if (widget.productCardData.namaBatch != null)
+      const SizedBox(height: 16.0,),    
       Row(
         children: [
           Expanded(child:
@@ -83,7 +87,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
             child:   
             DropdownDetailWidget(
               label: 'Satuan',
-              items: ['Pcs', 'Kg', 'Ons'],
+              items: const ['Pcs', 'Kg', 'Ons'],
               selectedValue: widget.productCardData.satuan,
               onChanged: (newValue) {
                     setState(() {

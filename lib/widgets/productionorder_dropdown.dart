@@ -4,9 +4,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ProductionOrderDropDown extends StatefulWidget {
   final String? selectedPRO;
   final Function(String?) onChanged;
-  late final TextEditingController tanggalProduksiController;
+  late final TextEditingController? tanggalProduksiController;
+  late final TextEditingController? kodeProdukController;
+  late final TextEditingController? namaProdukController;
 
-  ProductionOrderDropDown({required this.selectedPRO, required this.onChanged, required this.tanggalProduksiController});
+  ProductionOrderDropDown({
+    required this.selectedPRO, 
+    required this.onChanged, 
+    this.tanggalProduksiController,
+    this.kodeProdukController,
+    this.namaProdukController
+    });
 
   @override
   State<ProductionOrderDropDown> createState() => _ProductionOrderDropDownState();
@@ -14,6 +22,26 @@ class ProductionOrderDropDown extends StatefulWidget {
 
 class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+
+Future<String?> getProductName(String productId) async {
+  try {
+    final productQuery = await firestore
+        .collection('products')
+        .where('id', isEqualTo: productId) // Ganti 'product_id' dengan nama field yang sesuai
+        .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
+        .get();
+
+    if (productQuery.docs.isNotEmpty) {
+      final productName = productQuery.docs.first['nama'] as String?;
+      return productName;
+    }
+    return null;
+  } catch (e) {
+    print('Error fetching product name: $e');
+    return null;
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +114,11 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
                     final year = dateTime.year.toString();
 
                     final formattedDate = '$month $day, $year';
-                    widget.tanggalProduksiController.text = formattedDate;
+                    widget.tanggalProduksiController?.text = formattedDate;
                   }
+                  widget.kodeProdukController?.text = _selectedDoc['product_id'];
+                  final productName = await getProductName(_selectedDoc['product_id']);
+                  widget.namaProdukController?.text = productName!;
                 },
                 isExpanded: true,
                 decoration: const InputDecoration(

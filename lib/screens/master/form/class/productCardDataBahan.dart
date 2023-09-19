@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ProductCardDataBahan {
   String kodeBahan;
   String namaBahan;
-  String namaBatch;
+  String? namaBatch;
   String jumlah;
   String satuan;
   String selectedDropdownValue = '';
@@ -12,7 +12,7 @@ class ProductCardDataBahan {
   ProductCardDataBahan({
    required this.kodeBahan,
     required this.namaBahan,
-    required this.namaBatch,
+    this.namaBatch,
     required this.jumlah,
     required this.satuan,
     this.selectedDropdownValue = '',

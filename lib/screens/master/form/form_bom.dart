@@ -131,7 +131,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
       id: '',
       jumlah: jumlah,
       materialId: productCardData.kodeBahan,
-      batch: productCardData.namaBatch,
+      batch: productCardData.namaBatch??'',
       satuan: productCardData.satuan,
       status: 1,
     );
