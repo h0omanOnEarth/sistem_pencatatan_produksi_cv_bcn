@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_usage_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_penggunaan_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_pengembalian_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
-class ListMaterialUsage extends StatefulWidget {
-  static const routeName = '/list_material_usage_screen';
+class ListPengembalianBahan extends StatefulWidget {
+  static const routeName = '/list_material_return_screen';
 
-  const ListMaterialUsage({super.key});
+  const ListPengembalianBahan({super.key});
   @override
-  State<ListMaterialUsage> createState() => _ListMaterialUsageState();
+  State<ListPengembalianBahan> createState() => _ListPengembalianBahanState();
 }
 
-class _ListMaterialUsageState extends State<ListMaterialUsage> {
-  final CollectionReference materialUsageRef = FirebaseFirestore.instance.collection('material_usages');
+class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
+  final CollectionReference materialReturnRef = FirebaseFirestore.instance.collection('material_returns');
   String searchTerm = '';
   String selectedStatus = '';
   Timestamp? selectedStartDate;
@@ -91,7 +91,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const FormPenggunaanBahanScreen(),
+                                      builder: (context) => const FormPengembalianBahanScreen(),
                                     ),
                                   );
                                 },
@@ -179,7 +179,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                 //cards
                 const SizedBox(height: 16.0),
                 StreamBuilder<QuerySnapshot>(
-                  stream: materialUsageRef.snapshots(),
+                  stream: materialReturnRef.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -190,15 +190,15 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                      return const Text('Tidak ada data penggunaan bahan.');
+                      return const Text('Tidak ada data pengembalian bahan.');
                     } else {
                       final querySnapshot = snapshot.data!;
                       final itemDocs = querySnapshot.docs;
 
                       final filteredDocs = itemDocs.where((doc) {
                         final keterangan = doc['id'] as String;
-                        final status = doc['status_mu'] as String;
-                        final tanggalRencana = doc['tanggal_penggunaan'] as Timestamp; // Tanggal Pesan
+                        final status = doc['status_mrt'] as String;
+                        final tanggalRencana = doc['tanggal_pengembalian'] as Timestamp; // Tanggal Pesan
 
                         bool isWithinDateRange = true;
                         if (selectedStartDate != null && selectedEndDate != null) {
@@ -218,8 +218,8 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                           final id = data['id'] as String;
                           final info = {
                             'Id': data['id'],
-                            'Tanggal Penggunaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penggunaan'] as Timestamp).toDate()), // Format tanggal
-                            'Nomor Perintah Produksi' : data['production_order_id']
+                            'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
+                            'Nomor Penggunaan Bahan' : data['material_usage_id']
                           };
                           return ListCard(
                             title: id,
@@ -228,9 +228,9 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FormPenggunaanBahanScreen(
-                                    materialUsageId: data['id'],
-                                    productionOrderId: data['production_order_id'],
+                                  builder: (context) => FormPengembalianBahanScreen(
+                                    materialReturnId: data['id'],
+                                    materialUsageId: data['material_usage_id'],
                                   )
                                 ),
                               );
@@ -241,7 +241,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus penggunaan bahan ini?"),
+                                    content: const Text("Anda yakin ingin menghapus pengembalian bahan ini?"),
                                     actions: <Widget>[
                                       TextButton(
                                         child: const Text("Batal"),
@@ -252,8 +252,8 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                       TextButton(
                                         child: const Text("Hapus"),
                                         onPressed: () async {
-                                          final materialUsageBloc = BlocProvider.of<MaterialUsageBloc>(context);
-                                          materialUsageBloc.add(DeleteMaterialUsageEvent(filteredDocs[index].id));
+                                          final materialReturnBloc = BlocProvider.of<MaterialReturnBloc>(context);
+                                          materialReturnBloc.add(DeleteMaterialReturnEvent(filteredDocs[index].id));
                                           Navigator.of(context).pop(true);
                                         },
                                       ),
@@ -317,7 +317,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Filter Berdasarkan Status Penggunaan Bahan'),
+          title: const Text('Filter Berdasarkan Status Pengembalian Bahan'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {

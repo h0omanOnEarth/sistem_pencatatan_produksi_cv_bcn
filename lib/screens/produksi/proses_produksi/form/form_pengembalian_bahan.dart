@@ -1,29 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardBahanWidget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardDataBahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_usage_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
-class ProductCardData {
-  String kodeBahan;
-  String namaBahan;
-  String jumlah;
-  String satuan;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.kodeBahan,
-    required this.namaBahan,
-    required this.jumlah,
-    required this.satuan,
-    this.selectedDropdownValue = '',
-  });
-}
-
 class FormPengembalianBahanScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_bahan_screen';
+  final String? materialUsageId;
+  final String? materialReturnId;
 
-  const FormPengembalianBahanScreen({super.key});
+  const FormPengembalianBahanScreen({Key? key, this.materialUsageId, this.materialReturnId}) : super(key: key);
   
   @override
   State<FormPengembalianBahanScreen> createState() =>
@@ -32,13 +23,19 @@ class FormPengembalianBahanScreen extends StatefulWidget {
 
 
 class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScreen> {
-  String selectedNomorPenggunaan = "Penggunaan 1";
+  String? selectedNomorPenggunaan;
   DateTime? selectedDate;
 
-  List<ProductCardData> productCards = [];
+  List<ProductCardDataBahan> productCards = [];
+  List<Map<String, dynamic>> productDataBahan = []; // Inisialisasi daftar bahan
+
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController namaBatchController = TextEditingController();
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+
     void addProductCard() {
     setState(() {
-      productCards.add(ProductCardData(
+      productCards.add(ProductCardDataBahan(
         kodeBahan: '',
         namaBahan: '',
         jumlah: '',
@@ -47,18 +44,47 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
     });
   }
 
+  void fetchDataBahan(){
+  // Ambil data produk dari Firestore di initState
+  firestore.collection('materials').get().then((querySnapshot) {
+    querySnapshot.docs.forEach((doc) {
+      Map<String, dynamic> bahan = {
+        'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+        'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+      };
+      setState(() {
+        productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
+      });
+    });
+  });
+}
+
+void clearForm() {
+  setState(() {
+    selectedNomorPenggunaan = null;
+    selectedDate = null;
+    productCards.clear();
+    namaBatchController.clear();
+    catatanController.clear();
+  });
+}
+
   @override
   void initState() {
     super.initState();
     addProductCard(); // Tambahkan product card secara default pada initState
+    fetchDataBahan();
+  }
+
+  void addOrUpdate(){
+    
   }
 
   @override
   Widget build(BuildContext context) {
-    var catatanController;
-    var namaBatchController;
-    var kodeBatchController;
-    return Scaffold(
+    return BlocProvider(
+    create: (context) => MaterialReturnBloc(),
+    child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -90,7 +116,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                         ),
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     const Flexible(
                         child: Text(
                           'Pengembalian Bahan',
@@ -102,7 +128,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                       ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 DatePickerButton(
                       label: 'Tanggal Pengembalian',
                       selectedDate: selectedDate,
@@ -112,42 +138,32 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                         });
                       },
                 ),
-                SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(child: 
-                      TextFieldWidget(
-                        label: 'Kode Batch',
-                        placeholder: 'Kode Batch',
-                        controller: kodeBatchController,
-                        isEnabled: false,
-                      ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Expanded(
-                      child:   
-                       TextFieldWidget(
-                        label: 'Nama Batch',
-                        placeholder: 'Nama Batch',
-                        controller: namaBatchController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
-                ),    
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
+                MaterialUsageDropdown(selectedMaterialUsage: selectedNomorPenggunaan, onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorPenggunaan = newValue??'';
+                      });
+                }, namaBatchController: namaBatchController,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
+                  label: 'Nama Batch',
+                  placeholder: 'Nama Batch',
+                  controller: namaBatchController,
+                  isEnabled: false,
+                ),          
+                const SizedBox(height: 16.0,),
+                const TextFieldWidget(
                   label: 'Status',
                   placeholder: 'Dalam Proses',
                   isEnabled: false,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Catatan',
                   placeholder: 'Catatan',
                   controller: catatanController,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -162,7 +178,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                     onTap: () {
                       addProductCard();
                     },
-                    child: CircleAvatar(
+                    child: const CircleAvatar(
                       radius: 20,
                       backgroundColor: Color.fromRGBO(59, 51, 51, 1),
                       child: Icon(
@@ -175,7 +191,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                 ],
               ),
               const SizedBox(height: 16.0),
-              if (productCards.isNotEmpty)
+               if (productCards.isNotEmpty)
               ...productCards.map((productCardData) {
                 return ProductCard(
                   productCardData: productCardData,
@@ -185,8 +201,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                     });
                   },
                   children: [
-                    ProductCardChildren(productCardData: productCardData),
-                    // ... Add other child widgets here
+                    ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, ),
                   ],
                 );
               }).toList(),
@@ -199,7 +214,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                           // Handle save button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -213,14 +228,15 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          clearForm();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -241,70 +257,9 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
           ),
         ),
       ),
+    )
     );
   }
 }
 
 
-class ProductCardChildren extends StatefulWidget {
-  final ProductCardData productCardData;
-
-  ProductCardChildren({required this.productCardData});
-
-  @override
-  _ProductCardChildrenState createState() => _ProductCardChildrenState();
-}
-
-class _ProductCardChildrenState extends State<ProductCardChildren> {
-  
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        DropdownDetailWidget(
-          label: 'Kode Bahan',
-          items: ['Kode 1', 'Kode 2'],
-          selectedValue: widget.productCardData.kodeBahan,
-          onChanged: (newValue) {
-                setState(() {
-                  widget.productCardData.kodeBahan = newValue;
-                });
-              },
-        ),
-        const SizedBox(height: 8.0),
-        TextFieldWidget(
-              label: 'Nama Bahan',
-              placeholder: 'Nama Bahan',
-              controller: TextEditingController(text: widget.productCardData.namaBahan),
-              isEnabled: false,
-       ),
-      const SizedBox(height: 16.0,),  
-      Row(
-        children: [
-          Expanded(child:
-            TextFieldWidget(
-                label: 'Jumlah',
-                placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.jumlah),
-              ), 
-          ),
-          SizedBox(width: 16.0),
-          Expanded(
-            child:   
-            DropdownDetailWidget(
-              label: 'Satuan',
-              items: ['Pcs', 'Kg', 'Ons'],
-              selectedValue: widget.productCardData.satuan,
-              onChanged: (newValue) {
-                    setState(() {
-                      widget.productCardData.satuan = newValue;
-                    });
-                  },
-            ),
-          ),
-        ],
-      ),    
-      ],
-    );
-  }
-}
