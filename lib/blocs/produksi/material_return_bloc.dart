@@ -69,16 +69,32 @@ class MaterialReturnBloc
           'catatan': event.materialReturn.catatan,
           'status': event.materialReturn.status,
           'status_mrt': event.materialReturn.statusMrt,
-          'tanggal_pengembalian':
-              event.materialReturn.tanggalPengembalian.toUtc().toIso8601String(),
-          'detail_material_return':
-              event.materialReturn.detailMaterialReturn
-                  .map((detail) => detail.toJson())
-                  .toList(),
+          'tanggal_pengembalian': event.materialReturn.tanggalPengembalian,
         };
 
         // Add the material return data to Firestore
         await materialReturnRef.set(materialReturnData);
+
+        final materialReturnDetailsRef = materialReturnRef.collection('detail_material_returns');
+
+        if (event.materialReturn.detailMaterialReturn.isNotEmpty) {
+          int detailCount = 1;
+          for (var detailMaterialReturn
+              in event.materialReturn.detailMaterialReturn) {
+            final nextDetailMaterialReturnId =
+                '$nextMaterialReturnId${'D${detailCount.toString().padLeft(3, '0')}'}';
+
+            await materialReturnDetailsRef.add({
+              'id': nextDetailMaterialReturnId,
+              'material_return_id': nextMaterialReturnId,
+              'jumlah': detailMaterialReturn.jumlah,
+              'material_id': detailMaterialReturn.materialId,
+              'satuan': detailMaterialReturn.satuan,
+              'status': detailMaterialReturn.status,
+            });
+            detailCount++;
+          }
+        }
 
         yield LoadedState(event.materialReturn);
       } catch (e) {
@@ -88,9 +104,8 @@ class MaterialReturnBloc
       yield LoadingState();
       try {
         // Get a reference to the material return document to be updated
-        final materialReturnToUpdateRef = _firestore
-            .collection('material_returns')
-            .doc(event.materialReturnId);
+        final materialReturnToUpdateRef =
+            _firestore.collection('material_returns').doc(event.materialReturnId);
 
         // Set the new material return data
         final Map<String, dynamic> materialReturnData = {
@@ -99,16 +114,39 @@ class MaterialReturnBloc
           'catatan': event.materialReturn.catatan,
           'status': event.materialReturn.status,
           'status_mrt': event.materialReturn.statusMrt,
-          'tanggal_pengembalian':
-              event.materialReturn.tanggalPengembalian.toUtc().toIso8601String(),
-          'detail_material_return':
-              event.materialReturn.detailMaterialReturn
-                  .map((detail) => detail.toJson())
-                  .toList(),
+          'tanggal_pengembalian': event.materialReturn.tanggalPengembalian,
         };
 
         // Update the material return data within the existing document
         await materialReturnToUpdateRef.set(materialReturnData);
+
+        final materialReturnDetailsCollectionRef =
+            materialReturnToUpdateRef.collection('detail_material_returns');
+        final materialReturnDetailsDocs =
+            await materialReturnDetailsCollectionRef.get();
+        for (var doc in materialReturnDetailsDocs.docs) {
+          await doc.reference.delete();
+        }
+
+        if (event.materialReturn.detailMaterialReturn.isNotEmpty) {
+          int detailCount = 1;
+          for (var detailMaterialReturn
+              in event.materialReturn.detailMaterialReturn) {
+            final nextDetailMaterialReturnId =
+                'D${detailCount.toString().padLeft(3, '0')}';
+            final detailId = event.materialReturnId + nextDetailMaterialReturnId;
+
+            await materialReturnDetailsCollectionRef.add({
+              'id': detailId,
+              'material_return_id': event.materialReturnId,
+              'jumlah': detailMaterialReturn.jumlah,
+              'material_id': detailMaterialReturn.materialId,
+              'satuan': detailMaterialReturn.satuan,
+              'status': detailMaterialReturn.status,
+            });
+            detailCount++;
+          }
+        }
 
         yield MaterialReturnUpdatedState();
       } catch (e) {
@@ -118,11 +156,19 @@ class MaterialReturnBloc
       yield LoadingState();
       try {
         // Get a reference to the material return document to be deleted
-        final materialReturnToDeleteRef = _firestore
-            .collection('material_returns')
-            .doc(event.materialReturnId);
+        final materialReturnToDeleteRef =
+            _firestore.collection('material_returns').doc(event.materialReturnId);
 
-        // Delete the material return document
+        final materialReturnDetailsCollectionRef =
+            materialReturnToDeleteRef.collection('detail_material_returns');
+
+        final materialReturnDetailsDocs =
+            await materialReturnDetailsCollectionRef.get();
+        for (var doc in materialReturnDetailsDocs.docs) {
+          await doc.reference.delete();
+        }
+
+        // After deleting all documents within the subcollection, delete the material return document itself
         await materialReturnToDeleteRef.delete();
 
         yield MaterialReturnDeletedState();
@@ -132,7 +178,7 @@ class MaterialReturnBloc
     }
   }
 
-  Future<String> _generateNextMaterialReturnId() async {
+ Future<String> _generateNextMaterialReturnId() async {
     final materialReturnsRef = _firestore.collection('material_returns');
     final QuerySnapshot snapshot = await materialReturnsRef.get();
     final List<String> existingIds =

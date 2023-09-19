@@ -201,7 +201,7 @@ void fetchDataBahan(){
 }
 
 void addOrUpdate(){
- final _materialUsageBloc = BlocProvider.of<MaterialUsageBloc>(context);
+ final materialUsageBloc = BlocProvider.of<MaterialUsageBloc>(context);
   try {
     final materialUsage = MaterialUsage(batch: selectedKodeBatch, catatan: catatanController.text, id: '', productionOrderId: selectedNomorPerintah??'', status: 1, statusMu: statusController.text , tanggalPenggunaan: selectedDate??DateTime.now(), detailMaterialUsageList: [], materialRequestId: selectedNomorPermintaan??'');
 
@@ -212,10 +212,10 @@ void addOrUpdate(){
   }
 
   if (widget.materialUsageId != null) {
-    _materialUsageBloc.add(UpdateMaterialUsageEvent(widget.materialUsageId ?? '', materialUsage));
+    materialUsageBloc.add(UpdateMaterialUsageEvent(widget.materialUsageId ?? '', materialUsage));
   } else {
     // Dispatch event untuk menambahkan customer order
-    _materialUsageBloc.add(AddMaterialUsageEvent(materialUsage));
+    materialUsageBloc.add(AddMaterialUsageEvent(materialUsage));
   }
 
   _showSuccessMessageAndNavigateBack();

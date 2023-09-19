@@ -72,7 +72,7 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                             ),
                             const SizedBox(width: 24.0),
                             const Text(
-                              'Penggunaan Bahan',
+                              'Pengembalian Bahan',
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -229,8 +229,8 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => FormPengembalianBahanScreen(
-                                    materialReturnId: data['id'],
-                                    materialUsageId: data['material_usage_id'],
+                                   materialUsageId: data['material_usage_id'],
+                                   materialReturnId: data['id'],
                                   )
                                 ),
                               );

@@ -2,11 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_material_return.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardBahanWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardDataBahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_usage_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPengembalianBahanScreen extends StatefulWidget {
@@ -31,6 +34,7 @@ class _FormPengembalianBahanScreenState extends State<FormPengembalianBahanScree
 
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaBatchController = TextEditingController();
+  TextEditingController statusController =  TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
 
     void addProductCard() {
@@ -66,6 +70,7 @@ void clearForm() {
     productCards.clear();
     namaBatchController.clear();
     catatanController.clear();
+    statusController.text = "Dalam Proses";
   });
 }
 
@@ -74,11 +79,48 @@ void clearForm() {
     super.initState();
     addProductCard(); // Tambahkan product card secara default pada initState
     fetchDataBahan();
+    statusController.text ="Dalam Proses";
   }
 
   void addOrUpdate(){
-    
+    final materialReturnBloc = BlocProvider.of<MaterialReturnBloc>(context);
+      try {
+        final materialReturn = MaterialReturn(id: '', materialUsageId: selectedNomorPenggunaan??'', catatan: catatanController.text, status: 1, statusMrt: statusController.text, tanggalPengembalian: selectedDate??DateTime.now(), detailMaterialReturn: []);
+
+        // Loop melalui productCards untuk menambahkan detail customer order
+      for (var productCardData in productCards) {
+        final detailMaterialReturn = MaterialReturnDetail(id: '', jumlah: productCardData.jumlah, materialId: productCardData.kodeBahan, materialReturnId: '', satuan: productCardData.satuan, status: 1);
+        materialReturn.detailMaterialReturn.add(detailMaterialReturn);
+      }
+
+      if (widget.materialReturnId != null) {
+        materialReturnBloc.add(UpdateMaterialReturnEvent(widget.materialReturnId??'', materialReturn));
+      } else {
+        // Dispatch event untuk menambahkan customer order
+        materialReturnBloc.add(AddMaterialReturnEvent(materialReturn));
+      }
+
+      _showSuccessMessageAndNavigateBack();
+    } catch (e) {
+      // Tangani pengecualian di sini
+      print('Error: $e');
+    }
   }
+
+  
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan pengembalian bahan.',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -152,10 +194,11 @@ void clearForm() {
                   isEnabled: false,
                 ),          
                 const SizedBox(height: 16.0,),
-                const TextFieldWidget(
+                TextFieldWidget(
                   label: 'Status',
                   placeholder: 'Dalam Proses',
                   isEnabled: false,
+                  controller: statusController
                 ),
                 const SizedBox(height: 16.0,),
                 TextFieldWidget(
@@ -212,6 +255,7 @@ void clearForm() {
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdate();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

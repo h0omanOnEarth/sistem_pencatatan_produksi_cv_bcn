@@ -4,7 +4,7 @@ class MaterialReturnDetail {
   String materialId;
   String materialReturnId;
   String satuan;
-  String status;
+  int status;
 
   MaterialReturnDetail({
     required this.id,
@@ -22,7 +22,7 @@ class MaterialReturnDetail {
       materialId: json['material_id'] as String,
       materialReturnId: json['material_return_id'] as String,
       satuan: json['satuan'] as String,
-      status: json['status'] as String,
+      status: json['status'] as int,
     );
   }
 
