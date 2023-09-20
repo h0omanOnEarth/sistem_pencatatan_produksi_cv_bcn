@@ -368,21 +368,35 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(width: 16.0),
                   Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Perkiraan Lama Waktu',
-                      placeholder: '120m',
-                      controller: perkiraanLamaWaktuController,
+                    child: TextFieldWidget(
+                    label: 'Jumlah Tenaga Kerja (est)',
+                    placeholder: 'Jumlah Tenaga Kerja',
+                    controller: jumlahTenagaKerjaController,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                    label: 'Jumlah Tenaga Kerja (est)',
-                    placeholder: 'Jumlah Tenaga Kerja',
-                    controller: jumlahTenagaKerjaController,
-              ),
-              const SizedBox(height: 16.0,),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFieldWidget(
+                      label: 'Perkiraan Lama Waktu',
+                      placeholder: 'Waktu est.',
+                      controller: perkiraanLamaWaktuController,
+                    ),             
+                  ),
+                  const SizedBox(width: 16.0),
+                  const Expanded(
+                    child: TextFieldWidget(
+                    label: '',
+                    placeholder: 'Menit',
+                    isEnabled: false,
+                    ),
+                  ),
+                ],
+              ), 
+            const SizedBox(height: 16.0,),
             TextFieldWidget(
                     label: 'Status',
                     placeholder: 'Dalam Proses',
@@ -545,7 +559,7 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       child: const Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Text(
                           'Simpan',
                           style: TextStyle(fontSize: 18),

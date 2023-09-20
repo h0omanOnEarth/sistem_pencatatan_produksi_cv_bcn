@@ -17,6 +17,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_usage_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_order_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/suppliers_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_result_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
@@ -116,6 +117,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<DLOHBloc>(
           create: (BuildContext context) => DLOHBloc(),
+        ),
+         BlocProvider<ProductionResultBloc>(
+          create: (BuildContext context) => ProductionResultBloc(),
         ),
       ],
     child : MaterialApp(
