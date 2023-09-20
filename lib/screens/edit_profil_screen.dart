@@ -28,7 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       children: [
                         Row(
                           children: [
-                            SizedBox(width: 8.0),
+                            const SizedBox(width: 8.0),
                             Align(
                               alignment: Alignment.topLeft,
                               child: InkWell(
@@ -71,19 +71,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: 24.0), // Add spacing between header and cards
                 RoundedTextField(label: 'Nama', placeholder: 'Masukkan nama'),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 RoundedTextField(label: 'Nomor Telepon', placeholder: 'Masukkan nomor telepon'),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 RoundedTextField(label: 'Alamat', placeholder: 'Masukkan alamat'),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 16.0),
                 RoundedTextField(label: 'Email', placeholder: 'Masukkan email'),
-                SizedBox(height: 24.0),
+                const SizedBox(height: 24.0),
                 ElevatedButton(
                   onPressed: () {
                     // Handle save button press
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                    backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
@@ -123,7 +123,7 @@ class RoundedTextField extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(height: 8.0), // Add spacing between label and text field
+        const SizedBox(height: 8.0), // Add spacing between label and text field
         TextField(
           decoration: InputDecoration(
             hintText: placeholder,

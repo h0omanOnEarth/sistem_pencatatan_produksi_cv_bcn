@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 class FilterDialog extends StatelessWidget {
   final Function(String?) onFilterSelected;
+  final String title;
 
-  FilterDialog({required this.onFilterSelected});
+  FilterDialog({required this.onFilterSelected, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Filter Berdasarkan Status Pengembalian Bahan'),
+      title: Text(title), // Gunakan nilai title yang diberikan
       children: <Widget>[
         SimpleDialogOption(
           onPressed: () {

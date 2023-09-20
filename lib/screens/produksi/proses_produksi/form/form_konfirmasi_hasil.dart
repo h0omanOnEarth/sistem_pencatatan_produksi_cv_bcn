@@ -1,34 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/class/productCardProductionResult.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/class/productCardProductionResultWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdowndetail.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
-class ProductCardData {
-  String nomorHasilProduksi;
-  String kodeBarang;
-  String namaBarang;
-  String jumlahHasil;
-  String satuan;
-  String jumlahKonfirmasi;
-  String selectedDropdownValue = '';
-
-  ProductCardData({
-    required this.nomorHasilProduksi,
-    required this.kodeBarang,
-    required this.namaBarang,
-    required this.jumlahHasil,
-    required this.satuan,
-    required this.jumlahKonfirmasi,
-    this.selectedDropdownValue = '',
-  });
-}
 
 class FormKonfirmasiProduksiScreen extends StatefulWidget {
   static const routeName = '/form_konfirmasi_produksi_screen';
+  final String? productionConfirmationId;
 
-  const FormKonfirmasiProduksiScreen({super.key});
+  const FormKonfirmasiProduksiScreen({Key? key, this.productionConfirmationId}) : super(key: key);
+  
   
   @override
   State<FormKonfirmasiProduksiScreen> createState() =>
@@ -38,12 +22,18 @@ class FormKonfirmasiProduksiScreen extends StatefulWidget {
 
 class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScreen> {
   DateTime? selectedDate;
-  String selectedStatus = 'Aktif';
 
-  List<ProductCardData> productCards = [];
+
+  List<ProductCardDataProductionResult> productCards = [];
+  List<Map<String, dynamic>> productDataPR = []; // Inisialisasi daftar bahan
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
+
     void addProductCard() {
     setState(() {
-      productCards.add(ProductCardData(
+      productCards.add(ProductCardDataProductionResult(
         nomorHasilProduksi: '',
         kodeBarang: '',
         namaBarang: '',
@@ -54,15 +44,48 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
     });
   }
 
+  void fetchDataProductionResult(){
+    // Ambil data produk dari Firestore di initState
+    firestore.collection('production_results').get().then((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        Map<String, dynamic> pResult = {
+          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+          'satuan': doc['satuan'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+          'jumlahHasil' : doc['total_produk'] as int,
+          'materialUsageId' : doc['material_usage_id'] as String
+        };
+        setState(() {
+          productDataPR.add(pResult); // Tambahkan produk ke daftar produk
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     addProductCard(); // Tambahkan product card secara default pada initState
+    fetchDataProductionResult();
+    statusController.text = "Dalam Proses";
   }
+
+  void clear() {
+  setState(() {
+    selectedDate = null;
+    catatanController.clear();
+    statusController.text = "Dalam Proses";
+    productCards.clear();
+    addProductCard(); // Tambahkan kembali product card secara default
+  });
+}
 
   @override
   Widget build(BuildContext context) {
-    var catatanController;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -75,7 +98,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, null);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -95,7 +118,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                         ),
                       ),
                     ),
-                    SizedBox(width: 24.0),
+                    const SizedBox(width: 24.0),
                     const Flexible(
                         child: Text(
                           'Konfirmasi Produksi',
@@ -107,7 +130,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                       ),
                   ],
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 DatePickerButton(
                       label: 'Tanggal Pencatatan',
                       selectedDate: selectedDate,
@@ -117,25 +140,20 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                         });
                       },
                 ),
-                SizedBox(height: 16.0,),
-                DropdownWidget(
+                const SizedBox(height: 16.0,),
+                TextFieldWidget(
                   label: 'Status',
-                  selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                  items: ['Aktif', 'Tidak Aktif'],
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                      print('Selected value: $newValue');
-                    });
-                  },
+                  placeholder: 'Dalam Proses',
+                  controller: statusController,
+                  isEnabled: false,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 TextFieldWidget(
                   label: 'Catatan',
                   placeholder: 'Catatan',
                   controller: catatanController,
                 ),
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -150,7 +168,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                       onTap: () {
                         addProductCard();
                       },
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 20,
                         backgroundColor: Color.fromRGBO(59, 51, 51, 1),
                         child: Icon(
@@ -173,8 +191,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                     });
                   },
                   children: [
-                    ProductCardChildren(productCardData: productCardData),
-                    // ... Add other child widgets here
+                    ProductCardProductionResultWidget(productCardData: productCardData,productCards: productCards,productData: productDataPR, ),
                   ],
                 );
               }).toList(),
@@ -187,13 +204,13 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                           // Handle save button press
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Simpan',
                             style: TextStyle(fontSize: 18),
@@ -201,20 +218,21 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                         ),
                       ),
                     ),
-                    SizedBox(width: 16.0),
+                    const SizedBox(width: 16.0),
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          clear();
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Bersihkan',
                             style: TextStyle(fontSize: 18),
@@ -234,84 +252,3 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
 }
 
 
-class ProductCardChildren extends StatefulWidget {
-  final ProductCardData productCardData;
-
-  ProductCardChildren({required this.productCardData});
-
-  @override
-  _ProductCardChildrenState createState() => _ProductCardChildrenState();
-}
-
-class _ProductCardChildrenState extends State<ProductCardChildren> {
-  
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        DropdownDetailWidget(
-          label: 'Nomor Hasil Produksi',
-          items: ['Hasil 1', 'Hasil 2'],
-          selectedValue: widget.productCardData.nomorHasilProduksi,
-          onChanged: (newValue) {
-                setState(() {
-                  widget.productCardData.nomorHasilProduksi = newValue;
-                });
-              },
-        ),
-      const SizedBox(height: 16.0,),
-      Row(
-        children: [
-          Expanded(child:
-            TextFieldWidget(
-                label: 'Kode Barang',
-                placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.kodeBarang),
-                isEnabled: false,
-              ), 
-          ),
-          SizedBox(width: 16.0),
-          Expanded(
-            child:   
-            TextFieldWidget(
-                label: 'Nama Barang',
-                placeholder: 'Nama Barang',
-                controller: TextEditingController(text: widget.productCardData.namaBarang),
-                isEnabled: false,
-            ), 
-          ),
-        ],
-       ),   
-      const SizedBox(height: 16.0,),
-      Row(
-        children: [
-          Expanded(child:
-            TextFieldWidget(
-                label: 'Jumlah Hasil',
-                placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.jumlahHasil),
-                isEnabled: false,
-              ), 
-          ),
-          SizedBox(width: 16.0),
-          Expanded(
-            child:   
-            TextFieldWidget(
-                label: 'Satuan',
-                placeholder: 'Satuan',
-                controller: TextEditingController(text: widget.productCardData.satuan),
-                isEnabled: false,
-            ), 
-          ),
-        ],
-       ),   
-      const SizedBox(height: 16.0,),
-      TextFieldWidget(
-            label: 'Jumlah Konfirmasi',
-            placeholder: '0',
-            controller: TextEditingController(text: widget.productCardData.jumlahKonfirmasi),
-        ), 
-      ],
-    );
-  }
-}

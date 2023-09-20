@@ -14,6 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_penggunaan_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_dloh.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_hasil_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_konfirmasi_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_pengembalian_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_permintaan_bahan.dart';
@@ -91,7 +92,8 @@ class _MainProduksiState extends State<MainProduksi> {
           ListMaterialUsage.routeName:(context) => const ListMaterialUsage(),
           ListPengembalianBahan.routeName:(context) => const ListPengembalianBahan(),
           ListDLOHC.routeName:(context)=> const ListDLOHC(),
-          ListHasilProduksi.routeName:(context)=> const ListHasilProduksi()
+          ListHasilProduksi.routeName:(context)=> const ListHasilProduksi(),
+          ListKonfirmasiProduksi.routeName:(context)=> const ListKonfirmasiProduksi()
 
           });
   }

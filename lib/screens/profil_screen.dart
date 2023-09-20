@@ -19,24 +19,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SizedBox(
                   height: 80,
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
+                        const Row(
                           children: [
                             SizedBox(width: 8.0),
                             Text(
                               'My Profile',
                               style: TextStyle(
-                                fontSize: 26,
+                                fontSize: 36,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -48,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -63,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 width: 1, // Customize the border width
                               ),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.notifications,
                               color: Colors.black,
                             ),
@@ -78,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => EditProfileScreen(),
+                                builder: (context) => const EditProfileScreen(),
                               ),
                             );
                   },
@@ -113,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   // Aksi untuk tombol notifikasi
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => NotifikasiScreen()),
+                                    MaterialPageRoute(builder: (context) => const NotifikasiScreen()),
                                   );
                                 },
                                 icon: const Icon(
@@ -139,6 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
+                                    // ignore: unnecessary_const
                                     const SizedBox(height: 8.0),
                                     Text(
                                       'clarissagracia.cg@gmail.com',
@@ -169,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // });
                     Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MainMenuScreen()),
+                        MaterialPageRoute(builder: (context) => const MainMenuScreen()),
                       );
                   
                   },
@@ -191,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   'Logout',
                                   style: TextStyle(
                                     fontSize: 18,

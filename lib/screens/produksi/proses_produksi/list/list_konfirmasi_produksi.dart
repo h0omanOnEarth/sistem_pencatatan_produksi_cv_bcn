@@ -2,23 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_result_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_hasil_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_confirmation_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_konfirmasi_hasil.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
-class ListHasilProduksi extends StatefulWidget {
-  static const routeName = '/list_hasil_produksi_screen';
+class ListKonfirmasiProduksi extends StatefulWidget {
+  static const routeName = '/list_konfirmasi_produksi_screen';
 
-  const ListHasilProduksi({super.key});
+  const ListKonfirmasiProduksi({super.key});
   @override
-  State<ListHasilProduksi> createState() => _ListHasilProduksiState();
+  State<ListKonfirmasiProduksi> createState() => _ListKonfirmasiProduksiState();
 }
 
-class _ListHasilProduksiState extends State<ListHasilProduksi> {
-  final CollectionReference productionResultRef = FirebaseFirestore.instance.collection('production_results');
+class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
+  final CollectionReference productionResultRef = FirebaseFirestore.instance.collection('production_confirmations');
   String searchTerm = '';
   String selectedStatus ='';
   Timestamp? selectedStartDate;
@@ -36,7 +36,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Hasil Produksi', formScreen: FormHasilProduksiScreen()),
+                const CustomAppBar(title: 'Konfirmasi Produksi', formScreen: FormKonfirmasiProduksiScreen()),
                 const SizedBox(height: 24.0),
                 Row(
                   children: [
@@ -123,15 +123,15 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                      return const Text('Tidak ada data hasil produksi.');
+                      return const Text('Tidak ada data konfirmasi produksi.');
                     } else {
                       final querySnapshot = snapshot.data!;
                       final itemDocs = querySnapshot.docs;
 
                       final filteredDocs = itemDocs.where((doc) {
                         final keterangan = doc['id'] as String;
-                        final status = doc['status_prs'] as String;
-                        final tanggalRencana = doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
+                        final status = doc['status_prc'] as String;
+                        final tanggalRencana = doc['tanggal_konfirmasi'] as Timestamp; // Tanggal Pesan
 
                         bool isWithinDateRange = true;
                         if (selectedStartDate != null && selectedEndDate != null) {
@@ -151,8 +151,8 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                           final id = data['id'] as String;
                           final info = {
                             'Id': data['id'],
-                            'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
-                            'Nomor Penggunaan Bahan' : data['material_usage_id']
+                            'Tanggal Konfirmasi': DateFormat('dd/MM/yyyy').format((data['tanggal_konfirmasi'] as Timestamp).toDate()), // Format tanggal
+                            'Status' : data['status_prc']
                           };
                           return ListCard(
                             title: id,
@@ -161,9 +161,8 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FormHasilProduksiScreen(
-                                    materialUsageId: data['material_usage_id'],
-                                    productionResultId: data['id'],
+                                  builder: (context) =>FormKonfirmasiProduksiScreen(
+                                    productionConfirmationId: data['id'],
                                   )
                                 ),
                               );
@@ -174,7 +173,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus pencatatan hasil produksi ini?"),
+                                    content: const Text("Anda yakin ingin menghapus konfirmasi hasil produksi ini?"),
                                     actions: <Widget>[
                                       TextButton(
                                         child: const Text("Batal"),
@@ -185,8 +184,8 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                                       TextButton(
                                         child: const Text("Hapus"),
                                         onPressed: () async {
-                                          final proResBloc = BlocProvider.of<ProductionResultBloc>(context);
-                                          proResBloc.add(DeleteProductionResultEvent(filteredDocs[index].id));
+                                          final proResBloc = BlocProvider.of<ProductionConfirmationBloc>(context);
+                                          proResBloc.add(DeleteProductionConfirmationEvent(filteredDocs[index].id));
                                           Navigator.of(context).pop(true);
                                         },
                                       ),
@@ -250,7 +249,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
     context: context,
     builder: (BuildContext context) {
       return FilterDialog(
-        title: ('Filter Berdasarkan Status Hasil Produksi'),
+        title: ('Filter Berdasarkan Status Konfirmasi Produksi'),
         onFilterSelected: (selectedStatus) {
           setState(() {
             this.selectedStatus = selectedStatus!;

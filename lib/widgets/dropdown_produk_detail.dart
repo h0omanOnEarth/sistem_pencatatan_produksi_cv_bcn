@@ -25,7 +25,7 @@ class DropdownProdukDetailWidget extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
@@ -46,7 +46,7 @@ class DropdownProdukDetailWidget extends StatelessWidget {
                   ),
                   child: Text(
                     productId,
-                    style: TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
               );
