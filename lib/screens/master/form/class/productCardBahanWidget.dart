@@ -9,7 +9,7 @@ class ProductCardBahanWidget extends StatefulWidget {
   final List<Map<String, dynamic>> productData;
   final List<ProductCardDataBahan> productCards;
 
-  const ProductCardBahanWidget({
+  const ProductCardBahanWidget({super.key, 
   required this.productCardData,  
   required this.productData,
   required this.productCards,});
