@@ -5,12 +5,14 @@ class MaterialUsageDropdown extends StatefulWidget {
   final String? selectedMaterialUsage;
   final Function(String?) onChanged;
   final TextEditingController? namaBatchController;
+  final TextEditingController? nomorPerintahProduksiController;
 
   const MaterialUsageDropdown({
     Key? key,
     required this.selectedMaterialUsage,
     required this.onChanged,
     this.namaBatchController,
+    this.nomorPerintahProduksiController
   }) : super(key: key);
 
   @override
@@ -80,6 +82,11 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
                     }
                     // Set selectedBatch untuk menyimpan nilainya
                     selectedBatch = batchValue;
+
+                     if (widget.nomorPerintahProduksiController != null) {
+                      widget.nomorPerintahProduksiController!.text = batchData['production_order_id'];
+                    }
+
                   } else {
                     // Jika data batch tidak ditemukan, kosongkan namaBatchController
                     if (widget.namaBatchController != null) {

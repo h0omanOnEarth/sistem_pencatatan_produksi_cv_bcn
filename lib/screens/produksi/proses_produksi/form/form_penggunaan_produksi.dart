@@ -238,7 +238,6 @@ showDialog(
   });
 }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(

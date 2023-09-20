@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/dloh_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/dloh.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_usage_dropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPencatatanDirectLaborScreen extends StatefulWidget {
   static const routeName = '/form_pencatatan_DLOC_screen';
+  final String? materialUsageId;
+  final String? dlohId;
 
-  const FormPencatatanDirectLaborScreen({super.key});
+  const FormPencatatanDirectLaborScreen({Key? key, this.materialUsageId, this.dlohId}) : super(key: key);
   
   @override
   State<FormPencatatanDirectLaborScreen> createState() =>
@@ -15,19 +22,119 @@ class FormPencatatanDirectLaborScreen extends StatefulWidget {
 
 class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLaborScreen> {
   DateTime? _selectedDate;
-  String selectedPenggunaanBahan = "Penggunaan 1";
+  String? selectedPenggunaanBahan;
+
+  TextEditingController nomorPerintahProduksiController = TextEditingController();
+  TextEditingController namaBatchController = TextEditingController();
+  TextEditingController upahTenagaKerjaPerJamController = TextEditingController();
+  TextEditingController jumlahTenagaKerjaController = TextEditingController();
+  TextEditingController jumlahJamTenagaKerjaController = TextEditingController();
+  TextEditingController biayaOverheadController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController totalBiayaController = TextEditingController();
+  TextEditingController biayaTenagaKerjaController= TextEditingController();
+
+   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void clearForm() {
+  setState(() {
+    nomorPerintahProduksiController.text = '';
+    namaBatchController.text = '';
+    upahTenagaKerjaPerJamController.text = '';
+    jumlahTenagaKerjaController.text = '';
+    jumlahJamTenagaKerjaController.text = '';
+    biayaOverheadController.text = '';
+    catatanController.text = '';
+    selectedPenggunaanBahan = null;
+    _selectedDate = null;
+    totalBiayaController.text = '';
+    biayaTenagaKerjaController.text = '';
+  });
+}
+
+void updateBiayaTenagaKerja() {
+  // Ambil nilai dari controller yang relevan
+  int jumlahJam = int.tryParse(jumlahJamTenagaKerjaController.text) ?? 0;
+  int upahPerJam = int.tryParse(upahTenagaKerjaPerJamController.text) ?? 0;
+  int jumlahTenagaKerja = int.tryParse(jumlahTenagaKerjaController.text) ?? 0;
+
+  // Hitung biaya tenaga kerja
+  int biayaTenagaKerjaDouble = jumlahJam * upahPerJam * jumlahTenagaKerja;
+  int biayaTenagaKerja = biayaTenagaKerjaDouble.round(); // Ubah menjadi int
+
+  // Format biaya tenaga kerja menjadi format mata uang Rupiah
+  biayaTenagaKerjaController.text = NumberFormat.currency(
+    locale: 'id_ID', 
+    symbol: 'Rp',
+    decimalDigits: 0,
+  ).format(biayaTenagaKerja);
+
+  updateTotalBiaya();
+}
+
+
+void updateTotalBiaya() {
+  // Ambil nilai dari controller yang relevan
+  int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+  int biayaOverhead = int.tryParse(biayaOverheadController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+  // Hitung total biaya
+  int totalBiaya = biayaTenagaKerja + biayaOverhead;
+
+  // Format total biaya menjadi format mata uang Rupiah
+  totalBiayaController.text = NumberFormat.currency(
+    locale: 'id_ID', // Atur locale ke ID untuk format Rupiah
+    symbol: 'Rp',
+    decimalDigits: 0,
+  ).format(totalBiaya);
+}
+
+  void addOrUpdate(){
+    final dlohBloc =BlocProvider.of<DLOHBloc>(context);
+    
+    int biayaOverheadInt = int.tryParse(biayaOverheadController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    int totalBiayaInt = int.tryParse(totalBiayaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+    final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.parse(jumlahTenagaKerjaController.text), jumlahJamTenagaKerja: int.parse(jumlahJamTenagaKerjaController.text), biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: biayaOverheadInt, upahTenagaKerjaPerjam: int.parse(upahTenagaKerjaPerJamController.text), subtotal: totalBiayaInt);
+
+    if(widget.dlohId!=null){
+      dlohBloc.add(UpdateDLOHEvent(widget.dlohId??'', dloh));
+    }else{
+      dlohBloc.add(AddDLOHEvent(dloh));
+    }
+
+    _showSuccessMessageAndNavigateBack();
+
+  }
+
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan DLOHC',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
-
-    var nomorPerintahProduksiController;
-    var namaBatchController;
-    var upahTenagaKerjaPerJamController;
-    var jumlahTenagaKerjaController;
-    var jumlahJamTenagaKerjaController;
-    var biayaOverheadController;
-    var catatanController;
-    return Scaffold(
+    return BlocProvider(
+    create: (context) => DLOHBloc(),
+    child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -39,7 +146,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,null);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -62,7 +169,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     const SizedBox(width: 24.0),
                     const Flexible(
                       child: Text(
-                        'Direct Labor and Overhead Cost',
+                       'Direct Labor and\nOverhead Costs',
                         style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
@@ -82,17 +189,11 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                       },
                   ),
                 const SizedBox(height: 16.0),
-                DropdownWidget(
-                        label: 'Nomor Penggunaan Bahan',
-                        selectedValue: selectedPenggunaanBahan, // Isi dengan nilai yang sesuai
-                        items: ['Penggunaan 1', 'Penggunaan 2'],
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedPenggunaanBahan = newValue; // Update _selectedValue saat nilai berubah
-                            print('Selected value: $newValue');
-                          });
-                        },
-                    ),
+                MaterialUsageDropdown(selectedMaterialUsage: selectedPenggunaanBahan, onChanged: (newValue) {
+                      setState(() {
+                        selectedPenggunaanBahan = newValue??'';
+                      });
+                }, namaBatchController: namaBatchController, nomorPerintahProduksiController: nomorPerintahProduksiController,),
                 const SizedBox(height: 16.0),
                  Row(
                   children: [
@@ -123,6 +224,12 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         label: 'Jumlah Tenaga Kerja',
                         placeholder: 'Jumlah Tenaga Kerja',
                         controller: jumlahTenagaKerjaController,
+                        onChanged: (value) {
+                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                            setState(() {
+                              updateBiayaTenagaKerja();
+                            });
+                          },
                       ),
                     ),
                     const SizedBox(width: 16.0),
@@ -131,6 +238,12 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         label: 'Jum. Jam Tenaga Kerja',
                         placeholder: 'Jum. Jam Tenaga Kerja',
                         controller: jumlahJamTenagaKerjaController,
+                         onChanged: (value) {
+                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                            setState(() {
+                              updateBiayaTenagaKerja();
+                            });
+                          },
                       ),
                     ),
                   ],
@@ -143,14 +256,21 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                         label: 'Upah Tenaga Kerja /Jam',
                         placeholder: 'Upah /jam',
                         controller: upahTenagaKerjaPerJamController,
+                        onChanged: (value) {
+                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                            setState(() {
+                              updateBiayaTenagaKerja();
+                            });
+                          },
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    const Expanded(
+                    Expanded(
                       child: TextFieldWidget(
                         label: 'Biaya Tenaga Kerja',
                         placeholder: 'Biaya Tenaga Kerja',
                         isEnabled: false,
+                        controller: biayaTenagaKerjaController,
                       ),
                     ),
                   ],
@@ -160,12 +280,19 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     label: 'Biaya Overhead',
                     placeholder: 'Biaya Overhead',
                     controller: biayaOverheadController,
+                     onChanged: (value) {
+                      // Ketika nilai berubah, panggil updateTotalBiaya
+                      setState(() {
+                        updateTotalBiaya();
+                      });
+                    },
                 ),
                 const SizedBox(height: 16.0,),
-                const TextFieldWidget(
+                TextFieldWidget(
                     label: 'Total Biaya',
                     placeholder: 'Total Biaya',
                     isEnabled: false,
+                    controller: totalBiayaController,
                 ),
                 const SizedBox(height: 16.0,),
                 const TextFieldWidget(
@@ -185,7 +312,8 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          // Handle save button press
+                          // Handle save button pressa
+                          addOrUpdate();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -194,7 +322,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Simpan',
                             style: TextStyle(fontSize: 18),
@@ -207,6 +335,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          clearForm();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -215,7 +344,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Bersihkan',
                             style: TextStyle(fontSize: 18),
@@ -230,6 +359,7 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
           ),
         ),
       ),
+    )
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/customers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pelanggan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -22,7 +23,6 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
      return BlocProvider(
       create: (context) => CustomerBloc(),
       child: Scaffold(
@@ -33,101 +33,35 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  height: 80,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(width: 8.0),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back, color: Colors.black),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 24.0),
-                            const Text(
-                              'Pelanggan',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: screenWidth*0.20),
-                            Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.brown,
-                              ),
-                              child: IconButton(
-                                icon: Icon(Icons.add),
-                                color: Colors.white,
-                                onPressed: () {
-                                    Navigator.push(context,MaterialPageRoute( builder: (context) => FormMasterPelangganScreen()),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                 const CustomAppBar(title: 'Pelanggan', formScreen: FormMasterPelangganScreen()),
+                const SizedBox(height: 24.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+                        setState(() {
+                          searchTerm = value;
+                        });
+                      }),
                     ),
-                  ),
+                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey[400]!),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.filter_list),
+                        onPressed: () {
+                          // Handle filter button press
+                          _showFilterDialog(context);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 24.0), // Add spacing between header and cards
-                  // Search Bar and Filter Button
-                        Row(
-                          children: [
-                           Container(
-                              child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-                                setState(() {
-                                  searchTerm = value;
-                                });
-                              }),
-                              width: screenWidth * 0.6,
-                            ),
-                            SizedBox(width: 16.0), // Add spacing between search bar and filter button
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey[400]!),
-                              ),
-                              child: IconButton(
-                                icon: Icon(Icons.filter_list),
-                                onPressed: () {
-                                  // Handle filter button press
-                                  _showFilterDialog(context);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                // Create 6 cards
-                SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0,),
                 StreamBuilder<QuerySnapshot>(
                     stream: customerRef.snapshots(),
                     builder: (context, snapshot) {

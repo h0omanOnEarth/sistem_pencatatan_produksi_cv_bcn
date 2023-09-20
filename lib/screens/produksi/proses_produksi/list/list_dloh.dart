@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_order_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/dloh_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_directlabor_overhead.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
-class ListProductionOrder extends StatefulWidget {
-  static const routeName = '/list_production_order_screen';
+class ListDLOHC extends StatefulWidget {
+  static const routeName = '/list_dlohc_screen';
 
-  const ListProductionOrder({super.key});
+  const ListDLOHC({super.key});
   @override
-  State<ListProductionOrder> createState() => _ListProductionOrderState();
+  State<ListDLOHC> createState() => _ListDLOHCState();
 }
 
-class _ListProductionOrderState extends State<ListProductionOrder> {
-  final CollectionReference productionOrderRef = FirebaseFirestore.instance.collection('production_orders');
+class _ListDLOHCState extends State<ListDLOHC> {
+  final CollectionReference dlohcRef = FirebaseFirestore.instance.collection('direct_labor_overhead_costs');
   String searchTerm = '';
-  String selectedStatus = '';
+  int selectedStatus = -1;
   Timestamp? selectedStartDate;
   Timestamp? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
@@ -35,7 +35,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Perintah Produksi', formScreen: FormPerintahProduksiScreen()),
+                const CustomAppBar(title: 'Direct Labor and\nOverhead Costs', formScreen: FormPencatatanDirectLaborScreen()),
                 const SizedBox(height: 24.0),
                 Row(
                   children: [
@@ -111,7 +111,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                 //cards
                 const SizedBox(height: 16.0),
                 StreamBuilder<QuerySnapshot>(
-                  stream: productionOrderRef.snapshots(),
+                  stream: dlohcRef.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -122,25 +122,23 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                      return const Text('Tidak ada data perintah produksi.');
+                      return const Text('Tidak ada data DLOHC.');
                     } else {
                       final querySnapshot = snapshot.data!;
                       final itemDocs = querySnapshot.docs;
 
                       final filteredDocs = itemDocs.where((doc) {
                         final keterangan = doc['id'] as String;
-                        final status = doc['status_pro'] as String;
-                        final tanggalRencana = doc['tanggal_rencana'] as Timestamp; // Tanggal Pesan
-                        final tanggalProduksi = doc['tanggal_produksi'] as Timestamp; // Tanggal Kirim
+                        final status = doc['status'] as int;
+                        final tanggalRencana = doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
 
                         bool isWithinDateRange = true;
                         if (selectedStartDate != null && selectedEndDate != null) {
-                          isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!.toDate()) && tanggalRencana.toDate().isBefore(selectedEndDate!.toDate())) ||
-                              (tanggalProduksi.toDate().isAfter(selectedStartDate!.toDate()) && tanggalProduksi.toDate().isBefore(selectedEndDate!.toDate()));
+                          isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!.toDate()) && tanggalRencana.toDate().isBefore(selectedEndDate!.toDate()));
                         }
 
                         return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                            (selectedStatus.isEmpty || status == selectedStatus) &&
+                            (selectedStatus.toInt() == -1 || status == selectedStatus) &&
                             isWithinDateRange);
                       }).toList();
 
@@ -152,8 +150,8 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                           final id = data['id'] as String;
                           final info = {
                             'Id': data['id'],
-                            'Tanggal Perintah Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()), // Format tanggal
-                            'Tanggal Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()), // Format tanggal
+                            'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
+                            'Nomor Penggunaan Bahan' : data['material_usage_id']
                           };
                           return ListCard(
                             title: id,
@@ -162,9 +160,9 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FormPerintahProduksiScreen(
-                                    productionOrderId: data['id'],
-                                    productId: data['product_id'],
+                                  builder: (context) => FormPencatatanDirectLaborScreen(
+                                    materialUsageId: data['material_usage_id'],
+                                    dlohId: data['id'],
                                   )
                                 ),
                               );
@@ -175,7 +173,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                                 builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus perintah produksi ini?"),
+                                    content: const Text("Anda yakin ingin menghapus pencatatan DLOHC ini?"),
                                     actions: <Widget>[
                                       TextButton(
                                         child: const Text("Batal"),
@@ -186,8 +184,8 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                                       TextButton(
                                         child: const Text("Hapus"),
                                         onPressed: () async {
-                                          final productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
-                                          productionOrderBloc.add(DeleteProductionOrderEvent(filteredDocs[index].id));
+                                          final dlohBloc = BlocProvider.of<DLOHBloc>(context);
+                                          dlohBloc.add(DeleteDLOHEvent(filteredDocs[index].id));
                                           Navigator.of(context).pop(true);
                                         },
                                       ),
@@ -251,7 +249,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Filter Berdasarkan Status Perintah Produksi'),
+          title: const Text('Filter Berdasarkan Posisi'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {
@@ -261,15 +259,15 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Dalam Proses');
+                Navigator.pop(context, 'Aktif');
               },
-              child: const Text('Dalam Proses'),
+              child: const Text('Aktif'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Selesai');
+                Navigator.pop(context, 'Tidak Aktif');
               },
-              child: const Text('Selesai'),
+              child: const Text('Tidak Aktif'),
             ),
           ],
         );
@@ -278,7 +276,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
 
     if (selectedValue != null) {
       setState(() {
-        selectedStatus = selectedValue;
+        selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
       });
     }
   }
