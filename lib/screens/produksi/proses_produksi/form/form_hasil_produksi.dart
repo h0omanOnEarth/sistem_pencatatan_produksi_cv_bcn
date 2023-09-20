@@ -60,10 +60,63 @@ void updateTotalProduk() {
   jumlahProdukController.text = totalProduk.toString();
 }
 
+void initializeMaterialUsage(){
+    selectedPenggunaanBahan = widget.materialUsageId;
+    firestore
+    .collection('material_usages')
+    .where('id', isEqualTo: selectedPenggunaanBahan) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) async {
+    if (querySnapshot.docs.isNotEmpty) {
+      final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      namaBatchController.text = productData['batch'];
+      nomorPerintahProduksiController.text =productData['production_order_id'];
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+}
+
  @override
   void initState() {
     super.initState();
     statusController.text = "Dalam Proses"; 
+
+    if(widget.productionResultId!=null){
+       firestore
+        .collection('production_results')
+        .doc(widget.productionResultId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_prs'];
+          selectedPenggunaanBahan = data['material_usage_id'];
+          jumlahProdukBerhasilController.text = data['jumlah_produk_berhasil'].toString();
+          jumlahProdukCacatController.text = data['jumlah_produk_cacat'].toString();
+          jumlahProdukController.text = data['total_produk'].toString();
+          waktuProduksiController.text = data['waktu_produksi'].toString();
+          selectedSatuan = data['satuan'];
+          final tanggalPencatatanFirestore = data['tanggal_pencatatan'];
+          if (tanggalPencatatanFirestore != null) {
+            _selectedDate = (tanggalPencatatanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+    }
+
+    if(widget.materialUsageId!=null){
+       initializeMaterialUsage();
+    }
  }
 
   @override
