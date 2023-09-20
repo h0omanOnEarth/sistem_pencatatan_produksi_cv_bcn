@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/bom_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/bom_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';

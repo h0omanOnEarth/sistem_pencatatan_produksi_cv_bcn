@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -33,30 +34,26 @@ class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLa
   TextEditingController catatanController = TextEditingController();
   TextEditingController totalBiayaController = TextEditingController();
   TextEditingController biayaTenagaKerjaController= TextEditingController();
+  TextEditingController statusController = TextEditingController();
+  
+final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
 
-   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void clearForm() {
-  setState(() {
-    nomorPerintahProduksiController.text = '';
-    namaBatchController.text = '';
-    upahTenagaKerjaPerJamController.text = '';
-    jumlahTenagaKerjaController.text = '';
-    jumlahJamTenagaKerjaController.text = '';
-    biayaOverheadController.text = '';
-    catatanController.text = '';
-    selectedPenggunaanBahan = null;
-    _selectedDate = null;
-    totalBiayaController.text = '';
-    biayaTenagaKerjaController.text = '';
+void initializeMaterialUsage(){
+    selectedPenggunaanBahan = widget.materialUsageId;
+    firestore
+    .collection('material_usages')
+    .where('id', isEqualTo: selectedPenggunaanBahan) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) async {
+    if (querySnapshot.docs.isNotEmpty) {
+      final productData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      namaBatchController.text = productData['batch'];
+      nomorPerintahProduksiController.text =productData['production_order_id'];
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
   });
 }
 
@@ -97,24 +94,86 @@ void updateTotalBiaya() {
   ).format(totalBiaya);
 }
 
-  void addOrUpdate(){
-    final dlohBloc =BlocProvider.of<DLOHBloc>(context);
-    
-    int biayaOverheadInt = int.tryParse(biayaOverheadController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    int totalBiayaInt = int.tryParse(totalBiayaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-
-    final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.parse(jumlahTenagaKerjaController.text), jumlahJamTenagaKerja: int.parse(jumlahJamTenagaKerjaController.text), biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: biayaOverheadInt, upahTenagaKerjaPerjam: int.parse(upahTenagaKerjaPerJamController.text), subtotal: totalBiayaInt);
-
+   @override
+  void initState() {
+    super.initState();
     if(widget.dlohId!=null){
-      dlohBloc.add(UpdateDLOHEvent(widget.dlohId??'', dloh));
-    }else{
-      dlohBloc.add(AddDLOHEvent(dloh));
+      firestore
+        .collection('direct_labor_overhead_costs')
+        .doc(widget.dlohId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+          selectedPenggunaanBahan = data['material_usage_id'];
+          upahTenagaKerjaPerJamController.text = data['upah_tenaga_kerja_perjam'].toString();
+          jumlahTenagaKerjaController.text= data['jumlah_tenaga_kerja'].toString();
+          jumlahJamTenagaKerjaController.text = data['jumlah_jam_tenaga_kerja'].toString();
+          biayaOverheadController.text =  data['biaya_overhead'].toString();
+          biayaTenagaKerjaController.text =  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp',
+              decimalDigits: 0,).format(data['biaya_tenaga_kerja']);
+          totalBiayaController.text =  NumberFormat.currency(locale: 'id_ID', symbol: 'Rp',
+              decimalDigits: 0,).format(data['subtotal']);
+          final tanggalPencatatanFirestore = data['tanggal_pencatatan'];
+          if (tanggalPencatatanFirestore != null) {
+            _selectedDate = (tanggalPencatatanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
     }
 
-    _showSuccessMessageAndNavigateBack();
-
+    if(widget.materialUsageId!=null){
+      initializeMaterialUsage();
+    }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void clearForm() {
+  setState(() {
+    nomorPerintahProduksiController.text = '';
+    namaBatchController.text = '';
+    upahTenagaKerjaPerJamController.text = '';
+    jumlahTenagaKerjaController.text = '';
+    jumlahJamTenagaKerjaController.text = '';
+    biayaOverheadController.text = '';
+    catatanController.text = '';
+    selectedPenggunaanBahan = null;
+    _selectedDate = null;
+    totalBiayaController.text = '';
+    biayaTenagaKerjaController.text = '';
+    statusController.text = 'Aktif';
+  });
+}
+
+void addOrUpdate(){
+  final dlohBloc =BlocProvider.of<DLOHBloc>(context);
+  
+  int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+  int totalBiayaInt = int.tryParse(totalBiayaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+  final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.parse(jumlahTenagaKerjaController.text), jumlahJamTenagaKerja: int.parse(jumlahJamTenagaKerjaController.text), biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: int.parse(biayaOverheadController.text), upahTenagaKerjaPerjam: int.parse(upahTenagaKerjaPerJamController.text), subtotal: totalBiayaInt);
+
+  if(widget.dlohId!=null){
+    dlohBloc.add(UpdateDLOHEvent(widget.dlohId??'', dloh));
+  }else{
+    dlohBloc.add(AddDLOHEvent(dloh));
+  }
+
+  _showSuccessMessageAndNavigateBack();
+
+}
 
 void _showSuccessMessageAndNavigateBack() {
 showDialog(
@@ -295,10 +354,11 @@ showDialog(
                     controller: totalBiayaController,
                 ),
                 const SizedBox(height: 16.0,),
-                const TextFieldWidget(
+                TextFieldWidget(
                   label: 'Status',
-                  placeholder: 'Dalam Proses',
+                  placeholder: 'Aktif',
                   isEnabled: false,
+                  controller: statusController,
                 ),
                 const SizedBox(height: 16.0,),
                 TextFieldWidget(
