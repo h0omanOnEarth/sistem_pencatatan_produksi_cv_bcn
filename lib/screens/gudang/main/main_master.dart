@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainMasterGudangScreen extends StatefulWidget {
@@ -76,8 +76,8 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: FormMasterBahanScreen()),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang Jadi', textB: 'Memodifikasi dan melihat data barang jadi', pageRoute: FormMasterBarangScreen()),
+                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: ListMasterBahanScreen()),
+                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang Jadi', textB: 'Memodifikasi dan melihat data barang jadi', pageRoute: ListMasterBarangScreen()),
                   ],
                 ),
               ),

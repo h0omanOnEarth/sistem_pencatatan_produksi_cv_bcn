@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_penjua
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_penerimaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_permintaan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_purchase_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_pengembalian_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pemindahan_bahan.dart';
@@ -75,7 +76,10 @@ class _MainGudangState extends State<MainGudang> {
            FormPengembalianBarangScreen.routeName:(context)=> const FormPengembalianBarangScreen(),
            FormPengubahanBahan.routeName:(context)=> const FormPengubahanBahan(),
            FormPenerimaanHasilProduksi.routeName:(context)=> const FormPenerimaanHasilProduksi(),
-           FormPemindahanBahan.routeName:(context)=> const FormPemindahanBahan()
+           FormPemindahanBahan.routeName:(context)=> const FormPemindahanBahan(),
+
+           //List
+           ListPurchaseRequest.routeName:(context)=> const ListPurchaseRequest()
 
           });
   }
