@@ -6,11 +6,13 @@ ValueNotifier<String?> selectedBahanNotifier = ValueNotifier<String?>(null);
 
 class BahanDropdown extends StatefulWidget {
   final TextEditingController namaBahanController;
+  final TextEditingController? satuanBahanController;
   final String? bahanId; // Tambahkan parameter customerId
 
   BahanDropdown({
     required this.namaBahanController,
-    this.bahanId
+    this.bahanId,
+    this.satuanBahanController
   }): super();
 
   @override
@@ -84,6 +86,7 @@ class _BahanDropdownState extends State<BahanDropdown> {
                       );
                       widget.namaBahanController.text =
                           selectedMaterial['nama'] ?? '';
+                      widget.satuanBahanController?.text = selectedMaterial['satuan']??'';
                     },
                     isExpanded: true,
                     decoration: const InputDecoration(

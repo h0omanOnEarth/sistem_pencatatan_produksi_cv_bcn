@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/penerimaan_bahan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/material_receive.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/supplierService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/purchaseRequestDropDown.dart';
@@ -37,10 +40,62 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
   TextEditingController jumlahPermintaanController = TextEditingController();
   TextEditingController satuanController = TextEditingController();
 
-   @override
-  void initState(){
-    super.initState();
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final supplierService = SupplierService();
+  final materialService = MaterialService();
+
+ @override
+void initState() {
+  super.initState();
+  selectedBahanNotifier.addListener(_selectedKodeListener);
+  selectedKodeBahan = selectedBahanNotifier.value;
+  if (widget.materialReceiveId != null) {
+    firestore
+        .collection('material_receives')
+        .doc(widget.materialReceiveId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          jumlahDiterimaController.text = data['jumlah_diterima'].toString();
+          jumlahPermintaanController.text = data['jumlah_permintaan'].toString();
+          selectedKodeBahan = data['material_id'];
+          selectedNomorPermintaan = data['purchase_request_id'];
+          satuanController.text = data['satuan'];
+          selectedSupplier = data['supplier_id'];
+          
+          // Tambahkan kode async/await untuk mengambil data supplier dan material
+          _loadSupplierAndMaterialData(data['supplier_id'], data['material_id']);
+
+          final tanggalPenerimaanFirestore = data['tanggal_penerimaan'];
+          if (tanggalPenerimaanFirestore != null) {
+            _selectedDate = (tanggalPenerimaanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
   }
+}
+
+// Buat fungsi async untuk mengambil data supplier dan material
+Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId) async {
+  if (supplierId != null) {
+    Map<String, dynamic>? supplier = await supplierService.getSupplierInfo(supplierId);
+    kodeSupplierController.text = supplier?['id'] as String;
+  }
+
+  if (materialId != null) {
+    Map<String, dynamic>? material = await materialService.getMaterialInfo(materialId);
+    namaBahanController.text = material?['nama'] as String;
+  }
+}
+
 
   @override
   void dispose() {
@@ -192,7 +247,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child:  BahanDropdown(namaBahanController: namaBahanController, bahanId: widget.materialId,)
+                      child:  BahanDropdown(namaBahanController: namaBahanController, bahanId: widget.materialId, satuanBahanController: satuanController,)
                     ),
                     const SizedBox(width: 16.0),
                     Expanded(
