@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/penerimaan_bahan_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/material_receive.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/purchaseRequestDropDown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -46,10 +48,52 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
     super.dispose();
   }
 
+  void clearForm() {
+  setState(() {
+    _selectedDate = null;
+    selectedNomorPermintaan = null;
+    selectedKodeBahan = null;
+    selectedSupplier = null;
+    dropdownValue = null;
+    catatanController.clear();
+    jumlahDiterimaController.clear();
+    kodeSupplierController.clear();
+    namaBahanController.clear();
+    jumlahPermintaanController.clear();
+    satuanController.clear();
+  });
+}
+
   // Fungsi yang akan dipanggil ketika selectedKode berubah
   void _selectedKodeListener() {
     setState(() {
       selectedKodeBahan = selectedBahanNotifier.value;
+    });
+  }
+
+  void addOrUpdate(){
+    final materialReceiveBloc = BlocProvider.of<MaterialReceiveBloc>(context);
+    final materialReceive = MaterialReceive(id: '', purchaseRequestId: selectedNomorPermintaan??'', materialId: selectedKodeBahan??'', supplierId: selectedSupplier??'', satuan: satuanController.text, jumlahPermintaan: int.parse(jumlahPermintaanController.text), jumlahDiterima: int.parse(jumlahDiterimaController.text), status: 1, catatan: catatanController.text, tanggalPenerimaan: _selectedDate??DateTime.now());
+
+    if(widget.materialReceiveId!=null){
+      materialReceiveBloc.add(UpdateMaterialReceiveEvent(widget.materialReceiveId??'', materialReceive));
+    }else{
+      materialReceiveBloc.add(AddMaterialReceiveEvent(materialReceive));
+    }
+
+    _showSuccessMessageAndNavigateBack();
+  }
+
+  void _showSuccessMessageAndNavigateBack() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return SuccessDialog(
+        message: 'Berhasil menyimpan pesanan permintaan penerimaan bahan',
+      );
+    },
+    ).then((_) {
+      Navigator.pop(context,null);
     });
   }
 
@@ -203,6 +247,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdate();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -224,6 +269,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle clear button press
+                          clearForm();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -232,7 +278,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                           ),
                         ),
                         child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                          padding:  EdgeInsets.symmetric(vertical: 16.0),
                           child: Text(
                             'Bersihkan',
                             style: TextStyle(fontSize: 18),

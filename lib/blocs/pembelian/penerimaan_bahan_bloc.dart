@@ -43,7 +43,7 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
 
   MaterialReceiveBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
-    materialReceiveRef = _firestore.collection('material_receive');
+    materialReceiveRef = _firestore.collection('material_receives');
   }
 
   @override
@@ -52,7 +52,7 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
       yield LoadingState();
       try {
         final String nextMaterialReceiveId = await _generateNextMaterialReceiveId();
-        final materialReceiveRef = _firestore.collection('material_receive').doc(nextMaterialReceiveId);
+        final materialReceiveRef = _firestore.collection('material_receives').doc(nextMaterialReceiveId);
 
         final Map<String, dynamic> materialReceiveData = {
           'id': nextMaterialReceiveId,
