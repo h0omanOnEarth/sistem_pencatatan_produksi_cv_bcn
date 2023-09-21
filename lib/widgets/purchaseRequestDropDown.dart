@@ -1,43 +1,50 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class SupplierDropdown extends StatelessWidget {
-  final String? selectedSupplier;
+class PurchaseRequestDropDown extends StatelessWidget {
+  final String? selectedPurchaseRequest;
   final Function(String?) onChanged;
-  final TextEditingController? kodeSupplierController;
+  final TextEditingController? jumlahPermintaanController;
 
-  const SupplierDropdown({super.key, required this.selectedSupplier, required this.onChanged, this.kodeSupplierController});
+  const PurchaseRequestDropDown({super.key, required this.selectedPurchaseRequest, required this.onChanged, this.jumlahPermintaanController});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
+      stream: FirebaseFirestore.instance.collection('purchase_requests').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
-        List<DropdownMenuItem<String>> supplierItems = [];
+        List<DropdownMenuItem<String>> purchaseRequestItems = [];
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String supplierName = document['nama'] ?? '';
-          String supplierId = document['id'];
-          supplierItems.add(
+          String purchaseRequestId = document['id'];
+           String jumlahPermintaan = document['jumlah'].toString(); // Ambil nilai 'jumlah' dan konversi ke String
+
+          purchaseRequestItems.add(
             DropdownMenuItem<String>(
-              value: supplierId,
+              value: purchaseRequestId,
               child: Text(
-                supplierName,
+                purchaseRequestId,
                 style: const TextStyle(color: Colors.black),
               ),
             ),
           );
+
+           // Perbarui jumlahPermintaanController jika diberikan
+          if (jumlahPermintaanController != null && selectedPurchaseRequest == purchaseRequestId) {
+            jumlahPermintaanController?.text = jumlahPermintaan;
+          }
         }
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Supplier',
+              'Permintaan Pembelian',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -50,12 +57,16 @@ class SupplierDropdown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedSupplier,
-                items: supplierItems,
+                value: selectedPurchaseRequest,
+                items: purchaseRequestItems,
                 onChanged: (newValue) {
                   onChanged(newValue);
-                  if (kodeSupplierController != null) {
-                    kodeSupplierController!.text = newValue ?? '';
+                  // Perbarui jumlahPermintaanController saat item dipilih
+                  if (jumlahPermintaanController != null) {
+                    final selectedDoc = snapshot.data!.docs.firstWhere(
+                      (doc) => doc['id'] == newValue,
+                    );
+                    jumlahPermintaanController?.text = selectedDoc['jumlah'].toString();
                   }
                 },
                 isExpanded: true,

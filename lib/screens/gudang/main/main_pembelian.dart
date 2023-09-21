@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_penerimaan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_material_receive.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_purchase_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -77,7 +77,7 @@ class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
                     ),
                     const SizedBox(height: 16),
                     const CardItem(icon: Icons.shopping_cart, textA: 'Permintaan Pembelian', textB: 'Memodifikasi dan melihat permintaan pembelian', pageRoute: ListPurchaseRequest()),
-                    const CardItem(icon: Icons.note_add_sharp, textA: 'Penerimaan Bahan', textB: 'Memodifikasi dan melihat penerimaan bahan', pageRoute: FormPenerimaanBahanScreen()),
+                    const CardItem(icon: Icons.note_add_sharp, textA: 'Penerimaan Bahan', textB: 'Memodifikasi dan melihat penerimaan bahan', pageRoute: ListMaterialReceive()),
                   ],
                 ),
               ),
