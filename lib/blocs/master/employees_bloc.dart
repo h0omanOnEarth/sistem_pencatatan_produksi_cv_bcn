@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/employee.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/master/employee.dart';
 
 // Events
 abstract class EmployeeEvent {}

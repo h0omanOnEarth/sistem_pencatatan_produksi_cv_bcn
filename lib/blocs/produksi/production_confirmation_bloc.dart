@@ -72,7 +72,7 @@ class ProductionConfirmationBloc
           'status': event.productionConfirmation.status,
           'status_prc': event.productionConfirmation.statusPrc,
           'tanggal_konfirmasi':
-              event.productionConfirmation.tanggalKonfirmasi.toIso8601String(),
+              event.productionConfirmation.tanggalKonfirmasi,
           // You can add more fields here as needed
         };
 
@@ -81,7 +81,7 @@ class ProductionConfirmationBloc
 
         // Create a reference to the 'details' subcollection within the production confirmation document
         final detailsRef =
-            productionConfirmationRef.collection('details');
+            productionConfirmationRef.collection('detail_production_confirmations');
 
         if (event.productionConfirmation.detailProductionConfirmations.isNotEmpty) {
           int detailCount = 1;
@@ -96,6 +96,8 @@ class ProductionConfirmationBloc
               'production_confirmation_id': nextProductionConfirmationId,
               'jumlah_konfirmasi': detail.jumlahKonfirmasi,
               'production_result_id': detail.productionResultId,
+              'satuan' : detail.satuan,
+              'product_id' : detail.productId
               // Add more detail fields as needed
             });
             detailCount++;
@@ -121,7 +123,7 @@ class ProductionConfirmationBloc
           'status': event.productionConfirmation.status,
           'status_prc': event.productionConfirmation.statusPrc,
           'tanggal_konfirmasi':
-              event.productionConfirmation.tanggalKonfirmasi.toIso8601String(),
+              event.productionConfirmation.tanggalKonfirmasi,
           // Update more fields here as needed
         };
 
@@ -130,7 +132,7 @@ class ProductionConfirmationBloc
             .set(productionConfirmationData);
 
         // Delete all documents within the 'details' subcollection first
-        final detailsCollectionRef = productionConfirmationToUpdateRef.collection('details');
+        final detailsCollectionRef = productionConfirmationToUpdateRef.collection('detail_production_confirmations');
         final detailsDocs = await detailsCollectionRef.get();
         for (var doc in detailsDocs.docs) {
           await doc.reference.delete();
@@ -150,6 +152,8 @@ class ProductionConfirmationBloc
               'production_confirmation_id': event.productionConfirmationId,
               'jumlah_konfirmasi': detail.jumlahKonfirmasi,
               'production_result_id': detail.productionResultId,
+              'satuan' : detail.satuan,
+              'product_id' : detail.productId
               // Add more detail fields as needed
             });
             detailCount++;
@@ -170,7 +174,7 @@ class ProductionConfirmationBloc
 
         // Get a reference to the 'details' subcollection within the production confirmation document
         final detailsCollectionRef =
-            productionConfirmationToDeleteRef.collection('details');
+            productionConfirmationToDeleteRef.collection('detail_production_confirmations');
 
         // Delete all documents within the 'details' subcollection
         final detailsDocs = await detailsCollectionRef.get();

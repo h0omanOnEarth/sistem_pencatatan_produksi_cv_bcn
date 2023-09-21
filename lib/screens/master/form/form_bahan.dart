@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/materials_bloc.dart'; // Sesuaikan dengan alamat file MaterialBloc
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/master/material.dart';
 
 class FormMasterBahanScreen extends StatefulWidget {
   static const routeName = '/form_master_bahan_screen';

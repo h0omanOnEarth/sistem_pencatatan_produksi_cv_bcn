@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/detail_billofmaterial.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/master/detail_billofmaterial.dart';
 
 class BillOfMaterial {
   String id;
@@ -35,7 +35,7 @@ class BillOfMaterial {
 
     final bomDetailsSnapshot = await bomDetailsQuery.get();
     final bomDetailsData = bomDetailsSnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data();
       return BomDetail.fromJson(data);
     }).toList();
 

@@ -4,7 +4,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/mesin_bloc.dart' a
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/machine.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/master/machine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FormMasterMesinScreen extends StatefulWidget {

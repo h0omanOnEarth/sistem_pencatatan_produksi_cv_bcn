@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_confirmation_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_production_confirmation.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_confirmation.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/class/productCardProductionResult.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/class/productCardProductionResultWidget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productionOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 
@@ -28,6 +34,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
   List<Map<String, dynamic>> productDataPR = []; // Inisialisasi daftar bahan
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final productionOrderService = ProductionOrderService();
   TextEditingController catatanController = TextEditingController();
   TextEditingController statusController = TextEditingController();
 
@@ -66,12 +73,81 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
     super.dispose();
   }
 
+void fetchDataDetail() {
+  firestore
+      .collection('production_confirmations')
+      .doc(widget.productionConfirmationId!)
+      .collection('detail_production_confirmations') 
+      .get()
+      .then((querySnapshot) async {
+        final newProductCards = <ProductCardDataProductionResult>[];
+        for (var doc in querySnapshot.docs) {
+          final detailData = doc.data();
+          final productionResultId = detailData['production_result_id'] as String;
+          final productionResult = productDataPR.firstWhere(
+            (pResult) => pResult['id'] == productionResultId,
+            orElse: () => {'nama': 'Hasil Produksi Tidak Ditemukan'},
+          );
+
+          String productName = 'Produk Tidak Ditemukan'; // Default jika produk tidak ditemukan
+          Map<String, dynamic>? product = await productionOrderService.getProductInfo(detailData['product_id']);
+          if (product != null && product.containsKey('product_name')) {
+            productName = product['product_name'] as String;
+          }
+
+          final productCardData = ProductCardDataProductionResult(
+            nomorHasilProduksi: productionResult['id'] as String,
+            kodeBarang: detailData['product_id'] as String,
+            namaBarang: productName,
+            jumlahHasil: productionResult['jumlahHasil'].toString(),
+            satuan: productionResult['satuan'] as String,
+            jumlahKonfirmasi: detailData['jumlah_konfirmasi'].toString(),
+          );
+
+          newProductCards.add(productCardData);
+        }
+
+        setState(() {
+          productCards = newProductCards;
+        });
+      });
+}
+
+
+
   @override
   void initState() {
     super.initState();
     addProductCard(); // Tambahkan product card secara default pada initState
     fetchDataProductionResult();
     statusController.text = "Dalam Proses";
+
+    if(widget.productionConfirmationId!=null){
+        firestore
+        .collection('production_confirmations')
+        .doc(widget.productionConfirmationId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_prc'];
+          final tanggalKonfirmasiFirestore = data['tanggal_konfirmasi'];
+          if (tanggalKonfirmasiFirestore != null) {
+            selectedDate = (tanggalKonfirmasiFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+    }
+    if(widget.productionConfirmationId!=null){
+     fetchDataDetail(); 
+    }
   }
 
   void clear() {
@@ -84,9 +160,46 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
   });
 }
 
+void addOrUpdate(){
+  try{
+   final proConfBloc =BlocProvider.of<ProductionConfirmationBloc>(context);
+   final proConf = ProductionConfirmation(id: '', catatan: catatanController.text, status: 1, statusPrc: statusController.text, tanggalKonfirmasi: selectedDate??DateTime.now(), detailProductionConfirmations: []);
+      // Loop melalui productCards untuk menambahkan detail customer order
+  for (var productCardData in productCards) {
+    final detailProductionCon = DetailProductionConfirmation(id: '', jumlahKonfirmasi: int.parse(productCardData.jumlahKonfirmasi), productionConfirmationId: '', productionResultId: productCardData.nomorHasilProduksi, satuan: productCardData.satuan, productId: productCardData.kodeBarang, status: 1);
+    proConf.detailProductionConfirmations.add(detailProductionCon);
+  }
+
+  if(widget.productionConfirmationId!=null){
+    proConfBloc.add(UpdateProductionConfirmationEvent(widget.productionConfirmationId??'', proConf));
+  }else{
+    proConfBloc.add(AddProductionConfirmationEvent(proConf));
+  }
+  _showSuccessMessageAndNavigateBack();
+  }catch(e){
+    print('Error: $e');
+  }
+}
+
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan konfirmasi produksi.',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider(
+    create: (context) => ProductionConfirmationBloc(),
+    child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
@@ -202,6 +315,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
                       child: ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          addOrUpdate();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -247,6 +361,7 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
           ),
         ),
       ),
+    )
     );
   }
 }

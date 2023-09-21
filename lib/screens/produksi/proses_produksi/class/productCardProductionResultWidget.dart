@@ -108,7 +108,12 @@ class _ProductCardProductionResultWidgetState extends State<ProductCardProductio
       TextFieldWidget(
             label: 'Jumlah Konfirmasi',
             placeholder: '0',
-            controller: TextEditingController(text: widget.productCardData.jumlahKonfirmasi),
+            controller: widget.productCardData.jumlahController,
+              onChanged: (newValue) {
+                  setState(() {
+                    widget.productCardData.jumlahKonfirmasi = newValue;
+                  });
+                },
         ), 
       ],
     );

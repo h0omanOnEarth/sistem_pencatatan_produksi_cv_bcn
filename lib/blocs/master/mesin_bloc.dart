@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/models/machine.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/master/machine.dart';
 
 // Events
 abstract class MesinEvent {}
