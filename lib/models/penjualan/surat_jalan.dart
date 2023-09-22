@@ -6,6 +6,7 @@ class Shipment {
   final String catatan;
   final String deliveryOrderId;
   final int status;
+  final int totalPcs;
   final String statusShp;
   final DateTime tanggalPembuatan;
   final List<DetailShipment> detailListShipment;
@@ -16,6 +17,7 @@ class Shipment {
     required this.catatan,
     required this.deliveryOrderId,
     required this.status,
+    required this.totalPcs,
     required this.statusShp,
     required this.tanggalPembuatan,
     this.detailListShipment = const [],
@@ -36,6 +38,7 @@ class Shipment {
       catatan: json['catatan'] as String,
       deliveryOrderId: json['delivery_order_id'] as String,
       status: json['status'] as int,
+      totalPcs: json['total_pcs'] as int,
       statusShp: json['status_shp'] as String,
       tanggalPembuatan: DateTime.parse(json['tanggal_pembuatan'] as String),
       detailListShipment: detailListShipment,
@@ -51,6 +54,7 @@ class Shipment {
       'catatan': catatan,
       'delivery_order_id': deliveryOrderId,
       'status': status,
+      'total_pcs': totalPcs,
       'status_shp': statusShp,
       'tanggal_pembuatan': tanggalPembuatan.toIso8601String(),
       'detailListShipment': detailShipmentJson,

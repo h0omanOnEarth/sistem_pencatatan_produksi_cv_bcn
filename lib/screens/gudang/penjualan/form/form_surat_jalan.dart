@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/surat_jalan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/surat_jalan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/shipmentOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart';
@@ -57,6 +60,9 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
   final productService = ProductService();
   final suratJalanService = SuratJalanService();
   final shipmentService = ShipmentService();
+  final deliveryOrderService = DeliveryOrderService();
+  final customerOrderService = CustomerOrderService();
+  final customerService = CustomerService();
 
   //controllers
   TextEditingController catatanController = TextEditingController();
@@ -66,6 +72,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
   TextEditingController kodePenerimaController = TextEditingController();
   TextEditingController namaPenerimaController = TextEditingController();
   TextEditingController alamatController = TextEditingController();
+  TextEditingController totalPcsProdukController = TextEditingController();
 
   // Fungsi untuk mengambil data dari Firestore
 Future<void> fetchDataFromFirestore(String selectedNomorPerintahPengiriman,) async {
@@ -80,6 +87,9 @@ Future<void> fetchDataFromFirestore(String selectedNomorPerintahPengiriman,) asy
     final jumlahPcsController = TextEditingController();
     final jumlahDusController = TextEditingController();
 
+    // Tambahkan listener untuk mengupdate total saat controller berubah
+    jumlahPcsController.addListener(() {updateTotalPcsProduk();});
+
     // Tambahkan controller ke dalam list cardDataList
     cardDataList.add(CardData(
       pcsController: jumlahPcsController,
@@ -90,10 +100,8 @@ Future<void> fetchDataFromFirestore(String selectedNomorPerintahPengiriman,) asy
 
     final cardContentPcs = CustomWithTextFieldCardContent(text: '', isRow: true, leftHintText: 'Jumlah',
       rightHintText: 'Pcs', rightEnabled: false, controller: jumlahPcsController,);
-
     final cardContentDus = CustomWithTextFieldCardContent(text: '', isRow: true, leftHintText: 'Jumlah',
       rightHintText: 'Dus', rightEnabled: false, controller: jumlahDusController,);
-
      Map<String, dynamic>? product = await productService.getProductInfo(data['product_id']);
      final namaProduct = product?['nama'];
     
@@ -114,11 +122,20 @@ Future<void> fetchDataFromFirestore(String selectedNomorPerintahPengiriman,) asy
   setState(() {});
 }
 
+// Tambahkan fungsi untuk menghitung total Pcs produk
+void updateTotalPcsProduk() {
+  int totalPcs = 0;
+
+  for (final cardData in cardDataList) {
+    final jumlahPcs = int.tryParse(cardData.pcsController.text) ?? 0;
+    totalPcs += jumlahPcs;
+  }
+  totalPcsProdukController.text = totalPcs.toString();
+}
+
 void fetchDetail() async {
   // Fetch the shipment detail
   final shipmentDetails = await shipmentService.getDetailShipments(widget.shipmentId ?? '');
-  print(shipmentDetails);
-
   if (shipmentDetails != null) {
     // Lakukan sesuatu dengan daftar detail pengiriman yang diterima
     for (int i = 0; i < cardDataList.length; i++) {
@@ -128,17 +145,51 @@ void fetchDetail() async {
       print(detailShipment);
       cardDataList[i].pcsController.text = detailShipment['jumlahPengiriman'].toString();
       cardDataList[i].dusController.text = detailShipment['jumlahPengirimanDus'].toString();
+      cardDataList[i].pcsController.addListener(() { updateTotalPcsProduk();});
     }
+    updateTotalPcsProduk();
   } else {
     // Handle the case where shipmentDetails is null
     print('Detail Shipment tidak ditemukan atau terjadi kesalahan dalam pengambilan data.');
   }
 }
 
+void fetchCustomerDetail() async{
+ Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(widget.deliveryId??'');
+ final customer_order_id = deliveryOrder?['customerOrderId'];
+  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customer_order_id);
+  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
+  nomorPesananPelanggan.text = customer_order_id;
+  namaPenerimaController.text = customer?['nama'];
+  kodePenerimaController.text = customer?['id'];
+}
 
 @override
 void dispose() {
   super.dispose();
+}
+
+void clearForm() {
+  // Hapus semua data dalam controller
+  nomorSuratJalanController.clear();
+  _selectedDate = null;
+  selectedNomorPerintahPengiriman = null;
+  kodePenerimaController.clear();
+  namaPenerimaController.clear();
+  alamatController.clear();
+  totalPcsProdukController.clear();
+  statusController.clear();
+  catatanController.clear();
+  nomorPesananPelanggan.clear();
+  
+  // Hapus semua data dalam cardDataList
+  cardDataList.clear();
+
+  // Hapus semua widget dalam detailPesananWidgets
+  detailPesananWidgets.clear();
+
+  // Panggil setState agar tampilan diperbarui
+  setState(() {});
 }
 
 @override
@@ -180,6 +231,8 @@ void initState() {
 
   if(widget.deliveryId!=null){
     fetchDataFromFirestore(widget.deliveryId??''); 
+    updateTotalPcsProduk();
+    fetchCustomerDetail();
   }
 
   fetchDetail();
@@ -187,7 +240,7 @@ void initState() {
 
 void addOrUpdate() {
   final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);  
-  final shipment = Shipment(id: nomorSuratJalanController.text, alamatPenerima: alamatController.text, catatan: catatanController.text, deliveryOrderId: selectedNomorPerintahPengiriman??'', status: 1, statusShp: statusController.text, tanggalPembuatan: _selectedDate??DateTime.now(), detailListShipment: []);
+  final shipment = Shipment(id: nomorSuratJalanController.text, alamatPenerima: alamatController.text, catatan: catatanController.text, deliveryOrderId: selectedNomorPerintahPengiriman??'', status: 1, statusShp: statusController.text, totalPcs: int.parse(totalPcsProdukController.text),tanggalPembuatan: _selectedDate??DateTime.now(), detailListShipment: []);
   for (int index = 0; index < cardDataList.length; index++) {
     String jumlahDus = cardDataList[index].dusController.text;
     String jumlahPcs = cardDataList[index].pcsController.text;
@@ -206,17 +259,8 @@ void addOrUpdate() {
     shipmentBloc.add(AddShipmentEvent(shipment));
   }
 
+   updateTotalPcsProduk();
   _showSuccessMessageAndNavigateBack();
-   for (int i = 0; i < cardDataList.length; i++) {
-    String jumlahDus = cardDataList[i].dusController.text;
-    String jumlahPcs = cardDataList[i].pcsController.text;
-
-    // Sekarang Anda memiliki nilai jumlahDus dan jumlahPcs untuk card pada indeks tertentu
-    print("Card ke-$i - Jumlah Dus: $jumlahDus");
-    print("Card ke-$i - Jumlah Pcs: $jumlahPcs");
-
-    // Lakukan apa pun yang perlu Anda lakukan dengan nilai-nilai ini di sini
-  }
 }
 
 void _showSuccessMessageAndNavigateBack() {
@@ -348,6 +392,28 @@ showDialog(
                     multiline: true,
                   ),
                   const SizedBox(height: 16.0,),
+                    Row(
+                    children: [
+                      Expanded(
+                        child: TextFieldWidget(
+                          label: 'Total Produk',
+                          placeholder: '0',
+                          controller: totalPcsProdukController,
+                          isEnabled: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: TextFieldWidget(
+                          label: ' ',
+                          placeholder: 'Pcs',
+                          controller: namaPenerimaController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Status',
                     placeholder: 'Dalam Proses',
@@ -368,7 +434,7 @@ showDialog(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 16.0,),
+                   const SizedBox(height: 16.0,),
                   ListView.builder(
                     shrinkWrap: true,
                     itemCount: detailPesananWidgets.length,
@@ -405,6 +471,7 @@ showDialog(
                         child: ElevatedButton(
                           onPressed: () {
                             // Handle clear button press
+                            clearForm();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

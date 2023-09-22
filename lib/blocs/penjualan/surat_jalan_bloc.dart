@@ -67,6 +67,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
           'catatan': event.shipment.catatan,
           'delivery_order_id': event.shipment.deliveryOrderId,
           'status_shp': event.shipment.statusShp,
+          'total_pcs': event.shipment.totalPcs,
           'tanggal_pembuatan': event.shipment.tanggalPembuatan,
         };
 
@@ -113,6 +114,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
           'catatan': event.shipment.catatan,
           'delivery_order_id': event.shipment.deliveryOrderId,
           'status_shp': event.shipment.statusShp,
+          'total_pcs': event.shipment.totalPcs,
           'tanggal_pembuatan': event.shipment.tanggalPembuatan,
         };
 
