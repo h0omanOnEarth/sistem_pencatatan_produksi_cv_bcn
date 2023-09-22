@@ -176,12 +176,13 @@ void initState() {
     }).catchError((error) {
       print('Error getting document: $error');
     });
-    fetchDetail();
   }
 
   if(widget.deliveryId!=null){
     fetchDataFromFirestore(widget.deliveryId??''); 
   }
+
+  fetchDetail();
 }
 
 void addOrUpdate() {
