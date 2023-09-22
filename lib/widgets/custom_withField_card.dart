@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
-class CustomWithTextFieldCard extends StatelessWidget {
+class CustomWithTextFieldCard extends StatefulWidget {
   final List<CustomWithTextFieldCardContent> content;
 
   const CustomWithTextFieldCard({
     required this.content,
   });
 
+  @override
+  State<CustomWithTextFieldCard> createState() => _CustomWithTextFieldCardState();
+}
+
+class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
+  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -22,12 +28,16 @@ class CustomWithTextFieldCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            for (var item in content)
+            for (var item in widget.content)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: item.isTextField
                     ? TextField(
                         controller: item.controller, // Gunakan controller yang diberikan
+                        onChanged: (newValue) {
+                          // Memperbarui nilai controller saat input berubah
+                          item.controller?.text = newValue;
+                        },
                         decoration: InputDecoration(
                           hintText: item.text,
                           border: OutlineInputBorder(
@@ -46,7 +56,11 @@ class CustomWithTextFieldCard extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: TextField(
-                                  controller: item.leftController, // Gunakan controller kiri yang diberikan
+                                  controller: item.leftController ?? item.controller, // Gunakan controller kiri yang diberikan atau controller utama
+                                  onChanged: (newValue) {
+                                    // Memperbarui nilai controller saat input berubah
+                                    item.leftController?.text = newValue;
+                                  },
                                   enabled: item.leftEnabled, // Menggunakan nilai leftEnabled
                                   decoration: InputDecoration(
                                     hintText: item.leftHintText,
@@ -62,10 +76,14 @@ class CustomWithTextFieldCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  controller: item.rightController, // Gunakan controller kanan yang diberikan
+                                  controller: item.rightController ?? item.controller, // Gunakan controller kanan yang diberikan atau controller utama
+                                  onChanged: (newValue) {
+                                    // Memperbarui nilai controller saat input berubah
+                                    item.rightController?.text = newValue;
+                                  },
                                   enabled: item.rightEnabled, // Menggunakan nilai rightEnabled
                                   decoration: InputDecoration(
                                     hintText: item.rightHintText,
@@ -98,6 +116,7 @@ class CustomWithTextFieldCard extends StatelessWidget {
     );
   }
 }
+
 
 class CustomWithTextFieldCardContent {
   final String text;

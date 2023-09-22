@@ -168,7 +168,7 @@ Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,null);
                       },
                       child: Container(
                         decoration: BoxDecoration(

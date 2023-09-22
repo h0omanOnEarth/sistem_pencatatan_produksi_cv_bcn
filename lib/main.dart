@@ -13,6 +13,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/purchase_return
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/delivery_order_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/pesanan_pelanggan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/products_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/surat_jalan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/dloh_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_request_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_bloc.dart';
@@ -132,6 +133,9 @@ class MyApp extends StatelessWidget {
         ),
          BlocProvider<MaterialReceiveBloc>(
           create: (BuildContext context) => MaterialReceiveBloc(),
+        ),
+        BlocProvider<ShipmentBloc>(
+          create: (BuildContext context) => ShipmentBloc(),
         ),
       ],
     child : MaterialApp(

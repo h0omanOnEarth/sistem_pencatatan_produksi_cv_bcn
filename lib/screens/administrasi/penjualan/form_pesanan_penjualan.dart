@@ -113,7 +113,7 @@ void clearForm() {
 }
 
 void addOrUpdateCustomerOrder() {
-  final _customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);  
+  final customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);  
   try {
     final customerOrder = CustomerOrder(
       id: '',
@@ -146,10 +146,10 @@ void addOrUpdateCustomerOrder() {
     }
 
     if(widget.customerId!=null){
-      _customerOrderBloc.add(UpdateCustomerOrderEvent(widget.customerOrderId??'', customerOrder));
+      customerOrderBloc.add(UpdateCustomerOrderEvent(widget.customerOrderId??'', customerOrder));
     }else{
        // Dispatch event untuk menambahkan customer order
-    _customerOrderBloc.add(AddCustomerOrderEvent(customerOrder));
+    customerOrderBloc.add(AddCustomerOrderEvent(customerOrder));
     }
    
     _showSuccessMessageAndNavigateBack();

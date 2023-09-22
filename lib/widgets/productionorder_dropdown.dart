@@ -8,7 +8,7 @@ class ProductionOrderDropDown extends StatefulWidget {
   late final TextEditingController? kodeProdukController;
   late final TextEditingController? namaProdukController;
 
-  ProductionOrderDropDown({
+  ProductionOrderDropDown({super.key, 
     required this.selectedPRO, 
     required this.onChanged, 
     this.tanggalProduksiController,
