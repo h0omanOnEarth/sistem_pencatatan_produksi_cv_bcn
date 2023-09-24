@@ -3,10 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MachineDropdown extends StatelessWidget {
   final String? selectedMachine;
+  final TextEditingController? namaMesinController; // Tambahkan parameter ini
   final Function(String?) onChanged;
-  final String title; // Tambahkan parameter judul teks
+  final String title;
 
-  MachineDropdown({required this.selectedMachine, required this.onChanged,required this.title});
+  MachineDropdown({
+    required this.selectedMachine,
+    required this.onChanged,
+    required this.title,
+    this.namaMesinController, // Tambahkan parameter ini
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +32,14 @@ class MachineDropdown extends StatelessWidget {
             DropdownMenuItem<String>(
               value: machineId,
               child: Text(
-                '$machineId - $machineName',
+                machineId,
                 style: const TextStyle(color: Colors.black),
               ),
             ),
           );
+          if (selectedMachine == machineId && namaMesinController != null) {
+            namaMesinController?.text = machineName;
+          }
         }
 
         return Column(
@@ -54,6 +63,13 @@ class MachineDropdown extends StatelessWidget {
                 items: machineItems,
                 onChanged: (newValue) {
                   onChanged(newValue);
+                  if (namaMesinController != null) {
+                    final selectedMachineName = machineItems.firstWhere(
+                      (item) => item.value == newValue,
+                      orElse: () => DropdownMenuItem<String>(value: '', child: Text('')),
+                    ).child as Text;
+                    namaMesinController?.text = selectedMachineName.data!;
+                  }
                 },
                 isExpanded: true,
                 decoration: const InputDecoration(

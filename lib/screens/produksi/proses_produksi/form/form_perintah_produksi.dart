@@ -53,7 +53,7 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
    void fetchData(){
     // Ambil data produk dari Firestore di initState
     firestore.collection('products').get().then((querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
+      for (var doc in querySnapshot.docs) {
         Map<String, dynamic> product = {
           'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
           'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
@@ -61,7 +61,7 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
         setState(() {
           productDataProduk.add(product); // Tambahkan produk ke daftar produk
         });
-      });
+      }
     });
   }
 
@@ -457,7 +457,7 @@ Widget build(BuildContext context) {
                     });
               }, title: 'Sheet',),
             const SizedBox(height: 16.0,),
-             MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
+            MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
                     setState(() {
                       selectedMesinCetak = newValue;
                       mesinPencetak.clear();

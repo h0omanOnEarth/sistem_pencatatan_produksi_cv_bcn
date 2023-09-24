@@ -18,6 +18,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/fo
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pengubahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pemindahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_penerimaan_hasil_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pengubahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_barang.dart';
@@ -89,7 +90,8 @@ class _MainGudangState extends State<MainGudang> {
            ListSuratJalan.routeName:(context)=> const ListSuratJalan(),
            ListCustomerOrderReturn.routeName:(context)=> const ListCustomerOrderReturn(),
            ListPemindahanBahan.routeName:(context)=> const ListPemindahanBahan(),
-           ListItemReceive.routeName:(context)=> const ListItemReceive()
+           ListItemReceive.routeName:(context)=> const ListItemReceive(),
+           ListPengubahanBahan.routeName:(context)=> const ListPengubahanBahan()
 
           });
   }

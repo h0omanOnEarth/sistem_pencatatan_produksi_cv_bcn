@@ -69,10 +69,20 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
     }
   }
   
-  @override
-  void dispose(){
-    super.dispose();
-  }
+@override
+void dispose(){
+  super.dispose();
+}
+
+void clearForm() {
+  setState(() {
+    catatanController.clear();
+    _selectedDate = null;
+    selectedNomorKonfirmasi = null;
+    selectedStatus = 'Dalam Proses';
+    materialDetailsData.clear();
+  });
+}
 
 void addOrUpdate() {
   final itemReceiveBloc = BlocProvider.of<ItemReceiveBloc>(context);
@@ -349,6 +359,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        clearForm();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
