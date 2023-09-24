@@ -1,6 +1,6 @@
 class MaterialTransferDetail {
   final String id;
-  final int jumlah;
+  final int jumlahBom;
   final String materialId;
   final String materialTransferId;
   final String satuan;
@@ -9,7 +9,7 @@ class MaterialTransferDetail {
 
   MaterialTransferDetail({
     required this.id,
-    required this.jumlah,
+    required this.jumlahBom,
     required this.materialId,
     required this.materialTransferId,
     required this.satuan,
@@ -20,7 +20,7 @@ class MaterialTransferDetail {
   factory MaterialTransferDetail.fromJson(Map<String, dynamic> json) {
     return MaterialTransferDetail(
       id: json['id'] ?? '',
-      jumlah: json['jumlah'] ?? 0,
+      jumlahBom: json['jumlah'] ?? 0,
       materialId: json['material_id'] ?? '',
       materialTransferId: json['material_transfer_id'] ?? '',
       satuan: json['satuan'] ?? '',
@@ -32,7 +32,7 @@ class MaterialTransferDetail {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'jumlah': jumlah,
+      'jumlah': jumlahBom,
       'material_id': materialId,
       'material_transfer_id': materialTransferId,
       'satuan': satuan,

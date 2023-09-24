@@ -90,7 +90,7 @@ class MaterialTransferBloc
             await detailMaterialTransferRef.add({
               'id': nextDetailMaterialTransferId,
               'material_transfer_id': nextMaterialTransferId,
-              'jumlah': detailMaterialTransfer.jumlah,
+              'jumlah_bom': detailMaterialTransfer.jumlahBom,
               'material_id': detailMaterialTransfer.materialId,
               'satuan': detailMaterialTransfer.satuan,
               'status': detailMaterialTransfer.status,
@@ -146,7 +146,7 @@ class MaterialTransferBloc
             await detailMaterialTransferCollectionRef.add({
               'id': detailId,
               'material_transfer_id': event.materialTransferId,
-              'jumlah': detailMaterialTransfer.jumlah,
+              'jumlah_bom': detailMaterialTransfer.jumlahBom,
               'material_id': detailMaterialTransfer.materialId,
               'satuan': detailMaterialTransfer.satuan,
               'status': detailMaterialTransfer.status,

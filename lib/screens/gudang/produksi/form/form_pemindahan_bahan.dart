@@ -126,7 +126,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
     final materialTransferBloc = BlocProvider.of<MaterialTransferBloc>(context);
     final materialTransfer = MaterialTransfer(id: '', materialRequestId: selectedNomorPermintaan??'', statusMtr: statusController.text, tanggalPemindahan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, detailList: []);
     for (var productCardData in materialDetailsData) {
-    final detailMaterialRequest = MaterialTransferDetail(id: '', jumlah: productCardData['jumlah'], materialId: productCardData['materialId'], materialTransferId: '', satuan: productCardData['satuan'], status: 1, stok: productCardData['stok']);
+    final detailMaterialRequest = MaterialTransferDetail(id: '', jumlahBom: productCardData['jumlah'], materialId: productCardData['materialId'], materialTransferId: '', satuan: productCardData['satuan'], status: 1, stok: productCardData['stok']);
     materialTransfer.detailList.add(detailMaterialRequest);
   }
 
@@ -320,10 +320,7 @@ Widget build(BuildContext context) {
                                   content: [
                                     CustomCardContent(text: 'Kode Bahan: $materialId'),
                                     CustomCardContent(text: 'Nama: $materialName'),
-                                    if(!isFirstTime)
                                     CustomCardContent(text: 'Jumlah: ${data['jumlah_bom'].toString()}'),
-                                    if(isFirstTime)
-                                    CustomCardContent(text: 'Jumlah: ${data['jumlah'].toString()}'),
                                     CustomCardContent(text: 'Stok: $materialStock'), // Menampilkan stok di sini
                                     CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
                                   ],
@@ -333,9 +330,6 @@ Widget build(BuildContext context) {
                           );
                           Map<String, dynamic> detailMaterial = {
                           'materialId': doc['material_id'], // Add fields you need
-                          if(isFirstTime)
-                          'jumlah': doc['jumlah'],
-                          if(!isFirstTime)
                           'jumlah': doc['jumlah_bom'],
                           'satuan': doc['satuan'],
                           if(!isFirstTime)
