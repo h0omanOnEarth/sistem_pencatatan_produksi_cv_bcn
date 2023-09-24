@@ -1,36 +1,37 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MaterialRequestDropdown extends StatelessWidget {
-  final String? selectedMaterialRequest;
+class ProductionConfirmationDropDown extends StatelessWidget {
+  final String? selectedProductionConfirmationDropdown;
   final Function(String?) onChanged;
-  final TextEditingController? tanggalPermintaanController;
+  final TextEditingController? tanggalKonfirmasiController;
 
-  const MaterialRequestDropdown({
+  const ProductionConfirmationDropDown({
     Key? key,
-    required this.selectedMaterialRequest,
+    required this.selectedProductionConfirmationDropdown,
     required this.onChanged,
-    this.tanggalPermintaanController,
+    this.tanggalKonfirmasiController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('material_requests').snapshots(),
+      stream: FirebaseFirestore.instance.collection('production_confirmations').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
-        List<DropdownMenuItem<String>> materialRequestItems = [];
+        List<DropdownMenuItem<String>> productionConfirmationItems = [];
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String materialRequestId = document['id'];
-          materialRequestItems.add(
+          String productionConfirmationId = document['id'];
+          productionConfirmationItems.add(
             DropdownMenuItem<String>(
-              value: materialRequestId,
+              value: productionConfirmationId,
               child: Text(
-                materialRequestId,
+                productionConfirmationId,
                 style: const TextStyle(color: Colors.black),
               ),
             ),
@@ -54,17 +55,17 @@ class MaterialRequestDropdown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedMaterialRequest,
-                items: materialRequestItems,
+                value: selectedProductionConfirmationDropdown,
+                items: productionConfirmationItems,
                 onChanged: (newValue) {
                   onChanged(newValue);
-                  if (tanggalPermintaanController != null) {
+                  if (tanggalKonfirmasiController != null) {
                     final selectedDoc = snapshot.data!.docs.firstWhere((doc) => doc['id'] == newValue);
-                    var tanggalPermintaanFirestore = selectedDoc['tanggal_permintaan'];
+                    var tanggalKonfirmasiFirestore = selectedDoc['tanggal_konfirmasi'];
                     String tanggalPermintaan = '';
 
-                    if (tanggalPermintaanFirestore != null) {
-                      final timestamp = tanggalPermintaanFirestore as Timestamp;
+                    if (tanggalKonfirmasiFirestore != null) {
+                      final timestamp = tanggalKonfirmasiFirestore as Timestamp;
                       final dateTime = timestamp.toDate();
 
                       final List<String> monthNames = [
@@ -78,7 +79,7 @@ class MaterialRequestDropdown extends StatelessWidget {
                       tanggalPermintaan = '$day $month $year';
                     }
 
-                    tanggalPermintaanController!.text = tanggalPermintaan;
+                    tanggalKonfirmasiController!.text = tanggalPermintaan;
                   }
                 },
                 isExpanded: true,

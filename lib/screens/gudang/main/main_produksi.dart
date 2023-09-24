@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pemindahan_bahan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_penerimaan_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pengubahan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pemindahan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_penerimaan_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainProduksiGudangScreen extends StatefulWidget {
@@ -77,8 +77,8 @@ class _MainMasterGudangScreenState extends State<MainProduksiGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.note_add, textA: 'Penerimaan Barang', textB: 'Memodifikasi dan melihat penerimaan barang', pageRoute: FormPenerimaanHasilProduksi()),
-                    const CardItem(icon: Icons.move_up_sharp, textA: 'Pemindahan Bahan', textB: 'Memodifikasi dan melihat pemindahan bahan', pageRoute: FormPemindahanBahan()),
+                    const CardItem(icon: Icons.note_add, textA: 'Penerimaan Barang', textB: 'Memodifikasi dan melihat penerimaan barang', pageRoute: ListItemReceive()),
+                    const CardItem(icon: Icons.move_up_sharp, textA: 'Pemindahan Bahan', textB: 'Memodifikasi dan melihat pemindahan bahan', pageRoute: ListPemindahanBahan()),
                     const CardItem(icon: Icons.transform, textA: 'Pengubahan Bahan', textB: 'Memodifikasi dan melihat pengubahan bahan', pageRoute: FormPengubahanBahan()),
                   ],
                 ),

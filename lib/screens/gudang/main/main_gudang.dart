@@ -11,10 +11,13 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/l
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_purchase_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_pengembalian_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_surat_jalan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_customer_order_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pemindahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_penerimaan_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/form_pengubahan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pemindahan_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_penerimaan_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_barang.dart';
@@ -83,7 +86,10 @@ class _MainGudangState extends State<MainGudang> {
            //List
            ListPurchaseRequest.routeName:(context)=> const ListPurchaseRequest(),
            ListMaterialReceive.routeName:(context) => const ListMaterialReceive(),
-           ListSuratJalan.routeName:(context)=> const ListSuratJalan()
+           ListSuratJalan.routeName:(context)=> const ListSuratJalan(),
+           ListCustomerOrderReturn.routeName:(context)=> const ListCustomerOrderReturn(),
+           ListPemindahanBahan.routeName:(context)=> const ListPemindahanBahan(),
+           ListItemReceive.routeName:(context)=> const ListItemReceive()
 
           });
   }

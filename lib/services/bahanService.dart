@@ -25,4 +25,29 @@ class MaterialService{
   }
 }
 
+Future<Map<String, dynamic>> fetchMaterialInfo(String materialId) async {
+    final materialQuery = await firestore
+    .collection('materials')
+    .where('id', isEqualTo: materialId)
+    .get();
+
+
+  if (materialQuery.docs.isNotEmpty) {
+    final materialData = materialQuery.docs.first.data();
+    final materialName = materialData['nama'] as String? ?? '';
+    final materialStock = materialData['stok'] as int? ?? 0;
+
+    return {
+      'nama': materialName,
+      'stok': materialStock,
+    };
+  }
+
+  return {
+    'nama': '',
+    'stok': 0,
+  };
+}
+
+
 }

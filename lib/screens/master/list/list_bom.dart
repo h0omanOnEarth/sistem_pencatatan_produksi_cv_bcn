@@ -229,7 +229,7 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Filter Berdasarkan Posisi'),
+          title: const Text('Filter Berdasarkan Status'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {

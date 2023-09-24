@@ -389,7 +389,7 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       child: const Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Text(
                           'Simpan',
                           style: TextStyle(fontSize: 18),

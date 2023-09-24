@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_pengembalian_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_customer_order_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -51,7 +51,7 @@ class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -77,7 +77,7 @@ class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
                     ),
                     const SizedBox(height: 16),
                     const CardItem(icon: Icons.location_on_sharp, textA: 'Surat Jalan', textB: 'Memodifikasi dan melihat surat jalan', pageRoute: ListSuratJalan()),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pengembalian Barang', textB: 'Memodifikasi dan melihat pengembalian barang', pageRoute: FormPengembalianBarangScreen()),
+                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pengembalian Barang', textB: 'Memodifikasi dan melihat pengembalian barang', pageRoute: ListCustomerOrderReturn()),
                   ],
                 ),
               ),

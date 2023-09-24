@@ -249,7 +249,7 @@ void addOrUpdate() {
     double jumlahDusPesanan = double.parse(jumlahPesanan)/2000;
     int jumlahDusPesananInt = jumlahDusPesanan.toInt();
 
-    final detailShipment = DetailShipment(id: '', jumlahDusPesanan: jumlahDusPesananInt, jumlahPengiriman: int.parse(jumlahPcs), jumlahPengirimanDus: int.parse(jumlahDus), jumlahPesanan: int.parse(jumlahPesanan), productId: kodeProduk, status: 1);
+    final detailShipment = DetailShipment(id: '',shipmentId: '', jumlahDusPesanan: jumlahDusPesananInt, jumlahPengiriman: int.parse(jumlahPcs), jumlahPengirimanDus: int.parse(jumlahDus), jumlahPesanan: int.parse(jumlahPesanan), productId: kodeProduk, status: 1);
     shipment.detailListShipment.add(detailShipment);
   }
 

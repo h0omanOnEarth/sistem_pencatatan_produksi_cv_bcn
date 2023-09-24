@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/customer_order_return_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_withField_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
@@ -6,8 +8,10 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 
 class FormPengembalianBarangScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_barang_screen';
+  final String? invoiceId;
+  final String? custOrderReturnId;
 
-  const FormPengembalianBarangScreen({super.key});
+  const FormPengembalianBarangScreen({Key? key, this.invoiceId, this.custOrderReturnId}) : super(key: key);
   
   @override
   State<FormPengembalianBarangScreen> createState() =>
@@ -17,20 +21,21 @@ class FormPengembalianBarangScreen extends StatefulWidget {
 class _FormPengembalianBarangScreenState extends State<FormPengembalianBarangScreen> {
   DateTime? _selectedDate;
   String selectedNomorFaktur = 'Faktur 1';
-  final TextEditingController jumlahController = TextEditingController();
 
-  var catatanController;
-  var namaPelangganController;
-  var totalProdukController;
-  var statusController;
-  var nomorPesananPelanggan;
-  var kodePelangganController;
-  var alasanPengembalianController;
+  TextEditingController jumlahController = TextEditingController();
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController namaPelangganController = TextEditingController();
+  TextEditingController totalProdukController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
+  TextEditingController nomorPesananPelanggan = TextEditingController();
+  TextEditingController kodePelangganController =TextEditingController();
+  TextEditingController alasanPengembalianController = TextEditingController();
 
 @override
 Widget build(BuildContext context) {
- 
-  return Scaffold(
+  return BlocProvider(
+    create: (context) => CustomerOrderReturnBloc(),
+    child: Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
         child: Container(
@@ -98,7 +103,7 @@ Widget build(BuildContext context) {
                       },
               ),
               const SizedBox(height: 16.0,),
-             TextFieldWidget(
+             const TextFieldWidget(
               label: 'Nomor Surat Jalan',
               placeholder: 'Nomor Surat Jalan',
               isEnabled: false,
@@ -114,7 +119,7 @@ Widget build(BuildContext context) {
                       isEnabled: false,
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(child:
                    TextFieldWidget(
                       label: 'Nama Pelanggan',
@@ -187,13 +192,13 @@ Widget build(BuildContext context) {
                         // Handle save button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
                       child: const Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Text(
                           'Simpan',
                           style: TextStyle(fontSize: 18),
@@ -201,14 +206,14 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -229,6 +234,7 @@ Widget build(BuildContext context) {
         ),
       ),
     ),
+  )
   );
 }
 }

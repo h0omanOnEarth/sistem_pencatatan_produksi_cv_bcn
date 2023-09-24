@@ -1,13 +1,19 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/item_receive_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/productionConfirmationWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPenerimaanHasilProduksi extends StatefulWidget {
   static const routeName = '/form_penerimaan_hasil_produksi_screen';
+  final String? itemReceivceId;
+  final String? productionConfirmationId;
 
-  const FormPenerimaanHasilProduksi({super.key});
+  const FormPenerimaanHasilProduksi({Key? key, this.itemReceivceId, this.productionConfirmationId}) : super(key: key);
   
   @override
   State<FormPenerimaanHasilProduksi> createState() =>
@@ -16,15 +22,20 @@ class FormPenerimaanHasilProduksi extends StatefulWidget {
 
 class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduksi> {
   DateTime? _selectedDate;
-  String selectedNomorKonfirmasi = 'Konfirmasi 1';
+  String? selectedNomorKonfirmasi;
+  String selectedStatus = 'Dalam Proses';
+  
+  TextEditingController catatanController = TextEditingController();
+  TextEditingController tanggalKonfirmasiController = TextEditingController();
+
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   
 @override
 Widget build(BuildContext context) {
- 
-  var catatanController;
-  String selectedStatus = 'Dalam Proses';
-
-  return Scaffold(
+  return BlocProvider(
+    create: (context) => ItemReceiveBloc(),
+    child: Scaffold(
     body: SafeArea(
       child: SingleChildScrollView(
         child: Container(
@@ -80,16 +91,17 @@ Widget build(BuildContext context) {
                         },
               ),
               const SizedBox(height: 16.0,),
-              DropdownWidget(
-                      label: 'Nomor Konfirmasi Produksi',
-                      selectedValue: selectedNomorKonfirmasi, // Isi dengan nilai yang sesuai
-                      items: ['Konfirmasi 1', 'Konfirmasi 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedNomorKonfirmasi = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
+              ProductionConfirmationDropDown(selectedProductionConfirmationDropdown: selectedNomorKonfirmasi,  onChanged: (newValue) {
+                    setState(() {
+                      selectedNomorKonfirmasi = newValue??'';
+                    });
+              }, tanggalKonfirmasiController: tanggalKonfirmasiController,),
+              const SizedBox(height: 16.0,),
+              TextFieldWidget(
+                label: 'Tanggal Konfirmasi',
+                placeholder: 'Tanggal Konfirmasi',
+                controller: tanggalKonfirmasiController,
+                isEnabled: false,
               ),
               const SizedBox(height: 16.0,),
               TextFieldWidget(
@@ -97,14 +109,14 @@ Widget build(BuildContext context) {
                 placeholder: 'Catatan',
                 controller: catatanController,
               ),
+              const SizedBox(height: 16.0,),
               DropdownWidget(
                         label: 'Status',
                         selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                        items: ['Dalam Proses', 'Selesai'],
+                        items: const ['Dalam Proses', 'Selesai'],
                         onChanged: (newValue) {
                           setState(() {
                             selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                            print('Selected value: $newValue');
                           });
                         },
               ),
@@ -142,13 +154,13 @@ Widget build(BuildContext context) {
                         // Handle save button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
                       child: const Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
                         child: Text(
                           'Simpan',
                           style: TextStyle(fontSize: 18),
@@ -156,14 +168,14 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16.0),
+                  const SizedBox(width: 16.0),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -184,6 +196,7 @@ Widget build(BuildContext context) {
         ),
       ),
     ),
+  )
   );
 }
 }

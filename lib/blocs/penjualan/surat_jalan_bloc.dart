@@ -85,6 +85,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
             // Add detail shipment document to the 'detail_shipments' collection
             await detailShipmentRef.doc(nextDetailShipmentId).set({
               'id': nextDetailShipmentId,
+              'shipment_id': nextShipmentId,
               'jumlah_dus_pesanan': detailShipment.jumlahDusPesanan,
               'jumlah_pengiriman': detailShipment.jumlahPengiriman,
               'jumlah_pengiriman_dus': detailShipment.jumlahPengirimanDus,
@@ -138,6 +139,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
             // Add detail shipment document to the 'detail_shipments' collection
             await detailShipmentCollectionRef.doc(detailId).set({
               'id': detailId,
+              'shipment_id': detailShipment.shipmentId,
               'jumlah_dus_pesanan': detailShipment.jumlahDusPesanan,
               'jumlah_pengiriman': detailShipment.jumlahPengiriman,
               'jumlah_pengiriman_dus': detailShipment.jumlahPengirimanDus,
