@@ -2,7 +2,7 @@ class DetailItemReceive {
   String id;
   String itemReceiveId;
   int jumlahDus;
-  int jumlahPcs;
+  int jumlahKonfirmasi;
   String productId;
   int status;
 
@@ -10,7 +10,7 @@ class DetailItemReceive {
     required this.id,
     required this.itemReceiveId,
     required this.jumlahDus,
-    required this.jumlahPcs,
+    required this.jumlahKonfirmasi,
     required this.productId,
     required this.status,
   });
@@ -20,7 +20,7 @@ class DetailItemReceive {
       id: json['id'] ?? '',
       itemReceiveId: json['item_receive_id'] ?? '',
       jumlahDus: json['jumlah_dus'] ?? 0,
-      jumlahPcs: json['jumlah_pcs'] ?? 0,
+      jumlahKonfirmasi: json['jumlah_pcs'] ?? 0,
       productId: json['product_id'] ?? '',
       status: json['status'] ?? 0,
     );
@@ -31,7 +31,7 @@ class DetailItemReceive {
       'id': id,
       'item_receive_id': itemReceiveId,
       'jumlah_dus': jumlahDus,
-      'jumlah_pcs': jumlahPcs,
+      'jumlah_pcs': jumlahKonfirmasi,
       'product_id': productId,
       'status': status,
     };

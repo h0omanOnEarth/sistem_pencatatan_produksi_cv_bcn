@@ -67,6 +67,7 @@ class ItemReceiveBloc
           'id': nextItemReceiveId,
           'production_confirmation_id': event.itemReceive.productionConfirmationId,
           'status': event.itemReceive.status,
+          'status_irc': event.itemReceive.statusIrc,
           'tanggal_penerimaan': event.itemReceive.tanggalPenerimaan,
           'catatan': event.itemReceive.catatan,
         };
@@ -90,7 +91,7 @@ class ItemReceiveBloc
               'id': nextDetailItemReceiveId,
               'item_receive_id': nextItemReceiveId,
               'jumlah_dus': detailItemReceive.jumlahDus,
-              'jumlah_pcs': detailItemReceive.jumlahPcs,
+              'jumlah_konfirmasi': detailItemReceive.jumlahKonfirmasi,
               'product_id': detailItemReceive.productId,
               'status': detailItemReceive.status,
             });
@@ -114,6 +115,7 @@ class ItemReceiveBloc
           'id': event.itemReceiveId,
           'production_confirmation_id': event.itemReceive.productionConfirmationId,
           'status': event.itemReceive.status,
+          'status_irc': event.itemReceive.statusIrc,
           'tanggal_penerimaan': event.itemReceive.tanggalPenerimaan,
           'catatan': event.itemReceive.catatan,
         };
@@ -144,7 +146,7 @@ class ItemReceiveBloc
               'id': detailId,
               'item_receive_id': event.itemReceiveId,
               'jumlah_dus': detailItemReceive.jumlahDus,
-              'jumlah_pcs': detailItemReceive.jumlahPcs,
+              'jumlah_konfirmasi': detailItemReceive.jumlahKonfirmasi,
               'product_id': detailItemReceive.productId,
               'status': detailItemReceive.status,
             });

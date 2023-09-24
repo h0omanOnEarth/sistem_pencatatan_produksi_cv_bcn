@@ -26,4 +26,28 @@ class ProductService{
   }
 }
 
+Future<Map<String, dynamic>> fetchProductInfo(String productId) async {
+    final productQuery = await _firestore
+    .collection('products')
+    .where('id', isEqualTo: productId)
+    .get();
+
+
+  if (productQuery.docs.isNotEmpty) {
+    final productData = productQuery.docs.first.data();
+    final productName = productData['nama'] as String? ?? '';
+    final productStock = productData['stok'] as int? ?? 0;
+
+    return {
+      'nama': productName,
+      'stok': productStock,
+    };
+  }
+
+  return {
+    'nama': '',
+    'stok': 0,
+  };
+}
+
 }

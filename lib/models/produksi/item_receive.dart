@@ -5,6 +5,7 @@ class ItemReceive {
   String id;
   String productionConfirmationId;
   int status;
+  String statusIrc;
   DateTime tanggalPenerimaan;
   String catatan;
   List<DetailItemReceive> detailItemReceiveList;
@@ -14,6 +15,7 @@ class ItemReceive {
     required this.productionConfirmationId,
     required this.status,
     required this.tanggalPenerimaan,
+    required this.statusIrc,
     this.catatan = '',
     this.detailItemReceiveList = const [],
   });
@@ -29,6 +31,7 @@ class ItemReceive {
       id: document.id,
       productionConfirmationId: data['production_confirmation_id'] ?? '',
       status: data['status'] ?? 0,
+      statusIrc: data['status_irc'] ??'',
       tanggalPenerimaan: (data['tanggal_penerimaan'] as Timestamp).toDate(),
       catatan: data['catatan'] ?? '',
       detailItemReceiveList: detailItemReceives,
@@ -42,6 +45,7 @@ class ItemReceive {
     return {
       'production_confirmation_id': productionConfirmationId,
       'status': status,
+      'status_irc': statusIrc,
       'tanggal_penerimaan': Timestamp.fromDate(tanggalPenerimaan),
       'catatan': catatan,
       'detail_item_receive_list': detailItemReceiveJsonList,
