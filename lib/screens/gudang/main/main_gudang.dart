@@ -48,7 +48,7 @@ class _MainGudangState extends State<MainGudang> {
   @override
   Widget build(BuildContext context) {
     return  MaterialApp(
-          title: 'Main Donater',
+          title: 'Main Gudang',
           theme: ThemeData(
             primaryColor: Colors.white, // Replace with your desired color
           ),
