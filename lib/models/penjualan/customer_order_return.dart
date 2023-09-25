@@ -7,6 +7,7 @@ class CustomerOrderReturn {
   final String invoiceId;
   final int status;
   final DateTime tanggalPengembalian;
+  final String statusCor;
   final List<DetailCustomerOrderReturn> detailCustomerOrderReturnList;
 
   CustomerOrderReturn({
@@ -16,6 +17,7 @@ class CustomerOrderReturn {
     required this.invoiceId,
     required this.status,
     required this.tanggalPengembalian,
+    required this.statusCor,
     this.detailCustomerOrderReturnList = const [],
   });
 
@@ -31,6 +33,7 @@ class CustomerOrderReturn {
       id: json['id'] ?? '',
       invoiceId: json['invoice_id'] ?? '',
       status: json['status'] ?? 0,
+      statusCor: json['status_cor']?? '',
       tanggalPengembalian: DateTime.parse(json['tanggal_pengembalian'] ?? ''),
       detailCustomerOrderReturnList: detailList,
     );
@@ -47,6 +50,7 @@ class CustomerOrderReturn {
       'id': id,
       'invoice_id': invoiceId,
       'status': status,
+      'status_cor': statusCor,
       'tanggal_pengembalian': tanggalPengembalian.toIso8601String(),
       'detailCustomerOrderReturnList': detailJsonList,
     };

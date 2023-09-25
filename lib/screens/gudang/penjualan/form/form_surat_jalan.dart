@@ -8,7 +8,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.d
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/services/shipmentOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_withField_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
@@ -59,7 +58,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
   //services
   final productService = ProductService();
   final suratJalanService = SuratJalanService();
-  final shipmentService = ShipmentService();
+  final shipmentService = SuratJalanService();
   final deliveryOrderService = DeliveryOrderService();
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();

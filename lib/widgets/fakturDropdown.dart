@@ -4,56 +4,60 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart';
 
-class SuratJalanDropDown extends StatefulWidget {
-  final String? selectedSuratJalan;
+class FakturDropdown extends StatefulWidget {
+  final String? selectedFaktur;
   final Function(String?) onChanged;
   late final TextEditingController? namaPelangganController;
   late final TextEditingController? nomorPesananPelanggan;
   late final TextEditingController? kodePelangganController;
-  late final TextEditingController? nomorDeliveryOrderController;
+  late final TextEditingController? nomorSuratJalanController;
+  late final TextEditingController? alamatController;
 
-  SuratJalanDropDown({
-    required this.selectedSuratJalan, 
+  FakturDropdown({
+    required this.selectedFaktur, 
     required this.onChanged, 
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
-    this.nomorDeliveryOrderController
+    this.nomorSuratJalanController,
+    this.alamatController
     });
 
   @override
-  State<SuratJalanDropDown> createState() => _SuratJalanDropDownState();
+  State<FakturDropdown> createState() => _FakturDropdownState();
 }
 
-class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
+class _FakturDropdownState extends State<FakturDropdown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
   final deliveryOrderService = DeliveryOrderService();
+  final suratJalanService = SuratJalanService();
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('shipments').snapshots(),
+      stream: FirebaseFirestore.instance.collection('invoices').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
-        List<DropdownMenuItem<String>> shipmentItems = [];
+        List<DropdownMenuItem<String>> invoiceItems = [];
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String shipmentId = document['id'];
-          shipmentItems.add(
+          String invoiceId = document['id'];
+          invoiceItems.add(
             DropdownMenuItem<String>(
-              value: shipmentId,
+              value: invoiceId,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    shipmentId,
+                    invoiceId,
                     style: const TextStyle(
                       color: Colors.black,
                     ),
@@ -67,7 +71,7 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Surat Jalan',
+              'Faktur',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -80,21 +84,24 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: widget.selectedSuratJalan,
-                items: shipmentItems,
+                value: widget.selectedFaktur,
+                items: invoiceItems,
                 onChanged: (newValue) async {
                   widget.onChanged(newValue);
                   _selectedDoc = snapshot.data!.docs.firstWhere(
                     (document) => document['id'] == newValue,
                   );
-                  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(_selectedDoc['delivery_order_id'] as String);
+
+                  Map<String, dynamic>? shipment = await suratJalanService.getSuratJalanInfo(_selectedDoc['shipment_id']);
+                  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(shipment?['deliveryOrderId'] as String);
                   final customerOrderId = deliveryOrder?['customerOrderId'] as String;
                   Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
                   Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
+                  widget.alamatController?.text = shipment?['alamatPenerima'];
                   widget.namaPelangganController?.text = customer?['nama'];
                   widget.kodePelangganController?.text = customer?['id'];
                   widget.nomorPesananPelanggan?.text = customerOrder?['id'];
-                  widget.nomorDeliveryOrderController?.text = _selectedDoc['delivery_order_id'];
+                  widget.nomorSuratJalanController?.text = shipment?['id'];
                 },
                 isExpanded: true,
                 decoration: const InputDecoration(

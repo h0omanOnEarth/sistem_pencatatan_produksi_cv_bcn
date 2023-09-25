@@ -1,10 +1,28 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/customer_order_return_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/customer_order_return.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_customer_order_return.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_withField_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/fakturDropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
+
+class CardData {
+  TextEditingController pcsController;
+  String productID;
+  int jumlahPesanan;
+  
+
+  CardData({
+    required this.pcsController,
+    required this.productID,
+    required this.jumlahPesanan,
+  });
+}
 
 class FormPengembalianBarangScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_barang_screen';
@@ -20,7 +38,7 @@ class FormPengembalianBarangScreen extends StatefulWidget {
 
 class _FormPengembalianBarangScreenState extends State<FormPengembalianBarangScreen> {
   DateTime? _selectedDate;
-  String selectedNomorFaktur = 'Faktur 1';
+  String? selectedNomorFaktur;
 
   TextEditingController jumlahController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
@@ -30,6 +48,110 @@ class _FormPengembalianBarangScreenState extends State<FormPengembalianBarangScr
   TextEditingController nomorPesananPelanggan = TextEditingController();
   TextEditingController kodePelangganController =TextEditingController();
   TextEditingController alasanPengembalianController = TextEditingController();
+  TextEditingController nomorSuratJalanController = TextEditingController();
+  TextEditingController alamatController= TextEditingController();
+
+  List<Widget> detailPesananWidgets = [];
+  List<CustomWithTextFieldCardContent> detailPesanan = [];
+  List<CardData> cardDataList = [];
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final productService = ProductService();
+
+  // Fungsi untuk mengambil data dari Firestore
+Future<void> fetchDataFromFirestore(String selectedNomorFaktur,) async {
+  final querySnapshot = await firestore.collection('invoices').doc(selectedNomorFaktur)
+      .collection('detail_invoices').get();
+  
+  detailPesananWidgets.clear();
+  cardDataList.clear(); // Bersihkan list cardDataList
+
+  for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    final jumlahPcsController = TextEditingController();
+
+    // Tambahkan controller ke dalam list cardDataList
+    cardDataList.add(CardData(
+      pcsController: jumlahPcsController,
+      productID: data['product_id'],
+      jumlahPesanan: data['jumlah_pengiriman'],
+    ));
+
+    final cardContentPcs = CustomWithTextFieldCardContent(text: '', isRow: true, leftHintText: 'Jumlah',
+      rightHintText: 'Pcs', rightEnabled: false, controller: jumlahPcsController,);
+     Map<String, dynamic>? product = await productService.getProductInfo(data['product_id']);
+     final namaProduct = product?['nama'];
+    
+    // Menambahkan cardContent ke detailPesananWidgets
+    detailPesananWidgets.add(CustomWithTextFieldCard(
+      content: [
+        CustomWithTextFieldCardContent(text: 'Kode Barang: ${data['product_id']}'),
+        CustomWithTextFieldCardContent(text: 'Nama Barang: $namaProduct '),
+        CustomWithTextFieldCardContent(text: 'Jumlah : ${data['jumlah_pengiriman']} Pcs'),
+        CustomWithTextFieldCardContent(text: 'Jumlah Pengiriman (Pcs):', isBold: true),
+        cardContentPcs,
+      ],
+    ));
+  }
+  setState(() {});
+}
+
+void addOrUpdate(){
+  final customerOrderReturnBloc = BlocProvider.of<CustomerOrderReturnBloc>(context);  
+  final customerOrderReturn = CustomerOrderReturn(alasanPengembalian: alasanPengembalianController.text, catatan: catatanController.text, id: '', invoiceId: selectedNomorFaktur??'', status: 1, tanggalPengembalian: _selectedDate??DateTime.now(), statusCor: statusController.text,detailCustomerOrderReturnList: []);
+
+   for (int index = 0; index < cardDataList.length; index++) {
+    String jumlahPcs = cardDataList[index].pcsController.text;
+    String kodeProduk = cardDataList[index].productID;
+    String jumlahPesanan = cardDataList[index].jumlahPesanan.toString();
+
+    final detailCustomerOrderReturn = DetailCustomerOrderReturn(customerOrderReturnId: '', id: '', jumlahPengembalian: int.parse(jumlahPcs), jumlahPesanan: int.parse(jumlahPesanan), productId: kodeProduk, status: 1);
+    customerOrderReturn.detailCustomerOrderReturnList.add(detailCustomerOrderReturn);
+  }
+
+  if(widget.custOrderReturnId!=null){
+    customerOrderReturnBloc.add(UpdateCustomerOrderReturnEvent(widget.custOrderReturnId??'', customerOrderReturn));
+  }else{
+    customerOrderReturnBloc.add(AddCustomerOrderReturnEvent(customerOrderReturn));
+  }
+
+  _showSuccessMessageAndNavigateBack();
+
+}
+
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan pengembalian pesanan penjualan',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
+void clearFormFields() {
+  setState(() {
+    _selectedDate = null;
+    selectedNomorFaktur = null;
+    nomorSuratJalanController.clear();
+    nomorPesananPelanggan.clear();
+    kodePelangganController.clear();
+    namaPelangganController.clear();
+    alamatController.clear();
+    alasanPengembalianController.clear();
+    jumlahController.clear();
+    catatanController.clear();
+    statusController.clear();
+    totalProdukController.clear();
+    detailPesananWidgets.clear();
+    cardDataList.clear();
+  });
+}
+
+
 
 @override
 Widget build(BuildContext context) {
@@ -47,7 +169,7 @@ Widget build(BuildContext context) {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context,null);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -91,22 +213,34 @@ Widget build(BuildContext context) {
                         },
               ),
               const SizedBox(height: 16.0,),
-              DropdownWidget(
-                      label: 'Nomor Faktur',
-                      selectedValue: selectedNomorFaktur, // Isi dengan nilai yang sesuai
-                      items: ['Faktur 1', 'Faktur 2'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedNomorFaktur = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-              ),
-              const SizedBox(height: 16.0,),
-             const TextFieldWidget(
+              FakturDropdown(
+                  selectedFaktur: selectedNomorFaktur,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedNomorFaktur = newValue??'';
+                      //fetch cards
+                      fetchDataFromFirestore(selectedNomorFaktur??'');
+                    });
+                  },
+                  namaPelangganController: namaPelangganController,
+                  kodePelangganController: kodePelangganController,
+                  nomorPesananPelanggan: nomorPesananPelanggan,
+                  nomorSuratJalanController: nomorSuratJalanController,
+                  alamatController: alamatController,
+                ),
+             const SizedBox(height: 16.0,),
+             TextFieldWidget(
               label: 'Nomor Surat Jalan',
               placeholder: 'Nomor Surat Jalan',
               isEnabled: false,
+              controller: nomorSuratJalanController,
+              ),
+              const SizedBox(height: 16.0),
+              TextFieldWidget(
+              label: 'Nomor Pesanan Pelanggan',
+              placeholder: 'Nomor Pesanan Pelanggan',
+              isEnabled: false,
+              controller: nomorPesananPelanggan,
               ),
               const SizedBox(height: 16.0),
               Row(
@@ -131,11 +265,19 @@ Widget build(BuildContext context) {
                 ],
               ),
               const SizedBox(height: 16),
-               TextFieldWidget(
-                label: 'Alasan Pengembalian',
-                placeholder: 'Alasan',
-                controller: alasanPengembalianController,
-                multiline: true,
+              TextFieldWidget(
+              label: 'Alamat',
+              placeholder: 'Alamat',
+              controller: alamatController,
+              multiline: true,
+              isEnabled: false,
+              ),
+              const SizedBox(height: 16),
+              TextFieldWidget(
+              label: 'Alasan Pengembalian',
+              placeholder: 'Alasan',
+              controller: alasanPengembalianController,
+              multiline: true,
               ),
               const SizedBox(height: 16.0,),
               TextFieldWidget(
@@ -166,23 +308,13 @@ Widget build(BuildContext context) {
                 ),
               ),
               const SizedBox(height: 16.0,),
-                CustomWithTextFieldCard(
-                content: [
-                  CustomWithTextFieldCardContent(text: 'Kode Barang: B001'),
-                  CustomWithTextFieldCardContent(text: 'Nama Barang: Gelas Pop 22 oz'),
-                  CustomWithTextFieldCardContent(text: 'Jumlah: 100.000 pcs'),
-                  CustomWithTextFieldCardContent(text: 'Total: 50 dus'),
-                  CustomWithTextFieldCardContent(text: 'Jumlah Pengiriman (Pcs):', isBold: true),
-                  CustomWithTextFieldCardContent(
-                    text: '',
-                    isRow: true,
-                    leftHintText: 'Jumlah',
-                    rightHintText: 'Pcs',
-                    rightEnabled: false, // Disable the left TextField
-                    controller: jumlahController
+               ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: detailPesananWidgets.length,
+                    itemBuilder: (context, index) {
+                      return detailPesananWidgets[index];
+                    },
                   ),
-                ],
-              ),
               const SizedBox(height: 16.0,),
               Row(
                 children: [
@@ -190,6 +322,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle save button press
+                        addOrUpdate();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -211,6 +344,7 @@ Widget build(BuildContext context) {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle clear button press
+                        clearFormFields();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

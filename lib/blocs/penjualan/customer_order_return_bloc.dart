@@ -65,6 +65,7 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
           'catatan': event.customerOrderReturn.catatan,
           'id': nextCustomerOrderReturnId,
           'invoice_id': event.customerOrderReturn.invoiceId,
+          'status_cor': event.customerOrderReturn.statusCor,
           'status': event.customerOrderReturn.status,
           'tanggal_pengembalian': event.customerOrderReturn.tanggalPengembalian,
         };
@@ -110,6 +111,7 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
           'catatan': event.customerOrderReturn.catatan,
           'id': event.customerOrderReturnId,
           'invoice_id': event.customerOrderReturn.invoiceId,
+          'status_cor': event.customerOrderReturn.statusCor,
           'status': event.customerOrderReturn.status,
           'tanggal_pengembalian': event.customerOrderReturn.tanggalPengembalian,
         };
