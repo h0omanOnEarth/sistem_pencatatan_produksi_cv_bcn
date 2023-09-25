@@ -76,7 +76,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
     super.initState();
     statusController.text = "Dalam Proses";
    if(widget.materialTransferId!=null){
-        firestore.collection('material_transfers').doc(widget.materialTransferId) // Menggunakan widget.customerOrderId
+        firestore.collection('material_transfers').doc(widget.materialTransferId)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {

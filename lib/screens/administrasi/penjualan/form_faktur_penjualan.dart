@@ -1,9 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/faktur_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_invoice.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/invoice.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
@@ -42,6 +46,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   TextEditingController statusController = TextEditingController();
   TextEditingController nomorPesananPelanggan = TextEditingController();
   TextEditingController kodePelangganController = TextEditingController();
+  TextEditingController nomorDeliveryOrderController = TextEditingController();
 
   //list
   List<Map<String, dynamic>> materialDetailsData= []; // Initialize the list
@@ -49,6 +54,40 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   //service and providers
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final productService = ProductService();
+  final customerOrderService = CustomerOrderService();
+  final customerService = CustomerService();
+  final deliveryOrderService = DeliveryOrderService();
+
+  void initializeShipment() async{
+    selectedNomorSuratJalan = widget.shipmentId;
+    firestore
+    .collection('shipments')
+    .where('id', isEqualTo: widget.shipmentId) // Gunakan .where untuk mencocokkan ID
+    .get()
+    .then((QuerySnapshot querySnapshot) async {
+    if (querySnapshot.docs.isNotEmpty) {
+      final shipmentData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      nomorDeliveryOrderController.text = shipmentData['delivery_order_id'];
+        Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(shipmentData['delivery_order_id']);
+        final customerOrderId = deliveryOrder?['customerOrderId'] as String;
+        Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
+        Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
+        namaPelangganController.text = customer?['nama'];
+        kodePelangganController.text = customer?['id'];
+        nomorPesananPelanggan.text = customerOrder?['id'];
+    } else {
+      print('Document does not exist on Firestore');
+    }
+  }).catchError((error) {
+    print('Error getting document: $error');
+  });
+  }
+
+  String formatRupiah(int amount) {
+  final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
+  return formatter.format(amount);
+}
+
 
   @override
   void initState(){
@@ -57,7 +96,39 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
 
     if(widget.invoiceId!=null){
       isFirstTime = true;
+        firestore.collection('invoices').doc(widget.invoiceId) // Menggunakan widget.customerOrderId
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_fk'];
+          final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
+          if (tanggalPembuatanFirestore != null) {
+            _selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
+          }
+          selectedMetodePembayaran = data['metode_pembayaran'];
+          selectedStatusPembayaran = data['status_pembayaran'];
+          selectedNomorSuratJalan = data['shipment_id'];
+          _updateTotal();
+           // Periksa apakah data['nomor_rekening'] adalah null atau string kosong
+        if (data['nomor_rekening'] == null || data['nomor_rekening'] == '') {
+          isNomorRekeningDisabled = true; // Dinonaktifkan jika null atau kosong
+        }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
     }
+
+    if(widget.shipmentId!=null){
+      initializeShipment();
+    }
+
   }
 
 void _updateTotal() async {
@@ -114,7 +185,7 @@ void _updateTotal() async {
   });
 
   // Update controller values
-  totalHargaController.text = total.toString();
+  totalHargaController.text = formatRupiah(total);
   totalProdukController.text = totalProduk.toString();
 }
 
@@ -248,7 +319,15 @@ Widget build(BuildContext context) {
                     namaPelangganController: namaPelangganController,
                     kodePelangganController: kodePelangganController,
                     nomorPesananPelanggan: nomorPesananPelanggan,
+                    nomorDeliveryOrderController: nomorDeliveryOrderController,
                   ),
+              const SizedBox(height: 16.0),
+               TextFieldWidget(
+                  label: 'Nomor Perintah Pengiriman',
+                  placeholder: 'Nomor Perintah Pengiriman',
+                  controller: nomorDeliveryOrderController,
+                  isEnabled: false,
+                ),
               const SizedBox(height: 16.0),
                TextFieldWidget(
                   label: 'Nomor Pesanan',
