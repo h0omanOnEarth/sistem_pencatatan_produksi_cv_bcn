@@ -4,7 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/customer_order_return_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/customer_order_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_customer_order_return.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderReturnService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/fakturService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_withField_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/fakturDropdown.dart';
@@ -57,6 +63,12 @@ class _FormPengembalianBarangScreenState extends State<FormPengembalianBarangScr
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final productService = ProductService();
+  final customerOrderReturnService = CustomerOrderReturnService();
+  final customerOrderService = CustomerOrderService();
+  final customerService = CustomerService();
+  final deliveryOrderService = DeliveryOrderService();
+  final suratJalanService = SuratJalanService();
+  final invoiceService = FakturService();
 
   // Fungsi untuk mengambil data dari Firestore
 Future<void> fetchDataFromFirestore(String selectedNomorFaktur,) async {
@@ -94,6 +106,82 @@ Future<void> fetchDataFromFirestore(String selectedNomorFaktur,) async {
     ));
   }
   setState(() {});
+}
+
+@override
+void dispose(){
+  super.dispose();
+}
+
+
+void fetchDetail() async {
+  // Fetch the shipment detail
+  final customerOrderReturnDetails = await customerOrderReturnService.getDetailCustOrderReturn(widget.custOrderReturnId ?? '');
+  if (customerOrderReturnDetails != null) {
+    // Lakukan sesuatu dengan daftar detail pengiriman yang diterima
+    for (int i = 0; i < cardDataList.length; i++) {
+      // Find the corresponding detail shipment data by productID
+      final detailCustOrRet = customerOrderReturnDetails
+          .firstWhere((detail) => detail['product_id'] == cardDataList[i].productID, orElse: () => {});
+      cardDataList[i].pcsController.text = detailCustOrRet['jumlahPengembalian'].toString();
+      cardDataList[i].jumlahPesanan = detailCustOrRet['jumlahPesanan'];
+    }
+  } else {
+    // Handle the case where shipmentDetails is null
+    print('Detail Shipment tidak ditemukan atau terjadi kesalahan dalam pengambilan data.');
+  }
+}
+
+void fetchCustomerDetail() async{
+  Map<String, dynamic>? invoice = await invoiceService.getFakturInfo(widget.invoiceId??'');
+  Map<String, dynamic>? shipment = await suratJalanService.getSuratJalanInfo(invoice?['shipmentId']);
+  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(shipment?['deliveryOrderId'] as String);
+  final customerOrderId = deliveryOrder?['customerOrderId'] as String;
+  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
+  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
+
+  namaPelangganController.text = customer?['nama'];
+  kodePelangganController.text = customer?['id'];
+  nomorSuratJalanController.text = shipment?['id'];
+  alamatController.text = shipment?['alamatPenerima'];
+}
+
+
+@override
+void initState(){
+  super.initState();
+  if(widget.custOrderReturnId!=null){
+     firestore
+        .collection('customer_order_returns')
+        .doc(widget.custOrderReturnId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_cor'];
+          alasanPengembalianController.text = data['alasan_pengembalian'];
+          final tanggalPengembalianFirestore = data['tanggal_pengembalian'];
+          if (tanggalPengembalianFirestore != null) {
+            _selectedDate = (tanggalPengembalianFirestore as Timestamp).toDate();
+          }
+          selectedNomorFaktur = data['invoice_id'];
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+  if(widget.invoiceId!=null){
+    fetchDataFromFirestore(widget.invoiceId??''); 
+    fetchCustomerDetail();
+  }
+
+   fetchDetail();
 }
 
 void addOrUpdate(){
