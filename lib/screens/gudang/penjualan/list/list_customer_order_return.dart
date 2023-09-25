@@ -20,7 +20,7 @@ class ListCustomerOrderReturn extends StatefulWidget {
 class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
   final CollectionReference custReturnReqRef = FirebaseFirestore.instance.collection('customer_order_returns');
   String searchTerm = '';
-  int selectedStatus =-1;
+  String selectedStatus = '';
   Timestamp? selectedStartDate;
   Timestamp? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
@@ -130,7 +130,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
 
                       final filteredDocs = itemDocs.where((doc) {
                         final keterangan = doc['id'] as String;
-                        final status = doc['status'] as int;
+                        final status = doc['status_cor'] as String;
                         final tanggalPembuatan = doc['tanggal_pengembalian'] as Timestamp; // Tanggal Pesan
 
                         bool isWithinDateRange = true;
@@ -139,8 +139,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                         }
 
                         return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                            (selectedStatus.toInt() == -1 ||
-                                  status == selectedStatus) &&
+                            (selectedStatus.isEmpty || status == selectedStatus) &&
                             isWithinDateRange);
                       }).toList();
 
@@ -246,26 +245,21 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
     }
   }
 
- Future<void> _showFilterDialog(BuildContext context) async {
-  String? selectedValue = await showDialog<String>(
-    context: context,
-    builder: (BuildContext context) {
-      return FilterDialog(
-        title: 'Filter Berdasarkan Status',
-        onFilterSelected: (value) {
-          Navigator.pop(context, value);
-        },
-      );
-    },
+   Future<void> _showFilterDialog(BuildContext context) async {
+    await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return FilterDialog(
+          title: ('Filter Berdasarkan Status Pengembalian Pesanan'),
+          onFilterSelected: (selectedStatus) {
+            setState(() {
+              this.selectedStatus = selectedStatus!;
+            });
+          },
+        );
+      },
   );
-
-  if (selectedValue != null) {
-    setState(() {
-      selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
-    });
-  }
 }
-
 
 
 }

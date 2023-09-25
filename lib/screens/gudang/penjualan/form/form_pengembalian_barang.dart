@@ -150,6 +150,7 @@ void fetchCustomerDetail() async{
 @override
 void initState(){
   super.initState();
+  statusController.text = "Dalam Proses";
   if(widget.custOrderReturnId!=null){
      firestore
         .collection('customer_order_returns')
@@ -222,6 +223,7 @@ showDialog(
 
 void clearFormFields() {
   setState(() {
+    statusController.text = "Dalam Proses";
     _selectedDate = null;
     selectedNomorFaktur = null;
     nomorSuratJalanController.clear();
