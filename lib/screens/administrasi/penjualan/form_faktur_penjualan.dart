@@ -119,21 +119,22 @@ void _updateTotal() async {
 }
 
 void addOrUpdate(){
-  final invoiceBloc = BlocProvider.of<InvoiceBloc>(context);
-  if (isNomorRekeningDisabled) {
-  selectedNomorRekening = '';
-  }
-  final invoice = Invoice(id: '', metodePembayaran: selectedMetodePembayaran, nomorRekening: selectedNomorRekening, shipmentId: selectedNomorSuratJalan??'', status: 1, statusFk: statusController.text, total: total, totalProduk: totalProduk, tanggalPembuatan: _selectedDate??DateTime.now(), statusPembayaran: selectedStatusPembayaran, catatan: catatanController.text, detailInvoices: []);
-  for (var productCardData in materialDetailsData) {
-    final detailInvoice = DetailInvoice(id: '', invoiceId: '', productId: productCardData['productId'], harga: productCardData['harga'], jumlahPengiriman: productCardData['jumlahPcs'], jumlahPengirimanDus: productCardData['jumlahDus'], subtotal: productCardData['subtotal'], status: 1);
-    invoice.detailInvoices.add(detailInvoice);
-  }
+    final invoiceBloc = BlocProvider.of<InvoiceBloc>(context);
+    if (isNomorRekeningDisabled) {
+    selectedNomorRekening = '';
+    }
+    final invoice = Invoice(id: '', metodePembayaran: selectedMetodePembayaran, nomorRekening: selectedNomorRekening, shipmentId: selectedNomorSuratJalan??'', status: 1, statusFk: statusController.text, total: total, totalProduk: totalProduk, tanggalPembuatan: _selectedDate??DateTime.now(), statusPembayaran: selectedStatusPembayaran, catatan: catatanController.text, detailInvoices: []);
+    
+    for (var productCardData in materialDetailsData) {
+      final detailInvoice = DetailInvoice(id: '', invoiceId: '', productId: productCardData['productId'], harga: productCardData['harga'], jumlahPengiriman: productCardData['jumlahPcs'], jumlahPengirimanDus: productCardData['jumlahDus'], subtotal: productCardData['subtotal'], status: 1);
+      invoice.detailInvoices.add(detailInvoice);
+    }
 
-  if(widget.invoiceId!=null){
-    invoiceBloc.add(UpdateInvoiceEvent(widget.invoiceId??'', invoice));
-  }else{
-    invoiceBloc.add(AddInvoiceEvent(invoice));
-  }
+    if(widget.invoiceId!=null){
+      invoiceBloc.add(UpdateInvoiceEvent(widget.invoiceId??'', invoice));
+    }else{
+      invoiceBloc.add(AddInvoiceEvent(invoice));
+    }
 
   _showSuccessMessageAndNavigateBack();
 }
@@ -306,6 +307,7 @@ Widget build(BuildContext context) {
                       items: const ['Transfer BCA', 'Tunai'],
                       onChanged: (newValue) {
                         setState(() {
+                          materialDetailsData.clear();
                           selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
                           if (selectedMetodePembayaran == 'Tunai') {
                               isNomorRekeningDisabled = true;
@@ -322,6 +324,7 @@ Widget build(BuildContext context) {
                       items: const ['2711598075', '5120181868'],
                       onChanged: (newValue) {
                         setState(() {
+                          materialDetailsData.clear();
                           selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
                         });
                       },
@@ -334,6 +337,7 @@ Widget build(BuildContext context) {
                       items: const ['Belum Bayar', 'Lunas'],
                       onChanged: (newValue) {
                         setState(() {
+                          materialDetailsData.clear();
                           selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
                         });
                       },
