@@ -37,10 +37,12 @@ Future<Map<String, dynamic>> fetchProductInfo(String productId) async {
     final productData = productQuery.docs.first.data();
     final productName = productData['nama'] as String? ?? '';
     final productStock = productData['stok'] as int? ?? 0;
+    final productPrice = productData['harga'] as int? ?? 0;
 
     return {
       'nama': productName,
       'stok': productStock,
+      'harga': productPrice
     };
   }
 
