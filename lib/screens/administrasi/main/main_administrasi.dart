@@ -53,7 +53,7 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
   @override
   Widget build(BuildContext context) {
     return  MaterialApp(
-          title: 'Main Donater',
+          title: 'Main Administrasi',
           theme: ThemeData(
             primaryColor: Colors.white, // Replace with your desired color
           ),
