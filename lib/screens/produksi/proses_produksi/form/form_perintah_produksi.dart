@@ -188,12 +188,34 @@ void initState() {
 
 void addOrUpdate(){
    // ignore: no_leading_underscores_for_local_identifiers
-   final _productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
-   try{
-    final productionOrder = ProductionOrder(id: '', bomId: selectedKodeBOM??'', jumlahProduksiEst: int.parse(jumlahProduksiController.text), jumlahTenagaKerjaEst: int.parse(jumlahTenagaKerjaController.text), lamaWaktuEst: int.parse(perkiraanLamaWaktuController.text), productId: selectedKodeProduk??'', status: 1, statusPro: statusController.text, tanggalProduksi: _selectedTanggalProduksi?? DateTime.now(), tanggalRencana: _selectedTanggalRencana ?? DateTime.now(), tanggalSelesai: _selectedTanggalSelesai ?? DateTime.now(), detailProductionOrderList: [], detailMesinProductionOrderList: []);
+  final _productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
+   
+  final productionOrder = ProductionOrder(
+      id: '', // Ganti dengan nilai yang sesuai
+      bomId: selectedKodeBOM ?? '', // Ganti dengan nilai yang sesuai
+      jumlahProduksiEst: int.tryParse(jumlahProduksiController.text) ?? 0,
+      jumlahTenagaKerjaEst: int.tryParse(jumlahTenagaKerjaController.text) ?? 0,
+      lamaWaktuEst: int.tryParse(perkiraanLamaWaktuController.text) ?? 0,
+      productId: selectedKodeProduk ?? '', // Ganti dengan nilai yang sesuai
+      status: 1, // Ganti dengan nilai yang sesuai
+      statusPro: statusController.text,
+      tanggalProduksi: _selectedTanggalProduksi ?? DateTime.now(),
+      tanggalRencana: _selectedTanggalRencana ?? DateTime.now(),
+      tanggalSelesai: _selectedTanggalSelesai ?? DateTime.now(),
+      detailProductionOrderList: [], // Ganti dengan nilai yang sesuai
+      detailMesinProductionOrderList: [], // Ganti dengan nilai yang sesuai
+    );
 
      for (var productCardData in billOfMaterialsData) {
-      final detailProductionOrder = DetailProductionOrder(id: '', jumlahBOM: productCardData['jumlahBom'], materialId: productCardData['materialId'], productionOrderId: '', batch: productCardData['batch'], satuan: productCardData['satuan'], status: 1);
+      final detailProductionOrder = DetailProductionOrder(
+        id: '', // Ganti dengan nilai yang sesuai
+        jumlahBOM: productCardData['jumlahBom'], // Tidak perlu menggunakan int.parse()
+        materialId: productCardData['materialId'], // Ganti dengan nilai yang sesuai
+        productionOrderId: '', // Ganti dengan nilai yang sesuai
+        batch: productCardData['batch'], // Ganti dengan nilai yang sesuai
+        satuan: productCardData['satuan'], // Ganti dengan nilai yang sesuai
+        status: 1, // Ganti dengan nilai yang sesuai
+      );
       productionOrder.detailProductionOrderList?.add(detailProductionOrder);
     }
 
@@ -208,10 +230,6 @@ void addOrUpdate(){
     }
 
     _showSuccessMessageAndNavigateBack();
-   }catch(e){
-     // ignore: avoid_print
-     print('Error: $e');
-   }
 }
 
 void _showSuccessMessageAndNavigateBack() {

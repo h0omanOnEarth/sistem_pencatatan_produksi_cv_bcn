@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
 abstract class ProductionOrderEvent {}
@@ -44,6 +45,7 @@ class ErrorState extends ProductionOrderBlocState {
 class ProductionOrderBloc
     extends Bloc<ProductionOrderEvent, ProductionOrderBlocState> {
   late FirebaseFirestore _firestore;
+  final notificationService = NotificationService();
 
   ProductionOrderBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
@@ -121,6 +123,19 @@ class ProductionOrderBloc
             machineCount++;
           }
         }
+
+         // Tambahkan notifikasi ke koleksi 'notifications'
+        final notificationsRef = _firestore.collection('notifications');
+        final nextNotifId = await notificationService.generateNextNotificationId();
+        final Map<String, dynamic> notificationData = {
+          'pesan': 'Production Order baru ditambahkan',
+          'status': 1,
+          'posisi': 'Produksi',
+          'created_at' : DateTime.now(),
+          'id': nextNotifId
+        };
+
+        await notificationsRef.add(notificationData);
 
         yield LoadedState(event.productionOrder);
       } catch (e) {
