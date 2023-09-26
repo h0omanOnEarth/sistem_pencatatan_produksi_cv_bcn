@@ -162,16 +162,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 GestureDetector(
                   onTap: () {
                     
-                    //  FirebaseAuth.instance.signOut().then((value) {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => MainMenuScreen()),
-                    //   );
-                    // });
-                    Navigator.push(
+                     FirebaseAuth.instance.signOut().then((value) {
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MainMenuScreen()),
+                        MaterialPageRoute(builder: (context) => MainMenuScreen()),
                       );
+                    });
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => const MainMenuScreen()),
+                    //   );
                   
                   },
                   child: Card(

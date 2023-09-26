@@ -59,7 +59,7 @@ class DeliveryOrder {
 
     final detailDeliveryOrdersSnapshot = await detailDeliveryOrdersQuery.get();
     final detailDeliveryOrdersData = detailDeliveryOrdersSnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data();
       return DetailDeliveryOrder.fromJson(data);
     }).toList();
 

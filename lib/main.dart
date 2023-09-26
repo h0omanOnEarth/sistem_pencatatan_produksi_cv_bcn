@@ -171,10 +171,10 @@ class MyApp extends StatelessWidget {
          LoginPageScreen.routeName:(context) => LoginPage(),
          ProfileScreen.routeName:(context)=> const ProfileScreen(),
          NotifikasiScreen.routeName:(context)=>const NotifikasiScreen(),
-         EditProfileScreen.routeName:(context)=>  EditProfileScreen(),
+         EditProfileScreen.routeName:(context)=>  const EditProfileScreen(),
          
          //administrasi
-         MainAdministrasi.routeName:(context)=>MainAdministrasi(),
+         MainAdministrasi.routeName:(context)=>const MainAdministrasi(),
          HomeScreenAdministrasi.routeName:(context) =>const HomeScreenAdministrasi(),
          MainMasterAdministrasiScreen.routeName:(context) => const MainMasterAdministrasiScreen(),
          MainPembelianAdministrasiScreen.routeName:(context) => const MainPembelianAdministrasiScreen(),

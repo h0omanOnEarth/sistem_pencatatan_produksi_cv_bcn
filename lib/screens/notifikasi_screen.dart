@@ -13,151 +13,188 @@ class NotifikasiScreen extends StatefulWidget {
 
 class _NotifikasiScreenState extends State<NotifikasiScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  Future<String?> getEmployeeIdByEmail(String email) async {
-    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('employees')
-        .where('email', isEqualTo: email)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final DocumentSnapshot document = querySnapshot.docs.first;
-      return document.id; // Mengembalikan employee_id
-    } else {
-      return null; // Tidak ditemukan employee dengan email yang sesuai
-    }
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? userPosition;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 80,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(width: 8.0),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back, color: Colors.black),
-                                  ),
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 80,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const SizedBox(width: 8.0),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: InkWell(
+                              onTap: () {
+                                // Handle back button press
+                                Navigator.pop(context); // Navigates back
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: const CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Icon(Icons.arrow_back, color: Colors.black),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 24.0),
-                            Text(
-                              'Notification',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          const SizedBox(width: 24.0),
+                          const Text(
+                            'Notification',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 24.0),
-                FutureBuilder<User?>(
-                  future: _auth.authStateChanges().first,
-                  builder: (context, userSnapshot) {
-                    if (userSnapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    }
+              ),
+              const SizedBox(height: 24.0),
+              FutureBuilder<User?>(
+                future: _auth.authStateChanges().first,
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
 
-                    final user = userSnapshot.data;
+                  final user = userSnapshot.data;
 
-                    if (user == null) {
-                      return Text('User not logged in');
-                    }
+                  if (user == null) {
+                    return const Text('User not logged in');
+                  }
 
-                    final userEmailAddress = user.email;
+                  final userEmailAddress = user.email;
+                  return FutureBuilder<String?>(
+                    future: fetchPositionEmployee(userEmailAddress!),
+                    builder: (context, positionSnapshot) {
+                      if (positionSnapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
 
-                    return FutureBuilder<String?>(
-                      future: getEmployeeIdByEmail(userEmailAddress!),
-                      builder: (context, employeeIdSnapshot) {
-                        if (employeeIdSnapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        }
+                      userPosition = positionSnapshot.data;
 
-                        final employeeId = employeeIdSnapshot.data;
+                      if (userPosition == null) {
+                        return Text('Employee not found for email: $userEmailAddress');
+                      }
 
-                        if (employeeId == null) {
-                          return Text('Employee not found for email: $userEmailAddress');
-                        }
+                      return StreamBuilder<QuerySnapshot>(
+                        stream: _firestore.collection('notifications').where('posisi', isEqualTo: userPosition).snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
 
-                        return StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('notifications')
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            }
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
+                          final notifications = snapshot.data?.docs ?? [];
 
-                            final notifications = snapshot.data?.docs ?? [];
-
-                            // Filter notifikasi berdasarkan employee_id
-                            final userNotifications = notifications.where((notification) {
-                              final detailNotifications = notification.reference.collection('detail_notifications');
-                              return detailNotifications.where((detail) {
-                                final notificationEmployeeId = detail['employee_id'];
-                                return notificationEmployeeId == employeeId;
-                              }).isNotEmpty;
-                            }).toList();
-
-                            return Column(
-                              children: userNotifications.map((notification) {
-                                final pesan = notification['pesan'];
-                                final status = notification['status'];
-                                return buildCard(pesan, 'Status: $status');
-                              }).toList(),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
+                          return Expanded(
+                            child: ListView.builder(
+                              itemCount: notifications.length,
+                              itemBuilder: (context, index) {
+                                final pesan = notifications[index]['pesan'];
+                                final createdAt = notifications[index]['created_at'] as Timestamp;
+                                final formattedDate = formatDate(createdAt.toDate());
+                                return buildCard(pesan, 'Tanggal: $formattedDate');
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  String formatDate(DateTime date) {
+    final day = date.day.toString();
+    final month = getMonthName(date.month);
+    final year = date.year.toString();
+    return '$day $month $year';
+  }
+
+  String getMonthName(int month) {
+    switch (month) {
+      case 1:
+        return 'Januari';
+      case 2:
+        return 'Februari';
+      case 3:
+        return 'Maret';
+      case 4:
+        return 'April';
+      case 5:
+        return 'Mei';
+      case 6:
+        return 'Juni';
+      case 7:
+        return 'Juli';
+      case 8:
+        return 'Agustus';
+      case 9:
+        return 'September';
+      case 10:
+        return 'Oktober';
+      case 11:
+        return 'November';
+      case 12:
+        return 'Desember';
+      default:
+        return '';
+    }
+  }
+
+  Future<String?> fetchPositionEmployee(String email) async {
+    try {
+      final QuerySnapshot employeeSnapshot = await _firestore
+          .collection('employees')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (employeeSnapshot.docs.isNotEmpty) {
+        final employeeData = employeeSnapshot.docs.first.data();
+        if (employeeData != null && employeeData is Map<String, dynamic>) {
+          return employeeData['posisi'];
+        }
+      }
+      return null;
+    } catch (error) {
+      print('Error fetching employee position: $error');
+      return null;
+    }
   }
 
   Widget buildCard(String title, String description) {
@@ -183,12 +220,12 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
               ),
               textAlign: TextAlign.start,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4), // Add spacing between title and description
             Text(
               description,
               style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
+                color: Colors.grey, // Set text color to grey
+                fontSize: 12, // Set a smaller font size
               ),
               textAlign: TextAlign.start,
             ),

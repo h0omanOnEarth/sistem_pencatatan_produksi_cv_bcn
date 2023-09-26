@@ -1,45 +1,35 @@
-import 'package:sistem_manajemen_produksi_cv_bcn/models/detail_notification.dart';
-
-class Notification {
+class NotificationModel {
+  final DateTime createdAt;
   final String id;
   final String pesan;
+  final String posisi;
   final int status;
-  final DateTime createdAt;
-  final List<DetailNotification> detailNotifications;
 
-  Notification({
+  NotificationModel({
+    required this.createdAt,
     required this.id,
     required this.pesan,
+    required this.posisi,
     required this.status,
-    required this.createdAt,
-    this.detailNotifications = const [],
   });
 
-  factory Notification.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> detailJsonList = json['detail_notifications'] ?? [];
-    final List<DetailNotification> detailNotifications = detailJsonList
-        .map((detailJson) => DetailNotification.fromJson(detailJson))
-        .toList();
-
-    return Notification(
-      id: json['id'] as String,
-      pesan: json['pesan'] as String,
-      status: json['status'] as int,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      detailNotifications: detailNotifications,
+  factory NotificationModel.fromJson(Map<String, dynamic> json) {
+    return NotificationModel(
+      createdAt: DateTime.parse(json['created_at']),
+      id: json['id'],
+      pesan: json['pesan'],
+      posisi: json['posisi'],
+      status: json['status'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    final List<Map<String, dynamic>> detailNotificationsJson =
-        detailNotifications.map((detail) => detail.toJson()).toList();
-
     return {
+      'created_at': createdAt.toUtc(), // Mengonversi ke UTC DateTime
       'id': id,
       'pesan': pesan,
+      'posisi': posisi,
       'status': status,
-      'created_at': createdAt.toUtc().toIso8601String(),
-      'detail_notifications': detailNotificationsJson,
     };
   }
 }
