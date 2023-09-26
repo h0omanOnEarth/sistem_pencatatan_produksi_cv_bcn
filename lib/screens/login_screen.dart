@@ -245,7 +245,7 @@
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MainProduksi(),
+                                  builder: (context) => MainGudang(),
                                 ),
                               );
 
@@ -259,7 +259,7 @@
                               ),
                             ),
                           ),
-                          child: const Text('Log In'),
+                          child: const Text('Sign In'),
                         ),
                       ),
                     ],

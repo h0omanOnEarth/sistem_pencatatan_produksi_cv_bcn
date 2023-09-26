@@ -124,18 +124,21 @@ class ProductionOrderBloc
           }
         }
 
-         // Tambahkan notifikasi ke koleksi 'notifications'
-        final notificationsRef = _firestore.collection('notifications');
-        final nextNotifId = await notificationService.generateNextNotificationId();
-        final Map<String, dynamic> notificationData = {
-          'pesan': 'Production Order baru ditambahkan',
-          'status': 1,
-          'posisi': 'Produksi',
-          'created_at' : DateTime.now(),
-          'id': nextNotifId
-        };
+      final notificationsRef = _firestore.collection('notifications');
+      final nextNotifId = await notificationService.generateNextNotificationId();
+      final Map<String, dynamic> notificationData = {
+        'pesan': 'Production Order baru ditambahkan',
+        'status': 1,
+        'posisi': 'Produksi',
+        'created_at' : DateTime.now(),
+        'id': nextNotifId
+      };
 
-        await notificationsRef.add(notificationData);
+      // Gunakan .doc() untuk membuat referensi dokumen baru dengan nextNotifId
+      final newNotificationDoc = notificationsRef.doc(nextNotifId);
+
+      // Gunakan .set() untuk menambahkan data ke dokumen tersebut
+      await newNotificationDoc.set(notificationData);
 
         yield LoadedState(event.productionOrder);
       } catch (e) {

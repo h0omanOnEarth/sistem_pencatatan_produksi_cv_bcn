@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_request.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
 abstract class MaterialRequestEvent {}
@@ -44,6 +45,7 @@ class ErrorState extends MaterialRequestBlocState {
 class MaterialRequestBloc
     extends Bloc<MaterialRequestEvent, MaterialRequestBlocState> {
   late FirebaseFirestore _firestore;
+  final notificationService = NotificationService();
 
   MaterialRequestBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
@@ -99,6 +101,8 @@ class MaterialRequestBloc
           }
         }
 
+        await notificationService.addNotification('Terdapat permintaan bahan baru $nextMaterialRequestId', 'Gudang');
+      
         yield LoadedState(event.materialRequest);
       } catch (e) {
         yield ErrorState("Failed to add Material Request.");

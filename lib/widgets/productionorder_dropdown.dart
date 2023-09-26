@@ -79,7 +79,7 @@ Future<String?> getProductName(String productId) async {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bill of Material',
+              'Perintah Produksi',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

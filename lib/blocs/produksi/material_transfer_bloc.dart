@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_transfer.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
 abstract class MaterialTransferEvent {}
@@ -44,6 +45,7 @@ class MaterialTransferErrorState extends MaterialTransferBlocState {
 class MaterialTransferBloc
     extends Bloc<MaterialTransferEvent, MaterialTransferBlocState> {
   late FirebaseFirestore _firestore;
+  final notificationService = NotificationService();
 
   MaterialTransferBloc() : super(MaterialTransferLoadingState()) {
     _firestore = FirebaseFirestore.instance;
@@ -99,6 +101,8 @@ class MaterialTransferBloc
             detailCount++;
           }
         }
+
+        await notificationService.addNotification('Terdapat pemindahan bahan baru $nextMaterialTransferId untuk ${event.materialTransfer.materialRequestId}', 'Produksi');
 
         yield MaterialTransferLoadedState(event.materialTransfer);
       } catch (e) {
