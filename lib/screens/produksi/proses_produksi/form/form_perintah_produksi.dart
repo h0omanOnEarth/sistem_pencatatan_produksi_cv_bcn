@@ -207,17 +207,17 @@ void addOrUpdate(){
     );
 
      for (var productCardData in billOfMaterialsData) {
-      final detailProductionOrder = DetailProductionOrder(
-        id: '', // Ganti dengan nilai yang sesuai
-        jumlahBOM: productCardData['jumlahBom'], // Tidak perlu menggunakan int.parse()
-        materialId: productCardData['materialId'], // Ganti dengan nilai yang sesuai
-        productionOrderId: '', // Ganti dengan nilai yang sesuai
-        batch: productCardData['batch'], // Ganti dengan nilai yang sesuai
-        satuan: productCardData['satuan'], // Ganti dengan nilai yang sesuai
-        status: 1, // Ganti dengan nilai yang sesuai
-      );
-      productionOrder.detailProductionOrderList?.add(detailProductionOrder);
-    }
+    final detailProductionOrder = DetailProductionOrder(
+      id: '', // Ganti dengan nilai yang sesuai
+      jumlahBOM: productCardData['jumlahBom'], // Tidak perlu menggunakan int.parse()
+      materialId: productCardData['materialId'], // Ganti dengan nilai yang sesuai
+      productionOrderId: '', // Ganti dengan nilai yang sesuai
+      batch: productCardData['batch'], // Ganti dengan nilai yang sesuai
+      satuan: productCardData['satuan'], // Ganti dengan nilai yang sesuai
+      status: 1, // Ganti dengan nilai yang sesuai
+    );
+    productionOrder.detailProductionOrderList?.add(detailProductionOrder);
+  }
 
     productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinPencampuran['batch'], id: '', machineId: mesinPencampuran['machine_id'], productionOrderId: '', status: 1));
     productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinSheet['batch'], id: '', machineId: mesinSheet['machine_id'], productionOrderId: '', status: 1));
@@ -522,7 +522,7 @@ Widget build(BuildContext context) {
                       }
 
                       final List<CustomCard> customCards = [];
-
+                      billOfMaterialsData.clear();
                       for (final doc in snapshot.data!.docs) {
                         final data = doc.data() as Map<String, dynamic>;
                         int jumlah = 0;

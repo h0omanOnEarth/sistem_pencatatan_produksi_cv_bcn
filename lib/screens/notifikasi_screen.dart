@@ -80,7 +80,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                 future: _auth.authStateChanges().first,
                 builder: (context, userSnapshot) {
                   if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warnanya menjadi abu-abu
+                    );
                   }
 
                   final user = userSnapshot.data;
@@ -94,7 +96,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                     future: fetchPositionEmployee(userEmailAddress!),
                     builder: (context, positionSnapshot) {
                       if (positionSnapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
+                        return const CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warnanya menjadi abu-abu
+                        );
                       }
 
                       userPosition = positionSnapshot.data;
@@ -107,7 +111,9 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                         stream: _firestore.collection('notifications').where('posisi', isEqualTo: userPosition).snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
+                             return const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warnanya menjadi abu-abu
+                            );
                           }
                           if (snapshot.hasError) {
                             return Text('Error: ${snapshot.error}');
