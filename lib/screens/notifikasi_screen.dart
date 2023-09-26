@@ -1,14 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NotifikasiScreen extends StatefulWidget {
   static const routeName = '/notifikasi_screen';
 
-  const NotifikasiScreen({super.key});
+  const NotifikasiScreen({Key? key}) : super(key: key);
+
   @override
   State<NotifikasiScreen> createState() => _NotifikasiScreenState();
 }
 
 class _NotifikasiScreenState extends State<NotifikasiScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<String?> getEmployeeIdByEmail(String email) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('employees')
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final DocumentSnapshot document = querySnapshot.docs.first;
+      return document.id; // Mengembalikan employee_id
+    } else {
+      return null; // Tidak ditemukan employee dengan email yang sesuai
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +52,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                               alignment: Alignment.topLeft,
                               child: InkWell(
                                 onTap: () {
-                                  // Handle back button press
-                                  Navigator.pop(context); // Navigates back
+                                  Navigator.pop(context);
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -69,14 +87,71 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 24.0), // Add spacing between header and cards
-                // Create 6 cards
-                buildCard('Card 1', 'This is a small description for Card 1'),
-                buildCard('Card 2', 'This is a small description for Card 2'),
-                buildCard('Card 3', 'This is a small description for Card 3'),
-                buildCard('Card 4', 'This is a small description for Card 4'),
-                buildCard('Card 5', 'This is a small description for Card 5'),
-                buildCard('Card 6', 'This is a small description for Card 6'),
+                SizedBox(height: 24.0),
+                FutureBuilder<User?>(
+                  future: _auth.authStateChanges().first,
+                  builder: (context, userSnapshot) {
+                    if (userSnapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+
+                    final user = userSnapshot.data;
+
+                    if (user == null) {
+                      return Text('User not logged in');
+                    }
+
+                    final userEmailAddress = user.email;
+
+                    return FutureBuilder<String?>(
+                      future: getEmployeeIdByEmail(userEmailAddress!),
+                      builder: (context, employeeIdSnapshot) {
+                        if (employeeIdSnapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+
+                        final employeeId = employeeIdSnapshot.data;
+
+                        if (employeeId == null) {
+                          return Text('Employee not found for email: $userEmailAddress');
+                        }
+
+                        return StreamBuilder<QuerySnapshot>(
+                          stream: FirebaseFirestore.instance
+                              .collection('notifications')
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+
+                            final notifications = snapshot.data?.docs ?? [];
+
+                            // Filter notifikasi berdasarkan employee_id
+                            final userNotifications = notifications.where((notification) {
+                              final detailNotifications = notification.reference.collection('detail_notifications');
+                              return detailNotifications.where((detail) {
+                                final notificationEmployeeId = detail['employee_id'];
+                                return notificationEmployeeId == employeeId;
+                              }).isNotEmpty;
+                            }).toList();
+
+                            return Column(
+                              children: userNotifications.map((notification) {
+                                final pesan = notification['pesan'];
+                                final status = notification['status'];
+                                return buildCard(pesan, 'Status: $status');
+                              }).toList(),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -108,12 +183,12 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
               ),
               textAlign: TextAlign.start,
             ),
-            SizedBox(height: 4), // Add spacing between title and description
+            SizedBox(height: 4),
             Text(
               description,
               style: const TextStyle(
-                color: Colors.grey, // Set text color to grey
-                fontSize: 12, // Set a smaller font size
+                color: Colors.grey,
+                fontSize: 12,
               ),
               textAlign: TextAlign.start,
             ),
