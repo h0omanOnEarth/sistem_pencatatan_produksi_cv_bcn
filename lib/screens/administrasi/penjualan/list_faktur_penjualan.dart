@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/faktur_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -24,6 +25,10 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
   Timestamp? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -142,64 +147,118 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                             isWithinDateRange);
                       }).toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index].data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Id': data['id'],
-                            'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
-                            'Catatan': data['catatan']
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FormFakturPenjualanScreen(
-                                    invoiceId: data['id'],
-                                    shipmentId: data['shipment_id'],
-                                  )
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus faktur penjualan ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final customerOrderBloc = BlocProvider.of<InvoiceBloc>(context);
-                                          customerOrderBloc.add(DeleteInvoiceEvent(filteredDocs[index].id));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
+                      // Implementasi Pagination
+                      final endIndex = startIndex + itemsPerPage;
+                      final paginatedDocs = filteredDocs.sublist(
+                        startIndex,
+                        endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+                      );
+
+                      // Mengatur tombol "Prev" dan "Next"
+                      isPrevButtonDisabled = startIndex == 0;
+                      isNextButtonDisabled = endIndex >= filteredDocs.length;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                           ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: paginatedDocs.length,
+                            itemBuilder: (context, index) {
+                              final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                              final id = data['id'] as String;
+                              final info = {
+                                'Id': data['id'],
+                                'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
+                                'Catatan': data['catatan']
+                              };
+                              return ListCard(
+                                title: id,
+                                description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FormFakturPenjualanScreen(
+                                        invoiceId: data['id'],
+                                        shipmentId: data['shipment_id'],
+                                      )
+                                    ),
                                   );
                                 },
+                                onDeletePressed: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Hapus"),
+                                        content: const Text("Anda yakin ingin menghapus faktur penjualan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Hapus"),
+                                            onPressed: () async {
+                                              final customerOrderBloc = BlocProvider.of<InvoiceBloc>(context);
+                                              customerOrderBloc.add(DeleteInvoiceEvent(paginatedDocs[index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
+                                },
                               );
-
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
                             },
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 16.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: isPrevButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex -= itemsPerPage;
+                                    if (startIndex < 0) {
+                                      startIndex = 0;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Prev"),
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: isNextButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex += itemsPerPage;
+                                    if (startIndex >= filteredDocs.length) {
+                                      startIndex = filteredDocs.length - itemsPerPage;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Next"),
+                              ),
+                            ],
+                          ),
+                        ],
                       );
                     }
                   },
@@ -244,40 +303,19 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
     }
   }
 
-  Future<void> _showFilterDialog(BuildContext context) async {
-    String? selectedValue = await showDialog<String>(
+    Future<void> _showFilterDialog(BuildContext context) async {
+    await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Filter Berdasarkan Status Faktur'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, '');
-              },
-              child: const Text('Semua'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Dalam Proses');
-              },
-              child: const Text('Dalam Proses'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Selesai');
-              },
-              child: const Text('Selesai'),
-            ),
-          ],
+        return FilterDialog(
+          title: ('Filter Berdasarkan Faktur Penjualan'),
+          onFilterSelected: (selectedStatus) {
+            setState(() {
+              this.selectedStatus = selectedStatus!;
+            });
+          },
         );
       },
     );
-
-    if (selectedValue != null) {
-      setState(() {
-        selectedStatus = selectedValue;
-      });
-    }
   }
 }

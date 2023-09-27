@@ -4,8 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/delivery_order_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_pengiriman.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/calendarFilterWidget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/circleFilterWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/paginationWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPesananPengiriman extends StatefulWidget {
@@ -17,13 +21,18 @@ class ListPesananPengiriman extends StatefulWidget {
 }
 
 class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
-  final CollectionReference deliveryOrderRef = FirebaseFirestore.instance.collection('delivery_orders');
+  final CollectionReference deliveryOrderRef =
+      FirebaseFirestore.instance.collection('delivery_orders');
   String searchTerm = '';
   String selectedStatus = '';
   Timestamp? selectedStartDate;
   Timestamp? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  String startDateText = '';
+  String endDateText = '';
+  int startIndex = 0;
+  int itemsPerPage = 3;
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -35,182 +44,224 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-               const CustomAppBar(title: 'Direct Labor and\nOverhead Costs', formScreen: FormPesananPengirimanScreen()),
+                const CustomAppBar(title: 'Pesanan Pengiriman', formScreen: FormPesananPengirimanScreen()),
                 const SizedBox(height: 24.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-                        setState(() {
-                          searchTerm = value;
-                        });
-                      }),
-                    ),
-                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[400]!),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.filter_list),
-                        onPressed: () {
-                          // Handle filter button press
-                          _showFilterDialog(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                buildSearchBar(),
                 const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                      const Text( "Tanggal Mulai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey[400]!),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.calendar_today),
-                            onPressed: () {
-                              _selectStartDate(context);
-                            },
-                          ),
-                        ),
-                      const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                      Text(startDateText), 
-                      ],
-                    ),
-                    const SizedBox(width: 16.0),
-                    Column(
-                      children: [
-                          const Text( "Tanggal Selesai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
-                          Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey[400]!),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.calendar_today),
-                                onPressed: () {
-                                  _selectEndDate(context);
-                                },
-                              ),
-                            ),
-                         Text(endDateText), 
-                      ],
-                    )
-                  ],
-                ),
-                //cards
+                buildDateRangeSelector(),
                 const SizedBox(height: 16.0),
-                StreamBuilder<QuerySnapshot>(
-                  stream: deliveryOrderRef.snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                        ),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-                      return const Text('Tidak ada data pesanan.');
-                    } else {
-                      final querySnapshot = snapshot.data!;
-                      final itemDocs = querySnapshot.docs;
-
-                      final filteredDocs = itemDocs.where((doc) {
-                        final id = doc['id'] as String;
-                        final status = doc['status_pesanan_pengiriman'] as String;
-                        final tanggalPesan = doc['tanggal_pesanan_pengiriman'] as Timestamp; // Tanggal Pesan
-                        final tanggalKirim = doc['tanggal_request_pengiriman'] as Timestamp; // Tanggal Kirim
-
-                        bool isWithinDateRange = true;
-                        if (selectedStartDate != null && selectedEndDate != null) {
-                          isWithinDateRange = (tanggalPesan.toDate().isAfter(selectedStartDate!.toDate()) && tanggalPesan.toDate().isBefore(selectedEndDate!.toDate())) ||
-                              (tanggalKirim.toDate().isAfter(selectedStartDate!.toDate()) && tanggalKirim.toDate().isBefore(selectedEndDate!.toDate()));
-                        }
-
-                        return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                            (selectedStatus.isEmpty || status == selectedStatus) &&
-                            isWithinDateRange);
-                      }).toList();
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index].data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Id': data['id'],
-                            'Tanggal Pesanan Pengiriman': DateFormat('dd/MM/yyyy').format((data['tanggal_pesanan_pengiriman'] as Timestamp).toDate()), // Format tanggal
-                            'Tanggal Request Pengiriman': DateFormat('dd/MM/yyyy').format((data['tanggal_request_pengiriman'] as Timestamp).toDate()), // Format tanggal
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FormPesananPengirimanScreen(
-                                    deliveryOrderId: data['id'], // Mengirimkan ID customer order
-                                    customerOrderId: data['customer_order_id'],
-                                  ),
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus pesanan penjualan ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final deliveryOrderBloc = BlocProvider.of<DeliveryOrderBloc>(context);
-                                          deliveryOrderBloc.add(DeleteDeliveryOrderEvent(filteredDocs[index].id));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
-                            },
-                          );
-                        },
-                      );
-                    }
-                  },
-                ),
+                buildDeliveryOrderList(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildSearchBar() {
+    return Row(
+      children: [
+        Expanded(
+          child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+            setState(() {
+              searchTerm = value;
+            });
+          }),
+        ),
+        const SizedBox(width: 16.0),
+        CircleFilterNotCalendarIconButton(
+          onPressed: () {
+            _showFilterDialog(context);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget buildDateRangeSelector() {
+    return Row(
+      children: [
+        DateSelector(
+          labelText: 'Tanggal Mulai: ',
+          onPressed: () {
+            _selectStartDate(context);
+          },
+          dateText: startDateText,
+        ),
+        const SizedBox(width: 16.0),
+        DateSelector(
+          labelText: 'Tanggal Selesai: ',
+          onPressed: () {
+            _selectEndDate(context);
+          },
+          dateText: endDateText,
+        ),
+      ],
+    );
+  }
+
+  Widget buildDeliveryOrderList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: deliveryOrderRef.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+          return const Text('Tidak ada data pesanan.');
+        } else {
+          final querySnapshot = snapshot.data!;
+          final itemDocs = querySnapshot.docs;
+
+          final filteredDocs = itemDocs.where((doc) {
+            final id = doc['id'] as String;
+            final status = doc['status_pesanan_pengiriman'] as String;
+            final tanggalPesan = doc['tanggal_pesanan_pengiriman'] as Timestamp;
+            final tanggalKirim = doc['tanggal_request_pengiriman'] as Timestamp;
+
+            bool isWithinDateRange = true;
+            if (selectedStartDate != null && selectedEndDate != null) {
+              isWithinDateRange = (tanggalPesan.toDate().isAfter(selectedStartDate!.toDate()) &&
+                  tanggalPesan.toDate().isBefore(selectedEndDate!.toDate())) ||
+                  (tanggalKirim.toDate().isAfter(selectedStartDate!.toDate()) &&
+                      tanggalKirim.toDate().isBefore(selectedEndDate!.toDate()));
+            }
+
+            return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                (selectedStatus.isEmpty || status == selectedStatus) &&
+                isWithinDateRange);
+          }).toList();
+
+          // Calculate total pages based on data count and items per page
+          int totalPages = (filteredDocs.length / itemsPerPage).ceil();
+          if (totalPages < 1) totalPages = 1;
+
+          // Calculate the end index of displayed data
+          int endIndex = startIndex + itemsPerPage;
+          if (endIndex > filteredDocs.length) {
+            endIndex = filteredDocs.length;
+            isNextButtonDisabled = true;
+          } else {
+            isNextButtonDisabled = false;
+          }
+
+          // Slice the data to be displayed based on start and end index
+          final displayedDocs = filteredDocs.sublist(startIndex, endIndex);
+
+          // "Prev" button is only active if the start index is greater than 0
+          if (startIndex <= 0) {
+            isPrevButtonDisabled = true;
+          } else {
+            isPrevButtonDisabled = false;
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              buildDeliveryOrderListView(displayedDocs),
+              const SizedBox(height: 16.0,),
+              buildPaginationButtons(),
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget buildDeliveryOrderListView(List<DocumentSnapshot> displayedDocs) {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: displayedDocs.length,
+      itemBuilder: (context, index) {
+        final data = displayedDocs[index].data() as Map<String, dynamic>;
+        final id = data['id'] as String;
+        final info = {
+          'Id': data['id'],
+          'Tanggal Pesanan Pengiriman': DateFormat('dd/MM/yyyy')
+              .format((data['tanggal_pesanan_pengiriman'] as Timestamp).toDate()),
+          'Tanggal Request Pengiriman': DateFormat('dd/MM/yyyy')
+              .format((data['tanggal_request_pengiriman'] as Timestamp).toDate()),
+        };
+        return ListCard(
+          title: id,
+          description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FormPesananPengirimanScreen(
+                  deliveryOrderId: data['id'],
+                  customerOrderId: data['customer_order_id'],
+                ),
+              ),
+            );
+          },
+          onDeletePressed: () async {
+            final confirmed = await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text("Konfirmasi Hapus"),
+                  content: const Text("Anda yakin ingin menghapus pesanan pengiriman ini?"),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text("Batal"),
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                    ),
+                    TextButton(
+                      child: const Text("Hapus"),
+                      onPressed: () async {
+                        final deliveryOrderBloc = BlocProvider.of<DeliveryOrderBloc>(context);
+                        deliveryOrderBloc.add(DeleteDeliveryOrderEvent(displayedDocs[index].id));
+                        Navigator.of(context).pop(true);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+
+            if (confirmed == true) {
+              // Data has been deleted, no further action needed
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildPaginationButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        PaginationButton(
+          onPressed: isPrevButtonDisabled ? null : () {
+            setState(() {
+              startIndex -= itemsPerPage;
+              isNextButtonDisabled = false;
+            });
+          },
+          label: 'Prev',
+        ),
+        const SizedBox(width: 16),
+        PaginationButton(
+          onPressed: isNextButtonDisabled ? null : () {
+            setState(() {
+              startIndex += itemsPerPage;
+              isPrevButtonDisabled = false;
+            });
+          },
+          label: 'Next',
+        ),
+      ],
     );
   }
 
@@ -225,7 +276,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
     if (pickedDate != null && pickedDate != selectedStartDate?.toDate()) {
       setState(() {
         selectedStartDate = Timestamp.fromDate(pickedDate);
-        startDateText = '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+        startDateText = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
   }
@@ -241,45 +292,26 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
     if (pickedDate != null && pickedDate != selectedEndDate?.toDate()) {
       setState(() {
         selectedEndDate = Timestamp.fromDate(pickedDate);
-        endDateText = '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+        endDateText = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
   }
 
-  Future<void> _showFilterDialog(BuildContext context) async {
-    String? selectedValue = await showDialog<String>(
+    Future<void> _showFilterDialog(BuildContext context) async {
+    await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Filter Berdasarkan Status Pesanan Pengiriman'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, '');
-              },
-              child: const Text('Semua'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Dalam Proses');
-              },
-              child: const Text('Dalam Proses'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Selesai');
-              },
-              child: const Text('Selesai'),
-            ),
-          ],
+        return FilterDialog(
+          title: ('Filter Berdasarkan Status Pesanan Pengiriman'),
+          onFilterSelected: (selectedStatus) {
+            setState(() {
+              this.selectedStatus = selectedStatus!;
+            });
+          },
         );
       },
     );
-
-    if (selectedValue != null) {
-      setState(() {
-        selectedStatus = selectedValue;
-      });
-    }
   }
 }
+
+

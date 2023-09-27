@@ -123,7 +123,7 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                       ),
                     ),
                   ),
-                  CardList(), // Tampilkan tiga card dengan daftar di bawahnya
+                  // CardList(), // Tampilkan tiga card dengan daftar di bawahnya
                 ],
               ),
             ),

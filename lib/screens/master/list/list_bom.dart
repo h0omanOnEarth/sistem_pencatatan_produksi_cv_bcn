@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/bom_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
@@ -21,6 +21,10 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
       FirebaseFirestore.instance.collection('bill_of_materials');
   String searchTerm = '';
   int selectedStatus = -1;
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   Future<String> fetchProductName(String productId) async {
     final customerQuery = await FirebaseFirestore.instance
@@ -106,103 +110,151 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
                                   status == selectedStatus));
                         }).toList();
 
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredProductDocs.length,
-                          itemBuilder: (context, index) {
-                            final data =
-                                filteredProductDocs[index].data() as Map<
-                                    String, dynamic>;
-                            final nama = data['id'] as String;
-                            return FutureBuilder<String>(
-                              future: fetchProductName(data['product_id']),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  // Saat Future masih dalam proses, tampilkan pesan loading atau apa pun yang sesuai
-                                    return const Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
-                                  ),
-                                );
-                                } else if (snapshot.hasError) {
-                                  // Handle jika terjadi error saat fetching data
-                                  return Text('Error: ${snapshot.error}');
-                                } else {
-                                  final productName = snapshot.data;
-                                  final info = {
-                                    'Id': data['id'] as String,
-                                    'Id Produk': data['product_id'] as String,
-                                    'Nama Produk':
-                                        productName ?? 'Produk tidak ditemukan',
-                                    'Status': data['status_bom'] == 1
-                                        ? 'Aktif'
-                                        : 'Tidak Aktif',
-                                  };
+                        // Perbarui status tombol Prev dan Next
+                        isPrevButtonDisabled = startIndex == 0;
+                        isNextButtonDisabled = startIndex + itemsPerPage >= filteredProductDocs.length;
 
-                                  return ListCard(
-                                    title: nama,
-                                    description: info.entries
-                                        .map((e) =>
-                                            '${e.key}: ${e.value}')
-                                        .join('\n'),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                             FormMasterBOMScreen(
-                                              bomId: filteredProductDocs[index].id,
-                                              productId: data['product_id'],
-                                             )
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: (filteredProductDocs.length - startIndex).clamp(0, itemsPerPage),
+                              itemBuilder: (context, index) {
+                                final data =
+                                    filteredProductDocs[startIndex + index].data() as Map<
+                                        String, dynamic>;
+                                final nama = data['id'] as String;
+                                return FutureBuilder<String>(
+                                  future: fetchProductName(data['product_id']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      // Saat Future masih dalam proses, tampilkan pesan loading atau apa pun yang sesuai
+                                      return const Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
                                         ),
                                       );
-                                    },
-                                    onDeletePressed: () async {
-                                      final confirmed = await showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: const Text(
-                                                "Konfirmasi Hapus"),
-                                            content: const Text(
-                                                "Anda yakin ingin menghapus BOM ini?"),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                child: const Text("Batal"),
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(false);
-                                                },
-                                              ),
-                                              TextButton(
-                                                child: const Text("Hapus"),
-                                                onPressed: () async {
-                                                  final bomBloc =
-                                                      BlocProvider.of<
-                                                          BillOfMaterialBloc>(
-                                                          context);
-                                                  bomBloc.add(
-                                                      DeleteBillOfMaterialEvent(
-                                                          data['id']));
-                                                  Navigator.of(context)
-                                                      .pop(true);
-                                                },
-                                              ),
-                                            ],
+                                    } else if (snapshot.hasError) {
+                                      // Handle jika terjadi error saat fetching data
+                                      return Text('Error: ${snapshot.error}');
+                                    } else {
+                                      final productName = snapshot.data;
+                                      final info = {
+                                        'Id': data['id'] as String,
+                                        'Id Produk': data['product_id'] as String,
+                                        'Nama Produk':
+                                            productName ?? 'Produk tidak ditemukan',
+                                        'Status': data['status_bom'] == 1
+                                            ? 'Aktif'
+                                            : 'Tidak Aktif',
+                                      };
+
+                                      return ListCard(
+                                        title: nama,
+                                        description: info.entries
+                                            .map((e) =>
+                                                '${e.key}: ${e.value}')
+                                            .join('\n'),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                FormMasterBOMScreen(
+                                                  bomId: filteredProductDocs[startIndex + index].id,
+                                                  productId: data['product_id'],
+                                                )
+                                            ),
                                           );
                                         },
-                                      );
+                                        onDeletePressed: () async {
+                                          final confirmed = await showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                    "Konfirmasi Hapus"),
+                                                content: const Text(
+                                                    "Anda yakin ingin menghapus BOM ini?"),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    child: const Text("Batal"),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop(false);
+                                                    },
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text("Hapus"),
+                                                    onPressed: () async {
+                                                      final bomBloc =
+                                                          BlocProvider.of<
+                                                              BillOfMaterialBloc>(
+                                                              context);
+                                                      bomBloc.add(
+                                                          DeleteBillOfMaterialEvent(
+                                                              data['id']));
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
 
-                                      if (confirmed == true) {
-                                        // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                                      }
-                                    },
-                                  );
-                                }
+                                          if (confirmed == true) {
+                                            // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                          }
+                                        },
+                                      );
+                                    }
+                                  },
+                                );
                               },
-                            );
-                          },
+                            ),
+                            const SizedBox(height: 16.0,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: isPrevButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex -= itemsPerPage;
+                                            if (startIndex < 0) {
+                                              startIndex = 0;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  ),
+                                  child: const Text("Prev"),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: isNextButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex += itemsPerPage;
+                                            if (startIndex >= filteredProductDocs.length) {
+                                              startIndex = filteredProductDocs.length - itemsPerPage;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  ),
+                                  child: const Text("Next"),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       }
                     },

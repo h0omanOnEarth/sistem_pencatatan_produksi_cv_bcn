@@ -123,7 +123,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                       ),
                     ),
                   ),
-                  CardList(), // Tampilkan tiga card dengan daftar di bawahnya
+                  // CardList(), // Tampilkan tiga card dengan daftar di bawahnya
                 ],
               ),
             ),

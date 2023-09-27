@@ -27,6 +27,12 @@ class _ListPesananPengembalianPembelianState
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
 
+  // Tambahkan variabel untuk pengaturan halaman data
+  int itemsPerPage = 3;
+  int startIndex = 0;
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -243,74 +249,128 @@ class _ListPesananPengembalianPembelianState
                             isWithinDateRange);
                       }).toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index]
-                              .data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Tanggal Pengembalian': DateFormat('dd/MM/yyyy')
-                                .format((data['tanggal_pengembalian']
-                                        as Timestamp)
-                                    .toDate()),
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries
-                                .map((e) => '${e.key}: ${e.value}')
-                                .join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                    FormPengembalianPesananScreen(
-                                    purchaseReturnId: data['id'],
-                                    purchaseOrderId: data['purchase_order_id'], // Mengirimkan ID pesanan pelanggan
-                                  ),
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text(
-                                        "Anda yakin ingin menghapus pelanggan ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
+                      // Implementasi Pagination
+                      final endIndex = startIndex + itemsPerPage;
+                      final paginatedDocs = filteredDocs.sublist(
+                        startIndex,
+                        endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+                      );
+
+                      // Mengatur tombol "Prev" dan "Next"
+                      isPrevButtonDisabled = startIndex == 0;
+                      isNextButtonDisabled = endIndex >= filteredDocs.length;
+
+                      return Column(
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: paginatedDocs.length,
+                            itemBuilder: (context, index) {
+                              final data = paginatedDocs[index]
+                                  .data() as Map<String, dynamic>;
+                              final id = data['id'] as String;
+                              final info = {
+                                'Tanggal Pengembalian': DateFormat('dd/MM/yyyy')
+                                    .format((data['tanggal_pengembalian']
+                                            as Timestamp)
+                                        .toDate()),
+                              };
+                              return ListCard(
+                                title: id,
+                                description: info.entries
+                                    .map((e) => '${e.key}: ${e.value}')
+                                    .join('\n'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FormPengembalianPesananScreen(
+                                        purchaseReturnId: data['id'],
+                                        purchaseOrderId:
+                                            data['purchase_order_id'], // Mengirimkan ID pesanan pelanggan
                                       ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final purchaseReturnBloc =
-                                              BlocProvider.of<
-                                                  PurchaseReturnBloc>(context);
-                                          purchaseReturnBloc.add(
-                                              DeletePurchaseReturnEvent(
-                                                  data['id']));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
+                                    ),
                                   );
                                 },
-                              );
+                                onDeletePressed: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Hapus"),
+                                        content: const Text(
+                                            "Anda yakin ingin menghapus pelanggan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Hapus"),
+                                            onPressed: () async {
+                                              final purchaseReturnBloc =
+                                                  BlocProvider.of<
+                                                      PurchaseReturnBloc>(
+                                                      context);
+                                              purchaseReturnBloc.add(
+                                                  DeletePurchaseReturnEvent(
+                                                      data['id']));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
+                                },
+                              );
                             },
-                          );
-                        },
+                          ),
+                          if (filteredDocs.isNotEmpty)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: isPrevButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex =
+                                                (startIndex - itemsPerPage)
+                                                    .clamp(0, startIndex);
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                  child: const Text('Prev'),
+                                ),
+                                const SizedBox(width: 16.0),
+                                ElevatedButton(
+                                  onPressed: isNextButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex =
+                                                (startIndex + itemsPerPage)
+                                                    .clamp(0, filteredDocs.length);
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                  child: const Text('Next'),
+                                ),
+                              ],
+                            ),
+                        ],
                       );
                     }
                   },
@@ -335,7 +395,7 @@ class _ListPesananPengembalianPembelianState
       setState(() {
         selectedStartDate = Timestamp.fromDate(pickedDate);
         startDateText =
-            '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+            DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
       });
     }
   }

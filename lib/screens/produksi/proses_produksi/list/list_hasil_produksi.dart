@@ -23,8 +23,12 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
   String selectedStatus ='';
   Timestamp? selectedStartDate;
   Timestamp? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  String startDateText = '';
+  String endDateText = '';  
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -143,64 +147,119 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                             isWithinDateRange);
                       }).toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index].data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Id': data['id'],
-                            'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
-                            'Nomor Penggunaan Bahan' : data['material_usage_id']
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FormHasilProduksiScreen(
-                                    materialUsageId: data['material_usage_id'],
-                                    productionResultId: data['id'],
-                                  )
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus pencatatan hasil produksi ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final proResBloc = BlocProvider.of<ProductionResultBloc>(context);
-                                          proResBloc.add(DeleteProductionResultEvent(filteredDocs[index].id));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
+                      // Implementasi Pagination
+                      final endIndex = startIndex + itemsPerPage;
+                      final paginatedDocs = filteredDocs.sublist(
+                        startIndex,
+                        endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+                      );
+
+                      // Mengatur tombol "Prev" dan "Next"
+                      isPrevButtonDisabled = startIndex == 0;
+                      isNextButtonDisabled = endIndex >= filteredDocs.length;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: paginatedDocs.length,
+                            itemBuilder: (context, index) {
+                              final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                              final id = data['id'] as String;
+                              final info = {
+                                'Id': data['id'],
+                                'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
+                                'Nomor Penggunaan Bahan' : data['material_usage_id']
+                              };
+                              return ListCard(
+                                title: id,
+                                description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FormHasilProduksiScreen(
+                                        materialUsageId: data['material_usage_id'],
+                                        productionResultId: data['id'],
+                                      )
+                                    ),
                                   );
                                 },
-                              );
+                                onDeletePressed: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Hapus"),
+                                        content: const Text("Anda yakin ingin menghapus pencatatan hasil produksi ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Hapus"),
+                                            onPressed: () async {
+                                              final proResBloc = BlocProvider.of<ProductionResultBloc>(context);
+                                              proResBloc.add(DeleteProductionResultEvent(paginatedDocs[index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
+                                },
+                              );
                             },
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 16.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: isPrevButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex -= itemsPerPage;
+                                    if (startIndex < 0) {
+                                      startIndex = 0;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Prev"),
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: isNextButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex += itemsPerPage;
+                                    if (startIndex >= filteredDocs.length) {
+                                      startIndex = filteredDocs.length - itemsPerPage;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Next"),
+                              ),
+                            ],
+                          ),  
+                        ],
                       );
                     }
                   },

@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
@@ -10,68 +10,89 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 class ListMasterSupplierScreen extends StatefulWidget {
   static const routeName = '/list_master_supplier_screen';
 
-  const ListMasterSupplierScreen({super.key});
+  const ListMasterSupplierScreen({Key? key}) : super(key: key);
+
   @override
-  State<ListMasterSupplierScreen> createState() => _ListMasterSupplierScreenState();
+  State<ListMasterSupplierScreen> createState() =>
+      _ListMasterSupplierScreenState();
 }
 
 class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
-  final CollectionReference supplierRef = FirebaseFirestore.instance.collection('suppliers');
+  final CollectionReference supplierRef =
+      FirebaseFirestore.instance.collection('suppliers');
   String searchTerm = '';
   String selectedJenis = '';
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 5; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SupplierBloc(),
       child: Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-               const CustomAppBar(title: 'Supplier', formScreen: FormMasterSupplierScreen()),
-                const SizedBox(height: 24.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-                        setState(() {
-                          searchTerm = value;
-                        });
-                      }),
-                    ),
-                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[400]!),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Supplier',
+                    formScreen: FormMasterSupplierScreen(),
+                  ),
+                  const SizedBox(height: 24.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SearchBarWidget(
+                          searchTerm: searchTerm,
+                          onChanged: (value) {
+                            setState(() {
+                              searchTerm = value;
+                            });
+                          },
+                        ),
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.filter_list),
-                        onPressed: () {
-                          // Handle filter button press
-                          _showFilterDialog(context);
-                        },
+                      const SizedBox(
+                          width:
+                              16.0), // Add spacing between calendar icon and filter button
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey[400]!),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.filter_list),
+                          onPressed: () {
+                            // Handle filter button press
+                            _showFilterDialog(context);
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                StreamBuilder<QuerySnapshot>(
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  StreamBuilder<QuerySnapshot>(
                     stream: supplierRef.snapshots(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                         return const Center(
+                      if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
                           ),
                         );
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+                      } else if (!snapshot.hasData ||
+                          snapshot.data?.docs.isEmpty == true) {
                         return const Text('Tidak ada data supplier.');
                       } else {
                         final querySnapshot = snapshot.data!;
@@ -80,69 +101,146 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                         final filterJenisDocs = supplierDocs.where((doc) {
                           final nama = doc['nama'] as String;
                           final jenis = doc['jenis_supplier'] as String;
-                          return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                          return (nama.toLowerCase().contains(
+                                  searchTerm.toLowerCase()) &&
                               (selectedJenis.isEmpty || jenis == selectedJenis));
                         }).toList();
 
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filterJenisDocs.length,
-                          itemBuilder: (context, index) {
-                            final data = filterJenisDocs[index].data() as Map<String, dynamic>;
-                            final nama = data['nama'] as String;
-                            final info = {
-                            'id' : data['id'] as String,
-                            'Jenis Supplier': data['jenis_supplier'] as String,
-                            'Alamat' : data['alamat'] as String,
-                            'Nomor Telepon' : data['no_telepon'] as String,
-                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
-                          };
-                            return ListCard(
-                              title: nama,
-                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FormMasterSupplierScreen(
-                                       supplierId: data['id'], // Mengirimkan ID pelanggan
-                                     ),
-                                  ),
-                                );
-                              },
-                              onDeletePressed: () async {
-                                final confirmed = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Konfirmasi Hapus"),
-                                      content: const Text("Anda yakin ingin menghapus supplier ini?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text("Batal"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          },
+                        // Perbarui status tombol Prev dan Next
+                        isPrevButtonDisabled = startIndex == 0;
+                        isNextButtonDisabled =
+                            startIndex + itemsPerPage >=
+                                filterJenisDocs.length;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: (filterJenisDocs.length -
+                                      startIndex)
+                                  .clamp(0, itemsPerPage),
+                              itemBuilder: (context, index) {
+                                final data =
+                                    filterJenisDocs[startIndex + index]
+                                        .data() as Map<String, dynamic>;
+                                final nama = data['nama'] as String;
+                                final info = {
+                                  'id': data['id'] as String,
+                                  'Jenis Supplier':
+                                      data['jenis_supplier'] as String,
+                                  'Alamat': data['alamat'] as String,
+                                  'Nomor Telepon':
+                                      data['no_telepon'] as String,
+                                  'Status': data['status'] == 1
+                                      ? 'Aktif'
+                                      : 'Tidak Aktif',
+                                };
+                                return ListCard(
+                                  title: nama,
+                                  description: info.entries
+                                      .map((e) => '${e.key}: ${e.value}')
+                                      .join('\n'),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FormMasterSupplierScreen(
+                                          supplierId: data['id'],
                                         ),
-                                        TextButton(
-                                          child: const Text("Hapus"),
-                                          onPressed: () async {
-                                            final supplierBloc =BlocProvider.of<SupplierBloc>(context);
-                                            supplierBloc.add(DeleteSupplierEvent(data['id']));
-                                            Navigator.of(context).pop(true);
-                                          },
-                                        ),
-                                      ],
+                                      ),
                                     );
                                   },
-                                );
+                                  onDeletePressed: () async {
+                                    final confirmed = await showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text("Konfirmasi Hapus"),
+                                          content: const Text(
+                                              "Anda yakin ingin menghapus supplier ini?"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text("Batal"),
+                                              onPressed: () {
+                                                Navigator.of(context)
+                                                    .pop(false);
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text("Hapus"),
+                                              onPressed: () async {
+                                                final supplierBloc =
+                                                    BlocProvider.of<
+                                                            SupplierBloc>(
+                                                        context);
+                                                supplierBloc.add(
+                                                    DeleteSupplierEvent(
+                                                        data['id']));
+                                                Navigator.of(context)
+                                                    .pop(true);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
 
-                                if (confirmed == true) {
-                                  // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                                }
+                                    if (confirmed == true) {
+                                      // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                    }
+                                  },
+                                );
                               },
-                            );
-                          },
+                            ),
+                            const SizedBox(
+                              height: 16.0,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: isPrevButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex -= itemsPerPage;
+                                            if (startIndex < 0) {
+                                              startIndex = 0;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown,
+                                  ),
+                                  child: const Text("Prev"),
+                                ),
+                                const SizedBox(
+                                  width: 16,
+                                ),
+                                ElevatedButton(
+                                  onPressed: isNextButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex += itemsPerPage;
+                                            if (startIndex >=
+                                                filterJenisDocs.length) {
+                                              startIndex =
+                                                  filterJenisDocs.length -
+                                                      itemsPerPage;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown,
+                                  ),
+                                  child: const Text("Next"),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       }
                     },
@@ -150,21 +248,21 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
                   BlocBuilder<SupplierBloc, SupplierState>(
                     builder: (context, state) {
                       if (state is ErrorState) {
-                        Text(state.errorMessage);
+                        return Text(state.errorMessage);
                       }
                       return const SizedBox.shrink();
                     },
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    )
     );
   }
 
- Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     String? selectedValue = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -197,10 +295,9 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
     if (selectedValue != null) {
       setState(() {
         selectedJenis = selectedValue;
+        // Reset startIndex saat filter berubah
+        startIndex = 0;
       });
     }
   }
-
-
 }
-

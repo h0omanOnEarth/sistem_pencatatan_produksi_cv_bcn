@@ -33,7 +33,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
     return Column(
       children: [
         DropdownProdukDetailWidget(
-              label: 'Kode Produk',
+              label: 'Kode Bahan',
               selectedValue: widget.productCardData.kodeBahan,
               onChanged: (newValue) {
                 setState(() {

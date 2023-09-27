@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/customers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pelanggan.dart';
@@ -10,70 +10,89 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 class ListMasterPelangganScreen extends StatefulWidget {
   static const routeName = '/list_master_pelanggan_screen';
 
-  const ListMasterPelangganScreen({super.key});
+  const ListMasterPelangganScreen({Key? key}) : super(key: key);
+
   @override
-  State<ListMasterPelangganScreen> createState() => _ListMasterPelangganScreenState();
+  State<ListMasterPelangganScreen> createState() =>
+      _ListMasterPelangganScreenState();
 }
 
 class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
-
-  final CollectionReference customerRef = FirebaseFirestore.instance.collection('customers');
+  final CollectionReference customerRef =
+      FirebaseFirestore.instance.collection('customers');
   String searchTerm = '';
   int selectedStatus = -1;
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
-     return BlocProvider(
+    return BlocProvider(
       create: (context) => CustomerBloc(),
       child: Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                 const CustomAppBar(title: 'Pelanggan', formScreen: FormMasterPelangganScreen()),
-                const SizedBox(height: 24.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-                        setState(() {
-                          searchTerm = value;
-                        });
-                      }),
-                    ),
-                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[400]!),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Pelanggan',
+                    formScreen: FormMasterPelangganScreen(),
+                  ),
+                  const SizedBox(height: 24.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SearchBarWidget(
+                          searchTerm: searchTerm,
+                          onChanged: (value) {
+                            setState(() {
+                              searchTerm = value;
+                            });
+                          },
+                        ),
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.filter_list),
-                        onPressed: () {
-                          // Handle filter button press
-                          _showFilterDialog(context);
-                        },
+                      const SizedBox(
+                          width:
+                              16.0), // Add spacing between calendar icon and filter button
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey[400]!),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.filter_list),
+                          onPressed: () {
+                            // Handle filter button press
+                            _showFilterDialog(context);
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                StreamBuilder<QuerySnapshot>(
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  StreamBuilder<QuerySnapshot>(
                     stream: customerRef.snapshots(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                         return const Center(
+                      if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
                           ),
                         );
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+                      } else if (!snapshot.hasData ||
+                          snapshot.data?.docs.isEmpty == true) {
                         return const Text('Tidak ada data pelanggan.');
                       } else {
                         final querySnapshot = snapshot.data!;
@@ -82,70 +101,142 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                         final filteredCustomerDocs = customerDocs.where((doc) {
                           final nama = doc['nama'] as String;
                           final status = doc['status'] as int;
-                          return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                              (selectedStatus.toInt() == -1 || status == selectedStatus));
+                          return (nama.toLowerCase().contains(
+                                  searchTerm.toLowerCase()) &&
+                              (selectedStatus == -1 || status == selectedStatus));
                         }).toList();
 
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filteredCustomerDocs.length,
-                          itemBuilder: (context, index) {
-                            final data = filteredCustomerDocs[index].data() as Map<String, dynamic>;
-                            final nama = data['nama'] as String;
-                            final info = {
-                            'Id' :data['id'] as String,
-                            'Alamat': data['alamat'] as String,
-                            'No Telepon': data['nomor_telepon'] as String,
-                            'email': data['email'] as String,
-                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
-                          };
-                            return ListCard(
-                              title: nama,
-                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                              onTap: () {
-                                print(data['id']);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FormMasterPelangganScreen(
-                                       customerId: data['id'], // Mengirimkan ID pelanggan
-                                     ),
-                                  ),
-                                );
-                              },
-                              onDeletePressed: () async {
-                                final confirmed = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Konfirmasi Hapus"),
-                                      content: const Text("Anda yakin ingin menghapus pelanggan ini?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text("Batal"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          },
+                        // Perbarui status tombol Prev dan Next
+                        isPrevButtonDisabled = startIndex == 0;
+                        isNextButtonDisabled =
+                            startIndex + itemsPerPage >=
+                                filteredCustomerDocs.length;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: (filteredCustomerDocs.length -
+                                      startIndex)
+                                  .clamp(0, itemsPerPage),
+                              itemBuilder: (context, index) {
+                                final data =
+                                    filteredCustomerDocs[startIndex + index]
+                                        .data() as Map<String, dynamic>;
+                                final nama = data['nama'] as String;
+                                final info = {
+                                  'Id': data['id'] as String,
+                                  'Alamat': data['alamat'] as String,
+                                  'No Telepon': data['nomor_telepon'] as String,
+                                  'email': data['email'] as String,
+                                  'Status': data['status'] == 1
+                                      ? 'Aktif'
+                                      : 'Tidak Aktif',
+                                };
+                                return ListCard(
+                                  title: nama,
+                                  description: info.entries
+                                      .map((e) => '${e.key}: ${e.value}')
+                                      .join('\n'),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FormMasterPelangganScreen(
+                                          customerId: data['id'],
                                         ),
-                                        TextButton(
-                                          child: const Text("Hapus"),
-                                          onPressed: () async {
-                                            final customerBloc =BlocProvider.of<CustomerBloc>(context);
-                                            customerBloc.add(DeleteCustomerEvent(data['id']));
-                                            Navigator.of(context).pop(true);
-                                          },
-                                        ),
-                                      ],
+                                      ),
                                     );
                                   },
-                                );
+                                  onDeletePressed: () async {
+                                    final confirmed = await showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text("Konfirmasi Hapus"),
+                                          content: const Text(
+                                              "Anda yakin ingin menghapus pelanggan ini?"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text("Batal"),
+                                              onPressed: () {
+                                                Navigator.of(context).pop(false);
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text("Hapus"),
+                                              onPressed: () async {
+                                                final customerBloc =
+                                                    BlocProvider.of<CustomerBloc>(
+                                                        context);
+                                                customerBloc.add(
+                                                    DeleteCustomerEvent(
+                                                        data['id']));
+                                                Navigator.of(context)
+                                                    .pop(true);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
 
-                                if (confirmed == true) {
-                                  // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                                }
+                                    if (confirmed == true) {
+                                      // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                    }
+                                  },
+                                );
                               },
-                            );
-                          },
+                            ),
+                            const SizedBox(
+                              height: 16.0,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: isPrevButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex -= itemsPerPage;
+                                            if (startIndex < 0) {
+                                              startIndex = 0;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown,
+                                  ),
+                                  child: const Text("Prev"),
+                                ),
+                                const SizedBox(
+                                  width: 16,
+                                ),
+                                ElevatedButton(
+                                  onPressed: isNextButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex += itemsPerPage;
+                                            if (startIndex >=
+                                                filteredCustomerDocs.length) {
+                                              startIndex =
+                                                  filteredCustomerDocs.length -
+                                                      itemsPerPage;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown,
+                                  ),
+                                  child: const Text("Next"),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       }
                     },
@@ -153,21 +244,21 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                   BlocBuilder<CustomerBloc, CustomerBlocState>(
                     builder: (context, state) {
                       if (state is ErrorState) {
-                        Text(state.errorMessage);
+                        return Text(state.errorMessage);
                       }
                       return const SizedBox.shrink();
                     },
                   ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ))
-    ;
+    );
   }
 
-    Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     String? selectedValue = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -200,9 +291,9 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
     if (selectedValue != null) {
       setState(() {
         selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
+        // Reset startIndex saat filter berubah
+        startIndex = 0;
       });
     }
   }
-
 }
-

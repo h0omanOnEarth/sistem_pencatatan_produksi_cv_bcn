@@ -246,7 +246,7 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
                                 ),
                                 child: const Text("Next"),
                               ),
