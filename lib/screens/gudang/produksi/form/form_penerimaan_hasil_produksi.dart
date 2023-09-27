@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/item_receive_blo
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_item_receive.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/item_receive.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productionConfirmationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
@@ -38,6 +39,30 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final productService = ProductService();
+  final productionCofirmationService = ProductionConfirmationService();
+
+  void initProductionConf() async{
+    Map<String, dynamic>? productionConf =  await productionCofirmationService.getProductionConfirmationInfo(widget.productionConfirmationId??'');
+    var tanggalKonfirmasiFirestore = productionConf?['tanggalKonfirmasi'];
+    String tanggalPermintaan = '';
+
+    if (tanggalKonfirmasiFirestore != null) {
+      final timestamp = tanggalKonfirmasiFirestore as Timestamp;
+      final dateTime = timestamp.toDate();
+
+      final List<String> monthNames = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+      ];
+
+      final day = dateTime.day.toString();
+      final month = monthNames[dateTime.month - 1];
+      final year = dateTime.year.toString();
+
+      tanggalPermintaan = '$day $month $year';
+    }
+
+    tanggalKonfirmasiController.text = tanggalPermintaan;
+  }
 
   @override
   void initState(){
@@ -66,6 +91,10 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
     });
     }else{
       isFirstTime = false;
+    }
+
+    if(widget.productionConfirmationId!=null){
+      initProductionConf();
     }
   }
   

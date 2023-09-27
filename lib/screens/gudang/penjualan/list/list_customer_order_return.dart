@@ -25,6 +25,10 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
   Timestamp? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +73,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                   children: [
                     Column(
                       children: [
-                      const Text( "Tanggal Mulai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
+                        const Text("Tanggal Mulai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
@@ -83,28 +87,28 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                             },
                           ),
                         ),
-                      const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                      Text(startDateText), 
+                        const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+                        Text(startDateText),
                       ],
                     ),
                     const SizedBox(width: 16.0),
                     Column(
                       children: [
-                          const Text( "Tanggal Selesai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
-                          Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(color: Colors.grey[400]!),
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.calendar_today),
-                                onPressed: () {
-                                  _selectEndDate(context);
-                                },
-                              ),
-                            ),
-                         Text(endDateText), 
+                        const Text("Tanggal Selesai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey[400]!),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.calendar_today),
+                            onPressed: () {
+                              _selectEndDate(context);
+                            },
+                          ),
+                        ),
+                        Text(endDateText),
                       ],
                     )
                   ],
@@ -143,64 +147,112 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                             isWithinDateRange);
                       }).toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index].data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Id': data['id'],
-                            'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
-                            'Alasan Pengembalian' : data['alasan_pengembalian']
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>FormPengembalianBarangScreen(
-                                    invoiceId: data['invoice_id'],
-                                    custOrderReturnId: data['id'],
-                                  )
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus pengembalian barang ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final custReturnBloc = BlocProvider.of<CustomerOrderReturnBloc>(context);
-                                          custReturnBloc.add(DeleteCustomerOrderReturnEvent(filteredDocs[index].id));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
+                      // Perbarui status tombol Prev dan Next
+                      isPrevButtonDisabled = startIndex == 0;
+                      isNextButtonDisabled = startIndex + itemsPerPage >= filteredDocs.length;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: (filteredDocs.length - startIndex).clamp(0, itemsPerPage),
+                            itemBuilder: (context, index) {
+                              final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
+                              final id = data['id'] as String;
+                              final info = {
+                                'Id': data['id'],
+                                'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
+                                'Alasan Pengembalian' : data['alasan_pengembalian']
+                              };
+                              return ListCard(
+                                title: id,
+                                description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>FormPengembalianBarangScreen(
+                                        invoiceId: data['invoice_id'],
+                                        custOrderReturnId: data['id'],
+                                      )
+                                    ),
                                   );
                                 },
-                              );
+                                onDeletePressed: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Hapus"),
+                                        content: const Text("Anda yakin ingin menghapus pengembalian barang ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Hapus"),
+                                            onPressed: () async {
+                                              final custReturnBloc = BlocProvider.of<CustomerOrderReturnBloc>(context);
+                                              custReturnBloc.add(DeleteCustomerOrderReturnEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
+                                },
+                              );
                             },
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 16.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: isPrevButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex -= itemsPerPage;
+                                    if (startIndex < 0) {
+                                      startIndex = 0;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Prev"),
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: isNextButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex += itemsPerPage;
+                                    if (startIndex >= filteredDocs.length) {
+                                      startIndex = filteredDocs.length - itemsPerPage;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Next"),
+                              ),
+                            ],
+                          ),
+                        ],
                       );
                     }
                   },
@@ -245,12 +297,12 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
     }
   }
 
-   Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return FilterDialog(
-          title: ('Filter Berdasarkan Status Pengembalian Pesanan'),
+          title: 'Filter Berdasarkan Status Pengembalian Pesanan',
           onFilterSelected: (selectedStatus) {
             setState(() {
               this.selectedStatus = selectedStatus!;
@@ -258,8 +310,6 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
           },
         );
       },
-  );
-}
-
-
+    );
+  }
 }

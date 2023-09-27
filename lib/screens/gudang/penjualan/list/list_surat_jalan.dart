@@ -25,6 +25,10 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
   Timestamp? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -143,64 +147,112 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
                             isWithinDateRange);
                       }).toList();
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredDocs.length,
-                        itemBuilder: (context, index) {
-                          final data = filteredDocs[index].data() as Map<String, dynamic>;
-                          final id = data['id'] as String;
-                          final info = {
-                            'Id': data['id'],
-                            'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
-                            'Alamat Penerima' : data['alamat_penerima']
-                          };
-                          return ListCard(
-                            title: id,
-                            description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FormSuratJalanScreen(
-                                    shipmentId: data['id'],
-                                    deliveryId: data['delivery_order_id'],
-                                  )
-                                ),
-                              );
-                            },
-                            onDeletePressed: () async {
-                              final confirmed = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text("Konfirmasi Hapus"),
-                                    content: const Text("Anda yakin ingin menghapus surat jalan ini?"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text("Batal"),
-                                        onPressed: () {
-                                          Navigator.of(context).pop(false);
-                                        },
-                                      ),
-                                      TextButton(
-                                        child: const Text("Hapus"),
-                                        onPressed: () async {
-                                          final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);
-                                          shipmentBloc.add(DeleteShipmentEvent(filteredDocs[index].id));
-                                          Navigator.of(context).pop(true);
-                                        },
-                                      ),
-                                    ],
+                      // Perbarui status tombol Prev dan Next
+                      isPrevButtonDisabled = startIndex == 0;
+                      isNextButtonDisabled = startIndex + itemsPerPage >= filteredDocs.length;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: (filteredDocs.length - startIndex).clamp(0, itemsPerPage),
+                            itemBuilder: (context, index) {
+                              final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
+                              final id = data['id'] as String;
+                              final info = {
+                                'Id': data['id'],
+                                'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
+                                'Alamat Penerima' : data['alamat_penerima']
+                              };
+                              return ListCard(
+                                title: id,
+                                description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FormSuratJalanScreen(
+                                        shipmentId: data['id'],
+                                        deliveryId: data['delivery_order_id'],
+                                      )
+                                    ),
                                   );
                                 },
-                              );
+                                onDeletePressed: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Hapus"),
+                                        content: const Text("Anda yakin ingin menghapus surat jalan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Hapus"),
+                                            onPressed: () async {
+                                              final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);
+                                              shipmentBloc.add(DeleteShipmentEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                              if (confirmed == true) {
-                                // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                              }
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
+                                },
+                              );
                             },
-                          );
-                        },
+                          ),
+                          const SizedBox(height: 16.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              ElevatedButton(
+                                onPressed: isPrevButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex -= itemsPerPage;
+                                    if (startIndex < 0) {
+                                      startIndex = 0;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Prev"),
+                              ),
+                              const SizedBox(width: 16),
+                              ElevatedButton(
+                                onPressed: isNextButtonDisabled
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    startIndex += itemsPerPage;
+                                    if (startIndex >= filteredDocs.length) {
+                                      startIndex = filteredDocs.length - itemsPerPage;
+                                    }
+                                  });
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                ),
+                                child: const Text("Next"),
+                              ),
+                            ],
+                          ),
+                        ],
                       );
                     }
                   },
@@ -258,7 +310,6 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
           },
         );
       },
-  );
-}
-
+    );
+  }
 }

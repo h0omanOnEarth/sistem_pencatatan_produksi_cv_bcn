@@ -16,58 +16,60 @@ class ListMasterBahanScreen extends StatefulWidget {
 }
 
 class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
-  int _currentPage = 1;
-  int _totalPages = 10; // Change this to the total number of pages
   final CollectionReference materialRef = FirebaseFirestore.instance.collection('materials');
   String searchTerm = '';
   String selectedJenis = '';
-  
+  int startIndex = 0; // Indeks awal data yang ditampilkan
+  int itemsPerPage = 3; // Jumlah data per halaman
+  bool isPrevButtonDisabled = true;
+  bool isNextButtonDisabled = false;
+
   @override
   Widget build(BuildContext context) {
-     return BlocProvider(
+    return BlocProvider(
       create: (context) => MaterialBloc(),
       child: Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CustomAppBar(title: 'Bahan', formScreen: FormMasterBahanScreen()),
-                const SizedBox(height: 24.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-                        setState(() {
-                          searchTerm = value;
-                        });
-                      }),
-                    ),
-                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[400]!),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(title: 'Bahan', formScreen: FormMasterBahanScreen()),
+                  const SizedBox(height: 24.0),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+                          setState(() {
+                            searchTerm = value;
+                          });
+                        }),
                       ),
-                      child: IconButton(
-                        icon: const Icon(Icons.filter_list),
-                        onPressed: () {
-                          // Handle filter button press
-                          _showFilterDialog(context);
-                        },
+                      const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey[400]!),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.filter_list),
+                          onPressed: () {
+                            // Handle filter button press
+                            _showFilterDialog(context);
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                StreamBuilder<QuerySnapshot>(
+                    ],
+                  ),
+                  const SizedBox(height: 16.0,),
+                  StreamBuilder<QuerySnapshot>(
                     stream: materialRef.snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                         return const Center(
+                        return const Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
                           ),
@@ -87,65 +89,113 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
                               (selectedJenis.isEmpty || jenis == selectedJenis));
                         }).toList();
 
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: filterJenisDocs.length,
-                          itemBuilder: (context, index) {
-                            final data = filterJenisDocs[index].data() as Map<String, dynamic>;
-                            final nama = data['nama'] as String;
-                            final info = {
-                            'id' : data['id'] as String,
-                            'Jenis bahan': data['jenis_bahan'] as String,
-                            'Stok' : data['stok'] as int,
-                            'Satuan' : data['satuan'] as String,
-                            'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
-                          };
-                            return ListCard(
-                              title: nama,
-                              description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                               onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FormMasterBahanScreen(
-                                       materialId: data['id'], // Mengirimkan ID pelanggan
-                                     ),
-                                  ),
-                                );
-                              },
-                              onDeletePressed: () async {
-                                final confirmed = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text("Konfirmasi Hapus"),
-                                      content: const Text("Anda yakin ingin menghapus bahan ini?"),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text("Batal"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop(false);
-                                          },
+                        // Perbarui status tombol Prev dan Next
+                        isPrevButtonDisabled = startIndex == 0;
+                        isNextButtonDisabled = startIndex + itemsPerPage >= filterJenisDocs.length;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: (filterJenisDocs.length - startIndex).clamp(0, itemsPerPage),
+                              itemBuilder: (context, index) {
+                                final data = filterJenisDocs[startIndex + index].data() as Map<String, dynamic>;
+                                final nama = data['nama'] as String;
+                                final info = {
+                                  'id' : data['id'] as String,
+                                  'Jenis bahan': data['jenis_bahan'] as String,
+                                  'Stok' : data['stok'] as int,
+                                  'Satuan' : data['satuan'] as String,
+                                  'Status': data['status'] == 1 ? 'Aktif' : 'Tidak Aktif',
+                                };
+                                return ListCard(
+                                  title: nama,
+                                  description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FormMasterBahanScreen(
+                                          materialId: data['id'], // Mengirimkan ID pelanggan
                                         ),
-                                        TextButton(
-                                          child: const Text("Hapus"),
-                                          onPressed: () async {
-                                            final bahanBloc =BlocProvider.of<MaterialBloc>(context);
-                                            bahanBloc.add(DeleteMaterialEvent(data['id']));
-                                            Navigator.of(context).pop(true);
-                                          },
-                                        ),
-                                      ],
+                                      ),
                                     );
                                   },
-                                );
+                                  onDeletePressed: () async {
+                                    final confirmed = await showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: const Text("Konfirmasi Hapus"),
+                                          content: const Text("Anda yakin ingin menghapus bahan ini?"),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text("Batal"),
+                                              onPressed: () {
+                                                Navigator.of(context).pop(false);
+                                              },
+                                            ),
+                                            TextButton(
+                                              child: const Text("Hapus"),
+                                              onPressed: () async {
+                                                final bahanBloc = BlocProvider.of<MaterialBloc>(context);
+                                                bahanBloc.add(DeleteMaterialEvent(data['id']));
+                                                Navigator.of(context).pop(true);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
 
-                                if (confirmed == true) {
-                                  // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                                }
+                                    if (confirmed == true) {
+                                      // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                    }
+                                  },
+                                );
                               },
-                            );
-                          },
+                            ),
+                            const SizedBox(height: 16.0,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: isPrevButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex -= itemsPerPage;
+                                            if (startIndex < 0) {
+                                              startIndex = 0;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  ),
+                                  child: const Text("Prev"),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: isNextButtonDisabled
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            startIndex += itemsPerPage;
+                                            if (startIndex >= filterJenisDocs.length) {
+                                              startIndex = filterJenisDocs.length - itemsPerPage;
+                                            }
+                                          });
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  ),
+                                  child: const Text("Next"),
+                                ),
+                              ],
+                            ),
+                          ],
                         );
                       }
                     },
@@ -158,72 +208,16 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
                       return const SizedBox.shrink();
                     },
                   ),
-                // Pagination Row
-                buildPaginationRow(),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    )
     );
   }
 
-Widget buildPaginationRow() {
-  int startIndex = (_currentPage - 1).clamp(1, _totalPages - 4);
-  int endIndex = (_currentPage + 1).clamp(startIndex + 2, _totalPages);
-
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16.0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (_currentPage > 2) buildPageIndicator(_currentPage - 2),
-        if (_currentPage > 1) buildPageIndicator(_currentPage - 1),
-        buildPageIndicator(_currentPage),
-        if (_currentPage < _totalPages) buildPageIndicator(_currentPage + 1),
-        if (_currentPage < _totalPages - 1) buildPageIndicator(_currentPage + 2),
-      ],
-    ),
-  );
-}
-
-
-Widget buildPageIndicator(int pageNumber) {
-  bool isSelected = pageNumber == _currentPage;
-
-  return GestureDetector(
-    onTap: () {
-      setState(() {
-        _currentPage = pageNumber;
-      });
-    },
-    child: Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      width: 32.0,
-      height: 32.0,
-      decoration: BoxDecoration(
-        shape: BoxShape.rectangle, // Set to rectangle
-        borderRadius: BorderRadius.circular(16.0), // Add border radius
-        color: isSelected ? const Color.fromRGBO(59, 51, 51, 1) : Colors.transparent,
-        border: Border.all(
-          color: isSelected ? Colors.transparent : Colors.grey,
-          width: 1.5,
-        ),
-      ),
-      child: Center(
-        child: Text(
-          pageNumber.toString(),
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey,
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
- Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     String? selectedValue = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -259,6 +253,4 @@ Widget buildPageIndicator(int pageNumber) {
       });
     }
   }
-
 }
-
