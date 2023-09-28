@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/purchase_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pengembalian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -35,7 +36,6 @@ class _ListPesananPengembalianPembelianState
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -44,94 +44,18 @@ class _ListPesananPengembalianPembelianState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  height: 80,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(width: 8.0),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.2),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back,
-                                        color: Colors.black),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 24.0),
-                            const Text(
-                              'Pengembalian Pembelian',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: screenWidth * 0.20),
-                            Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.brown,
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.add),
-                                color: Colors.white,
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const FormPengembalianPesananScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                    height: 24.0), // Add spacing between header and cards
-                // Search Bar and Filter Button
+                 const CustomAppBar(title: 'Faktur Penjualan', formScreen: FormPengembalianPesananScreen()),
+                const SizedBox(height: 24.0),
                 Row(
                   children: [
-                    SizedBox(
-                      width: screenWidth * 0.6,
-                      child: SearchBarWidget(
-                          searchTerm: searchTerm,
-                          onChanged: (value) {
-                            setState(() {
-                              searchTerm = value;
-                            });
-                          }),
+                    Expanded(
+                      child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
+                        setState(() {
+                          searchTerm = value;
+                        });
+                      }),
                     ),
-                    const SizedBox(
-                        width:
-                            16.0), // Add spacing between calendar icon and filter button
+                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -207,7 +131,9 @@ class _ListPesananPengembalianPembelianState
                   height: 16.0,
                 ),
                 StreamBuilder<QuerySnapshot>(
-                  stream: purchaseReturnRef.snapshots(),
+                  stream: purchaseReturnRef.
+                  orderBy('id', descending: true).
+                  snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -249,7 +175,7 @@ class _ListPesananPengembalianPembelianState
                             isWithinDateRange);
                       }).toList();
 
-                      // Implementasi Pagination
+                     // Implementasi Pagination
                       final endIndex = startIndex + itemsPerPage;
                       final paginatedDocs = filteredDocs.sublist(
                         startIndex,
@@ -333,6 +259,7 @@ class _ListPesananPengembalianPembelianState
                               );
                             },
                           ),
+                          const SizedBox(height: 16.0,),
                           if (filteredDocs.isNotEmpty)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,

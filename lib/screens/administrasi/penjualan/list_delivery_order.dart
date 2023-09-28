@@ -138,33 +138,22 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
                 isWithinDateRange);
           }).toList();
 
-          // Calculate total pages based on data count and items per page
-          int totalPages = (filteredDocs.length / itemsPerPage).ceil();
-          if (totalPages < 1) totalPages = 1;
+         // Implementasi Pagination
+        final endIndex = startIndex + itemsPerPage;
+        final paginatedDocs = filteredDocs.sublist(
+          startIndex,
+          endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+        );
 
-          // Calculate the end index of displayed data
-          int endIndex = startIndex + itemsPerPage;
-          if (endIndex > filteredDocs.length) {
-            endIndex = filteredDocs.length;
-            isNextButtonDisabled = true;
-          } else {
-            isNextButtonDisabled = false;
-          }
+        // Mengatur tombol "Prev" dan "Next"
+        isPrevButtonDisabled = startIndex == 0;
+        isNextButtonDisabled = endIndex >= filteredDocs.length;
 
-          // Slice the data to be displayed based on start and end index
-          final displayedDocs = filteredDocs.sublist(startIndex, endIndex);
-
-          // "Prev" button is only active if the start index is greater than 0
-          if (startIndex <= 0) {
-            isPrevButtonDisabled = true;
-          } else {
-            isPrevButtonDisabled = false;
-          }
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              buildDeliveryOrderListView(displayedDocs),
+              buildDeliveryOrderListView(paginatedDocs),
               const SizedBox(height: 16.0,),
               buildPaginationButtons(),
             ],

@@ -245,7 +245,7 @@
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MainProduksi(),
+                                  builder: (context) => MainAdministrasi(),
                                 ),
                               );
 
