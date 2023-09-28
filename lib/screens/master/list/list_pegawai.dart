@@ -146,6 +146,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                                         builder: (context) =>
                                             FormMasterPegawaiScreen(
                                           pegawaiId: data['id'],
+                                          currentUsername: data['username']
                                         ),
                                       ),
                                     );

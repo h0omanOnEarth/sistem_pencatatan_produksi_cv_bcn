@@ -11,7 +11,8 @@ class FormMasterPegawaiScreen extends StatefulWidget {
   static const routeName = '/form_master_pegawai_screen';
 
   final String? pegawaiId; // Terima ID pegawai jika dalam mode edit
-  const FormMasterPegawaiScreen({Key? key, this.pegawaiId}) : super(key: key);
+  final String? currentUsername;
+  const FormMasterPegawaiScreen({Key? key, this.pegawaiId, this.currentUsername}) : super(key: key);
 
   @override
   State<FormMasterPegawaiScreen> createState() =>
@@ -36,7 +37,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
   @override
   void initState() {
     super.initState();
-
+    print(widget.currentUsername);
     // Jika dalam mode edit, isi form dengan data pelanggan yang sesuai
    if (widget.pegawaiId != null) {
       FirebaseFirestore.instance
@@ -305,7 +306,7 @@ void _showSuccessMessageAndNavigateBack() {
                                   username: usernameController.text,
                                 );
                             if (widget.pegawaiId != null) {
-                              employeeBloc.add(UpdateEmployeeEvent(widget.pegawaiId ?? '',newEmployee));
+                              employeeBloc.add(UpdateEmployeeEvent(widget.pegawaiId ?? '',newEmployee, widget.currentUsername??''));
                             } else {
                               employeeBloc.add(AddEmployeeEvent(newEmployee));
                             }

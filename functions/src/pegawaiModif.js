@@ -49,9 +49,50 @@ const {
         return { success: false, message: "Status must be a number" };
     }
 
-     // Login berhasil
+     // Modifikasi berhasil
      return {
         success: true,
     }
-    
   }
+
+  exports.pegawaiUpdate  = async (req)=> {
+    const {username, telp, gajiHarian, gajiLembur, status, currentUser} = req.data;
+
+    const employeesColl = await admin.firestore().collection("employees");
+    const currentUsername = currentUser;
+    // Check if the username is already taken by other users (kecuali pengguna saat ini)
+    const qSnapUname = await employeesColl.where("username", "==", username).get();
+    if (!qSnapUname.empty) {
+        // Check if the username is already taken by someone other than the current user
+        const existingUsers = qSnapUname.docs.filter(doc => doc.data().username === username);
+        if (existingUsers.length > 1 && existingUsers[0].data().username!=currentUsername){
+            return { success: false, message: "Username has been taken" };
+        }
+    }
+
+      // Check if telp contains only numeric characters
+      if (!/^\d+$/.test(telp)) {
+        return { success: false, message: "Phone number must contain only numeric characters" };
+    }
+
+    // Check if gajiHarian is provided, numeric, and not less than 0
+    if (!gajiHarian || isNaN(gajiHarian) || gajiHarian < 0) {
+        return { success: false, message: "Gaji Harian must be a non-negative number" };
+    }
+
+    // Check if gajiLembur is provided, numeric, and not less than 0
+    if (!gajiLembur || isNaN(gajiLembur) || gajiLembur < 0) {
+        return { success: false, message: "Gaji Lembur must be a non-negative number" };
+    }
+
+    // Check if status is provided and numeric
+    if (!status || isNaN(status)) {
+        return { success: false, message: "Status must be a number" };
+    }
+
+     // Modifikasi berhasil
+     return {
+        success: true,
+    }
+  }
+

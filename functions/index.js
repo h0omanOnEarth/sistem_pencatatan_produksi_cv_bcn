@@ -22,3 +22,6 @@ exports.loginValidation = onCall(loginValidation);
 //validasi pegawai
 const {pegawaiAdd} = require("./src/pegawaiModif")
 exports.pegawaiAdd = onCall(pegawaiAdd);
+
+const {pegawaiUpdate} = require("./src/pegawaiModif")
+exports.pegawaiUpdate = onCall(pegawaiUpdate);
