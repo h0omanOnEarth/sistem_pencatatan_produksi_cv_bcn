@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/customer.dart';
@@ -23,6 +24,8 @@ class DeleteCustomerEvent extends CustomerEvent {
 
 // States
 abstract class CustomerBlocState {}
+
+class SuccessState extends CustomerBlocState {}
 
 class LoadingState extends CustomerBlocState {}
 
@@ -50,46 +53,96 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
   Stream<CustomerBlocState> mapEventToState(CustomerEvent event) async* {
     if (event is AddCustomerEvent) {
       yield LoadingState();
-      try {
-        final String nextCustomerId = await _generateNextCustomerId();
 
-        await FirebaseFirestore.instance.collection('customers').add({
-          'id': nextCustomerId,
-          'nama': event.customer.nama,
-          'alamat': event.customer.alamat,
-          'nomor_telepon': event.customer.nomorTelepon,
-          'nomor_telepon_kantor': event.customer.nomorTeleponKantor,
-          'email': event.customer.email,
-          'status': event.customer.status,
-        });
+      final nama = event.customer.nama;
+      final alamat =  event.customer.alamat;
+      final noTelepon = event.customer.nomorTelepon;
+      final noTeleponKantor = event.customer.nomorTeleponKantor;
+      final email = event.customer.email;
+      final status = event.customer.status;
 
-        yield LoadedState(await _getCustomers());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan customer.");
+      if(nama.isNotEmpty && alamat.isNotEmpty && noTelepon.isNotEmpty && noTeleponKantor.isNotEmpty && email.isNotEmpty){
+          try {
+            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
+            final HttpsCallableResult<dynamic> result =
+            await callable.call(<String, dynamic>{
+              'telp': noTelepon,
+              'telpKantor': noTeleponKantor,
+              'email': email
+            });
+
+            if (result.data['success'] == true) {
+              final String nextCustomerId = await _generateNextCustomerId();
+
+              await FirebaseFirestore.instance.collection('customers').add({
+                'id': nextCustomerId,
+                'nama': nama,
+                'alamat': alamat,
+                'nomor_telepon': noTelepon,
+                'nomor_telepon_kantor': noTeleponKantor,
+                'email': email,
+                'status': status,
+              });
+
+              yield LoadingState();
+              yield SuccessState();
+            }else{
+              yield ErrorState(result.data['message']);
+            }
+           
+          } catch (e) {
+            yield ErrorState("Gagal menambahkan customer.");
+          }
+      }else{
+        yield ErrorState("Harap isi semua field!");
       }
+   
     } else if (event is UpdateCustomerEvent) {
       yield LoadingState();
-      try {
-        final customerSnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
+      final customerSnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
         if (customerSnapshot.docs.isNotEmpty) {
-          final customerDoc = customerSnapshot.docs.first;
-          await customerDoc.reference.update({
-            'nama': event.updatedCustomer.nama,
-            'alamat': event.updatedCustomer.alamat,
-            'nomor_telepon': event.updatedCustomer.nomorTelepon,
-            'nomor_telepon_kantor': event.updatedCustomer.nomorTeleponKantor,
-            'email': event.updatedCustomer.email,
-            'status': event.updatedCustomer.status,
-          });
-           final customers = await _getCustomers(); // Memuat data pemasok setelah pembaruan
-           yield LoadedState(customers);
-        } else {
+          final nama = event.updatedCustomer.nama;
+          final alamat =  event.updatedCustomer.alamat;
+          final noTelepon = event.updatedCustomer.nomorTelepon;
+          final noTeleponKantor = event.updatedCustomer.nomorTeleponKantor;
+          final email = event.updatedCustomer.email;
+          final status = event.updatedCustomer.status;
+
+          if(nama.isNotEmpty && alamat.isNotEmpty && noTelepon.isNotEmpty && noTeleponKantor.isNotEmpty && email.isNotEmpty){
+            try {
+               final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
+                final HttpsCallableResult<dynamic> result =
+                await callable.call(<String, dynamic>{
+                  'telp': noTelepon,
+                  'telpKantor': noTeleponKantor,
+                  'email': email
+                });
+
+                if (result.data['success'] == true) {
+                  final customerDoc = customerSnapshot.docs.first;
+                  await customerDoc.reference.update({
+                    'nama': nama,
+                    'alamat': alamat,
+                    'nomor_telepon': noTelepon,
+                    'nomor_telepon_kantor': noTeleponKantor,
+                    'email': email,
+                    'status': status,
+                  });
+                  yield LoadingState();
+                  yield SuccessState();
+                }else{
+                  yield ErrorState(result.data['message']);
+                }
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+           }else{
+            yield ErrorState("Harap isi semua field!");
+           }
+        }else {
           // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
           yield ErrorState('Data pelanggan dengan ID ${event.customerId} tidak ditemukan.');
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah customer.");
-      }
     } else if (event is DeleteCustomerEvent) {
       yield LoadingState();
       try {
