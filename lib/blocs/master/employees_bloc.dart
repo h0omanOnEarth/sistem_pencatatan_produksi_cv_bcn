@@ -1,3 +1,5 @@
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/employee.dart';
@@ -29,6 +31,8 @@ abstract class EmployeeState {}
 
 class LoadingState extends EmployeeState {}
 
+class SuccessState extends EmployeeState {}
+
 class LoadedState extends EmployeeState {
   final List<Employee> employees;
   LoadedState(this.employees);
@@ -53,32 +57,67 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
   Stream<EmployeeState> mapEventToState(EmployeeEvent event) async* {
     if (event is AddEmployeeEvent) {
       yield LoadingState();
-      try {
-        final String nextEmployeeId = await _generateNextEmployeeId();
+        final alamat = event.employee.alamat;
+        final email = event.employee.email;
+        final gajiHarian = event.employee.gajiHarian;
+        final gajiLemburJam = event.employee.gajiLemburJam;
+        final jenisKelamin = event.employee.jenisKelamin;
+        final nama = event.employee.nama;
+        final nomorTelepon = event.employee.nomorTelepon;
+        final posisi = event.employee.posisi;
+        final status = event.employee.status;
+        final tanggalMasuk = event.employee.tanggalMasuk;
+        final username = event.employee.username;
+        final password = event.employee.password;
 
-        //Langkah 2: Add data to Firestore employees
-        await employeesRef.add({
-          'id': nextEmployeeId,
-          'alamat': event.employee.alamat,
-          'email': event.employee.email,
-          'gaji_harian': event.employee.gajiHarian,
-          'gaji_lembur_jam': event.employee.gajiLemburJam,
-          'jenis_kelamin': event.employee.jenisKelamin,
-          'nama': event.employee.nama,
-          'nomor_telepon': event.employee.nomorTelepon,
-          'posisi': event.employee.posisi,
-          'status': event.employee.status,
-          'tanggal_masuk': event.employee.tanggalMasuk,
-          'username': event.employee.username,
-        });
+        if(alamat.isNotEmpty && email.isNotEmpty && jenisKelamin.isNotEmpty && nama.isNotEmpty && nomorTelepon.isNotEmpty && posisi.isNotEmpty  && username.isNotEmpty){
 
-        yield LoadedState(await _getEmployees());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan employee.");
-      }
+          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('pegawaiAdd');
+          final HttpsCallableResult<dynamic> result =
+          await callable.call(<String, dynamic>{
+            'email': email,
+            'password': password,
+            'username': username,
+            'telp': nomorTelepon,
+            'gajiHarian': gajiHarian,
+            'gajiLembur': gajiLemburJam,
+            'status':status
+          });
+
+          if (result.data['success'] == true) {
+             final String nextEmployeeId = await _generateNextEmployeeId();
+
+            //Langkah 2: Add data to Firestore employees
+            await employeesRef.add({
+              'id': nextEmployeeId,
+              'alamat': alamat,
+              'email': email,
+              'gaji_harian': gajiHarian.toInt(),
+              'gaji_lembur_jam': gajiLemburJam.toInt(),
+              'jenis_kelamin': jenisKelamin,
+              'nama': nama,
+              'nomor_telepon': nomorTelepon,
+              'posisi': posisi,
+              'status': status,
+              'tanggal_masuk': tanggalMasuk,
+              'username': username,
+            });
+
+             await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+            );
+
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
+          }
+        }else{
+          yield ErrorState("Harap isi semua field!");
+        }
+
     } else if (event is UpdateEmployeeEvent) {
       yield LoadingState();
-      try {
         final employeeSnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
         if (employeeSnapshot.docs.isNotEmpty) {
           final employeeDoc = employeeSnapshot.docs.first;
@@ -94,19 +133,15 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
             'tanggal_masuk': event.updatedEmployee.tanggalMasuk,
             'username': event.updatedEmployee.username,
           };
-
+      
           // Langkah 2: Perbarui data pegawai di Firestore
           await employeeDoc.reference.update(updatedData);
-
-          final employees = await _getEmployees();
-          yield LoadedState(employees);
+          
+          SuccessState();
         } else {
           // Handle jika data pegawai dengan ID tersebut tidak ditemukan
           yield ErrorState('Data pegawai dengan ID ${event.employeeId} tidak ditemukan.');
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah employee.");
-      }
     } else if (event is DeleteEmployeeEvent) {
       yield LoadingState();
       try {

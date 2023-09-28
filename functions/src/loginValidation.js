@@ -1,4 +1,4 @@
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 const {
   log,
   info,
@@ -7,9 +7,6 @@ const {
   error,
   write,
 } = require("firebase-functions/logger");
-
-
-admin.initializeApp();
 
 exports.loginValidation = async (req) => {
   try {

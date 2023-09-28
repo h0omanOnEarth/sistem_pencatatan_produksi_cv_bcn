@@ -108,8 +108,15 @@ void _showSuccessMessageAndNavigateBack() {
   @override
   Widget build(BuildContext context) {
     final bool isEditMode = widget.pegawaiId != null;
-    return BlocProvider(
-      create: (context) => EmployeeBloc(),
+    return BlocListener<EmployeeBloc, EmployeeState>(
+        listener: (context, state) async{
+          if (state is SuccessState){
+            _showSuccessMessageAndNavigateBack();
+          } else if (state is ErrorState) {
+            final snackbar = SnackBar(content: Text(state.errorMessage));
+            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          }
+        },
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
@@ -199,7 +206,7 @@ void _showSuccessMessageAndNavigateBack() {
                         child: DropdownWidget(
                           label: 'Posisi',
                           selectedValue: selectedPosisi,
-                          items: ['Produksi', 'Gudang', 'Administrasi'],
+                          items: const ['Produksi', 'Gudang', 'Administrasi'],
                           onChanged: (newValue) {
                             setState(() {
                               selectedPosisi = newValue;
@@ -212,7 +219,7 @@ void _showSuccessMessageAndNavigateBack() {
                         child: DropdownWidget(
                           label: 'Jenis Kelamin',
                           selectedValue: selectedJenisKelamin,
-                          items: ['Perempuan', 'Laki-laki'],
+                          items: const ['Perempuan', 'Laki-laki'],
                           onChanged: (newValue) {
                             setState(() {
                               selectedJenisKelamin = newValue;
@@ -241,7 +248,7 @@ void _showSuccessMessageAndNavigateBack() {
                         child: DropdownWidget(
                           label: 'Status',
                           selectedValue: selectedStatus,
-                          items: ['Aktif', 'Tidak Aktif'],
+                          items: const ['Aktif', 'Tidak Aktif'],
                           onChanged: (newValue) {
                             setState(() {
                               selectedStatus = newValue;
@@ -280,13 +287,15 @@ void _showSuccessMessageAndNavigateBack() {
                         child: ElevatedButton(
                           onPressed: () async {
                             final employeeBloc =BlocProvider.of<EmployeeBloc>(context);
+                            final gajiHarian = int.tryParse(gajiHarianController.text) ?? 0;
+                            final gajiLemburJam = int.tryParse(gajiLemburController.text) ?? 0;
                             final Employee newEmployee =   Employee(
                                   id: '', // Atur ID sesuai dengan yang dibutuhkan
                                   email: emailController.text,
                                   password: passwordController.text,
                                   alamat: alamatController.text,
-                                  gajiHarian: int.tryParse(gajiHarianController.text) ?? 0,
-                                  gajiLemburJam: int.tryParse(gajiLemburController.text) ?? 0,
+                                  gajiHarian: gajiHarian,
+                                  gajiLemburJam: gajiLemburJam,
                                   jenisKelamin: selectedJenisKelamin,
                                   nama: namaController.text,
                                   nomorTelepon: nomorTeleponController.text,
@@ -300,7 +309,7 @@ void _showSuccessMessageAndNavigateBack() {
                             } else {
                               employeeBloc.add(AddEmployeeEvent(newEmployee));
                             }
-                            _showSuccessMessageAndNavigateBack();
+                           
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
@@ -309,7 +318,7 @@ void _showSuccessMessageAndNavigateBack() {
                             ),
                           ),
                           child: const Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
                             child: Text(
                               'Simpan',
                               style: TextStyle(fontSize: 18),
@@ -344,7 +353,7 @@ void _showSuccessMessageAndNavigateBack() {
                             ),
                           ),
                           child: const Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
                             child: Text(
                               'Bersihkan',
                               style: TextStyle(fontSize: 18),
@@ -353,19 +362,6 @@ void _showSuccessMessageAndNavigateBack() {
                         ),
                       ),
                     ],
-                  ),
-                  BlocBuilder<EmployeeBloc, EmployeeState>(
-                    builder: (context, state) {
-                      if (state is ErrorState) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.errorMessage),
-                            duration: const Duration(seconds: 2), // Sesuaikan dengan durasi yang Anda inginkan
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
                   ),
                 ],
               ),

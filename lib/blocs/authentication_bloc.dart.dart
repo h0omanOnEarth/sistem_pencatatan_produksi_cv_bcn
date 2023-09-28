@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // Event
 abstract class LoginEvent {}
@@ -19,7 +20,7 @@ abstract class LoginState {}
 class LoginInitial extends LoginState {}
 
 class LoginSuccess extends LoginState {
-  final Map<String, dynamic> user;
+   final User user;
 
   LoginSuccess({required this.user});
 }
@@ -31,6 +32,7 @@ class LoginFailure extends LoginState {
 }
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   LoginBloc() : super(LoginInitial());
 
   @override
@@ -41,8 +43,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final password = event.password;
 
         if (email.isNotEmpty && password.isNotEmpty) {
-          final HttpsCallable callable =
-              FirebaseFunctions.instance.httpsCallable('loginValidation');
+          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('loginValidation');
           final HttpsCallableResult<dynamic> result =
               await callable.call(<String, dynamic>{
             'email': email,
@@ -50,7 +51,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           });
 
           if (result.data['success'] == true) {
-            yield LoginSuccess(user: result.data['user']);
+            final userCredential = await _auth.signInWithEmailAndPassword(
+              email: event.email,
+              password: event.password,
+            );
+             yield LoginSuccess(user: userCredential.user!);
           } else {
             yield LoginFailure(error: result.data['message']);
           }
