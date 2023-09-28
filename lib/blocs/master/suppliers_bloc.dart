@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/supplier.dart';
@@ -30,6 +31,10 @@ class LoadSuppliersEvent extends SupplierEvent {}
 
 // States
 abstract class SupplierState {}
+
+abstract class EmployeeState {}
+
+class SuccessState extends SupplierState {}
 
 class LoadingState extends SupplierState {}
 
@@ -85,49 +90,104 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
 
     if (event is AddSupplierEvent) {
       yield LoadingState();
-      try {
-        final String nextSupplierId = await _generateNextSupplierId();
 
-        await FirebaseFirestore.instance.collection('suppliers').add({
-          'id': nextSupplierId,
-          'alamat': event.supplier.alamat,
-          'email': event.supplier.email,
-          'jenis_supplier': event.supplier.jenisSupplier,
-          'nama': event.supplier.nama,
-          'no_telepon': event.supplier.noTelepon,
-          'no_telepon_kantor': event.supplier.noTeleponKantor,
-          'status': event.supplier.status
-        });
+      final alamat = event.supplier.alamat;
+      final email = event.supplier.email;
+      final jenisSupplier = event.supplier.jenisSupplier;
+      final nama = event.supplier.nama;
+      final noTelp = event.supplier.noTelepon;
+      final noTelpKantor = event.supplier.noTeleponKantor;
+      final status = event.supplier.status;
 
-        yield LoadedState(await _getSuppliers());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan supplier.");
+      if(alamat.isNotEmpty && email.isNotEmpty && jenisSupplier.isNotEmpty && nama.isNotEmpty && noTelp.isNotEmpty && noTelpKantor.isNotEmpty){
+         try {
+          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
+          final HttpsCallableResult<dynamic> result =
+          await callable.call(<String, dynamic>{
+            'telp': noTelp,
+            'telpKantor': noTelpKantor,
+            'email': email
+          });
+
+          if (result.data['success'] == true) {
+            final String nextSupplierId = await _generateNextSupplierId();
+
+            await FirebaseFirestore.instance.collection('suppliers').add({
+              'id': nextSupplierId,
+              'alamat': alamat,
+              'email': email,
+              'jenis_supplier': jenisSupplier,
+              'nama': nama,
+              'no_telepon': noTelp,
+              'no_telepon_kantor': noTelpKantor,
+              'status': status
+            });
+
+            yield LoadingState();
+            yield SuccessState();
+            
+          }else{
+            yield ErrorState(result.data['message']);
+          }
+
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+      }else{
+        yield ErrorState("Harap isi semua field!");
       }
+
     } else if (event is UpdateSupplierEvent) {
       yield LoadingState();
-      try {
-        final supplierSnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
-        if (supplierSnapshot.docs.isNotEmpty) {
-          final supplierDoc = supplierSnapshot.docs.first;
-          await supplierDoc.reference.update({
-            'alamat': event.updatedSupplier.alamat,
-            'email': event.updatedSupplier.email,
-            'jenis_supplier': event.updatedSupplier.jenisSupplier,
-            'nama': event.updatedSupplier.nama,
-            'no_telepon': event.updatedSupplier.noTelepon,
-            'no_telepon_kantor': event.updatedSupplier.noTeleponKantor,
-            'status' : event.updatedSupplier.status
-          });
-          final suppliers = await _getSuppliers(); // Memuat data pemasok setelah pembaruan
-          yield LoadedState(suppliers);
-        }else {
-          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
-          yield ErrorState('Data produk dengan ID ${event.supplierId} tidak ditemukan.');
-        }
 
-      } catch (e) {
-        yield ErrorState("Gagal mengupdate supplier.");
+       final supplierSnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
+       if (supplierSnapshot.docs.isNotEmpty) {
+
+        final alamat = event.updatedSupplier.alamat;
+        final email = event.updatedSupplier.email;
+        final jenisSupplier = event.updatedSupplier.jenisSupplier;
+        final nama = event.updatedSupplier.nama;
+        final noTelp = event.updatedSupplier.noTelepon;
+        final noTelpKantor = event.updatedSupplier.noTeleponKantor;
+        final status = event.updatedSupplier.status;
+
+        if(alamat.isNotEmpty && email.isNotEmpty && jenisSupplier.isNotEmpty && nama.isNotEmpty && noTelp.isNotEmpty && noTelpKantor.isNotEmpty){
+            try {
+              final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
+              final HttpsCallableResult<dynamic> result =
+              await callable.call(<String, dynamic>{
+                'telp': noTelp,
+                'telpKantor': noTelpKantor,
+                'email': email
+              });
+
+            if (result.data['success'] == true) {
+              final supplierDoc = supplierSnapshot.docs.first;
+              await supplierDoc.reference.update({
+                'alamat': alamat,
+                'email': email,
+                'jenis_supplier': jenisSupplier,
+                'nama': nama,
+                'no_telepon': noTelp,
+                'no_telepon_kantor': noTelpKantor,
+                'status' : status
+              });
+              yield LoadingState();
+              yield SuccessState();
+            }else{
+               yield ErrorState(result.data['message']);
+            }
+          } catch (e) {
+            yield ErrorState("Gagal mengupdate supplier.");
+          }
+       }else{
+         yield ErrorState("Harap isi semua field");
+       }
+      }else {
+        // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+        yield ErrorState('Data produk dengan ID ${event.supplierId} tidak ditemukan.');
       }
+
     } else if (event is DeleteSupplierEvent) {
       yield LoadingState();
       try {

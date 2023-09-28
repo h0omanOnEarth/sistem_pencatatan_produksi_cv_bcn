@@ -15,38 +15,38 @@ const {
     // Check if the email is already taken
     const qSnapEmail = await employeesColl.where("email", "==", email).get();
     if (!qSnapEmail.empty) {
-        return { success: false, message: "Email has been taken" };
+        return { success: false, message: "Email telah digunakan" };
     }
 
     // Check if the username is already taken
     const qSnapUname = await employeesColl.where("username", "==", username).get();
     if (!qSnapUname.empty) {
-        return { success: false, message: "Username has been taken" };
+        return { success: false, message: "Username telah digunakan" };
     }
 
     // Check if the password meets the minimum length requirement (8 characters)
     if (password.length < 8) {
-        return { success: false, message: "Password must be at least 8 characters long" };
+        return { success: false, message: "Panjang password minimal 8" };
     }
     
     // Check if telp contains only numeric characters
     if (!/^\d+$/.test(telp)) {
-        return { success: false, message: "Phone number must contain only numeric characters" };
+        return { success: false, message: "Nomor telepon hanya bisa angka" };
     }
 
     // Check if gajiHarian is provided, numeric, and not less than 0
     if (!gajiHarian || isNaN(gajiHarian) || gajiHarian < 0) {
-        return { success: false, message: "Gaji Harian must be a non-negative number" };
+        return { success: false, message: "Gaji harus lebih besar dari 0" };
     }
 
     // Check if gajiLembur is provided, numeric, and not less than 0
     if (!gajiLembur || isNaN(gajiLembur) || gajiLembur < 0) {
-        return { success: false, message: "Gaji Lembur must be a non-negative number" };
+        return { success: false, message: "Gaji lembur harus lebih besar dari 0" };
     }
 
     // Check if status is provided and numeric
     if (!status || isNaN(status)) {
-        return { success: false, message: "Status must be a number" };
+        return { success: false, message: "Status harus angka" };
     }
 
      // Modifikasi berhasil
@@ -66,28 +66,28 @@ const {
         // Check if the username is already taken by someone other than the current user
         const existingUsers = qSnapUname.docs.filter(doc => doc.data().username === username);
         if (existingUsers.length > 1 && existingUsers[0].data().username!=currentUsername){
-            return { success: false, message: "Username has been taken" };
+            return { success: false, message: "Username telah digunakan" };
         }
     }
 
       // Check if telp contains only numeric characters
-      if (!/^\d+$/.test(telp)) {
-        return { success: false, message: "Phone number must contain only numeric characters" };
+        if (!/^\d+$/.test(telp)) {
+        return { success: false, message: "Nomor telepon hanya bisa angka" };
     }
 
     // Check if gajiHarian is provided, numeric, and not less than 0
     if (!gajiHarian || isNaN(gajiHarian) || gajiHarian < 0) {
-        return { success: false, message: "Gaji Harian must be a non-negative number" };
+        return { success: false, message: "Gaji harus lebih besar dari 0" };
     }
 
     // Check if gajiLembur is provided, numeric, and not less than 0
     if (!gajiLembur || isNaN(gajiLembur) || gajiLembur < 0) {
-        return { success: false, message: "Gaji Lembur must be a non-negative number" };
+        return { success: false, message: "Gaji lembur harus lebih besar dari 0" };
     }
 
     // Check if status is provided and numeric
     if (!status || isNaN(status)) {
-        return { success: false, message: "Status must be a number" };
+        return { success: false, message: "Status harus angka" };
     }
 
      // Modifikasi berhasil

@@ -358,6 +358,7 @@ void _showSuccessMessageAndNavigateBack() {
                                   selectedJenisKelamin = 'Perempuan';
                                   selectedStatus = 'Aktif';
                                   _selectedDate = null;
+                                  isLoading = false;
                                 });
                               },
                               style: ElevatedButton.styleFrom(
@@ -377,32 +378,23 @@ void _showSuccessMessageAndNavigateBack() {
                           ),
                         ],
                       ),
-                      if (isLoading)
-                      const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(), // Tampilkan CircularProgressIndicator di tengah halaman secara vertikal
-                        ],
-                      ),
-                    ),
                     ],
                   ),
                 ),
               ),
-               if (isLoading)
-                Positioned( // Menambahkan Positioned untuk indikator loading
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+              if (isLoading)
+              Positioned( // Menambahkan Positioned untuk indikator loading
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                  child: const Center(
+                    child: CircularProgressIndicator(),
                   ),
                 ),
+              ),
             ],
           )
         ),

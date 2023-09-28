@@ -25,3 +25,7 @@ exports.pegawaiAdd = onCall(pegawaiAdd);
 
 const {pegawaiUpdate} = require("./src/pegawaiModif")
 exports.pegawaiUpdate = onCall(pegawaiUpdate);
+
+//validasi supplier
+const {supplierAdd} = require("./src/supplierModif")
+exports.supplierAdd = onCall(supplierAdd);

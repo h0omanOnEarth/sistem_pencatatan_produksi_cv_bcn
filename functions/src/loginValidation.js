@@ -17,7 +17,7 @@ exports.loginValidation = async (req) => {
     const qSnap = await employeesColl.where("email", "==", email).get();
     log(qSnap);
     if (qSnap.empty) {
-      return {success:false,message: "Email not found"};
+      return {success:false,message: "Email tidak dapat ditemukan"};
     }
 
     // Ambil dokumen pertama yang cocok dengan email
@@ -28,7 +28,7 @@ exports.loginValidation = async (req) => {
     if (userData.password !== password) {
       return {
         success:false,
-        message: "Incorect password"
+        message: "Password salah"
       };
     }
 
