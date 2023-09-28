@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 // Event
 abstract class LoginEvent {}
@@ -19,7 +19,7 @@ abstract class LoginState {}
 class LoginInitial extends LoginState {}
 
 class LoginSuccess extends LoginState {
-  final User user;
+  final Map<String, dynamic> user;
 
   LoginSuccess({required this.user});
 }
@@ -31,26 +31,37 @@ class LoginFailure extends LoginState {
 }
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   LoginBloc() : super(LoginInitial());
 
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is LoginButtonPressed) {
       try {
-        final userCredential = await _auth.signInWithEmailAndPassword(
-          email: event.email,
-          password: event.password,
-        );
+        final email = event.email;
+        final password = event.password;
 
-        yield LoginSuccess(user: userCredential.user!);
-      } catch (e) {
-        yield LoginFailure(error: e.toString()); // Menambahkan informasi kesalahan
+        if (email.isNotEmpty && password.isNotEmpty) {
+          final HttpsCallable callable =
+              FirebaseFunctions.instance.httpsCallable('loginValidation');
+          final HttpsCallableResult<dynamic> result =
+              await callable.call(<String, dynamic>{
+            'email': email,
+            'password': password,
+          });
+
+          if (result.data['success'] == true) {
+            yield LoginSuccess(user: result.data['user']);
+          } else {
+            yield LoginFailure(error: result.data['message']);
+          }
+        } else {
+          yield LoginFailure(error: 'Harap isi kolom email dan password.');
+        }
+      } catch (error) {
+        yield LoginFailure(error: 'Terjadi kesalahan: $error');
       }
     } else if (event is LogoutButtonPressed) {
-      await _auth.signOut();
-      yield LoginInitial();
+      // Implementasikan logout sesuai kebutuhan Anda
     }
   }
 }

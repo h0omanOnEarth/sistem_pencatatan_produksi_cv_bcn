@@ -242,12 +242,16 @@
                             //   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                             // }
 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MainAdministrasi(),
-                                ),
-                              );
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //       builder: (context) => MainAdministrasi(),
+                            //     ),
+                            //   );
+
+                            final email = _emailController.text;
+                            final password = _passwordController.text;
+                            loginBloc.add(LoginButtonPressed(email: email, password: password));
 
                           },
                           style: ButtonStyle(
