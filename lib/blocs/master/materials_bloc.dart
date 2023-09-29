@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/material.dart';
@@ -26,6 +27,8 @@ abstract class MaterialBlocState {}
 
 class LoadingState extends MaterialBlocState {}
 
+class SuccessState extends MaterialBlocState {}
+
 class LoadedState extends MaterialBlocState {
   final List<Bahan> materials;
   LoadedState(this.materials);
@@ -50,46 +53,97 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
   Stream<MaterialBlocState> mapEventToState(MaterialEvent event) async* {
     if (event is AddMaterialEvent) {
       yield LoadingState();
-      try {
-        final String nextMaterialId = await _generateNextMaterialId();
 
-        await FirebaseFirestore.instance.collection('materials').add({
-          'id': nextMaterialId,
-          'jenis_bahan': event.material.jenisBahan,
-          'keterangan': event.material.keterangan,
-          'nama': event.material.nama,
-          'satuan': event.material.satuan,
-          'status': event.material.status,
-          'stok': event.material.stok,
-        });
+      final jenisBahan =  event.material.jenisBahan;
+      final keterangan = event.material.keterangan;
+      final nama = event.material.nama;
+      final satuan = event.material.satuan;
+      final status = event.material.status;
+      final stok = event.material.stok;
 
-        yield LoadedState(await _getMaterials());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan material.");
+      if(nama.isNotEmpty && jenisBahan.isNotEmpty && satuan.isNotEmpty){
+        try {
+          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('materialModif');
+          final HttpsCallableResult<dynamic> result =
+          await callable.call(<String, dynamic>{
+            'stok': stok,
+            'nama': nama
+          });
+
+          if (result.data['success'] == true) {
+            final String nextMaterialId = await _generateNextMaterialId();
+
+            await FirebaseFirestore.instance.collection('materials').add({
+              'id': nextMaterialId,
+              'jenis_bahan': jenisBahan,
+              'keterangan': keterangan,
+              'nama': nama,
+              'satuan': satuan,
+              'status': status,
+              'stok': stok,
+            });
+            yield LoadingState();
+            yield SuccessState();
+          }else{
+              yield ErrorState(result.data['message']);
+          }
+         
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+      }else{
+        yield ErrorState('Nama bahan wajib diisi!');
       }
+
     } else if (event is UpdateMaterialEvent) {
       yield LoadingState();
-      try {
-        final materialSnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
+       final materialSnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
         if (materialSnapshot.docs.isNotEmpty) {
-          final materialDoc = materialSnapshot.docs.first;
-          await materialDoc.reference.update({
-            'jenis_bahan': event.updatedMaterial.jenisBahan,
-            'keterangan': event.updatedMaterial.keterangan,
-            'nama': event.updatedMaterial.nama,
-            'satuan': event.updatedMaterial.satuan,
-            'status': event.updatedMaterial.status,
-            'stok': event.updatedMaterial.stok,
-          });
-          final materials = await _getMaterials(); // Memuat data pemasok setelah pembaruan
-          yield LoadedState(materials);
+          
+          final jenisBahan =  event.updatedMaterial.jenisBahan;
+          final keterangan = event.updatedMaterial.keterangan;
+          final nama = event.updatedMaterial.nama;
+          final satuan = event.updatedMaterial.satuan;
+          final status = event.updatedMaterial.status;
+          final stok = event.updatedMaterial.stok;
+          
+          if(nama.isNotEmpty){
+             try {
+              final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('materialModif');
+              final HttpsCallableResult<dynamic> result =
+              await callable.call(<String, dynamic>{
+                'stok': stok,
+                'nama': nama
+              });
+
+              if (result.data['success'] == true) {
+                final materialDoc = materialSnapshot.docs.first;
+                await materialDoc.reference.update({
+                  'jenis_bahan': jenisBahan,
+                  'keterangan': keterangan,
+                  'nama': nama,
+                  'satuan': satuan,
+                  'status': status,
+                  'stok': stok,
+                });
+                yield LoadingState();
+                yield SuccessState();
+              }else{
+                yield ErrorState(result.data['success']);
+              }
+             
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+          }else{
+           yield ErrorState("Nama bahan wajib diisi!");
+          }
+        
         }else {
           // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
           yield ErrorState('Data bahan dengan ID ${event.materialId} tidak ditemukan.');
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah material.");
-      }
+
     } else if (event is DeleteMaterialEvent) {
       yield LoadingState();
       try {

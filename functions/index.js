@@ -29,3 +29,7 @@ exports.pegawaiUpdate = onCall(pegawaiUpdate);
 //validasi supplier
 const {supplierAdd} = require("./src/supplierModif")
 exports.supplierAdd = onCall(supplierAdd);
+
+//validasi stok
+const {materialModif} = require("./src/bahanValidation")
+exports.materialModif = onCall(materialModif);
