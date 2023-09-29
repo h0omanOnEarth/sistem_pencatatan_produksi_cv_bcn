@@ -30,6 +30,14 @@ exports.pegawaiUpdate = onCall(pegawaiUpdate);
 const {supplierAdd} = require("./src/supplierModif")
 exports.supplierAdd = onCall(supplierAdd);
 
-//validasi stok
+//validasi bahan
 const {materialModif} = require("./src/bahanValidation")
 exports.materialModif = onCall(materialModif);
+
+//validasi barang
+const {productValidation} = require("./src/barangValidation")
+exports.productValidation = onCall(productValidation);
+
+//validasi mesin
+const {mesinValidation} = require("./src/mesinValidation")
+exports.mesinValidation = onCall(mesinValidation);

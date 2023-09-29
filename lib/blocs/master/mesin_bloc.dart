@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/machine.dart';
@@ -26,6 +27,8 @@ abstract class MesinState {}
 
 class LoadingState extends MesinState {}
 
+class SuccessState extends MesinState {}
+
 class LoadedState extends MesinState {
   final List<Mesin> mesins;
   LoadedState(this.mesins);
@@ -50,58 +53,127 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
   Stream<MesinState> mapEventToState(MesinEvent event) async* {
     if (event is AddMesinEvent) {
       yield LoadingState();
-      try {
-        final String nextMesinId = await _generateNextMesinId();
 
-         await FirebaseFirestore.instance
-            .collection('machines')
-            .add({
-                'id': nextMesinId,
-                'kapasitas_produksi': event.mesin.kapasitasProduksi,
-                'keterangan': event.mesin.keterangan,
-                'kondisi': event.mesin.kondisi,
-                'nama': event.mesin.nama,
-                'nomor_seri': event.mesin.nomorSeri,
-                'satuan': event.mesin.satuan,
-                'status': event.mesin.status,
-                'supplier_id': event.mesin.supplierId,
-                'tahun_pembuatan': event.mesin.tahunPembuatan,
-                'tahun_perolehan': event.mesin.tahunPerolehan,
-                'tipe': event.mesin.tipe,
-        });
+       final kapasitasProduksi = event.mesin.kapasitasProduksi;
+       final keterangan = event.mesin.keterangan;
+       final kondisi = event.mesin.kondisi;
+       final nama = event.mesin.nama;
+       final nomorSeri = event.mesin.nomorSeri;
+       final satuan = event.mesin.satuan;
+       final status = event.mesin.status;
+       final supplierId = event.mesin.supplierId;
+       final tahunPembuatan = event.mesin.tahunPembuatan;
+       final tahunPerolehan = event.mesin.tahunPerolehan;
+       final tipe = event.mesin.tipe;
 
-        yield LoadedState(await _getMesins());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan mesin.");
-      }
+       if(nama.isNotEmpty){
+          try {
+            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('mesinValidation');
+            final HttpsCallableResult<dynamic> result =
+            await callable.call(<String, dynamic>{
+              'nama':nama,
+              'kapasitasProduksi': kapasitasProduksi,
+              'nomorSeri': nomorSeri,
+              'tahunDapat': tahunPembuatan,
+              'tahunProduksi': tahunPembuatan,
+              'supplier': supplierId
+            });
+
+             if (result.data['success'] == true) {
+                final String nextMesinId = await _generateNextMesinId();
+                await FirebaseFirestore.instance
+                    .collection('machines')
+                    .add({
+                        'id': nextMesinId,
+                        'kapasitas_produksi': kapasitasProduksi,
+                        'keterangan': keterangan,
+                        'kondisi': kondisi,
+                        'nama': nama,
+                        'nomor_seri': nomorSeri,
+                        'satuan': satuan,
+                        'status': status,
+                        'supplier_id': supplierId,
+                        'tahun_pembuatan': tahunPembuatan,
+                        'tahun_perolehan': tahunPerolehan,
+                        'tipe': tipe,
+                });
+
+                yield LoadingState();
+                yield SuccessState();
+
+             }else{
+              yield ErrorState(result.data['message']);
+             }
+
+          } catch (e) {
+            yield ErrorState(e.toString());
+          }
+       }else{
+        yield ErrorState("Nama wajib diisi");
+       }
     } else if (event is UpdateMesinEvent) {
       yield LoadingState();
-      try {
-        final mesinSnapshot = await mesinsRef.where('id', isEqualTo: event.mesinId).get();
-        if (mesinSnapshot.docs.isNotEmpty) {
-          final mesinDoc = mesinSnapshot.docs.first;
-          await mesinDoc.reference.update({
-            'kapasitas_produksi': event.updatedMesin.kapasitasProduksi,
-            'keterangan': event.updatedMesin.keterangan,
-            'kondisi': event.updatedMesin.kondisi,
-            'nama': event.updatedMesin.nama,
-            'nomor_seri': event.updatedMesin.nomorSeri,
-            'satuan': event.updatedMesin.satuan,
-            'status': event.updatedMesin.status,
-            'supplier_id': event.updatedMesin.supplierId,
-            'tahun_pembuatan': event.updatedMesin.tahunPembuatan,
-            'tahun_perolehan': event.updatedMesin.tahunPerolehan,
-            'tipe': event.updatedMesin.tipe,
-          });
-          final machines = await _getMesins(); // Memuat data pemasok setelah pembaruan
-          yield LoadedState(machines);
-        }else {
-          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
-          yield ErrorState('Data mesin dengan ID ${event.mesinId} tidak ditemukan.');
+      final mesinSnapshot = await mesinsRef.where('id', isEqualTo: event.mesinId).get();
+      if (mesinSnapshot.docs.isNotEmpty) {
+        
+       final kapasitasProduksi = event.updatedMesin.kapasitasProduksi;
+       final keterangan = event.updatedMesin.keterangan;
+       final kondisi = event.updatedMesin.kondisi;
+       final nama = event.updatedMesin.nama;
+       final nomorSeri = event.updatedMesin.nomorSeri;
+       final satuan = event.updatedMesin.satuan;
+       final status = event.updatedMesin.status;
+       final supplierId = event.updatedMesin.supplierId;
+       final tahunPembuatan = event.updatedMesin.tahunPembuatan;
+       final tahunPerolehan = event.updatedMesin.tahunPerolehan;
+       final tipe = event.updatedMesin.tipe;
+
+       if(nama.isNotEmpty){
+          try {
+            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('mesinValidation');
+            final HttpsCallableResult<dynamic> result =
+            await callable.call(<String, dynamic>{
+              'nama':nama,
+              'kapasitasProduksi': kapasitasProduksi,
+              'nomorSeri': nomorSeri,
+              'tahunDapat': tahunPembuatan,
+              'tahunProduksi': tahunPembuatan,
+              'supplier': supplierId
+            });
+
+             if (result.data['success'] == true) {
+                final mesinDoc = mesinSnapshot.docs.first;
+                await mesinDoc.reference.update({
+                  'kapasitas_produksi': kapasitasProduksi,
+                  'keterangan': keterangan,
+                  'kondisi': kondisi,
+                  'nama': nama,
+                  'nomor_seri': nomorSeri,
+                  'satuan': satuan,
+                  'status': status,
+                  'supplier_id': supplierId,
+                  'tahun_pembuatan': tahunPembuatan,
+                  'tahun_perolehan': tahunPerolehan,
+                  'tipe': tipe,
+                });
+                yield LoadingState();
+                yield SuccessState();
+             }else{
+               yield ErrorState(result.data['message']);
+             }
+
+        } catch (e) {
+          yield ErrorState(e.toString());
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah mesin.");
+       }else{
+          yield ErrorState("Nama wajib diisi");
+       }
+
+      }else {
+        // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+        yield ErrorState('Data mesin dengan ID ${event.mesinId} tidak ditemukan.');
       }
+
     } else if (event is DeleteMesinEvent) {
       yield LoadingState();
       try {

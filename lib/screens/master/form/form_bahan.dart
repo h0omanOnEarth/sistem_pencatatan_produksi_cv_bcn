@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/materials_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/material.dart';
 
@@ -93,29 +94,19 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
     });
   }
 
-  void _showSuccessMessageAndNavigateBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sukses'),
-          content: const Text('Berhasil menyimpan bahan.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
-                Navigator.pop(context, null);
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    ).then((_) {
-      // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-      Navigator.pop(context, null);
-    });
-  }
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan Bahan',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

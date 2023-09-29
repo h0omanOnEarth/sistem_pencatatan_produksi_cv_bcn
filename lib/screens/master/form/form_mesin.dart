@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/mesin_bloc.dart' as MesinBloc;
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/machine.dart';
@@ -24,6 +25,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
   String selectedKondisi = "Baru";
   String selectedStatus = "Aktif";
   String selectedSatuan = "Kg";
+  bool isLoading = false;
 
   TextEditingController namaController = TextEditingController();
   TextEditingController nomorSeriController = TextEditingController();
@@ -79,7 +81,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     final machineBloc = BlocProvider.of<MesinBloc.MesinBloc>(context);
     final Mesin newMachine = Mesin(
       id: '',
-      kapasitasProduksi: int.parse(kapasitasController.text),
+      kapasitasProduksi: int.tryParse(kapasitasController.text)??0,
       keterangan: catatanController.text,
       kondisi: selectedKondisi,
       nama: namaController.text,
@@ -87,8 +89,8 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
       satuan: selectedSatuan,
       status: selectedStatus == 'Aktif' ? 1 : 0,
       supplierId: selectedSupplier ?? '',
-      tahunPembuatan: int.parse(tahunPembutanController.text),
-      tahunPerolehan: int.parse(tahunPerolehanController.text),
+      tahunPembuatan: int.tryParse(tahunPembutanController.text)??0,
+      tahunPerolehan: int.tryParse(tahunPerolehanController.text)??0,
       tipe: selectedTipe,
     );
 
@@ -97,77 +99,104 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     }else{
       machineBloc.add(MesinBloc.AddMesinEvent(newMachine));
     }
-    
-    _showSuccessMessageAndNavigateBack();
   }
 
-  void _showSuccessMessageAndNavigateBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Sukses'),
-          content: const Text('Berhasil menyimpan mesin.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context,null);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    ).then((_) {
-      Navigator.pop(context,null);
-    });
-  }
+void _showSuccessMessageAndNavigateBack() {
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return SuccessDialog(
+      message: 'Berhasil menyimpan Mesin',
+    );
+  },
+  ).then((_) {
+    Navigator.pop(context,null);
+  });
+}
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => MesinBloc.MesinBloc(),
+     return BlocListener<MesinBloc.MesinBloc, MesinBloc.MesinState>(
+      listener: (context, state) async {
+        if (state is MesinBloc.SuccessState) {
+          _showSuccessMessageAndNavigateBack();
+          setState(() {
+            isLoading = false; // Matikan isLoading saat successState
+          });
+        } else if (state is MesinBloc.ErrorState) {
+          final snackbar = SnackBar(content: Text(state.errorMessage));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        } else if (state is MesinBloc.LoadingState) {
+          setState(() {
+            isLoading = true; // Aktifkan isLoading saat LoadingState
+          });
+        }
+
+        // Hanya jika bukan LoadingState, atur isLoading ke false
+        if (state is! MesinBloc.LoadingState) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      },
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  buildHeader(),
-                  const SizedBox(height: 24.0),
-                  buildTextField('Nama Mesin', 'Nama', namaController),
-                  const SizedBox(height: 16.0),
-                  buildTipeDropdown(),
-                  const SizedBox(height: 16.0),
-                  buildTextField('Nomor Seri', 'Nomor Seri', nomorSeriController),
-                  const SizedBox(height: 16.0),
-                  buildKapasitasSatuanRow(),
-                  const SizedBox(height: 16.0),
-                  buildTahunRow(),
-                  const SizedBox(height: 16.0),
-                   // Menggunakan SupplierDropdown
-                  SupplierDropdown(
-                  selectedSupplier: selectedSupplier,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedSupplier = newValue;
-                      print(selectedSupplier);
-                    });
-                  },
+          child: Stack(
+            children: [
+              Center(
+                child:  SingleChildScrollView(
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        buildHeader(),
+                        const SizedBox(height: 24.0),
+                        buildTextField('Nama Mesin', 'Nama', namaController),
+                        const SizedBox(height: 16.0),
+                        buildTipeDropdown(),
+                        const SizedBox(height: 16.0),
+                        buildTextField('Nomor Seri', 'Nomor Seri', nomorSeriController),
+                        const SizedBox(height: 16.0),
+                        buildKapasitasSatuanRow(),
+                        const SizedBox(height: 16.0),
+                        buildTahunRow(),
+                        const SizedBox(height: 16.0),
+                        // Menggunakan SupplierDropdown
+                        SupplierDropdown(
+                        selectedSupplier: selectedSupplier,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedSupplier = newValue;
+                          });
+                        },
+                      ),
+                        const SizedBox(height: 16.0),
+                        buildTextField('Catatan', 'Catatan', catatanController, multiline: true),
+                        const SizedBox(height: 16.0),
+                        buildStatusKondisiRow(),
+                        const SizedBox(height: 24.0),
+                        buildSimpanBersihkanButtons(),
+                      ],
+                    ),
+                  ),
                 ),
-                  const SizedBox(height: 16.0),
-                  buildTextField('Catatan', 'Catatan', catatanController, multiline: true),
-                  const SizedBox(height: 16.0),
-                  buildStatusKondisiRow(),
-                  const SizedBox(height: 24.0),
-                  buildSimpanBersihkanButtons(),
-                  buildErrorSnackbar(),
-                ],
               ),
-            ),
-          ),
+              if (isLoading)
+              Positioned( // Menambahkan Positioned untuk indikator loading
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+            ],
+          )
         ),
       ),
     );
@@ -377,19 +406,4 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     setState(() {});
   }
 
-  Widget buildErrorSnackbar() {
-    return BlocBuilder<MesinBloc.MesinBloc, MesinBloc.MesinState>(
-      builder: (context, state) {
-        if (state is MesinBloc.ErrorState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-        return SizedBox.shrink();
-      },
-    );
-  }
 }
