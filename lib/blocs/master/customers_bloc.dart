@@ -84,7 +84,6 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
                 'status': status,
               });
 
-              yield LoadingState();
               yield SuccessState();
             }else{
               yield ErrorState(result.data['message']);
@@ -128,7 +127,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
                     'email': email,
                     'status': status,
                   });
-                  yield LoadingState();
+                
                   yield SuccessState();
                 }else{
                   yield ErrorState(result.data['message']);

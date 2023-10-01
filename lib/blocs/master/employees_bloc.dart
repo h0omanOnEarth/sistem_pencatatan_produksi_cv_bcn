@@ -109,7 +109,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
                 email: email,
                 password: password,
               );
-              yield LoadingState();
+             
               yield SuccessState();
           } else {
             yield ErrorState(result.data['message']);
@@ -168,7 +168,6 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
                 
                     // Langkah 2: Perbarui data pegawai di Firestore
                     await employeeDoc.reference.update(updatedData);
-                    yield LoadingState();
                     yield SuccessState();
                  }else{
                     yield ErrorState(result.data['message']);

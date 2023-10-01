@@ -20,24 +20,28 @@ const {loginValidation} = require("./src/loginValidation")
 exports.loginValidation = onCall(loginValidation);
 
 //validasi pegawai
-const {pegawaiAdd} = require("./src/pegawaiModif")
+const {pegawaiAdd} = require("./src/master/pegawaiModif")
 exports.pegawaiAdd = onCall(pegawaiAdd);
 
-const {pegawaiUpdate} = require("./src/pegawaiModif")
+const {pegawaiUpdate} = require("./src/master/pegawaiModif")
 exports.pegawaiUpdate = onCall(pegawaiUpdate);
 
 //validasi supplier
-const {supplierAdd} = require("./src/supplierModif")
+const {supplierAdd} = require("./src/master/supplierModif")
 exports.supplierAdd = onCall(supplierAdd);
 
 //validasi bahan
-const {materialModif} = require("./src/bahanValidation")
+const {materialModif} = require("./src/master/bahanValidation")
 exports.materialModif = onCall(materialModif);
 
 //validasi barang
-const {productValidation} = require("./src/barangValidation")
+const {productValidation} = require("./src/master/barangValidation")
 exports.productValidation = onCall(productValidation);
 
 //validasi mesin
-const {mesinValidation} = require("./src/mesinValidation")
+const {mesinValidation} = require("./src/master/mesinValidation")
 exports.mesinValidation = onCall(mesinValidation);
+
+//validasi bom
+const {bomValidation} = require("./src/master/bomValidation")
+exports.bomValidation = onCall(bomValidation);

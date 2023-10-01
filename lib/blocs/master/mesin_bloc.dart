@@ -98,7 +98,6 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
                         'tipe': tipe,
                 });
 
-                yield LoadingState();
                 yield SuccessState();
 
              }else{
@@ -156,7 +155,7 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
                   'tahun_perolehan': tahunPerolehan,
                   'tipe': tipe,
                 });
-                yield LoadingState();
+                
                 yield SuccessState();
              }else{
                yield ErrorState(result.data['message']);

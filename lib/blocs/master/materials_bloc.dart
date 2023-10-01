@@ -82,7 +82,7 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
               'status': status,
               'stok': stok,
             });
-            yield LoadingState();
+            
             yield SuccessState();
           }else{
               yield ErrorState(result.data['message']);
@@ -126,7 +126,7 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
                   'status': status,
                   'stok': stok,
                 });
-                yield LoadingState();
+                
                 yield SuccessState();
               }else{
                 yield ErrorState(result.data['success']);

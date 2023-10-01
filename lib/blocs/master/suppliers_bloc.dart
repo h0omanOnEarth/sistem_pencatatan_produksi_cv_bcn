@@ -123,7 +123,6 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
               'status': status
             });
 
-            yield LoadingState();
             yield SuccessState();
             
           }else{
@@ -172,7 +171,7 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
                 'no_telepon_kantor': noTelpKantor,
                 'status' : status
               });
-              yield LoadingState();
+              
               yield SuccessState();
             }else{
                yield ErrorState(result.data['message']);

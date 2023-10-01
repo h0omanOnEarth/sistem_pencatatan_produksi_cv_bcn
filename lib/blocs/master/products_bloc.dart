@@ -94,7 +94,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
                 'stok': stok,
               });
 
-              yield LoadingState();
               yield SuccessState();
            }else{
             yield ErrorState(result.data['message']);
@@ -149,7 +148,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
                 'status': status,
                 'stok': stok,
               });
-              yield LoadingState();
+             
               yield SuccessState();
             }else{
               yield ErrorState(result.data['message']);

@@ -83,7 +83,7 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
                 ),
                 const SizedBox(height: 16.0,),
                   StreamBuilder<QuerySnapshot>(
-                    stream: productRef.snapshots(),
+                    stream: productRef.orderBy('id').snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState ==
                           ConnectionState.waiting) {
