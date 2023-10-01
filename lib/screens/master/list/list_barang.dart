@@ -20,7 +20,7 @@ class _ListMasterBarangScreenState extends State<ListMasterBarangScreen> {
   String searchTerm = '';
   int selectedStatus = -1;
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 

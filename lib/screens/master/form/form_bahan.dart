@@ -89,9 +89,6 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
     } else {
       bahanBloc.add(AddMaterialEvent(newMaterial));
     }
-    setState(() {
-      isLoading = true; // Aktifkan isLoading saat proses dimulai
-    });
   }
 
 void _showSuccessMessageAndNavigateBack() {

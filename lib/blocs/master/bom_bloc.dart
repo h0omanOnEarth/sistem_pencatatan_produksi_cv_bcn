@@ -46,8 +46,12 @@ class ErrorState extends BillOfMaterialBlocState {
 // BLoC
 class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocState> {
   late FirebaseFirestore _firestore;
+  final HttpsCallable _bomValidationCallable;
+  final HttpsCallable _detailBOMValidationCallable;
 
-  BillOfMaterialBloc() : super(LoadingState()) {
+   BillOfMaterialBloc()
+      : _bomValidationCallable = FirebaseFunctions.instance.httpsCallable('bomValidation'),
+        _detailBOMValidationCallable = FirebaseFunctions.instance.httpsCallable('detailBOMValidation'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -61,64 +65,74 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
       final tanggalPembuatan = event.billOfMaterial.tanggalPembuatan;
       final materials = event.billOfMaterial.detailBOMList;
 
-      try {
-        final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('bomValidation');
-        final HttpsCallableResult<dynamic> result =
-        await callable.call(<String, dynamic>{
-          'productId':productId,
-          'materials': materials?.map((material) => material.toJson()).toList(),
-        });
+      if(productId.isNotEmpty){
+            try {
+              final HttpsCallableResult<dynamic> result = await _bomValidationCallable.call(<String, dynamic>{
+                'materials': materials?.map((material) => material.toJson()).toList(),
+              });
 
-          if (result.data['success'] == true) {
-              // Generate a new BOM ID (or use an existing one if you have it)
-              final nextBomId = await _generateNextBomId();
+                if (result.data['success'] == true) {
+                    // Generate a new BOM ID (or use an existing one if you have it)
+                    final nextBomId = await _generateNextBomId();
 
-              // Create a reference to the BOM document using the appropriate ID
-              final bomRef = _firestore.collection('bill_of_materials').doc(nextBomId);
-              final nextVersion = await _generateNextVersion(event.billOfMaterial.productId);
+                    // Create a reference to the BOM document using the appropriate ID
+                    final bomRef = _firestore.collection('bill_of_materials').doc(nextBomId);
+                    final nextVersion = await _generateNextVersion(event.billOfMaterial.productId);
 
-              // Set BOM data
-              final Map<String, dynamic> bomData = {
-                'id': nextBomId,
-                'product_id': productId,
-                'status_bom': statusBom,
-                'tanggal_pembuatan': tanggalPembuatan,
-                'versi_bom': nextVersion,
-              };
+                    // Set BOM data
+                    final Map<String, dynamic> bomData = {
+                      'id': nextBomId,
+                      'product_id': productId,
+                      'status_bom': statusBom,
+                      'tanggal_pembuatan': tanggalPembuatan,
+                      'versi_bom': nextVersion,
+                    };
 
-              // Add BOM data to Firestore
-              await bomRef.set(bomData);
+                    // Add BOM data to Firestore
+                    await bomRef.set(bomData);
 
-              // Create a reference to the 'bom_details' subcollection within the BOM document
-              final bomDetailsRef = bomRef.collection('detail_bill_of_materials');
+                    // Create a reference to the 'bom_details' subcollection within the BOM document
+                    final bomDetailsRef = bomRef.collection('detail_bill_of_materials');
 
-              if (event.billOfMaterial.detailBOMList != null &&
-                  event.billOfMaterial.detailBOMList!.isNotEmpty) {
-                int detailCount = 1;
-                for (var bomDetail in event.billOfMaterial.detailBOMList!) {
-                  final nextBomDetailId ='$nextBomId${'D${detailCount.toString().padLeft(3, '0')}'}';
+                    if (event.billOfMaterial.detailBOMList != null &&
+                        event.billOfMaterial.detailBOMList!.isNotEmpty) {
+                      int detailCount = 1;
+                      for (var bomDetail in event.billOfMaterial.detailBOMList!) {
 
-                  // Add a document for each BOM detail in the 'bom_details' collection
-                  await bomDetailsRef.add({
-                    'id' : nextBomDetailId,
-                    'bom_id' : nextBomId,
-                    'jumlah': bomDetail.jumlah,
-                    'material_id': bomDetail.materialId,
-                    'batch': bomDetail.batch,
-                    'satuan' : bomDetail.satuan,
-                    'status' : bomDetail.status,
-                  });
-                  detailCount++;
+                        final HttpsCallableResult<dynamic> res = await _detailBOMValidationCallable.call(<String, dynamic>{
+                            'material_id' : bomDetail.materialId,
+                            'bom_id' : nextBomId,
+                            'jumlah' : bomDetail.jumlah
+                        });
+
+                        if(res.data['add'] ==true){
+                            final nextBomDetailId ='$nextBomId${'D${detailCount.toString().padLeft(3, '0')}'}';
+                            // Add a document for each BOM detail in the 'bom_details' collection
+                            await bomDetailsRef.add({
+                              'id' : nextBomDetailId,
+                              'bom_id' : nextBomId,
+                              'jumlah': bomDetail.jumlah,
+                              'material_id': bomDetail.materialId,
+                              'batch': bomDetail.batch,
+                              'satuan' : bomDetail.satuan,
+                              'status' : bomDetail.status,
+                            });
+                            detailCount++;
+                        }
+
+                      }
+                    }
+                  
+                    yield SuccessState();
+                }else{
+                  yield ErrorState(result.data['message']);
                 }
-              }
-             
-              yield SuccessState();
-          }else{
-            yield ErrorState(result.data['message']);
-          }
 
-      } catch (e) {
-        yield ErrorState(e.toString());
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+      }else{
+        yield ErrorState('kode produk harus diisi');
       }
 
     } else if (event is UpdateBillOfMaterialEvent) {
@@ -129,66 +143,76 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
       final tanggalPembuatan = event.billOfMaterial.tanggalPembuatan;
       final materials = event.billOfMaterial.detailBOMList;
       
-      try {
-        // Get a reference to the BOM document to be updated
-        final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('bomValidation');
-        final HttpsCallableResult<dynamic> result =
-        await callable.call(<String, dynamic>{
-          'productId':productId,
-          'materials': materials?.map((material) => material.toJson()).toList(),
-        });
+      if(productId.isNotEmpty){
+         try {
+            final HttpsCallableResult<dynamic> result = await _bomValidationCallable.call(<String, dynamic>{
+              'materials': materials?.map((material) => material.toJson()).toList(),
+            });
 
-        if (result.data['success'] == true) {
-          final bomToUpdateRef = _firestore.collection('bill_of_materials').doc(event.bomId);
-          final nextVersion = await _generateNextVersion(event.billOfMaterial.productId);
+            if (result.data['success'] == true) {
+              final bomToUpdateRef = _firestore.collection('bill_of_materials').doc(event.bomId);
+              final nextVersion = await _generateNextVersion(event.billOfMaterial.productId);
 
-          // Set the new BOM data
-          final Map<String, dynamic> bomData = {
-            'id': event.bomId,
-            'product_id': productId,
-            'status_bom': statusBom,
-            'tanggal_pembuatan': tanggalPembuatan,
-            'versi_bom': nextVersion
-          };
+              // Set the new BOM data
+              final Map<String, dynamic> bomData = {
+                'id': event.bomId,
+                'product_id': productId,
+                'status_bom': statusBom,
+                'tanggal_pembuatan': tanggalPembuatan,
+                'versi_bom': nextVersion
+              };
 
-          // Update the BOM data in the existing document
-          await bomToUpdateRef.set(bomData);
+              // Update the BOM data in the existing document
+              await bomToUpdateRef.set(bomData);
 
-          // Delete all documents in the 'bom_details' subcollection first
-          final bomDetailsCollectionRef = bomToUpdateRef.collection('detail_bill_of_materials');
-          final bomDetailDocs = await bomDetailsCollectionRef.get();
-          for (var doc in bomDetailDocs.docs) {
-            await doc.reference.delete();
-          }
+              // Delete all documents in the 'bom_details' subcollection first
+              final bomDetailsCollectionRef = bomToUpdateRef.collection('detail_bill_of_materials');
+              final bomDetailDocs = await bomDetailsCollectionRef.get();
+              for (var doc in bomDetailDocs.docs) {
+                await doc.reference.delete();
+              }
 
-          // Add the new BOM detail documents to the 'bom_details' subcollection
-          if (event.billOfMaterial.detailBOMList != null &&
-              event.billOfMaterial.detailBOMList!.isNotEmpty) {
-            int detailCount = 1;
-            for (var bomDetail in event.billOfMaterial.detailBOMList!) {
-              final nextBomDetailId = 'D${detailCount.toString().padLeft(3, '0')}';
-              final detailId = event.bomId + nextBomDetailId;
+              // Add the new BOM detail documents to the 'bom_details' subcollection
+              if (event.billOfMaterial.detailBOMList != null &&
+                  event.billOfMaterial.detailBOMList!.isNotEmpty) {
+                int detailCount = 1;
+                for (var bomDetail in event.billOfMaterial.detailBOMList!) {
 
-              await bomDetailsCollectionRef.add({
-                'id': detailId,
-                'bom_id': event.bomId,
-                'jumlah': bomDetail.jumlah,
-                'material_id': bomDetail.materialId,
-                'batch': bomDetail.batch,
-                'satuan': bomDetail.satuan,
-                'status': bomDetail.status,
-              });
-              detailCount++;
+                   final HttpsCallableResult<dynamic> res = await _detailBOMValidationCallable.call(<String, dynamic>{
+                      'material_id' : bomDetail.materialId,
+                      'bom_id' : event.bomId,
+                      'jumlah' : bomDetail.jumlah
+                  });
+
+                  if(res.data['add'] ==true){
+                    final nextBomDetailId = 'D${detailCount.toString().padLeft(3, '0')}';
+                    final detailId = event.bomId + nextBomDetailId;
+
+                    await bomDetailsCollectionRef.add({
+                      'id': detailId,
+                      'bom_id': event.bomId,
+                      'jumlah': bomDetail.jumlah,
+                      'material_id': bomDetail.materialId,
+                      'batch': bomDetail.batch,
+                      'satuan': bomDetail.satuan,
+                      'status': bomDetail.status,
+                    });
+                    detailCount++;
+                  }
+                }
+              }
+              
+              yield SuccessState();
+            }else{
+              yield ErrorState(result.data['message']);
             }
+          } catch (e) {
+            yield ErrorState(e.toString());
           }
-          
-          yield SuccessState();
-        }else{
-          yield ErrorState(result.data['message']);
-        }
-      } catch (e) {
-        yield ErrorState(e.toString());
+      }else{
+        yield ErrorState('kode produk harus diisi');
       }
+
     } else if (event is DeleteBillOfMaterialEvent) {
       yield LoadingState();
       try {

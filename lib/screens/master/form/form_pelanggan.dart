@@ -232,10 +232,6 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                                   // Jika dalam mode tambah, kirim event tambah pelanggan
                                   customerBloc.add(AddCustomerEvent(newCustomer));
                                 }
-
-                                setState(() {
-                                  isLoading = true; // Aktifkan isLoading saat proses dimulai
-                                });
                               
                               },
                               style: ElevatedButton.styleFrom(

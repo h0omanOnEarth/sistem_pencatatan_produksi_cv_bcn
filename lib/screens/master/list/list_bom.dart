@@ -22,7 +22,7 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
   String searchTerm = '';
   int selectedStatus = -1;
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -128,15 +128,16 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
                                 return FutureBuilder<String>(
                                   future: fetchProductName(data['product_id']),
                                   builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      // Saat Future masih dalam proses, tampilkan pesan loading atau apa pun yang sesuai
-                                      return const Center(
-                                        child: CircularProgressIndicator(
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
-                                        ),
-                                      );
-                                    } else if (snapshot.hasError) {
+                                    // if (snapshot.connectionState ==
+                                    //     ConnectionState.waiting) {
+                                    //   // Saat Future masih dalam proses, tampilkan pesan loading atau apa pun yang sesuai
+                                    //   // return const Center(
+                                    //   //   child: CircularProgressIndicator(
+                                    //   //     valueColor: AlwaysStoppedAnimation<Color>(Colors.grey), // Ubah warna ke abu-abu
+                                    //   //   ),
+                                    //   // );
+                                    // } 
+                                    if (snapshot.hasError) {
                                       // Handle jika terjadi error saat fetching data
                                       return Text('Error: ${snapshot.error}');
                                     } else {

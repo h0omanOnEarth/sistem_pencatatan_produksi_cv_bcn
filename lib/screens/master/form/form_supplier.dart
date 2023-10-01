@@ -248,9 +248,6 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                                   supplierBloc.add(AddSupplierEvent(newSupplier));
                                 }
 
-                                setState(() {
-                                  isLoading = true; // Aktifkan isLoading saat proses dimulai
-                                });
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

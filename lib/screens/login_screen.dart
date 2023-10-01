@@ -65,7 +65,7 @@
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainAdministrasi(),
+                      builder: (context) => const MainAdministrasi(),
                     ),
                   );
               } else if (posisi == 'Gudang') {
@@ -73,7 +73,7 @@
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => MainGudang(),
+                      builder: (context) => const MainGudang(),
                     ),
                   );
               } else if (posisi == 'Produksi') {
@@ -81,7 +81,7 @@
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MainProduksi(),
+                    builder: (context) => const MainProduksi(),
                   ),
                 );
               }
@@ -245,7 +245,7 @@
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => MainProduksi(),
+                                  builder: (context) => const MainProduksi(),
                                 ),
                               );
 

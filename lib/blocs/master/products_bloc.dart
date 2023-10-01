@@ -70,7 +70,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
           final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('productValidation');
           final HttpsCallableResult<dynamic> result =
           await callable.call(<String, dynamic>{
-            'nama':nama,
             'berat': berat,
             'harga': harga,
             'dimensi': dimensi,
@@ -103,7 +102,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
           yield ErrorState(e.toString());
         }
       }else{
-        yield ErrorState("Nama wajib diisi");
+        yield ErrorState("nama tidak boleh kosong");
       }
 
     } else if (event is UpdateProductEvent) {
@@ -122,41 +121,44 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
 
       final productSnapshot = await productsRef.where('id', isEqualTo: event.productId).get();
       if (productSnapshot.docs.isNotEmpty) {
-          try {
-            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('productValidation');
-            final HttpsCallableResult<dynamic> result =
-            await callable.call(<String, dynamic>{
-              'nama':nama,
-              'berat': berat,
-              'harga': harga,
-              'dimensi': dimensi,
-              'ketebalan': ketebalan,
-              'stok': stok
-            });
+          if(nama.isNotEmpty){
+               try {
+                  final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('productValidation');
+                  final HttpsCallableResult<dynamic> result =
+                  await callable.call(<String, dynamic>{
+                    'berat': berat,
+                    'harga': harga,
+                    'dimensi': dimensi,
+                    'ketebalan': ketebalan,
+                    'stok': stok
+                  });
 
-            if (result.data['success'] == true) {
-              final materialDoc = productSnapshot.docs.first;
-              await materialDoc.reference.update({
-                'nama': nama,
-                'deskripsi': deskripsi,
-                'harga': harga,
-                'berat': berat,
-                'dimensi': dimensi,
-                'jenis': jenis,
-                'ketebalan': ketebalan,
-                'satuan': satuan,
-                'status': status,
-                'stok': stok,
-              });
-             
-              yield SuccessState();
-            }else{
-              yield ErrorState(result.data['message']);
-            }
-          
-        } catch (e) {
-          yield ErrorState(e.toString());
-        }
+                  if (result.data['success'] == true) {
+                    final materialDoc = productSnapshot.docs.first;
+                    await materialDoc.reference.update({
+                      'nama': nama,
+                      'deskripsi': deskripsi,
+                      'harga': harga,
+                      'berat': berat,
+                      'dimensi': dimensi,
+                      'jenis': jenis,
+                      'ketebalan': ketebalan,
+                      'satuan': satuan,
+                      'status': status,
+                      'stok': stok,
+                    });
+                  
+                    yield SuccessState();
+                  }else{
+                    yield ErrorState(result.data['message']);
+                  }
+                
+              } catch (e) {
+                yield ErrorState(e.toString());
+              }
+          }else{
+            yield ErrorState('nama tidak boleh kosong');
+          }
       }else {
           // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
           yield ErrorState('Data produk dengan ID ${event.productId} tidak ditemukan.');

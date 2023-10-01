@@ -93,9 +93,6 @@ void modifiedProduct() {
     productBloc.add(AddProductEvent(newProduct));
   }
 
-  setState(() {
-    isLoading = true; // Aktifkan isLoading saat proses dimulai
-  });
 }
 
 

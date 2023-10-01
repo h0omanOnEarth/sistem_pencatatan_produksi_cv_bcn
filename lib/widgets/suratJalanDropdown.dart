@@ -13,7 +13,7 @@ class SuratJalanDropDown extends StatefulWidget {
   late final TextEditingController? kodePelangganController;
   late final TextEditingController? nomorDeliveryOrderController;
 
-  SuratJalanDropDown({
+  SuratJalanDropDown({super.key, 
     required this.selectedSuratJalan, 
     required this.onChanged, 
     this.namaPelangganController,

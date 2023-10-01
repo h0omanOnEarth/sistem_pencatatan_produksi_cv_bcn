@@ -319,10 +319,6 @@ void _showSuccessMessageAndNavigateBack() {
                                 } else {
                                   employeeBloc.add(AddEmployeeEvent(newEmployee));
                                 }
-
-                                setState(() {
-                                  isLoading = true; // Aktifkan isLoading saat proses dimulai
-                                });
                                           
                               },
                               style: ElevatedButton.styleFrom(

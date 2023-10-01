@@ -45,3 +45,6 @@ exports.mesinValidation = onCall(mesinValidation);
 //validasi bom
 const {bomValidation} = require("./src/master/bomValidation")
 exports.bomValidation = onCall(bomValidation);
+
+const {detailBOMValidation} = require("./src/master/bomValidation")
+exports.detailBOMValidation = onCall(detailBOMValidation);

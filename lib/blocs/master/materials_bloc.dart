@@ -61,13 +61,12 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
       final status = event.material.status;
       final stok = event.material.stok;
 
-      if(nama.isNotEmpty && jenisBahan.isNotEmpty && satuan.isNotEmpty){
+      if(nama.isNotEmpty){
         try {
           final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('materialModif');
           final HttpsCallableResult<dynamic> result =
           await callable.call(<String, dynamic>{
             'stok': stok,
-            'nama': nama
           });
 
           if (result.data['success'] == true) {
@@ -92,7 +91,7 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
           yield ErrorState(e.toString());
         }
       }else{
-        yield ErrorState('Nama bahan wajib diisi!');
+        yield ErrorState('nama tidak boleh kosong');
       }
 
     } else if (event is UpdateMaterialEvent) {
@@ -113,7 +112,6 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
               final HttpsCallableResult<dynamic> result =
               await callable.call(<String, dynamic>{
                 'stok': stok,
-                'nama': nama
               });
 
               if (result.data['success'] == true) {
@@ -136,7 +134,7 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
               yield ErrorState(e.toString());
             }
           }else{
-           yield ErrorState("Nama bahan wajib diisi!");
+           yield ErrorState("nama tidak boleh kosong");
           }
         
         }else {

@@ -9,12 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.productValidation = async (req) => {
-    const { nama, berat, harga, dimensi, ketebalan, stok } = req.data;
-
-    // Check if nama is provided and not empty
-    if (!nama || nama.trim() === "") {
-        return { success: false, message: "Nama tidak boleh kosong" };
-    }
+    const {berat, harga, dimensi, ketebalan, stok } = req.data;
 
     if (isNaN(berat) || berat <= 0) {
         return { success: false, message: `berat harus lebih besar dari 0`};
