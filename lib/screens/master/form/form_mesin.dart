@@ -41,41 +41,44 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
+@override
+void initState() {
   super.initState();
-    if (widget.mesinId != null) {
-        FirebaseFirestore.instance
-          .collection('machines')
-          .where('id', isEqualTo: widget.mesinId)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-            if (querySnapshot.docs.isNotEmpty) {
-              final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
-              setState(() {
-                selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
-                namaController.text = data['nama'] ?? '';
-                kapasitasController.text = data['kapasitas_produksi'].toString();
-                catatanController.text = data['keterangan'] ?? '';
-                selectedKondisi = data['kondisi'];
-                nomorSeriController.text = data['nomor_seri'];
-                selectedSatuan = data['satuan'];
-                tahunPembutanController.text = data['tahun_pembuatan'].toString();
-                tahunPerolehanController.text = data['tahun_perolehan'].toString();
-                selectedTipe = data['selected_tipe'];
-              });
-            } else {
-              print('Document does not exist on Firestore');
-            }
-          }).catchError((error) {
-            print('Error getting document: $error');
+
+  if (widget.mesinId != null) {
+    FirebaseFirestore.instance
+      .collection('machines')
+      .where('id', isEqualTo: widget.mesinId)
+      .get()
+      .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+          setState(() {
+            selectedStatus = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+            namaController.text = data['nama'] ?? '';
+            kapasitasController.text = data['kapasitas_produksi']?.toString() ?? '';
+            catatanController.text = data['keterangan'] ?? '';
+            selectedKondisi = data['kondisi'] ?? '';
+            nomorSeriController.text = data['nomor_seri'] ?? '';
+            selectedSatuan = data['satuan'] ?? '';
+            tahunPembutanController.text = data['tahun_pembuatan']?.toString() ?? '';
+            tahunPerolehanController.text = data['tahun_perolehan']?.toString() ?? '';
+            selectedTipe = data['tipe'] ?? '';
           });
-      }
-     // Periksa jika widget.supplierId tidak null
-    if (widget.supplierId != null) {
-      selectedSupplier = widget.supplierId;
-    }
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      }).catchError((error) {
+        print('Error getting document: $error');
+      });
   }
+  
+  // Periksa jika widget.supplierId tidak null
+  if (widget.supplierId != null) {
+    selectedSupplier = widget.supplierId;
+  }
+}
+
 
   void addMachine() {
     final machineBloc = BlocProvider.of<MesinBloc.MesinBloc>(context);
