@@ -26,7 +26,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -171,6 +171,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                               final id = data['id'] as String;
                               final info = {
                                 'ID': data['id'],
+                                'Customer ID': data['customer_id'],
                                 'Tanggal Pesan': DateFormat('dd/MM/yyyy').format((data['tanggal_pesan'] as Timestamp).toDate()), // Format tanggal
                                 'Tanggal Kirim': DateFormat('dd/MM/yyyy').format((data['tanggal_kirim'] as Timestamp).toDate()), // Format tanggal
                                 'Total Harga': data['total_harga'],

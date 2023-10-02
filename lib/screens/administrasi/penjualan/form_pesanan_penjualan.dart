@@ -249,8 +249,6 @@ void fetchDataDetailCustomerOrder() {
 void initState() {
   super.initState();
   addProductCard();
-  selectedPelangganNotifier.addListener(_selectedKodeListener);
-  selectedKode = selectedPelangganNotifier.value;
   statusController.text = 'Dalam Proses';
   fetchData();
 
@@ -288,9 +286,16 @@ if (widget.customerOrderId != null) {
      fetchDataDetailCustomerOrder(); // Ambil data detail_customer_orders
   }
 
-  if(widget.customerId!=null){
-    initializeCustomer();
-  }
+   if (widget.customerId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        initializeCustomer();
+      });
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      selectedPelangganNotifier.addListener(_selectedKodeListener);
+      selectedKode = selectedPelangganNotifier.value;
+    });
 }
 
 @override
