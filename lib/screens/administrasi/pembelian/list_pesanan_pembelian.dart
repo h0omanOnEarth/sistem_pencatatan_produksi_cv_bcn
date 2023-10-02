@@ -28,7 +28,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
   String startDateText = '';
   String endDateText = '';
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -112,7 +112,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
 
 Widget _buildPurchaseOrderList() {
   return StreamBuilder<QuerySnapshot>(
-    stream: purchaseOrderRef.snapshots(),
+    stream: purchaseOrderRef.orderBy('id').snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const Center(

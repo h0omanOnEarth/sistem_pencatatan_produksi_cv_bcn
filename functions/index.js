@@ -48,3 +48,11 @@ exports.bomValidation = onCall(bomValidation);
 
 const {detailBOMValidation} = require("./src/master/bomValidation")
 exports.detailBOMValidation = onCall(detailBOMValidation);
+
+//validasi purchase order
+const {purchaseOrderValidation} = require("./src/pembelian/pembelianValidation")
+exports.purchaseOrderValidation = onCall(purchaseOrderValidation);
+
+//validasi purchase return
+const {purchaseReturnValidation} = require("./src/pembelian/pengembalianPesananValidation")
+exports.purchaseReturnValidation = onCall(purchaseReturnValidation);

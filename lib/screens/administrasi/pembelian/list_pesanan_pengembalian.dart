@@ -29,7 +29,7 @@ class _ListPesananPengembalianPembelianState
   String endDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
 
   // Tambahkan variabel untuk pengaturan halaman data
-  int itemsPerPage = 3;
+  int itemsPerPage = 5;
   int startIndex = 0;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
@@ -44,7 +44,7 @@ class _ListPesananPengembalianPembelianState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                 const CustomAppBar(title: 'Faktur Penjualan', formScreen: FormPengembalianPesananScreen()),
+                 const CustomAppBar(title: 'Pesanan Pengembalian', formScreen: FormPengembalianPesananScreen()),
                 const SizedBox(height: 24.0),
                 Row(
                   children: [
@@ -132,7 +132,7 @@ class _ListPesananPengembalianPembelianState
                 ),
                 StreamBuilder<QuerySnapshot>(
                   stream: purchaseReturnRef.
-                  orderBy('id', descending: true).
+                  orderBy('id', descending: false).
                   snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState ==
@@ -339,7 +339,7 @@ class _ListPesananPengembalianPembelianState
       setState(() {
         selectedEndDate = Timestamp.fromDate(pickedDate);
         endDateText =
-            '${DateFormat('dd/MM/yyyy').format(pickedDate)}'; // Tambahkan ini
+            DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
       });
     }
   }

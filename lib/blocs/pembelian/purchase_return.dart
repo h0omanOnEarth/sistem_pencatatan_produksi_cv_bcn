@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_return.dart';
@@ -26,6 +27,8 @@ abstract class PurchaseReturnBlocState {}
 
 class LoadingState extends PurchaseReturnBlocState {}
 
+class SuccessState extends PurchaseReturnBlocState {}
+
 class LoadedState extends PurchaseReturnBlocState {
   final List<PurchaseReturn> purchaseReturns;
   LoadedState(this.purchaseReturns);
@@ -40,8 +43,11 @@ class ErrorState extends PurchaseReturnBlocState {
 class PurchaseReturnBloc extends Bloc<PurchaseReturnEvent, PurchaseReturnBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference purchaseReturnsRef;
+  final HttpsCallable purchaseReturnCallable;
 
-  PurchaseReturnBloc() : super(LoadingState()) {
+  PurchaseReturnBloc() 
+  : purchaseReturnCallable = FirebaseFunctions.instance.httpsCallable('purchaseReturnValidation'), 
+  super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     purchaseReturnsRef = _firestore.collection('purchase_returns');
   }
@@ -50,54 +56,89 @@ class PurchaseReturnBloc extends Bloc<PurchaseReturnEvent, PurchaseReturnBlocSta
   Stream<PurchaseReturnBlocState> mapEventToState(PurchaseReturnEvent event) async* {
     if (event is AddPurchaseReturnEvent) {
       yield LoadingState();
-      try {
-        final String nextPurchaseReturnId = await _generateNextPurchaseReturnId();
-         // Ambil 'material_id' dari Firestore berdasarkan 'purchaseOrderId'
-        final materialId = await _getMaterialIdByPurchaseOrderId(event.purchaseReturn.purchaseOrderId);
+      
+      final purchaseOrderId = event.purchaseReturn.purchaseOrderId;
+      final jumlah = event.purchaseReturn.jumlah;
+      final satuan =  event.purchaseReturn.satuan;
+      final alamatPengembalian = event.purchaseReturn.alamatPengembalian;
+      final alasan = event.purchaseReturn.alasan;
+      final status = event.purchaseReturn.status;
+      final tanggalPengembalian = event.purchaseReturn.tanggalPengembalian;
+      final keterangan = event.purchaseReturn.keterangan;
 
-        // Ambil 'jenis_bahan' dari Firestore berdasarkan 'material_id'
-        final jenisBahan = await _getJenisBahanByMaterialId(materialId);
+        // Ambil 'material_id' dari Firestore berdasarkan 'purchaseOrderId'
+      final materialId = await _getMaterialIdByPurchaseOrderId(event.purchaseReturn.purchaseOrderId);
+      // Ambil 'jenis_bahan' dari Firestore berdasarkan 'material_id'
+      final jenisBahan = await _getJenisBahanByMaterialId(materialId);
 
-        await FirebaseFirestore.instance.collection('purchase_returns').add({
-          'id': nextPurchaseReturnId,
-          'purchase_order_id': event.purchaseReturn.purchaseOrderId,
-          'jumlah': event.purchaseReturn.jumlah,
-          'satuan': event.purchaseReturn.satuan,
-          'alamat_pengembalian': event.purchaseReturn.alamatPengembalian,
-          'alasan': event.purchaseReturn.alasan,
-          'status': event.purchaseReturn.status,
-          'tanggal_pengembalian': event.purchaseReturn.tanggalPengembalian,
-          'jenis_bahan' : jenisBahan,
-          'keterangan': event.purchaseReturn.keterangan
-        });
+      if(purchaseOrderId.isNotEmpty && satuan.isNotEmpty && alamatPengembalian.isNotEmpty){
+        if(jumlah>0){
+            try {
+              final String nextPurchaseReturnId = await _generateNextPurchaseReturnId();
+              await FirebaseFirestore.instance.collection('purchase_returns').add({
+                'id': nextPurchaseReturnId,
+                'purchase_order_id': purchaseOrderId,
+                'jumlah': jumlah,
+                'satuan': satuan,
+                'alamat_pengembalian': alamatPengembalian,
+                'alasan': alasan,
+                'status': status,
+                'tanggal_pengembalian': tanggalPengembalian,
+                'jenis_bahan' : jenisBahan,
+                'keterangan': keterangan
+              });
 
-        yield LoadedState(await _getPurchaseReturns());
-      } catch (e) {
-        yield ErrorState("Gagal menambahkan Purchase Return.");
+              yield SuccessState();
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+        }else{
+          yield ErrorState('jumlah harus diatas 0');
+        }
+      }else{
+        yield ErrorState("data pengembalian bahan ada yang tidak lengkap");
       }
+
     } else if (event is UpdatePurchaseReturnEvent) {
       yield LoadingState();
-      try {
-        final purchaseReturnSnapshot = await purchaseReturnsRef.where('id', isEqualTo: event.purchaseReturnId).get();
-        if (purchaseReturnSnapshot.docs.isNotEmpty) {
-           final purchaseReturnDoc = purchaseReturnSnapshot.docs.first;
-          // Ambil 'material_id' dari Firestore berdasarkan 'purchaseOrderId'
-          final materialId = await _getMaterialIdByPurchaseOrderId(event.updatedPurchaseReturn.purchaseOrderId);
-          // Ambil 'jenis_bahan' dari Firestore berdasarkan 'material_id'
-          final jenisBahan = await _getJenisBahanByMaterialId(materialId);
-          await purchaseReturnDoc.reference.update({
-            ...event.updatedPurchaseReturn.toJson(),
-            'jenis_bahan': jenisBahan, // Set nilai jenis_bahan
-          });
-          final purchaseReturns = await _getPurchaseReturns();
 
-          yield LoadedState(purchaseReturns);
-        } else {
-          yield ErrorState('Purchase Return dengan ID ${event.purchaseReturnId} tidak ditemukan.');
+       final purchaseReturnSnapshot = await purchaseReturnsRef.where('id', isEqualTo: event.purchaseReturnId).get();
+       if (purchaseReturnSnapshot.docs.isNotEmpty) {
+
+        final purchaseOrderId = event.updatedPurchaseReturn.purchaseOrderId;
+        final jumlah = event.updatedPurchaseReturn.jumlah;
+        final satuan =  event.updatedPurchaseReturn.satuan;
+        final alamatPengembalian = event.updatedPurchaseReturn.alamatPengembalian;
+
+        if(purchaseOrderId.isNotEmpty && satuan.isNotEmpty && alamatPengembalian.isNotEmpty){
+          if(jumlah>0){
+              try {
+                final purchaseReturnDoc = purchaseReturnSnapshot.docs.first;
+                // Ambil 'material_id' dari Firestore berdasarkan 'purchaseOrderId'
+                final materialId = await _getMaterialIdByPurchaseOrderId(event.updatedPurchaseReturn.purchaseOrderId);
+                // Ambil 'jenis_bahan' dari Firestore berdasarkan 'material_id'
+                final jenisBahan = await _getJenisBahanByMaterialId(materialId);
+                await purchaseReturnDoc.reference.update({
+                  ...event.updatedPurchaseReturn.toJson(),
+                  'id': event.purchaseReturnId,
+                  'tanggal_pengembalian': event.updatedPurchaseReturn.tanggalPengembalian,
+                  'jenis_bahan': jenisBahan, // Set nilai jenis_bahan
+                });
+
+                yield SuccessState();            
+            } catch (e) {
+                yield ErrorState(e.toString());
+            }
+          }else{
+            yield ErrorState('jumlah harus lebih besar dari 0');
+          }
+        }else{
+          yield ErrorState('data pengembalian bahan tidak lengkap');
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah Purchase Return.");
-      }
+       } else {
+         yield ErrorState('Purchase Return dengan ID ${event.purchaseReturnId} tidak ditemukan.');
+       }
+
     } else if (event is DeletePurchaseReturnEvent) {
       yield LoadingState();
       try {

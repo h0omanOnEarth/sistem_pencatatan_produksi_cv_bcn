@@ -33,6 +33,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   String selectedStatusPembayaran = "Belum Bayar";
   String selectedStatusPengiriman = "Dalam Proses";
   String? dropdownValue;
+  bool isLoading = false;
 
   // controller
   TextEditingController namaBahanController = TextEditingController();
@@ -149,271 +150,305 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
     });
   }
 
-    void addOrUpdatePurchaseOrder() {
-    final purchaseOrderBloc = BlocProvider.of<PurchaseOrderBloc>(context);
-    final PurchaseOrder newPurchaseOrder = PurchaseOrder(id: '', supplierId: selectedSupplier??'', materialId: selectedKode??'', jumlah: int.parse(jumlahController.text), satuan: selectedSatuan, hargaSatuan: int.parse(hargaSatuanController.text), tanggalPesan:  _selectedTanggalPesanan ?? DateTime.now(), tanggalKirim:  _selectedTanggalPengiriman ?? DateTime.now(), statusPembayaran: selectedStatusPembayaran, statusPengiriman: selectedStatusPengiriman, keterangan: catatanController.text, status: 1, total: int.parse(totalController.text)
-    );
+void addOrUpdatePurchaseOrder() {
+  final purchaseOrderBloc = BlocProvider.of<PurchaseOrderBloc>(context);
+  final PurchaseOrder newPurchaseOrder = PurchaseOrder(id: '', supplierId: selectedSupplier??'', materialId: selectedKode??'', jumlah: int.tryParse(jumlahController.text)??0, satuan: selectedSatuan, hargaSatuan: int.tryParse(hargaSatuanController.text)??0, tanggalPesan:  _selectedTanggalPesanan ?? DateTime.now(), tanggalKirim:  _selectedTanggalPengiriman ?? DateTime.now(), statusPembayaran: selectedStatusPembayaran, statusPengiriman: selectedStatusPengiriman, keterangan: catatanController.text, status: 1, total: int.tryParse(totalController.text)??0
+  );
 
-    if(widget.purchaseOrderId!=null){
-      purchaseOrderBloc.add(UpdatePurchaseOrderEvent(widget.purchaseOrderId ?? '',newPurchaseOrder));
-    }else{
-      purchaseOrderBloc.add(AddPurchaseOrderEvent(newPurchaseOrder));
-    }
-    
-    _showSuccessMessageAndNavigateBack();
+  if(widget.purchaseOrderId!=null){
+    purchaseOrderBloc.add(UpdatePurchaseOrderEvent(widget.purchaseOrderId ?? '',newPurchaseOrder));
+  }else{
+    purchaseOrderBloc.add(AddPurchaseOrderEvent(newPurchaseOrder));
   }
+}
 
   @override
   Widget build(BuildContext context) {
-     return BlocProvider(
-      create: (context) => PurchaseOrderBloc(),
+     return BlocListener<PurchaseOrderBloc, PurchaseOrderBlocState>(
+      listener: (context, state) async {
+        if (state is SuccessState) {
+          _showSuccessMessageAndNavigateBack();
+          setState(() {
+            isLoading = false; // Matikan isLoading saat successState
+          });
+        } else if (state is ErrorState) {
+          final snackbar = SnackBar(content: Text(state.errorMessage));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        } else if (state is LoadingState) {
+          setState(() {
+            isLoading = true; // Aktifkan isLoading saat LoadingState
+          });
+        }
+
+        // Hanya jika bukan LoadingState, atur isLoading ke false
+        if (state is! LoadingState) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      },
       child: Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context, null);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context, null);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child:const CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.arrow_back, color: Colors.black),
+                              ),
                             ),
-                          ],
-                        ),
-                        child:const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.arrow_back, color: Colors.black),
-                        ),
+                          ),
+                        const SizedBox(width: 16.0),
+                          const Text(
+                            'Pesanan Pembelian',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                   const SizedBox(width: 16.0),
-                    const Text(
-                      'Pesanan Pembelian',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: BahanDropdown(namaBahanController:namaBahanController, bahanId: widget.bahanId,)
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFieldWidget(
+                            label: 'Nama Bahan',
+                            placeholder: 'Nama Bahan',
+                            controller: namaBahanController,
+                            isEnabled: false,
+                          ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: BahanDropdown(namaBahanController:namaBahanController, bahanId: widget.bahanId,)
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child:    TextFieldWidget(
-                      label: 'Nama Bahan',
-                      placeholder: 'Nama Bahan',
-                      controller: namaBahanController,
-                      isEnabled: false,
-                    ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                 // Menggunakan SupplierDropdown
-                SupplierDropdown(
-                  selectedSupplier: selectedSupplier,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedSupplier = newValue;
-                      print(selectedSupplier);
-                    });
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(child: 
-                    TextFieldWidget(
-                      label: 'Jumlah',
-                      placeholder: 'Jumlah',
-                      controller: jumlahController,
-                    ),),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: DropdownWidget(
-                      label: 'Satuan',
-                      selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
-                      items: const ['Kg','Ons','Pcs','Gram','Sak'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                 Row(
-                  children: [
-                    Expanded(
-                      child:    TextFieldWidget(
-                      label: 'Harga Satuan',
-                      placeholder: 'Harga Satuan',
-                      controller: hargaSatuanController,
-                    ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child:    TextFieldWidget(
-                        label: 'Total',
-                        placeholder: 'Total',
-                        controller: totalController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child:  DatePickerButton(
-                        label: 'Tanggal Pesanan',
-                        selectedDate: _selectedTanggalPesanan,
-                        onDateSelected: (newDate) {
+                      const SizedBox(height: 16.0,),
+                      // Menggunakan SupplierDropdown
+                      SupplierDropdown(
+                        selectedSupplier: selectedSupplier,
+                        onChanged: (newValue) {
                           setState(() {
-                            _selectedTanggalPesanan = newDate;
+                            selectedSupplier = newValue;
                           });
                         },
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: DatePickerButton(
-                        label: 'Tanggal Pengirman',
-                        selectedDate: _selectedTanggalPengiriman,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalPengiriman = newDate;
-                          });
-                        },
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Expanded(child: 
+                          TextFieldWidget(
+                            label: 'Jumlah',
+                            placeholder: 'Jumlah',
+                            controller: jumlahController,
+                          ),),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: DropdownWidget(
+                            label: 'Satuan',
+                            selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
+                            items: const ['Kg','Ons','Pcs','Gram','Sak'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
+                              });
+                            },
+                          ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownWidget(
-                      label: 'Status Pemayaran',
-                      selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
-                      items: const ['Belum Bayar', 'Dalam Proses', 'Selesai'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: DropdownWidget(
-                      label: 'Status Pengiriman',
-                      selectedValue: selectedStatusPengiriman, // Isi dengan nilai yang sesuai
-                      items: const ['Dalam Proses', 'Selesai'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedStatusPengiriman = newValue; // Update _selectedValue saat nilai berubah
-                          print('Selected value: $newValue');
-                        });
-                      },
-                    ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                   TextFieldWidget(
-                  label: 'Catatan',
-                  placeholder: 'Catatan',
-                  controller: catatanController,
-              
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle save button press
-                          addOrUpdatePurchaseOrder();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFieldWidget(
+                            label: 'Harga Satuan',
+                            placeholder: 'Harga Satuan',
+                            controller: hargaSatuanController,
                           ),
-                        ),
-                        child: const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Text(
-                            'Simpan',
-                            style: TextStyle(fontSize: 18),
                           ),
-                        ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child:  TextFieldWidget(
+                              label: 'Total',
+                              placeholder: 'Total',
+                              controller: totalController,
+                              isEnabled: false,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle clear button press
-                          _selectedTanggalPengiriman = null;
-                          _selectedTanggalPesanan = null;
-                          selectedKode = null;
-                          selectedSupplier = null;
-                          selectedSatuan = "Kg";
-                          selectedStatusPembayaran = "Belum Bayar";
-                          selectedStatusPengiriman = "Dalam Proses";
-                          namaBahanController.clear(); 
-                          jumlahController.clear();
-                          hargaSatuanController.clear();
-                          totalController.clear();
-                          catatanController.clear();
-                          setState(() {});
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                      const SizedBox(height: 16.0,),
+                      Row(
+                        children: [
+                          Expanded(
+                            child:  DatePickerButton(
+                              label: 'Tanggal Pesanan',
+                              selectedDate: _selectedTanggalPesanan,
+                              onDateSelected: (newDate) {
+                                setState(() {
+                                  _selectedTanggalPesanan = newDate;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                        child: const Padding(
-                          padding:  EdgeInsets.symmetric(vertical: 16.0),
-                          child: Text(
-                            'Bersihkan',
-                            style: TextStyle(fontSize: 18),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: DatePickerButton(
+                              label: 'Tanggal Pengirman',
+                              selectedDate: _selectedTanggalPengiriman,
+                              onDateSelected: (newDate) {
+                                setState(() {
+                                  _selectedTanggalPengiriman = newDate;
+                                });
+                              },
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16.0,),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownWidget(
+                            label: 'Status Pemayaran',
+                            selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
+                            items: const ['Belum Bayar', 'Dalam Proses', 'Selesai'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
+                              });
+                            },
+                          ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: DropdownWidget(
+                            label: 'Status Pengiriman',
+                            selectedValue: selectedStatusPengiriman, // Isi dengan nilai yang sesuai
+                            items: const ['Dalam Proses', 'Selesai'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatusPengiriman = newValue; // Update _selectedValue saat nilai berubah
+                              });
+                            },
+                          ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0,),
+                        TextFieldWidget(
+                        label: 'Catatan',
+                        placeholder: 'Catatan',
+                        controller: catatanController,
+                    
+                      ),
+                      const SizedBox(height: 16.0,),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Handle save button press
+                                addOrUpdatePurchaseOrder();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  'Simpan',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Handle clear button press
+                                _selectedTanggalPengiriman = null;
+                                _selectedTanggalPesanan = null;
+                                selectedKode = null;
+                                selectedSupplier = null;
+                                selectedSatuan = "Kg";
+                                selectedStatusPembayaran = "Belum Bayar";
+                                selectedStatusPengiriman = "Dalam Proses";
+                                namaBahanController.clear(); 
+                                jumlahController.clear();
+                                hargaSatuanController.clear();
+                                totalController.clear();
+                                catatanController.clear();
+                                setState(() {});
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: const Padding(
+                                padding:  EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  'Bersihkan',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+            if (isLoading)
+              Positioned( // Menambahkan Positioned untuk indikator loading
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+          ],
+        )
       ),
     )
     );
