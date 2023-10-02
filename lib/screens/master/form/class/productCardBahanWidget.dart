@@ -37,12 +37,22 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
               selectedValue: widget.productCardData.kodeBahan,
               onChanged: (newValue) {
                 setState(() {
-                  widget.productCardData.kodeBahan = newValue;
-                  final selectedProduct = widget.productData.firstWhere(
+                  // Check if the product_id is already in productCards
+                  if (!widget.productCards.any((card) => card.kodeBahan == newValue)) {
+                    widget.productCardData.kodeBahan = newValue;
+                    final selectedProduct = widget.productData.firstWhere(
                         (product) => product['id'] == newValue,
                         orElse: () => {'nama': 'Nama Bahan Tidak Ditemukan'},
                       );
                   widget.productCardData.namaBahan = selectedProduct['nama'];
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bahan sudah dipilih'),
+                        duration: Duration(seconds: 2), // Duration to display the Snackbar
+                      ),
+                    );
+                  }
                 });
               },
               products: widget.productData, // productData adalah daftar produk dari Firestore

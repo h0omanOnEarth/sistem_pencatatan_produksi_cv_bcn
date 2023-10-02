@@ -40,7 +40,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-              const CustomAppBar(title: 'Direct Labor and\nOverhead Costs', formScreen: FormPesananPelangganScreen()),
+              const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen()),
                 const SizedBox(height: 24.0),
                 Row(
                   children: [
@@ -170,9 +170,11 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID': data['id'],
                                 'Tanggal Pesan': DateFormat('dd/MM/yyyy').format((data['tanggal_pesan'] as Timestamp).toDate()), // Format tanggal
                                 'Tanggal Kirim': DateFormat('dd/MM/yyyy').format((data['tanggal_kirim'] as Timestamp).toDate()), // Format tanggal
+                                'Total Harga': data['total_harga'],
+                                'Total Produk': data['total_produk']
                               };
                               return ListCard(
                                 title: id,

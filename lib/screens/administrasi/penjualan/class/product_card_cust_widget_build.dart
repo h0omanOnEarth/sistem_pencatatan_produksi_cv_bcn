@@ -37,22 +37,31 @@ class _ProductCardState extends State<ProductCardCustOrder> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              DropdownProdukDetailWidget(
-              label: 'Kode Produk',
-              selectedValue: widget.productCardData.kodeProduk,
-              onChanged: (newValue) {
-                setState(() {
-                  widget.productCardData.kodeProduk = newValue;
-                  final selectedProduct = widget.productData.firstWhere(
+                DropdownProdukDetailWidget(
+                  label: 'Kode Produk',
+                  selectedValue: widget.productCardData.kodeProduk,
+                  onChanged: (newValue) {
+                    setState(() {
+                      if (!widget.productCards.any((card) => card.kodeProduk == newValue)) {
+                        widget.productCardData.kodeProduk = newValue;
+                        // Check if the product_id is already in productCards
+                       final selectedProduct = widget.productData.firstWhere(
                         (product) => product['id'] == newValue,
                         orElse: () => {'nama': 'Nama Produk Tidak Ditemukan'},
                       );
-                  widget.productCardData.namaProduk = selectedProduct['nama'];
-                  print(selectedProduct);
-                });
-              },
-              products: widget.productData, // productData adalah daftar produk dari Firestore
-            ),
+                      widget.productCardData.namaProduk = selectedProduct['nama'];
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Produk sudah dipilih'),
+                            duration: Duration(seconds: 2), // Duration to display the Snackbar
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  products: widget.productData, // productData adalah daftar produk dari Firestore
+                ),
               const SizedBox(height: 8.0),
               TextFieldWidget(
               label: 'Nama Produk',

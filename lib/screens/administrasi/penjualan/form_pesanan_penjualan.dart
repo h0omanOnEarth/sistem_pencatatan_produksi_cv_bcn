@@ -31,6 +31,7 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
   String? selectedKode;
   String? dropdownValue;
   List<Map<String, dynamic>> productData = []; // Inisialisasi daftar produk
+  bool isLoading = false;
   
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaPelangganController = TextEditingController();
@@ -80,7 +81,7 @@ class _FormPesananPelangganScreenState extends State<FormPesananPelangganScreen>
     if (productCardData.subtotal.isNotEmpty) {
       int subtotalValue = int.tryParse(productCardData.subtotal) ?? 0;
       totalHarga += subtotalValue;
-      totalProduk++;
+      totalProduk += int.tryParse(productCardData.jumlah)??0;
     }
   }
   setState(() {
@@ -125,8 +126,8 @@ void addOrUpdateCustomerOrder() {
       statusPesanan: statusController.text,
       tanggalKirim: _selectedTanggalKirim ?? DateTime.now(),
       tanggalPesan: _selectedTanggalPesan ?? DateTime.now(),
-      totalHarga: currencyFormat.parse(totalHargaController.text).toInt(),
-      totalProduk: int.parse(totalProdukController.text),
+      totalHarga: int.tryParse(currencyFormat.parse(totalHargaController.text).toString())??0,
+      totalProduk: int.tryParse(totalProdukController.text)??0,
       detailCustomerOrderList: [], // Initialize as an empty list
     );
 
@@ -136,11 +137,11 @@ void addOrUpdateCustomerOrder() {
         id: '',
         customerOrderId: '',
         productId: productCardData.kodeProduk,
-        jumlah: int.parse(productCardData.jumlah),
-        hargaSatuan: int.parse(productCardData.hargaSatuan),
+        jumlah: int.tryParse(productCardData.jumlah)??0,
+        hargaSatuan: int.tryParse(productCardData.hargaSatuan)??0,
         satuan: productCardData.satuan,
         status: 1,
-        subtotal: int.parse(productCardData.subtotal),
+        subtotal: int.tryParse(productCardData.subtotal)??0,
       );
       customerOrder.detailCustomerOrderList?.add(detailCustomerOrder);
     }
@@ -151,8 +152,7 @@ void addOrUpdateCustomerOrder() {
        // Dispatch event untuk menambahkan customer order
     customerOrderBloc.add(AddCustomerOrderEvent(customerOrder));
     }
-   
-    _showSuccessMessageAndNavigateBack();
+
   } catch (e) {
     // Tangani pengecualian di sini
     print('Error: $e');
@@ -175,7 +175,7 @@ void _showSuccessMessageAndNavigateBack() {
   void fetchData(){
     // Ambil data produk dari Firestore di initState
     firestore.collection('products').get().then((querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
+      for (var doc in querySnapshot.docs) {
         Map<String, dynamic> product = {
           'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
           'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
@@ -183,7 +183,7 @@ void _showSuccessMessageAndNavigateBack() {
         setState(() {
           productData.add(product); // Tambahkan produk ke daftar produk
         });
-      });
+      }
     });
   }
 
@@ -295,215 +295,254 @@ if (widget.customerOrderId != null) {
 
 @override
 Widget build(BuildContext context) {
-  return BlocProvider(
-    create: (context) => CustomerOrderBloc(),
+   return BlocListener<CustomerOrderBloc, CustomerOrderBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is LoadingState) {
+        setState(() {
+          isLoading = true; // Aktifkan isLoading saat LoadingState
+        });
+      }
+      // Hanya jika bukan LoadingState, atur isLoading ke false
+      if (state is! LoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context,null);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context,null);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
+                          ),
+                        ),
                       ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                          child: Text(
+                            'Pesanan Penjualan',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                      child: Text(
-                        'Pesanan Penjualan',
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                  PelangganDropdownWidget(namaPelangganController: namaPelangganController, customerId: widget.customerId,),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Nama Pelanggan',
+                    placeholder: 'Nama Pelanggan',
+                    controller: namaPelangganController,
+                    isEnabled: false,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Expanded(child: DatePickerButton(
+                            label: 'Tanggal Pesan',
+                            selectedDate: _selectedTanggalPesan,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedTanggalPesan = newDate;
+                              });
+                            },
+                          ), 
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(child: DatePickerButton(
+                          label: 'Tanggal Kirim',
+                          selectedDate: _selectedTanggalKirim,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedTanggalKirim = newDate;
+                            });
+                          },
+                        ), 
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFieldWidget(
+                    label: 'Alamat Pengiriman',
+                    placeholder: 'Alamat Pengiriman',
+                    controller: alamatPengirimanController,
+                    multiline: true,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:  TextFieldWidget(
+                          label: 'Total Harga',
+                          placeholder: 'Total Harga',
+                          controller: totalHargaController,
+                          isEnabled: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child:  TextFieldWidget(
+                          label: 'Total Produk',
+                          placeholder: 'Total Produk',
+                          controller: totalProdukController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Status',
+                    placeholder: 'Dalam Proses',
+                    controller: statusController,
+                    isEnabled: false,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  // Add Product Card Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Detail Pesanan',
                         style: TextStyle(
-                          fontSize: 26,
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-              PelangganDropdownWidget(namaPelangganController: namaPelangganController, customerId: widget.customerId,),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Nama Pelanggan',
-                placeholder: 'Nama Pelanggan',
-                controller: namaPelangganController,
-                isEnabled: false,
-              ),
-              const SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(child: DatePickerButton(
-                        label: 'Tanggal Pesan',
-                        selectedDate: _selectedTanggalPesan,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalPesan = newDate;
-                          });
+                      InkWell(
+                        onTap: () {
+                          addProductCard();
                         },
-                      ), 
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Color.fromRGBO(59, 51, 51, 1),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(child: DatePickerButton(
-                      label: 'Tanggal Kirim',
-                      selectedDate: _selectedTanggalKirim,
-                      onDateSelected: (newDate) {
-                        setState(() {
-                          _selectedTanggalKirim = newDate;
-                        });
-                      },
-                    ), 
+                  const SizedBox(height: 16.0),
+                  if (productCards.isNotEmpty)
+                    ...productCards.map((productCardData) {
+                      return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards);
+                    }).toList(),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdateCustomerOrder();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearForm();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-               TextFieldWidget(
-                label: 'Alamat Pengiriman',
-                placeholder: 'Alamat Pengiriman',
-                controller: alamatPengirimanController,
-                multiline: true,
-              ),
-              const SizedBox(height: 16.0,),
-               TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Total Harga',
-                      placeholder: 'Total Harga',
-                      controller: totalHargaController,
-                      isEnabled: false,
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Total Produk',
-                      placeholder: 'Total Produk',
-                      controller: totalProdukController,
-                      isEnabled: false,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-               TextFieldWidget(
-                label: 'Status',
-                placeholder: 'Dalam Proses',
-                controller: statusController,
-                isEnabled: false,
-              ),
-              const SizedBox(height: 16.0,),
-              // Add Product Card Section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Detail Pesanan',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      addProductCard();
-                    },
-                    child: const CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Color.fromRGBO(59, 51, 51, 1),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              if (productCards.isNotEmpty)
-                ...productCards.map((productCardData) {
-                  return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards);
-                }).toList(),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdateCustomerOrder();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearForm();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ),
+          if (isLoading)
+              Positioned( // Menambahkan Positioned untuk indikator loading
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+        ],
+      )
     ),
   )
   );

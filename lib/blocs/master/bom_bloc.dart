@@ -47,11 +47,10 @@ class ErrorState extends BillOfMaterialBlocState {
 class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable _bomValidationCallable;
-  final HttpsCallable _detailBOMValidationCallable;
-
+  
    BillOfMaterialBloc()
       : _bomValidationCallable = FirebaseFunctions.instance.httpsCallable('bomValidation'),
-        _detailBOMValidationCallable = FirebaseFunctions.instance.httpsCallable('detailBOMValidation'), super(LoadingState()) {
+         super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -98,28 +97,18 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
                         event.billOfMaterial.detailBOMList!.isNotEmpty) {
                       int detailCount = 1;
                       for (var bomDetail in event.billOfMaterial.detailBOMList!) {
-
-                        final HttpsCallableResult<dynamic> res = await _detailBOMValidationCallable.call(<String, dynamic>{
-                            'material_id' : bomDetail.materialId,
-                            'bom_id' : nextBomId,
-                            'jumlah' : bomDetail.jumlah
+                        final nextBomDetailId ='$nextBomId${'D${detailCount.toString().padLeft(3, '0')}'}';
+                        // Add a document for each BOM detail in the 'bom_details' collection
+                        await bomDetailsRef.add({
+                          'id' : nextBomDetailId,
+                          'bom_id' : nextBomId,
+                          'jumlah': bomDetail.jumlah,
+                          'material_id': bomDetail.materialId,
+                          'batch': bomDetail.batch,
+                          'satuan' : bomDetail.satuan,
+                          'status' : bomDetail.status,
                         });
-
-                        if(res.data['add'] ==true){
-                            final nextBomDetailId ='$nextBomId${'D${detailCount.toString().padLeft(3, '0')}'}';
-                            // Add a document for each BOM detail in the 'bom_details' collection
-                            await bomDetailsRef.add({
-                              'id' : nextBomDetailId,
-                              'bom_id' : nextBomId,
-                              'jumlah': bomDetail.jumlah,
-                              'material_id': bomDetail.materialId,
-                              'batch': bomDetail.batch,
-                              'satuan' : bomDetail.satuan,
-                              'status' : bomDetail.status,
-                            });
-                            detailCount++;
-                        }
-
+                        detailCount++;
                       }
                     }
                   
@@ -177,14 +166,6 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
                   event.billOfMaterial.detailBOMList!.isNotEmpty) {
                 int detailCount = 1;
                 for (var bomDetail in event.billOfMaterial.detailBOMList!) {
-
-                   final HttpsCallableResult<dynamic> res = await _detailBOMValidationCallable.call(<String, dynamic>{
-                      'material_id' : bomDetail.materialId,
-                      'bom_id' : event.bomId,
-                      'jumlah' : bomDetail.jumlah
-                  });
-
-                  if(res.data['add'] ==true){
                     final nextBomDetailId = 'D${detailCount.toString().padLeft(3, '0')}';
                     final detailId = event.bomId + nextBomDetailId;
 
@@ -198,7 +179,6 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
                       'status': bomDetail.status,
                     });
                     detailCount++;
-                  }
                 }
               }
               

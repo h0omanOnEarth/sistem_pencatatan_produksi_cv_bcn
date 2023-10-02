@@ -56,3 +56,7 @@ exports.purchaseOrderValidation = onCall(purchaseOrderValidation);
 //validasi purchase return
 const {purchaseReturnValidation} = require("./src/pembelian/pengembalianPesananValidation")
 exports.purchaseReturnValidation = onCall(purchaseReturnValidation);
+
+//customer order
+const {customerOrderValidation} = require("./src/penjualan/pesananPelangganValidation")
+exports.customerOrderValidation = onCall(customerOrderValidation);

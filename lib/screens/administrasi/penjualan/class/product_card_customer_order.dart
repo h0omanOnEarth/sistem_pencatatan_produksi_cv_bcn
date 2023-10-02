@@ -25,6 +25,8 @@ class ProductCardDataCustomerOrder {
     hargaSatuanController = TextEditingController(text: hargaSatuan);
   }
 
+  get productCardData => null;
+
   void calculateSubtotal() {
     if (jumlah.isNotEmpty && hargaSatuan.isNotEmpty) {
       int jumlahValue = int.tryParse(jumlah) ?? 0;
