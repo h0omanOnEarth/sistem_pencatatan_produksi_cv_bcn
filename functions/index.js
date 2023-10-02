@@ -60,3 +60,7 @@ exports.purchaseReturnValidation = onCall(purchaseReturnValidation);
 //customer order
 const {customerOrderValidation} = require("./src/penjualan/pesananPelangganValidation")
 exports.customerOrderValidation = onCall(customerOrderValidation);
+
+//invoice
+const {invoiceValidation} = require("./src/penjualan/invoiceValidation")
+exports.invoiceValidation = onCall(invoiceValidation);

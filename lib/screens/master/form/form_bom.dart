@@ -215,8 +215,6 @@ void initializeProduct(){
 void initState() {
   super.initState();
   addProductCard();
-  selectedProdukNotifier.addListener(_selectedKodeListener);
-  selectedKodeProduk = selectedProdukNotifier.value;
   fetchDataBahan();
    // Panggil _generateNextBomId() dan isi kodeBOMController dengan hasilnya
   _generateNextBomId().then((nextBomId) {
@@ -252,9 +250,16 @@ void initState() {
      fetchDataDetail(); // Ambil data detail_customer_orders
   }
 
-  if(widget.productId!=null){
-    initializeProduct();
+if (widget.productId != null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initializeProduct();
+    });
   }
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    selectedProdukNotifier.addListener(_selectedKodeListener);
+    selectedKodeProduk = selectedProdukNotifier.value;
+  });
 
 }
 

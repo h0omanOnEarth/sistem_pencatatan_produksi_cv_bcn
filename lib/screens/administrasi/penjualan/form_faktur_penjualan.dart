@@ -38,6 +38,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   int total=0;
   int totalProduk=0;
   bool isNomorRekeningDisabled = false;
+  bool isLoading = false;
   
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaPelangganController = TextEditingController();
@@ -207,7 +208,6 @@ void addOrUpdate(){
       invoiceBloc.add(AddInvoiceEvent(invoice));
     }
 
-  _showSuccessMessageAndNavigateBack();
 }
 
 void clearFormFields() {
@@ -248,372 +248,410 @@ void _showSuccessMessageAndNavigateBack() {
 @override
 Widget build(BuildContext context) {
    final bool isShipmentSelected = selectedNomorSuratJalan != null;
-   return BlocProvider(
-    create: (context) => InvoiceBloc(),
+   return BlocListener<InvoiceBloc, InvoiceBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is LoadingState) {
+        setState(() {
+          isLoading = true; // Aktifkan isLoading saat LoadingState
+        });
+      }
+      // Hanya jika bukan LoadingState, atur isLoading ke false
+      if (state is! LoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context,null);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context,null);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                      child: Text(
-                        'Pesanan Penjualan',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-             DatePickerButton(
-                        label: 'Tanggal Faktur',
-                        selectedDate: _selectedDate,
-                        onDateSelected: (newDate) {
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                          child: Text(
+                            'Pesanan Penjualan',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                DatePickerButton(
+                            label: 'Tanggal Faktur',
+                            selectedDate: _selectedDate,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedDate = newDate;
+                              });
+                            },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  SuratJalanDropDown(
+                        selectedSuratJalan: selectedNomorSuratJalan,
+                        onChanged: (newValue) {
                           setState(() {
-                            _selectedDate = newDate;
+                            selectedNomorSuratJalan = newValue??'';
+                            materialDetailsData.clear();
+                            _updateTotal();
+                            // Update text fields dengan totalHarga dan totalProduk
                           });
                         },
-              ),
-              const SizedBox(height: 16.0,),
-              SuratJalanDropDown(
-                    selectedSuratJalan: selectedNomorSuratJalan,
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedNomorSuratJalan = newValue??'';
-                        materialDetailsData.clear();
-                         _updateTotal();
-                        // Update text fields dengan totalHarga dan totalProduk
-                      });
-                    },
-                    namaPelangganController: namaPelangganController,
-                    kodePelangganController: kodePelangganController,
-                    nomorPesananPelanggan: nomorPesananPelanggan,
-                    nomorDeliveryOrderController: nomorDeliveryOrderController,
-                  ),
-              const SizedBox(height: 16.0),
-               TextFieldWidget(
-                  label: 'Nomor Perintah Pengiriman',
-                  placeholder: 'Nomor Perintah Pengiriman',
-                  controller: nomorDeliveryOrderController,
-                  isEnabled: false,
-                ),
-              const SizedBox(height: 16.0),
-               TextFieldWidget(
-                  label: 'Nomor Pesanan',
-                  placeholder: 'Nomor Pesanan',
-                  controller: nomorPesananPelanggan,
-                  isEnabled: false,
-                ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(child:  
+                        namaPelangganController: namaPelangganController,
+                        kodePelangganController: kodePelangganController,
+                        nomorPesananPelanggan: nomorPesananPelanggan,
+                        nomorDeliveryOrderController: nomorDeliveryOrderController,
+                      ),
+                  const SizedBox(height: 16.0),
                   TextFieldWidget(
-                      label: 'Kode Pelanggan',
-                      placeholder: '-',
-                      controller: kodePelangganController,
+                      label: 'Nomor Perintah Pengiriman',
+                      placeholder: 'Nomor Perintah Pengiriman',
+                      controller: nomorDeliveryOrderController,
                       isEnabled: false,
                     ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(child:
-                   TextFieldWidget(
-                      label: 'Nama Pelanggan',
-                      placeholder: '-',
-                      controller: namaPelangganController,
+                  const SizedBox(height: 16.0),
+                  TextFieldWidget(
+                      label: 'Nomor Pesanan',
+                      placeholder: 'Nomor Pesanan',
+                      controller: nomorPesananPelanggan,
                       isEnabled: false,
                     ),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(child:  
+                      TextFieldWidget(
+                          label: 'Kode Pelanggan',
+                          placeholder: '-',
+                          controller: kodePelangganController,
+                          isEnabled: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(child:
+                      TextFieldWidget(
+                          label: 'Nama Pelanggan',
+                          placeholder: '-',
+                          controller: namaPelangganController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Total Harga',
-                      placeholder: 'Total Harga',
-                      controller: totalHargaController,
-                      isEnabled: false,
-                    ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:  TextFieldWidget(
+                          label: 'Total Harga',
+                          placeholder: 'Total Harga',
+                          controller: totalHargaController,
+                          isEnabled: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child:  TextFieldWidget(
+                          label: 'Total Produk',
+                          placeholder: 'Total Produk',
+                          controller: totalProdukController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Total Produk',
-                      placeholder: 'Total Produk',
-                      controller: totalProdukController,
-                      isEnabled: false,
-                    ),
+                  const SizedBox(height: 16.0,),
+                  DropdownWidget(
+                          label: 'Metode Pembayaran',
+                          selectedValue: selectedMetodePembayaran, // Isi dengan nilai yang sesuai
+                          items: const ['Transfer BCA', 'Tunai'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              materialDetailsData.clear();
+                              selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
+                              if (selectedMetodePembayaran == 'Tunai') {
+                                  isNomorRekeningDisabled = true;
+                                } else {
+                                  isNomorRekeningDisabled = false;
+                                }
+                            });
+                          },
                   ),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-              DropdownWidget(
-                      label: 'Metode Pembayaran',
-                      selectedValue: selectedMetodePembayaran, // Isi dengan nilai yang sesuai
-                      items: const ['Transfer BCA', 'Tunai'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          materialDetailsData.clear();
-                          selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
-                          if (selectedMetodePembayaran == 'Tunai') {
-                              isNomorRekeningDisabled = true;
-                            } else {
-                              isNomorRekeningDisabled = false;
-                            }
-                        });
-                      },
-              ),
-              const SizedBox(height: 16.0,),
-              DropdownWidget(
-                      label: 'Nomor Rekening',
-                      selectedValue: selectedNomorRekening, // Isi dengan nilai yang sesuai
-                      items: const ['2711598075', '5120181868'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          materialDetailsData.clear();
-                          selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
-                        });
-                      },
-                isEnabled: !isNomorRekeningDisabled,
-              ),
-              const SizedBox(height: 16.0,),
-              DropdownWidget(
-                      label: 'Status Pembayaran',
-                      selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
-                      items: const ['Belum Bayar', 'Lunas'],
-                      onChanged: (newValue) {
-                        setState(() {
-                          materialDetailsData.clear();
-                          selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
-                        });
-                      },
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-              label: 'Status',
-              placeholder: 'Dalam Proses',
-              controller: statusController,
-              isEnabled: false,
-            ),
-            const SizedBox(height: 16.0,),
-            if (!isShipmentSelected)
-              const Text(
-                'Detail Pesanan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              if (!isShipmentSelected)
-              const Text(
-                'Tidak ada detail pesanan',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              //cards
-                //cards
-               if (isShipmentSelected)
-              Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Detail Pesanan',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16.0,),
+                  DropdownWidget(
+                          label: 'Nomor Rekening',
+                          selectedValue: selectedNomorRekening, // Isi dengan nilai yang sesuai
+                          items: const ['2711598075', '5120181868'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              materialDetailsData.clear();
+                              selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
+                            });
+                          },
+                    isEnabled: !isNomorRekeningDisabled,
                   ),
+                  const SizedBox(height: 16.0,),
+                  DropdownWidget(
+                          label: 'Status Pembayaran',
+                          selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
+                          items: const ['Belum Bayar', 'Lunas'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              materialDetailsData.clear();
+                              selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
+                            });
+                          },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                  label: 'Status',
+                  placeholder: 'Dalam Proses',
+                  controller: statusController,
+                  isEnabled: false,
                 ),
                 const SizedBox(height: 16.0,),
-                FutureBuilder<QuerySnapshot>(
-                  future: (widget.invoiceId != null && isFirstTime == true)
-                      ? firestore
-                          .collection('invoices')
-                          .doc(widget.invoiceId ?? '')
-                          .collection('detail_invoices')
-                          .get()
-                      : firestore
-                          .collection('shipments')
-                          .doc(selectedNomorSuratJalan)
-                          .collection('detail_shipments')
-                          .get(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Text('Tidak ada data detail pesanan.');
-                    }
-
-                    final List<Widget> customCards = [];
-
-                    for (final doc in snapshot.data!.docs) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      final productId = data['product_id'] as String? ?? '';
-
-                      Future<Map<String, dynamic>> productInfoFuture =
-                          productService.fetchProductInfo(productId);
-
-                      customCards.add(
-                        FutureBuilder<Map<String, dynamic>>(
-                          future: productInfoFuture,
-                          builder: (context, materialInfoSnapshot) {
-                            if (materialInfoSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            }
-                            if (materialInfoSnapshot.hasError) {
-                              return Text('Error: ${materialInfoSnapshot.error}');
-                            }
-
-                            final productInfoData = materialInfoSnapshot.data ?? {};
-                            final productName = productInfoData['nama'] as String;
-                            final productPrice = (productInfoData['harga'] as num).toDouble();
-
-                           // Calculate subtotal
-                            int subtotal = (productPrice * data['jumlah_pengiriman']).toInt(); // 
-                           
-                            // Create the CustomCard
-                            final customCard = CustomCard(
-                              content: [
-                                CustomCardContent(text: 'Kode Barang: $productId'),
-                                CustomCardContent(text: 'Nama: $productName'),
-                                CustomCardContent(
-                                    text:
-                                        'Jumlah (Pcs): ${data['jumlah_pengiriman'].toString()}'),
-                                CustomCardContent(
-                                    text:
-                                        'Jumlah (Dus): ${data['jumlah_pengiriman_dus'].toString()}'),
-                                CustomCardContent(
-                                    text:
-                                        'Harga per Pcs: Rp ${productPrice.toInt().toString()}'), // Format price
-                                CustomCardContent(
-                                    text: 'Subtotal: Rp ${subtotal.toString()}'), // Format subtotal
-                              ],
-                            );
-                       
-                            Map<String, dynamic> detailMaterial = {
-                              'productId': productId, // Add fields you need
-                              'jumlahPcs': data['jumlah_pengiriman'],
-                              'jumlahDus': data['jumlah_pengiriman_dus'],
-                              'harga': productPrice,
-                              'subtotal': subtotal,
-                            };
-                            materialDetailsData.add(detailMaterial); // Add to the list
-                            isFirstTime = false;
-                            return customCard;
-                          },
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: customCards.length,
-                      itemBuilder: (context, index) {
-                        return customCards[index];
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
+                if (!isShipmentSelected)
+                  const Text(
+                    'Detail Pesanan',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearFormFields();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                  const SizedBox(height: 16.0,),
+                  if (!isShipmentSelected)
+                  const Text(
+                    'Tidak ada detail pesanan',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0,),
+                  //cards
+                    //cards
+                  if (isShipmentSelected)
+                  Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Detail Pesanan',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                    const SizedBox(height: 16.0,),
+                    FutureBuilder<QuerySnapshot>(
+                      future: (widget.invoiceId != null && isFirstTime == true)
+                          ? firestore
+                              .collection('invoices')
+                              .doc(widget.invoiceId ?? '')
+                              .collection('detail_invoices')
+                              .get()
+                          : firestore
+                              .collection('shipments')
+                              .doc(selectedNomorSuratJalan)
+                              .collection('detail_shipments')
+                              .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Text('Tidak ada data detail pesanan.');
+                        }
+
+                        final List<Widget> customCards = [];
+
+                        for (final doc in snapshot.data!.docs) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final productId = data['product_id'] as String? ?? '';
+
+                          Future<Map<String, dynamic>> productInfoFuture =
+                              productService.fetchProductInfo(productId);
+
+                          customCards.add(
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: productInfoFuture,
+                              builder: (context, materialInfoSnapshot) {
+                                if (materialInfoSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+                                if (materialInfoSnapshot.hasError) {
+                                  return Text('Error: ${materialInfoSnapshot.error}');
+                                }
+
+                                final productInfoData = materialInfoSnapshot.data ?? {};
+                                final productName = productInfoData['nama'] as String;
+                                final productPrice = (productInfoData['harga'] as num).toDouble();
+
+                              // Calculate subtotal
+                                int subtotal = (productPrice * data['jumlah_pengiriman']).toInt(); // 
+                              
+                                // Create the CustomCard
+                                final customCard = CustomCard(
+                                  content: [
+                                    CustomCardContent(text: 'Kode Barang: $productId'),
+                                    CustomCardContent(text: 'Nama: $productName'),
+                                    CustomCardContent(
+                                        text:
+                                            'Jumlah (Pcs): ${data['jumlah_pengiriman'].toString()}'),
+                                    CustomCardContent(
+                                        text:
+                                            'Jumlah (Dus): ${data['jumlah_pengiriman_dus'].toString()}'),
+                                    CustomCardContent(
+                                        text:
+                                            'Harga per Pcs: Rp ${productPrice.toInt().toString()}'), // Format price
+                                    CustomCardContent(
+                                        text: 'Subtotal: Rp ${subtotal.toString()}'), // Format subtotal
+                                  ],
+                                );
+                          
+                                Map<String, dynamic> detailMaterial = {
+                                  'productId': productId, // Add fields you need
+                                  'jumlahPcs': data['jumlah_pengiriman'],
+                                  'jumlahDus': data['jumlah_pengiriman_dus'],
+                                  'harga': productPrice,
+                                  'subtotal': subtotal,
+                                };
+                                materialDetailsData.add(detailMaterial); // Add to the list
+                                isFirstTime = false;
+                                return customCard;
+                              },
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: customCards.length,
+                          itemBuilder: (context, index) {
+                            return customCards[index];
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdate();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearFormFields();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ), if (isLoading)
+            Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      )
     ),
    )
   );

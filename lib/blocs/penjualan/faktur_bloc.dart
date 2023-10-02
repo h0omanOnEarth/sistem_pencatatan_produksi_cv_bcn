@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/invoice.dart';
@@ -26,6 +27,8 @@ abstract class InvoiceBlocState {}
 
 class LoadingState extends InvoiceBlocState {}
 
+class SuccessState extends InvoiceBlocState {}
+
 class LoadedState extends InvoiceBlocState {
   final Invoice invoice;
   LoadedState(this.invoice);
@@ -43,8 +46,9 @@ class ErrorState extends InvoiceBlocState {
 // BLoC
 class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
   late FirebaseFirestore _firestore;
+  final HttpsCallable invoiceCallable;
 
-  InvoiceBloc() : super(LoadingState()) {
+  InvoiceBloc() : invoiceCallable = FirebaseFunctions.instance.httpsCallable('invoiceValidation'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -52,79 +56,123 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
   Stream<InvoiceBlocState> mapEventToState(InvoiceEvent event) async* {
     if (event is AddInvoiceEvent) {
       yield LoadingState();
+
+      final metodePembayaran = event.invoice.metodePembayaran;
+      final nomorRekening = event.invoice.nomorRekening;
+      final shipmentId = event.invoice.shipmentId;
+      final tanggalPembuatan = event.invoice.tanggalPembuatan;
+      final total = event.invoice.total;
+      final totalProduk = event.invoice.totalProduk;
+      final catatan = event.invoice.catatan;
+      final statusPembayaran = event.invoice.statusPembayaran;
+      final products = event.invoice.detailInvoices;
+
+      if(shipmentId.isNotEmpty){
+        
       try {
-        // Generate a new invoice ID (or use an existing one if you have it)
-        final nextInvoiceId = await _generateNextInvoiceId();
-
-        // Create a reference to the invoice document using the appropriate ID
-        final invoiceRef = _firestore.collection('invoices').doc(nextInvoiceId);
-
-        // Set invoice data
-        final Map<String, dynamic> invoiceData = {
-          'id': nextInvoiceId,
-          'metode_pembayaran': event.invoice.metodePembayaran,
-          'nomor_rekening': event.invoice.nomorRekening,
-          'shipment_id': event.invoice.shipmentId,
-          'tanggal_pembuatan': event.invoice.tanggalPembuatan,
-          'total': event.invoice.total,
-          'total_produk': event.invoice.totalProduk,
-          'status': event.invoice.status,
-          'status_fk': event.invoice.statusFk,
-          'catatan': event.invoice.catatan,
-          'status_pembayaran': event.invoice.statusPembayaran,
-        };
-
-        // Add invoice data to Firestore
-        await invoiceRef.set(invoiceData);
-
-        // Create a reference to the 'detail_invoices' subcollection within the invoice document
-        final detailInvoiceRef = invoiceRef.collection('detail_invoices');
-
-        if (event.invoice.detailInvoices.isNotEmpty) {
-          int detailCount = 1;
-          for (var detailInvoice in event.invoice.detailInvoices) {
-            final nextDetailInvoiceId =
-                '$nextInvoiceId${'D${detailCount.toString().padLeft(3, '0')}'}';
-
-            // Add detail invoice document to the 'detail_invoices' subcollection
-            await detailInvoiceRef.add({
-              'id': nextDetailInvoiceId,
-              'invoice_id': nextInvoiceId,
-              'product_id': detailInvoice.productId,
-              'harga': detailInvoice.harga,
-              'jumlah_pengiriman': detailInvoice.jumlahPengiriman,
-              'jumlah_pengiriman_dus': detailInvoice.jumlahPengirimanDus,
-              'subtotal': detailInvoice.subtotal,
-              'status': detailInvoice.status,
+        final HttpsCallableResult<dynamic> result = await invoiceCallable.call(<String, dynamic>{
+                'products': products.map((product) => product.toJson()).toList(),
+                'totalProduk': totalProduk,
+                'totalHarga': total
             });
-            detailCount++;
-          }
-        }
 
-        yield LoadedState(event.invoice);
+            if (result.data['success'] == true) {
+               // Generate a new invoice ID (or use an existing one if you have it)
+            final nextInvoiceId = await _generateNextInvoiceId();
+
+            // Create a reference to the invoice document using the appropriate ID
+            final invoiceRef = _firestore.collection('invoices').doc(nextInvoiceId);
+
+            // Set invoice data
+            final Map<String, dynamic> invoiceData = {
+              'id': nextInvoiceId,
+              'metode_pembayaran': metodePembayaran,
+              'nomor_rekening': nomorRekening,
+              'shipment_id': shipmentId,
+              'tanggal_pembuatan': tanggalPembuatan,
+              'total': total,
+              'total_produk': totalProduk,
+              'status': event.invoice.status,
+              'status_fk': event.invoice.statusFk,
+              'catatan': catatan,
+              'status_pembayaran': statusPembayaran,
+            };
+
+            // Add invoice data to Firestore
+            await invoiceRef.set(invoiceData);
+
+            // Create a reference to the 'detail_invoices' subcollection within the invoice document
+            final detailInvoiceRef = invoiceRef.collection('detail_invoices');
+
+            if (event.invoice.detailInvoices.isNotEmpty) {
+              int detailCount = 1;
+              for (var detailInvoice in event.invoice.detailInvoices) {
+                final nextDetailInvoiceId =
+                    '$nextInvoiceId${'D${detailCount.toString().padLeft(3, '0')}'}';
+
+                // Add detail invoice document to the 'detail_invoices' subcollection
+                await detailInvoiceRef.add({
+                  'id': nextDetailInvoiceId,
+                  'invoice_id': nextInvoiceId,
+                  'product_id': detailInvoice.productId,
+                  'harga': detailInvoice.harga,
+                  'jumlah_pengiriman': detailInvoice.jumlahPengiriman,
+                  'jumlah_pengiriman_dus': detailInvoice.jumlahPengirimanDus,
+                  'subtotal': detailInvoice.subtotal,
+                  'status': detailInvoice.status,
+                });
+                detailCount++;
+              }
+            }
+            yield SuccessState();
+            }else{
+            yield ErrorState(result.data['message']);
+            }
       } catch (e) {
-        yield ErrorState("Failed to add Invoice.");
+        yield ErrorState(e.toString());
       }
+      }else{
+        yield ErrorState("nomor surat jalan tidak boleh kosong");
+      }
+
     } else if (event is UpdateInvoiceEvent) {
       yield LoadingState();
+
+      final metodePembayaran = event.updatedInvoice.metodePembayaran;
+      final nomorRekening = event.updatedInvoice.nomorRekening;
+      final shipmentId = event.updatedInvoice.shipmentId;
+      final tanggalPembuatan = event.updatedInvoice.tanggalPembuatan;
+      final total = event.updatedInvoice.total;
+      final totalProduk = event.updatedInvoice.totalProduk;
+      final catatan = event.updatedInvoice.catatan;
+      final statusPembayaran = event.updatedInvoice.statusPembayaran;
+      final products = event.updatedInvoice.detailInvoices;
+
+      if(shipmentId.isNotEmpty){
       try {
-        // Get a reference to the invoice document to be updated
-        final invoiceToUpdateRef =
+      final HttpsCallableResult<dynamic> result = await invoiceCallable.call(<String, dynamic>{
+            'products': products.map((product) => product.toJson()).toList(),
+            'totalProduk': totalProduk,
+            'totalHarga': total
+        });
+
+        if (result.data['success'] == true) {
+           final invoiceToUpdateRef =
             _firestore.collection('invoices').doc(event.invoiceId);
 
         // Set the new invoice data
         final Map<String, dynamic> invoiceData = {
           'id': event.invoiceId,
-          'metode_pembayaran': event.updatedInvoice.metodePembayaran,
-          'nomor_rekening': event.updatedInvoice.nomorRekening,
-          'tanggal_pembuatan': event.updatedInvoice.tanggalPembuatan,
-          'shipment_id': event.updatedInvoice.shipmentId,
+          'metode_pembayaran': metodePembayaran,
+          'nomor_rekening': nomorRekening,
+          'tanggal_pembuatan': tanggalPembuatan,
+          'shipment_id': shipmentId,
           'status': event.updatedInvoice.status,
-          'total': event.updatedInvoice.total,
-          'total_produk': event.updatedInvoice.totalProduk,
-          'catatan': event.updatedInvoice.catatan,
+          'total': total,
+          'total_produk': totalProduk,
+          'catatan': catatan,
           'status_fk': event.updatedInvoice.statusFk,
-          'status_pembayaran': event.updatedInvoice.statusPembayaran,
+          'status_pembayaran': statusPembayaran,
         };
 
         // Update the invoice data within the existing document
@@ -159,10 +207,15 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
             detailCount++;
           }
         }
-
-        yield InvoiceUpdatedState();
+        yield SuccessState();
+        }else{
+          yield ErrorState(result.data['message']);
+        }
       } catch (e) {
-        yield ErrorState("Failed to update Invoice.");
+        yield ErrorState(e.toString());
+      }
+      }else{
+        yield ErrorState("nomor surat jalan tidak boleh kosong");
       }
     } else if (event is DeleteInvoiceEvent) {
       yield LoadingState();
