@@ -34,6 +34,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_penjualan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
@@ -180,6 +181,7 @@ class MyApp extends StatelessWidget {
          ProfileScreen.routeName:(context)=> const ProfileScreen(),
          NotifikasiScreen.routeName:(context)=>const NotifikasiScreen(),
          EditProfileScreen.routeName:(context)=>  const EditProfileScreen(),
+         EditPasswordScreen.routeName:(context) => const EditPasswordScreen(),
          
          //administrasi
          MainAdministrasi.routeName:(context)=>const MainAdministrasi(),

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
-class ListCard extends StatelessWidget {
+class ListCardPrint extends StatelessWidget {
   final String title;
   final String description;
   final VoidCallback onDeletePressed; // Properti onDeletePressed
   final VoidCallback onTap; // Properti onTap
+   final VoidCallback? onPrintPressed;
 
-  const ListCard({
+  const ListCardPrint({
     required this.title,
     required this.description,
     required this.onDeletePressed,
     required this.onTap,
+    this.onPrintPressed,
   });
 
   @override
@@ -62,6 +64,13 @@ class ListCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                   IconButton(
+                      icon: const Icon(
+                        Icons.print,
+                        color: Colors.black, // Mengganti warna ikon menjadi hitam
+                      ),
+                      onPressed: onPrintPressed,
+                    ),
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red,),
                       onPressed: onDeletePressed,

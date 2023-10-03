@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_return.dart';
@@ -26,6 +27,8 @@ abstract class MaterialReturnBlocState {}
 
 class LoadingState extends MaterialReturnBlocState {}
 
+class SuccessState extends MaterialReturnBlocState {}
+
 class LoadedState extends MaterialReturnBlocState {
   final MaterialReturn materialReturn;
   LoadedState(this.materialReturn);
@@ -44,8 +47,9 @@ class ErrorState extends MaterialReturnBlocState {
 class MaterialReturnBloc
     extends Bloc<MaterialReturnEvent, MaterialReturnBlocState> {
   late FirebaseFirestore _firestore;
+  final HttpsCallable materialRetValidationCallable;
 
-  MaterialReturnBloc() : super(LoadingState()) {
+  MaterialReturnBloc() : materialRetValidationCallable = FirebaseFunctions.instance.httpsCallable('materialReturnValidation'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -54,8 +58,21 @@ class MaterialReturnBloc
       MaterialReturnEvent event) async* {
     if (event is AddMaterialReturnEvent) {
       yield LoadingState();
+
+      final materialUsageId = event.materialReturn.materialUsageId;
+      final catatan = event.materialReturn.catatan;
+      final tanggalPengembalian = event.materialReturn.tanggalPengembalian;
+      final materials = event.materialReturn.detailMaterialReturn;
+
+      if(materialUsageId.isNotEmpty){
       try {
-        // Generate a new material return ID (or use an existing one if you have it)
+       final HttpsCallableResult<dynamic> result = await materialRetValidationCallable.call(<String, dynamic>{
+        'materials': materials.map((material) => material.toJson()).toList(),
+        'materialUsageId': materialUsageId,
+      });
+
+      if (result.data['success'] == true) {
+         // Generate a new material return ID (or use an existing one if you have it)
         final nextMaterialReturnId = await _generateNextMaterialReturnId();
 
         // Create a reference to the material return document using the appropriate ID
@@ -65,11 +82,11 @@ class MaterialReturnBloc
         // Set the material return data
         final Map<String, dynamic> materialReturnData = {
           'id': nextMaterialReturnId,
-          'material_usage_id': event.materialReturn.materialUsageId,
-          'catatan': event.materialReturn.catatan,
+          'material_usage_id': materialUsageId,
+          'catatan': catatan,
           'status': event.materialReturn.status,
           'status_mrt': event.materialReturn.statusMrt,
-          'tanggal_pengembalian': event.materialReturn.tanggalPengembalian,
+          'tanggal_pengembalian': tanggalPengembalian,
         };
 
         // Add the material return data to Firestore
@@ -95,26 +112,45 @@ class MaterialReturnBloc
             detailCount++;
           }
         }
-
-        yield LoadedState(event.materialReturn);
-      } catch (e) {
-        yield ErrorState("Failed to add Material Return.");
+        yield SuccessState();
+      }else{
+        yield ErrorState(result.data['message']);
       }
+       
+      } catch (e) {
+        yield ErrorState(e.toString());
+      }
+      }else{
+        yield ErrorState("nomor penggunaan bahan tidak boleh kosong,\n pengembalian bisa dilakukan jika sudah menggunakan");
+      }
+
     } else if (event is UpdateMaterialReturnEvent) {
       yield LoadingState();
+
+      final materialUsageId = event.materialReturn.materialUsageId;
+      final catatan = event.materialReturn.catatan;
+      final tanggalPengembalian = event.materialReturn.tanggalPengembalian;
+      final materials = event.materialReturn.detailMaterialReturn;
+
       try {
-        // Get a reference to the material return document to be updated
+      final HttpsCallableResult<dynamic> result = await materialRetValidationCallable.call(<String, dynamic>{
+      'materials': materials.map((material) => material.toJson()).toList(),
+      'materialUsageId': materialUsageId,
+      });
+
+      if (result.data['success'] == true) {
+         // Get a reference to the material return document to be updated
         final materialReturnToUpdateRef =
             _firestore.collection('material_returns').doc(event.materialReturnId);
 
         // Set the new material return data
         final Map<String, dynamic> materialReturnData = {
           'id': event.materialReturnId,
-          'material_usage_id': event.materialReturn.materialUsageId,
-          'catatan': event.materialReturn.catatan,
+          'material_usage_id': materialUsageId,
+          'catatan': catatan,
           'status': event.materialReturn.status,
           'status_mrt': event.materialReturn.statusMrt,
-          'tanggal_pengembalian': event.materialReturn.tanggalPengembalian,
+          'tanggal_pengembalian': tanggalPengembalian,
         };
 
         // Update the material return data within the existing document
@@ -148,9 +184,12 @@ class MaterialReturnBloc
           }
         }
 
-        yield MaterialReturnUpdatedState();
+        yield SuccessState();
+      }else{
+        yield ErrorState(result.data['message']);
+      }
       } catch (e) {
-        yield ErrorState("Failed to update Material Return.");
+        yield ErrorState(e.toString());
       }
     } else if (event is DeleteMaterialReturnEvent) {
       yield LoadingState();

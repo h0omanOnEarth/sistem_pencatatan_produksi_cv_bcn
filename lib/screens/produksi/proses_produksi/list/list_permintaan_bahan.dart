@@ -25,7 +25,7 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 

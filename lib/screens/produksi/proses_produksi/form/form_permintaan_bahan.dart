@@ -26,6 +26,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
 DateTime? _selectedTanggalPermintaan;
 String? selectedNoPerintah;
 bool isFirstTime = false;
+bool isLoading = false;
 
 TextEditingController tanggalProduksiController = TextEditingController();
 TextEditingController catatanController = TextEditingController();
@@ -100,36 +101,40 @@ void initializeMaterial(){
 void initState() {
   super.initState();
   statusController.text = "Dalam Proses";
-  if(widget.materialRequestId!=null){
-        firestore.collection('material_requests').doc(widget.materialRequestId) // Menggunakan widget.customerOrderId
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        final data = documentSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          catatanController.text = data['catatan'] ?? '';
-          statusController.text = data['status_mr'];
-          final tanggalPermintaanFirestore = data['tanggal_permintaan'];
-          if (tanggalPermintaanFirestore != null) {
-            _selectedTanggalPermintaan = (tanggalPermintaanFirestore as Timestamp).toDate();
-          }
-          selectedNoPerintah = data['production_order_id'];
-        });
-      } else {
-        print('Document does not exist on Firestore');
-      }
-    }).catchError((error) {
-      print('Error getting document: $error');
-    });
-    isFirstTime = true;
-  }
-
-   if(widget.productionOrderId!=null){
-    initializeMaterial();
-  }
-
+  isFirstTime = true;
 }
 
+@override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+
+  if (widget.materialRequestId != null) {
+    firestore.collection('material_requests').doc(widget.materialRequestId).get().then(
+      (DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          final data = documentSnapshot.data() as Map<String, dynamic>;
+          setState(() {
+            catatanController.text = data['catatan'] ?? '';
+            statusController.text = data['status_mr'];
+            final tanggalPermintaanFirestore = data['tanggal_permintaan'];
+            if (tanggalPermintaanFirestore != null) {
+              _selectedTanggalPermintaan = (tanggalPermintaanFirestore as Timestamp).toDate();
+            }
+            selectedNoPerintah = data['production_order_id'];
+          });
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      },
+    ).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+  if (widget.productionOrderId != null) {
+    initializeMaterial();
+  }
+}
 void clearFields(){
   _selectedTanggalPermintaan = null;
   selectedNoPerintah = null;
@@ -142,7 +147,7 @@ void clearFields(){
 void addOrUpdate(){
 final materialRequestBloc = BlocProvider.of<MaterialRequestBloc>(context);
 try{
-  final materialRequest = MaterialRequest(id: '', productionOrderId: selectedNoPerintah??'', status: 1, statusMr: catatanController.text, tanggalPermintaan:_selectedTanggalPermintaan??DateTime.now(), detailMaterialRequestList: []);
+  final materialRequest = MaterialRequest(id: '', productionOrderId: selectedNoPerintah??'', status: 1, statusMr: statusController.text, tanggalPermintaan:_selectedTanggalPermintaan??DateTime.now(), detailMaterialRequestList: [], catatan: catatanController.text);
 
   for (var productCardData in materialDetailsData) {
       final detailMaterialRequest = DetailMaterialRequest(id: '', jumlahBom: productCardData['jumlah'], materialId: productCardData['materialId'], materialRequestId: '', satuan: productCardData['satuan'], batch: productCardData['batch'], status: 1);
@@ -154,8 +159,6 @@ try{
   }else{
     materialRequestBloc.add(AddMaterialRequestEvent(materialRequest));
   }
-
-   _showSuccessMessageAndNavigateBack(); 
 
 }catch(e){
   // ignore: avoid_print
@@ -181,112 +184,115 @@ showDialog(
 @override
 Widget build(BuildContext context) {
   final bool isPROselected = selectedNoPerintah != null;
-  return BlocProvider(
-    create: (context) => MaterialRequestBloc(),
+    return BlocListener<MaterialRequestBloc, MaterialRequestBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is LoadingState) {
+        setState(() {
+          isLoading = true; // Aktifkan isLoading saat LoadingState
+        });
+      }
+
+      // Hanya jika bukan LoadingState, atur isLoading ke false
+      if (state is! LoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                        child: Text(
-                          'Permintaan Bahan',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
                           ),
                         ),
                       ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-             DatePickerButton(
-                        label: 'Tanggal Permintaan',
-                        selectedDate: _selectedTanggalPermintaan,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalPermintaan = newDate;
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              ProductionOrderDropDown(selectedPRO: selectedNoPerintah, onChanged: (newValue) {
-                    setState(() {
-                      selectedNoPerintah = newValue??'';
-                      materialDetailsData.clear();
-                    });
-              },tanggalProduksiController: tanggalProduksiController,),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Tanggal Produksi',
-                placeholder: 'Tanggal Produksi',
-                controller: tanggalProduksiController,
-                isEnabled: false,
-              ),
-             const SizedBox(height: 16),
-            TextFieldWidget(
-                    label: 'Status',
-                    placeholder: 'Dalam Proses',
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                            child: Text(
+                              'Permintaan Bahan',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                DatePickerButton(
+                            label: 'Tanggal Permintaan',
+                            selectedDate: _selectedTanggalPermintaan,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedTanggalPermintaan = newDate;
+                              });
+                            },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  ProductionOrderDropDown(selectedPRO: selectedNoPerintah, onChanged: (newValue) {
+                        setState(() {
+                          selectedNoPerintah = newValue??'';
+                        });
+                  },tanggalProduksiController: tanggalProduksiController,),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Tanggal Produksi',
+                    placeholder: 'Tanggal Produksi',
+                    controller: tanggalProduksiController,
                     isEnabled: false,
-                    controller: statusController
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-              if (!isPROselected)
-              const Text(
-                'Detail Bahan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              if (!isPROselected)
-              const Text(
-                'Tidak ada detail bahan',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              if (isPROselected)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  ),
+                const SizedBox(height: 16),
+                TextFieldWidget(
+                        label: 'Status',
+                        placeholder: 'Dalam Proses',
+                        isEnabled: false,
+                        controller: statusController
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  if (!isPROselected)
                   const Text(
                     'Detail Bahan',
                     style: TextStyle(
@@ -295,136 +301,174 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 16.0,),
-                    FutureBuilder<QuerySnapshot>(
-                      future: (widget.materialRequestId != null && isFirstTime==true)
-                      ? firestore
-                          .collection('material_requests')
-                          .doc(widget.materialRequestId)
-                          .collection('detail_material_requests')
-                          .get()
-                      : firestore
-                          .collection('production_orders')
-                          .doc(selectedNoPerintah)
-                          .collection('detail_production_orders')
-                          .get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        }
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Text('Tidak ada data detail bahan.');
-                        }
+                  if (!isPROselected)
+                  const Text(
+                    'Tidak ada detail bahan',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0,),
+                  if (isPROselected)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Detail Bahan',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0,),
+                        FutureBuilder<QuerySnapshot>(
+                          future: (widget.materialRequestId != null && isFirstTime==true)
+                          ? firestore
+                              .collection('material_requests')
+                              .doc(widget.materialRequestId)
+                              .collection('detail_material_requests')
+                              .get()
+                          : firestore
+                              .collection('production_orders')
+                              .doc(selectedNoPerintah)
+                              .collection('detail_production_orders')
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
+                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                              return const Text('Tidak ada data detail bahan.');
+                            }
 
-                        final List<Widget> customCards = [];
+                            materialDetailsData.clear();
+                            final List<Widget> customCards = [];
 
-                        for (final doc in snapshot.data!.docs) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final materialId = data['material_id'] as String? ?? '';
+                            for (final doc in snapshot.data!.docs) {
+                              final data = doc.data() as Map<String, dynamic>;
+                              final materialId = data['material_id'] as String? ?? '';
 
-                          Future<Map<String, dynamic>> materialInfoFuture = fetchMaterialInfo(materialId);
+                              Future<Map<String, dynamic>> materialInfoFuture = fetchMaterialInfo(materialId);
 
-                          customCards.add(
-                            FutureBuilder<Map<String, dynamic>>(
-                              future: materialInfoFuture,
-                              builder: (context, materialInfoSnapshot) {
-                                if (materialInfoSnapshot.connectionState == ConnectionState.waiting) {
-                                  return const CircularProgressIndicator();
-                                }
-                                if (materialInfoSnapshot.hasError) {
-                                  return Text('Error: ${materialInfoSnapshot.error}');
-                                }
+                              customCards.add(
+                                FutureBuilder<Map<String, dynamic>>(
+                                  future: materialInfoFuture,
+                                  builder: (context, materialInfoSnapshot) {
+                                    if (materialInfoSnapshot.connectionState == ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    }
+                                    if (materialInfoSnapshot.hasError) {
+                                      return Text('Error: ${materialInfoSnapshot.error}');
+                                    }
 
-                                final materialInfoData = materialInfoSnapshot.data ?? {};
-                                final materialName = materialInfoData['nama'] as String;
-                                final materialStock = materialInfoData['stok'] as int;
+                                    final materialInfoData = materialInfoSnapshot.data ?? {};
+                                    final materialName = materialInfoData['nama'] as String;
+                                    final materialStock = materialInfoData['stok'] as int;
 
-                                return CustomCard(
-                                  content: [
-                                    CustomCardContent(text: 'Kode Bahan: $materialId'),
-                                    CustomCardContent(text: 'Nama: $materialName'),
-                                    CustomCardContent(text: 'Jumlah: ${data['jumlah_bom'].toString()}'),
-                                    CustomCardContent(text: 'Stok: $materialStock'), // Menampilkan stok di sini
-                                    CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
-                                  ],
-                                );
-                              },
-                            ),
+                                    return CustomCard(
+                                      content: [
+                                        CustomCardContent(text: 'Kode Bahan: $materialId'),
+                                        CustomCardContent(text: 'Nama: $materialName'),
+                                        CustomCardContent(text: 'Batch: ${data['batch']}'),
+                                        CustomCardContent(text: 'Jumlah: ${data['jumlah_bom'].toString()}'),
+                                        CustomCardContent(text: 'Stok: $materialStock'), // Menampilkan stok di sini
+                                        CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              );
+                              Map<String, dynamic> detailMaterial = {
+                              'materialId': doc['material_id'], // Add fields you need
+                              'jumlah': doc['jumlah_bom'],
+                              'satuan': doc['satuan'],
+                              'batch': doc['batch'],
+                            };
+                            materialDetailsData.add(detailMaterial); // Add to the list
+                            isFirstTime = false;
+                            }
+                            return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: customCards.length,
+                            itemBuilder: (context, index) {
+                              return customCards[index];
+                            },
                           );
-                          Map<String, dynamic> detailMaterial = {
-                          'materialId': doc['material_id'], // Add fields you need
-                          'jumlah': doc['jumlah_bom'],
-                          'satuan': doc['satuan'],
-                          'batch': doc['batch'],
-                        };
-                        materialDetailsData.add(detailMaterial); // Add to the list
-                        isFirstTime = false;
-                        }
-                        return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: customCards.length,
-                        itemBuilder: (context, index) {
-                          return customCards[index];
-                        },
-                      );
-                      },
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          },
                         ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearFields();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdate();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearFields();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ),
+          if (isLoading)
+            Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      )
     ),
   )
   );

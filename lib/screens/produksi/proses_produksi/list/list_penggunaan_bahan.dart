@@ -25,7 +25,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -167,9 +167,11 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID': data['id'],
                                 'Tanggal Penggunaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penggunaan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Perintah Produksi' : data['production_order_id']
+                                'Nomor Perintah Produksi' : data['production_order_id'],
+                                'Catatan': data['catatan'],
+                                'Status': data['status_mu'],
                               };
                               return ListCard(
                                 title: id,
@@ -181,6 +183,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                       builder: (context) => FormPenggunaanBahanScreen(
                                         materialUsageId: data['id'],
                                         productionOrderId: data['production_order_id'],
+                                        materialRequestId: data['material_request_id'],
                                       )
                                     ),
                                   );

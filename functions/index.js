@@ -64,3 +64,15 @@ exports.customerOrderValidation = onCall(customerOrderValidation);
 //invoice
 const {invoiceValidation} = require("./src/penjualan/invoiceValidation")
 exports.invoiceValidation = onCall(invoiceValidation);
+
+//material request
+const {materialRequestValidation} = require("./src/produksi/materialRequestValidation")
+exports.materialRequestValidation = onCall(materialRequestValidation);
+
+//material usage
+const {materialUsageValidation} = require("./src/produksi/materialUsageValidation")
+exports.materialUsageValidation = onCall(materialUsageValidation);
+
+//material return
+const {materialReturnValidation} = require("./src/produksi/materialReturnValidation")
+exports.materialReturnValidation = onCall(materialReturnValidation);

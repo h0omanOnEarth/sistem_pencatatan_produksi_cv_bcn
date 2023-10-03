@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/roundedTextfieldWidget.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  static const routeName = '/edit_profile_screen';
+class EditPasswordScreen extends StatefulWidget {
+  static const routeName = '/edit_password_screen';
 
-  const EditProfileScreen({super.key});
+  const EditPasswordScreen({super.key});
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  State<EditPasswordScreen> createState() => _EditPasswordScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditPasswordScreenState extends State<EditPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +58,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                             const SizedBox(width: 24.0),
                             const Text(
-                              'Sunting Profile',
+                              'Sunting Password',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -71,13 +71,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24.0), // Add spacing between header and cards
-                const RoundedTextField(label: 'Nama', placeholder: 'Masukkan nama'),
+                const RoundedTextField(label: 'Password Sekarang', placeholder: 'Masukkan Password saat ini'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Nomor Telepon', placeholder: 'Masukkan nomor telepon'),
+                const RoundedTextField(label: 'Password Baru', placeholder: 'Masukkan password baru'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Alamat', placeholder: 'Masukkan alamat'),
-                const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Email', placeholder: 'Masukkan email'),
+                const RoundedTextField(label: 'Konfirmasi Password Baru', placeholder: 'Masukkan ulang password baru'),
                 const SizedBox(height: 24.0),
                 ElevatedButton(
                   onPressed: () {

@@ -25,7 +25,7 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -167,7 +167,7 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID': data['id'],
                                 'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
                                 'Nomor Penggunaan Bahan' : data['material_usage_id']
                               };

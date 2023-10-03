@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_request.dart';
@@ -27,6 +28,8 @@ abstract class MaterialRequestBlocState {}
 
 class LoadingState extends MaterialRequestBlocState {}
 
+class SuccessState extends MaterialRequestBlocState {}
+
 class LoadedState extends MaterialRequestBlocState {
   final MaterialRequest materialRequest;
   LoadedState(this.materialRequest);
@@ -46,8 +49,9 @@ class MaterialRequestBloc
     extends Bloc<MaterialRequestEvent, MaterialRequestBlocState> {
   late FirebaseFirestore _firestore;
   final notificationService = NotificationService();
+  final HttpsCallable materialReqValidationCallable;
 
-  MaterialRequestBloc() : super(LoadingState()) {
+  MaterialRequestBloc() : materialReqValidationCallable = FirebaseFunctions.instance.httpsCallable('materialRequestValidation'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -56,71 +60,95 @@ class MaterialRequestBloc
       MaterialRequestEvent event) async* {
     if (event is AddMaterialRequestEvent) {
       yield LoadingState();
+
+      final productionOrderId = event.materialRequest.productionOrderId;
+      final tanggalPermintaan = event.materialRequest.tanggalPermintaan;
+      final materials = event.materialRequest.detailMaterialRequestList;
+      final catatan = event.materialRequest.catatan;
+
+      if(productionOrderId.isNotEmpty){
       try {
-        // Generate a new material request ID (or use an existing one if you have it)
-        final nextMaterialRequestId = await _generateNextMaterialRequestId();
+        final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
+          'materials': materials.map((material) => material.toJson()).toList(),
+        });
 
-        // Create a reference to the material request document using the appropriate ID
-        final materialRequestRef =
-            _firestore.collection('material_requests').doc(nextMaterialRequestId);
+        if (result.data['success'] == true) {
+          final nextMaterialRequestId = await _generateNextMaterialRequestId();
+          final materialRequestRef = _firestore.collection('material_requests').doc(nextMaterialRequestId);
 
-        // Set the material request data
-        final Map<String, dynamic> materialRequestData = {
-          'id': nextMaterialRequestId,
-          'production_order_id': event.materialRequest.productionOrderId,
-          'status': event.materialRequest.status,
-          'status_mr': event.materialRequest.statusMr,
-          'tanggal_permintaan': event.materialRequest.tanggalPermintaan,
-        };
+          final Map<String, dynamic> materialRequestData = {
+            'id': nextMaterialRequestId,
+            'production_order_id': productionOrderId,
+            'status': event.materialRequest.status,
+            'status_mr': event.materialRequest.statusMr,
+            'catatan': catatan,
+            'tanggal_permintaan': tanggalPermintaan,
+          };
 
-        // Add the material request data to Firestore
-        await materialRequestRef.set(materialRequestData);
+          await materialRequestRef.set(materialRequestData);
 
-        // Create a reference to the 'detail_material_requests' subcollection within the material request document
-        final detailMaterialRequestRef =
-            materialRequestRef.collection('detail_material_requests');
+          final detailMaterialRequestRef =
+              materialRequestRef.collection('detail_material_requests');
 
-        if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
-          int detailCount = 1;
-          for (var detailMaterialRequest
-              in event.materialRequest.detailMaterialRequestList) {
-            final nextDetailMaterialRequestId =
-                '$nextMaterialRequestId${'D${detailCount.toString().padLeft(3, '0')}'}';
+          if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
+            int detailCount = 1;
+            for (var detailMaterialRequest
+                in event.materialRequest.detailMaterialRequestList) {
+              final nextDetailMaterialRequestId =
+                  '$nextMaterialRequestId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
-            // Add the detail material request document to the 'detail_material_requests' collection
             await detailMaterialRequestRef.add({
-              'id': nextDetailMaterialRequestId,
-              'material_request_id': nextMaterialRequestId,
-              'jumlah_bom': detailMaterialRequest.jumlahBom,
-              'material_id': detailMaterialRequest.materialId,
-              'satuan': detailMaterialRequest.satuan,
-              'batch': detailMaterialRequest.batch,
-              'status': detailMaterialRequest.status,
-            });
-            detailCount++;
+                'id': nextDetailMaterialRequestId,
+                'material_request_id': nextMaterialRequestId,
+                'jumlah_bom': detailMaterialRequest.jumlahBom,
+                'material_id': detailMaterialRequest.materialId,
+                'satuan': detailMaterialRequest.satuan,
+                'batch': detailMaterialRequest.batch,
+                'status': detailMaterialRequest.status,
+              });
+              detailCount++;
+            }
           }
-        }
 
-        await notificationService.addNotification('Terdapat permintaan bahan baru $nextMaterialRequestId', 'Gudang');
-      
-        yield LoadedState(event.materialRequest);
+          await notificationService.addNotification('Terdapat permintaan bahan baru $nextMaterialRequestId', 'Gudang');
+        
+          yield SuccessState();
+        }else{
+          yield ErrorState(result.data['message']);
+        }
       } catch (e) {
-        yield ErrorState("Failed to add Material Request.");
+        yield ErrorState(e.toString());
+      }
+      }else{
+        yield ErrorState("kode perintah produksi tidak boleh kosong");
       }
     } else if (event is UpdateMaterialRequestEvent) {
       yield LoadingState();
+
+      final productionOrderId = event.materialRequest.productionOrderId;
+      final tanggalPermintaan = event.materialRequest.tanggalPermintaan;
+      final materials = event.materialRequest.detailMaterialRequestList;
+      final catatan = event.materialRequest.catatan;
+
+      if(productionOrderId.isNotEmpty){
       try {
-        // Get a reference to the material request document to be updated
+        final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
+        'materials': materials.map((material) => material.toJson()).toList(),
+        });
+
+        if (result.data['success'] == true) {
+           // Get a reference to the material request document to be updated
         final materialRequestToUpdateRef =
             _firestore.collection('material_requests').doc(event.materialRequestId);
 
         // Set the new material request data
         final Map<String, dynamic> materialRequestData = {
           'id': event.materialRequestId,
-          'production_order_id': event.materialRequest.productionOrderId,
+          'production_order_id': productionOrderId,
           'status': event.materialRequest.status,
           'status_mr': event.materialRequest.statusMr,
-          'tanggal_permintaan': event.materialRequest.tanggalPermintaan,
+          'catatan': catatan,
+          'tanggal_permintaan': tanggalPermintaan,
         };
 
         // Update the material request data within the existing document
@@ -157,10 +185,15 @@ class MaterialRequestBloc
             detailCount++;
           }
         }
-
-        yield MaterialRequestUpdatedState();
+        yield SuccessState();
+        }else{
+        yield ErrorState(result.data['message']);
+        }
       } catch (e) {
-        yield ErrorState("Failed to update Material Request.");
+        yield ErrorState(e.toString());
+      }
+      }else{
+        yield ErrorState("nomor perintah produksi tidak boleh kosong");
       }
     } else if (event is DeleteMaterialRequestEvent) {
       yield LoadingState();

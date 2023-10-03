@@ -6,7 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/faktur_bloc.dar
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardWithPrint.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListFakturPenjualan extends StatefulWidget {
@@ -172,7 +172,7 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                                 'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
                                 'Catatan': data['catatan']
                               };
-                              return ListCard(
+                              return ListCardPrint(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {

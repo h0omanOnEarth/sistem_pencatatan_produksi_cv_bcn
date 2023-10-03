@@ -63,7 +63,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                           ),
                           const SizedBox(width: 24.0),
                           const Text(
-                            'Notification',
+                            'Notifications',
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,

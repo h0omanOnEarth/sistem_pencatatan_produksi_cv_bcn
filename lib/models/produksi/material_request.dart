@@ -7,6 +7,7 @@ class MaterialRequest {
   String statusMr;
   DateTime tanggalPermintaan;
   List<DetailMaterialRequest> detailMaterialRequestList;
+  String catatan;
 
   MaterialRequest({
     required this.id,
@@ -14,6 +15,7 @@ class MaterialRequest {
     required this.status,
     required this.statusMr,
     required this.tanggalPermintaan,
+    required this.catatan,
     this.detailMaterialRequestList = const [],
   });
 
@@ -33,6 +35,7 @@ class MaterialRequest {
       status: json['status'] as int,
       statusMr: json['status_mr'] as String,
       tanggalPermintaan: DateTime.parse(json['tanggal_permintaan'] as String),
+      catatan: json['catatan'] as String,
       detailMaterialRequestList: detailMaterialRequests,
     );
   }
@@ -48,6 +51,7 @@ class MaterialRequest {
       'status': status,
       'status_mr': statusMr,
       'tanggal_permintaan': tanggalPermintaan.toIso8601String(),
+      'catatan': catatan,
       'detail_material_request_list': detailMaterialRequestData,
     };
   }

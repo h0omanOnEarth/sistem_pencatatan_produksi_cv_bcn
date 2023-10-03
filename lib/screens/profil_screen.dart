@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
@@ -113,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   // Aksi untuk tombol notifikasi
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const NotifikasiScreen()),
+                                    MaterialPageRoute(builder: (context) => const EditProfileScreen()),
                                   );
                                 },
                                 icon: const Icon(
@@ -153,6 +154,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           IconButton(
                             onPressed: () {},
                             icon: const Icon(Icons.edit),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                     Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditPasswordScreen()),
+                      );
+                  },
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0), // Set border radius
+                      side: BorderSide(
+                        color: Colors.grey[400]!, // Customize the border color
+                        width: 1.0, // Set border width
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.security),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Edit Password',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  'Change your password here',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
