@@ -164,6 +164,35 @@ void fetchDataCustomerOrder(){
     });
 }
 
+Future<void> filterProductData(String customerOrderId) async {
+  final List<Map<String, dynamic>> filteredProductData = [];
+
+  if (customerOrderId.isNotEmpty) {
+    final detailCustomerOrderQuery = await firestore
+      .collection('customer_orders')
+      .doc(customerOrderId)
+      .collection('detail_customer_orders')
+      .get();
+
+    final detailCustomerOrders = detailCustomerOrderQuery.docs.map((doc) => doc.data());
+
+    for (final detailCustomerOrder in detailCustomerOrders) {
+      final productId = detailCustomerOrder['product_id'] as String;
+      // Lakukan filter berdasarkan material_id
+      final filteredData = productData.where((product) {
+        final productMaterialId = product['id'] as String;
+        return productMaterialId == productId;
+      }).toList();
+
+      // Tambahkan ke daftar yang difilter
+      filteredProductData.addAll(filteredData);
+    }
+  }
+  setState(() {
+    productData = filteredProductData;
+  });
+}
+
 void _showSuccessMessageAndNavigateBack() {
   showDialog(
     context: context,
@@ -302,13 +331,13 @@ void initState() {
   }).catchError((error) {
     print('Error getting document: $error');
   });
-
-  fetchDataDetailDeliveryOrder(); // Ambil data detail_customer_orders
 }
 
  if (widget.customerOrderId != null) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeCustomerOrder();
+      filterProductData(widget.customerOrderId??'');
+      fetchDataDetailDeliveryOrder(); // Ambil data detail_customer_orders
     });
   }
 
@@ -390,7 +419,12 @@ Widget build(BuildContext context) {
                     ],
                   ),
                   const SizedBox(height: 16.0),
-                  CustomerOrderDropDownWidget(namaPelangganController: pelangganController, alamatPengirimanController: alamatController, customerOrderId: widget.customerOrderId,),
+                  CustomerOrderDropDownWidget(namaPelangganController: pelangganController, alamatPengirimanController: alamatController, customerOrderId: widget.customerOrderId, onChanged: (newValue) {
+                    setState(() {
+                      selectedPesanan = newValue??'';
+                      filterProductData(selectedPesanan??'');
+                    });
+                    }),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Pelanggan',

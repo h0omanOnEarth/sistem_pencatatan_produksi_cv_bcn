@@ -7,10 +7,12 @@ class CustomerOrderDropDownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
   final TextEditingController alamatPengirimanController;
   final String? customerOrderId;
+  final Function(String?) onChanged;
 
   CustomerOrderDropDownWidget({
     required this.namaPelangganController,
     required this.alamatPengirimanController,
+    required this.onChanged,
     this.customerOrderId,
   }) : super();
 
@@ -95,6 +97,7 @@ class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidge
                     value: initialValue,
                     items: customerOrderItems,
                     onChanged: (newValue) async {
+                      widget.onChanged(newValue);
                       selectedCustomerOrderNotifier.value = newValue;
                       final selectedCustomerOrder = snapshot.data!.docs.firstWhere(
                         (document) => document['id'] == newValue,

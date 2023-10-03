@@ -167,7 +167,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID': data['id'],
                                 'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
                                 'Nomor Penggunaan Bahan' : data['material_usage_id']
                               };

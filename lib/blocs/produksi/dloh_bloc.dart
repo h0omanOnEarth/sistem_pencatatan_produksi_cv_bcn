@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/dloh.dart';
@@ -26,6 +27,8 @@ abstract class DLOHBlocState {}
 
 class LoadingState extends DLOHBlocState {}
 
+class SuccessState extends DLOHBlocState {}
+
 class LoadedState extends DLOHBlocState {
   final List<DLOH> dlohList;
   LoadedState(this.dlohList);
@@ -40,8 +43,9 @@ class ErrorState extends DLOHBlocState {
 class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference dlohRef;
+  final HttpsCallable dlohValidationCallable;
 
-  DLOHBloc() : super(LoadingState()) {
+  DLOHBloc() : dlohValidationCallable = FirebaseFunctions.instance.httpsCallable('dlohValidation'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     dlohRef = _firestore.collection('direct_labor_overhead_costs');
   }
@@ -50,57 +54,112 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
   Stream<DLOHBlocState> mapEventToState(DLOHEvent event) async* {
     if (event is AddDLOHEvent) {
       yield LoadingState();
-      try {
-        final String nextDLOHId = await _generateNextDLOHId();
-         final DLOHRef = _firestore.collection('direct_labor_overhead_costs').doc(nextDLOHId);
+      
+      final materialUsageId = event.dloh.materialUsageId;
+      final catatan = event.dloh.catatan;
+      final status = event.dloh.status;
+      final jumlahTenagaKerja = event.dloh.jumlahTenagaKerja;
+      final jumlahJamTenagaKerja = event.dloh.jumlahJamTenagaKerja;
+      final biayaTenagaKerja = event.dloh.biayaTenagaKerja;
+      final biayaOverhead = event.dloh.biayaOverhead;
+      final upahTenagaKerjaPerjam = event.dloh.upahTenagaKerjaPerjam;
+      final subtotal = event.dloh.subtotal;
+      final tanggalPencatatan = event.dloh.tanggalPencatatan;
 
-          final Map<String, dynamic> dlohData = {
-          'id': nextDLOHId,
-          'material_usage_id': event.dloh.materialUsageId,
-          'catatan': event.dloh.catatan,
-          'status': event.dloh.status,
-          'jumlah_tenaga_kerja': event.dloh.jumlahTenagaKerja,
-          'jumlah_jam_tenaga_kerja': event.dloh.jumlahJamTenagaKerja,
-          'biaya_tenaga_kerja': event.dloh.biayaTenagaKerja,
-          'biaya_overhead': event.dloh.biayaOverhead,
-          'upah_tenaga_kerja_perjam': event.dloh.upahTenagaKerjaPerjam,
-          'subtotal': event.dloh.subtotal,
-          'tanggal_pencatatan': event.dloh.tanggalPencatatan,
-        };
+      if(materialUsageId.isNotEmpty){
+         try {
+          final HttpsCallableResult<dynamic> result = await dlohValidationCallable.call(<String, dynamic>{
+           'jumlahTenagaKerja': jumlahTenagaKerja,
+           'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
+           'biayaTenagaKerja': biayaTenagaKerja,
+           'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
+           'subtotal': subtotal
+          });
 
-        // Add the material request data to Firestore
-        await DLOHRef.set(dlohData);
+          if (result.data['success'] == true) {
+            final String nextDLOHId = await _generateNextDLOHId();
+            final DLOHRef = _firestore.collection('direct_labor_overhead_costs').doc(nextDLOHId);
 
-        yield LoadedState(await _getDLOHList());
+              final Map<String, dynamic> dlohData = {
+              'id': nextDLOHId,
+              'material_usage_id': materialUsageId,
+              'catatan': catatan,
+              'status': status,
+              'jumlah_tenaga_kerja': jumlahTenagaKerja,
+              'jumlah_jam_tenaga_kerja': jumlahJamTenagaKerja,
+              'biaya_tenaga_kerja': biayaTenagaKerja,
+              'biaya_overhead': biayaOverhead,
+              'upah_tenaga_kerja_perjam': upahTenagaKerjaPerjam,
+              'subtotal': subtotal,
+              'tanggal_pencatatan': tanggalPencatatan,
+            };
+
+            // Add the material request data to Firestore
+            await DLOHRef.set(dlohData);
+            yield SuccessState();
+          }else{
+            yield ErrorState(result.data['message']);
+          }
       } catch (e) {
-        yield ErrorState("Gagal menambahkan DLOH.");
+        yield ErrorState(e.toString());
+      }
+      }else{
+        yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
     } else if (event is UpdateDLOHEvent) {
       yield LoadingState();
-      try {
-        final dlohSnapshot = await dlohRef.where('id', isEqualTo: event.dlohId).get();
-        if (dlohSnapshot.docs.isNotEmpty) {
-          final dlohDoc = dlohSnapshot.docs.first;
-          await dlohDoc.reference.update({
-            'material_usage_id': event.updatedDLOH.materialUsageId,
-            'catatan': event.updatedDLOH.catatan,
-            'status': event.updatedDLOH.status,
-            'jumlah_tenaga_kerja': event.updatedDLOH.jumlahTenagaKerja,
-            'jumlah_jam_tenaga_kerja': event.updatedDLOH.jumlahJamTenagaKerja,
-            'biaya_tenaga_kerja': event.updatedDLOH.biayaTenagaKerja,
-            'biaya_overhead': event.updatedDLOH.biayaOverhead,
-            'upah_tenaga_kerja_perjam': event.updatedDLOH.upahTenagaKerjaPerjam,
-            'subtotal': event.updatedDLOH.subtotal,
-            'tanggal_pencatatan': event.updatedDLOH.tanggalPencatatan,
+
+      final materialUsageId = event.updatedDLOH.materialUsageId;
+      final catatan = event.updatedDLOH.catatan;
+      final status = event.updatedDLOH.status;
+      final jumlahTenagaKerja = event.updatedDLOH.jumlahTenagaKerja;
+      final jumlahJamTenagaKerja = event.updatedDLOH.jumlahJamTenagaKerja;
+      final biayaTenagaKerja = event.updatedDLOH.biayaTenagaKerja;
+      final biayaOverhead = event.updatedDLOH.biayaOverhead;
+      final upahTenagaKerjaPerjam = event.updatedDLOH.upahTenagaKerjaPerjam;
+      final subtotal = event.updatedDLOH.subtotal;
+      final tanggalPencatatan = event.updatedDLOH.tanggalPencatatan;
+
+      if(materialUsageId.isNotEmpty){
+        try {
+           final HttpsCallableResult<dynamic> result = await dlohValidationCallable.call(<String, dynamic>{
+           'jumlahTenagaKerja': jumlahTenagaKerja,
+           'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
+           'biayaTenagaKerja': biayaTenagaKerja,
+           'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
+           'subtotal': subtotal
           });
-          final dlohList = await _getDLOHList(); 
-          yield LoadedState(dlohList);
-        } else {
-          yield ErrorState('Data DLOH dengan ID ${event.dlohId} tidak ditemukan.');
+
+          if (result.data['success'] == true) {
+            final dlohSnapshot = await dlohRef.where('id', isEqualTo: event.dlohId).get();
+            if (dlohSnapshot.docs.isNotEmpty) {
+              final dlohDoc = dlohSnapshot.docs.first;
+              await dlohDoc.reference.update({
+                'material_usage_id': materialUsageId,
+                'catatan': catatan,
+                'status': status,
+                'jumlah_tenaga_kerja': jumlahTenagaKerja,
+                'jumlah_jam_tenaga_kerja': jumlahJamTenagaKerja,
+                'biaya_tenaga_kerja': biayaTenagaKerja,
+                'biaya_overhead': biayaOverhead,
+                'upah_tenaga_kerja_perjam': upahTenagaKerjaPerjam,
+                'subtotal': subtotal,
+                'tanggal_pencatatan': tanggalPencatatan,
+              });
+              yield SuccessState();
+            } else {
+              yield ErrorState('Data DLOH dengan ID ${event.dlohId} tidak ditemukan.');
+            }
+          }else{
+            yield ErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ErrorState(e.toString());
         }
-      } catch (e) {
-        yield ErrorState("Gagal mengubah DLOH.");
+      }else{
+        yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
+
     } else if (event is DeleteDLOHEvent) {
       yield LoadingState();
       try {

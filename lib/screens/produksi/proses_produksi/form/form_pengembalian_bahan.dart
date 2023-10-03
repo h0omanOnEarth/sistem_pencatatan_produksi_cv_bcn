@@ -82,8 +82,6 @@ Future<void> filterProductDataBahan(String materialUsageId) async {
   });
 }
 
-
-
 void fetchDataBahan(){
   // Ambil data produk dari Firestore di initState
   firestore.collection('materials').get().then((querySnapshot) {

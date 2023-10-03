@@ -34,7 +34,6 @@ exports.materialRequestValidation = async (req) => {
         return { success: false, message: "satuan tidak boleh kosong" };
     }
 
-     // Modifikasi berhasil
      return {
         success: true,
     };

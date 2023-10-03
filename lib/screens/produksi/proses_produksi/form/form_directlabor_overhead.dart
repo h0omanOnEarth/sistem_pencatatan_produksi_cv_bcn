@@ -24,6 +24,7 @@ class FormPencatatanDirectLaborScreen extends StatefulWidget {
 class _FormPencatatanDirectLaborScreenState extends State<FormPencatatanDirectLaborScreen> {
   DateTime? _selectedDate;
   String? selectedPenggunaanBahan;
+  bool isLoading = false;
 
   TextEditingController nomorPerintahProduksiController = TextEditingController();
   TextEditingController namaBatchController = TextEditingController();
@@ -163,15 +164,13 @@ void addOrUpdate(){
   int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   int totalBiayaInt = int.tryParse(totalBiayaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
-  final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.parse(jumlahTenagaKerjaController.text), jumlahJamTenagaKerja: int.parse(jumlahJamTenagaKerjaController.text), biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: int.parse(biayaOverheadController.text), upahTenagaKerjaPerjam: int.parse(upahTenagaKerjaPerJamController.text), subtotal: totalBiayaInt);
+  final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.tryParse(jumlahTenagaKerjaController.text)??0, jumlahJamTenagaKerja: int.tryParse(jumlahJamTenagaKerjaController.text)??0, biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: int.tryParse(biayaOverheadController.text)??0, upahTenagaKerjaPerjam: int.tryParse(upahTenagaKerjaPerJamController.text)??0, subtotal: totalBiayaInt);
 
   if(widget.dlohId!=null){
     dlohBloc.add(UpdateDLOHEvent(widget.dlohId??'', dloh));
   }else{
     dlohBloc.add(AddDLOHEvent(dloh));
   }
-
-  _showSuccessMessageAndNavigateBack();
 
 }
 
@@ -191,233 +190,273 @@ showDialog(
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-    create: (context) => DLOHBloc(),
+    return BlocListener<DLOHBloc, DLOHBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is LoadingState) {
+        setState(() {
+          isLoading = true; // Aktifkan isLoading saat LoadingState
+        });
+      }
+
+      // Hanya jika bukan LoadingState, atur isLoading ke false
+      if (state is! LoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pop(context,null);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context,null);
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          child: Icon(Icons.arrow_back, color: Colors.black),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 24.0),
-                    const Flexible(
-                      child: Text(
-                       'Direct Labor and\nOverhead Costs',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24.0),
-                DatePickerButton(
-                      label: 'Tanggal Pencatatan',
-                      selectedDate: _selectedDate,
-                      onDateSelected: (newDate) {
-                        setState(() {
-                          _selectedDate = newDate;
-                        });
-                      },
-                  ),
-                const SizedBox(height: 16.0),
-                MaterialUsageDropdown(selectedMaterialUsage: selectedPenggunaanBahan, onChanged: (newValue) {
-                      setState(() {
-                        selectedPenggunaanBahan = newValue??'';
-                      });
-                }, namaBatchController: namaBatchController, nomorPerintahProduksiController: nomorPerintahProduksiController,),
-                const SizedBox(height: 16.0),
-                 Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Nomor Perintah Produksi',
-                        placeholder: 'Nomor Perintah Produksi',
-                        controller: nomorPerintahProduksiController,
-                        isEnabled: false,
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Batch',
-                        placeholder: 'Batch',
-                        controller: namaBatchController,
-                        isEnabled: false,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Jumlah Tenaga Kerja',
-                        placeholder: 'Jumlah Tenaga Kerja',
-                        controller: jumlahTenagaKerjaController,
-                        onChanged: (value) {
-                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
-                            setState(() {
-                              updateBiayaTenagaKerja();
-                            });
-                          },
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Jum. Jam Tenaga Kerja',
-                        placeholder: 'Jum. Jam Tenaga Kerja',
-                        controller: jumlahJamTenagaKerjaController,
-                         onChanged: (value) {
-                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
-                            setState(() {
-                              updateBiayaTenagaKerja();
-                            });
-                          },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Upah Tenaga Kerja /Jam',
-                        placeholder: 'Upah /jam',
-                        controller: upahTenagaKerjaPerJamController,
-                        onChanged: (value) {
-                            // Ketika nilai berubah, panggil updateBiayaTenagaKerja
-                            setState(() {
-                              updateBiayaTenagaKerja();
-                            });
-                          },
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: TextFieldWidget(
-                        label: 'Biaya Tenaga Kerja',
-                        placeholder: 'Biaya Tenaga Kerja',
-                        isEnabled: false,
-                        controller: biayaTenagaKerjaController,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16.0,),
-                TextFieldWidget(
-                    label: 'Biaya Overhead',
-                    placeholder: 'Biaya Overhead',
-                    controller: biayaOverheadController,
-                     onChanged: (value) {
-                      // Ketika nilai berubah, panggil updateTotalBiaya
-                      setState(() {
-                        updateTotalBiaya();
-                      });
-                    },
-                ),
-                const SizedBox(height: 16.0,),
-                TextFieldWidget(
-                    label: 'Total Biaya',
-                    placeholder: 'Total Biaya',
-                    isEnabled: false,
-                    controller: totalBiayaController,
-                ),
-                const SizedBox(height: 16.0,),
-                TextFieldWidget(
-                  label: 'Status',
-                  placeholder: 'Aktif',
-                  isEnabled: false,
-                  controller: statusController,
-                ),
-                const SizedBox(height: 16.0,),
-                TextFieldWidget(
-                  label: 'Catatan',
-                  placeholder: 'Catatan',
-                  controller: catatanController,
-                ),
-                const SizedBox(height: 16.0,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle save button pressa
-                          addOrUpdate();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                            child: const CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Icon(Icons.arrow_back, color: Colors.black),
+                            ),
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                        const SizedBox(width: 24.0),
+                        const Flexible(
                           child: Text(
-                            'Simpan',
-                            style: TextStyle(fontSize: 18),
+                          'Direct Labor and\nOverhead Costs',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Handle clear button press
-                          clearForm();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Text(
-                            'Bersihkan',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
+                    const SizedBox(height: 24.0),
+                    DatePickerButton(
+                          label: 'Tanggal Pencatatan',
+                          selectedDate: _selectedDate,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedDate = newDate;
+                            });
+                          },
                       ),
+                    const SizedBox(height: 16.0),
+                    MaterialUsageDropdown(selectedMaterialUsage: selectedPenggunaanBahan, onChanged: (newValue) {
+                          setState(() {
+                            selectedPenggunaanBahan = newValue??'';
+                          });
+                    }, namaBatchController: namaBatchController, nomorPerintahProduksiController: nomorPerintahProduksiController,),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Nomor Perintah Produksi',
+                            placeholder: 'Nomor Perintah Produksi',
+                            controller: nomorPerintahProduksiController,
+                            isEnabled: false,
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Batch',
+                            placeholder: 'Batch',
+                            controller: namaBatchController,
+                            isEnabled: false,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Jumlah Tenaga Kerja',
+                            placeholder: 'Jumlah Tenaga Kerja',
+                            controller: jumlahTenagaKerjaController,
+                            onChanged: (value) {
+                                // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                                setState(() {
+                                  updateBiayaTenagaKerja();
+                                });
+                              },
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Jum. Jam Tenaga Kerja',
+                            placeholder: 'Jum. Jam Tenaga Kerja',
+                            controller: jumlahJamTenagaKerjaController,
+                            onChanged: (value) {
+                                // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                                setState(() {
+                                  updateBiayaTenagaKerja();
+                                });
+                              },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Upah Tenaga Kerja /Jam',
+                            placeholder: 'Upah /jam',
+                            controller: upahTenagaKerjaPerJamController,
+                            onChanged: (value) {
+                                // Ketika nilai berubah, panggil updateBiayaTenagaKerja
+                                setState(() {
+                                  updateBiayaTenagaKerja();
+                                });
+                              },
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: TextFieldWidget(
+                            label: 'Biaya Tenaga Kerja',
+                            placeholder: 'Biaya Tenaga Kerja',
+                            isEnabled: false,
+                            controller: biayaTenagaKerjaController,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0,),
+                    TextFieldWidget(
+                        label: 'Biaya Overhead',
+                        placeholder: 'Biaya Overhead',
+                        controller: biayaOverheadController,
+                        onChanged: (value) {
+                          // Ketika nilai berubah, panggil updateTotalBiaya
+                          setState(() {
+                            updateTotalBiaya();
+                          });
+                        },
+                    ),
+                    const SizedBox(height: 16.0,),
+                    TextFieldWidget(
+                        label: 'Total Biaya',
+                        placeholder: 'Total Biaya',
+                        isEnabled: false,
+                        controller: totalBiayaController,
+                    ),
+                    const SizedBox(height: 16.0,),
+                    TextFieldWidget(
+                      label: 'Status',
+                      placeholder: 'Aktif',
+                      isEnabled: false,
+                      controller: statusController,
+                    ),
+                    const SizedBox(height: 16.0,),
+                    TextFieldWidget(
+                      label: 'Catatan',
+                      placeholder: 'Catatan',
+                      controller: catatanController,
+                    ),
+                    const SizedBox(height: 16.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Handle save button pressa
+                              addOrUpdate();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: Text(
+                                'Simpan',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16.0),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Handle clear button press
+                              clearForm();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: Text(
+                                'Bersihkan',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
+            ),
+            ),
+            if (isLoading)
+            Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
           ),
-        ),
+          ],
+        )
       ),
     )
     );

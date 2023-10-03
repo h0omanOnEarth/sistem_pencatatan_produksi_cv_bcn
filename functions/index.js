@@ -76,3 +76,7 @@ exports.materialUsageValidation = onCall(materialUsageValidation);
 //material return
 const {materialReturnValidation} = require("./src/produksi/materialReturnValidation")
 exports.materialReturnValidation = onCall(materialReturnValidation);
+
+//dloh
+const {dlohValidation} = require("./src/produksi/dlohValidation")
+exports.dlohValidation = onCall(dlohValidation);
