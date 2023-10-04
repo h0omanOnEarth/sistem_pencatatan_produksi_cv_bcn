@@ -66,7 +66,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         yield LoginFailure(error: 'Terjadi kesalahan: $error');
       }
     } else if (event is LogoutButtonPressed) {
-      // Implementasikan logout sesuai kebutuhan Anda
     }
   }
 }

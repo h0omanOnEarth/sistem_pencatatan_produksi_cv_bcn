@@ -36,6 +36,7 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   String? selectedMesinSheet;
   String? selectedMesinCetak;
   bool isFirstTime = false;
+  bool isLoading = false;
 
   TextEditingController namaProdukController = TextEditingController();
   TextEditingController jumlahProduksiController = TextEditingController();
@@ -140,8 +141,6 @@ void fetchMachines(){
 void initState() {
   super.initState();
   statusController.text = "Dalam Proses";
-  selectedProdukNotifier.addListener(_selectedKodeListener);
-  selectedKodeProduk = selectedProdukNotifier.value;
   fetchData();
 
   if(widget.productionOrderId!=null){
@@ -184,52 +183,103 @@ void initState() {
    if(widget.productId!=null){
     initializeProduct();
   }
+
+   WidgetsBinding.instance.addPostFrameCallback((_) {
+    selectedProdukNotifier.addListener(_selectedKodeListener);
+    selectedKodeProduk = selectedProdukNotifier.value;
+  });
 }
 
-void addOrUpdate(){
-   // ignore: no_leading_underscores_for_local_identifiers
+void addOrUpdate() {
   final _productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
-   
-  final productionOrder = ProductionOrder(
-      id: '', // Ganti dengan nilai yang sesuai
-      bomId: selectedKodeBOM ?? '', // Ganti dengan nilai yang sesuai
-      jumlahProduksiEst: int.tryParse(jumlahProduksiController.text) ?? 0,
-      jumlahTenagaKerjaEst: int.tryParse(jumlahTenagaKerjaController.text) ?? 0,
-      lamaWaktuEst: int.tryParse(perkiraanLamaWaktuController.text) ?? 0,
-      productId: selectedKodeProduk ?? '', // Ganti dengan nilai yang sesuai
-      status: 1, // Ganti dengan nilai yang sesuai
-      statusPro: statusController.text,
-      tanggalProduksi: _selectedTanggalProduksi ?? DateTime.now(),
-      tanggalRencana: _selectedTanggalRencana ?? DateTime.now(),
-      tanggalSelesai: _selectedTanggalSelesai ?? DateTime.now(),
-      detailProductionOrderList: [], // Ganti dengan nilai yang sesuai
-      detailMesinProductionOrderList: [], // Ganti dengan nilai yang sesuai
-    );
 
-     for (var productCardData in billOfMaterialsData) {
-    final detailProductionOrder = DetailProductionOrder(
-      id: '', // Ganti dengan nilai yang sesuai
-      jumlahBOM: productCardData['jumlahBom'], // Tidak perlu menggunakan int.parse()
-      materialId: productCardData['materialId'], // Ganti dengan nilai yang sesuai
-      productionOrderId: '', // Ganti dengan nilai yang sesuai
-      batch: productCardData['batch'], // Ganti dengan nilai yang sesuai
-      satuan: productCardData['satuan'], // Ganti dengan nilai yang sesuai
-      status: 1, // Ganti dengan nilai yang sesuai
-    );
-    productionOrder.detailProductionOrderList?.add(detailProductionOrder);
+  final bomId = selectedKodeBOM ?? '';
+  final jumlahProduksi = int.tryParse(jumlahProduksiController.text) ?? 0;
+  final jumlahTenagaKerja = int.tryParse(jumlahTenagaKerjaController.text) ?? 0;
+  final lamaWaktuEst = int.tryParse(perkiraanLamaWaktuController.text) ?? 0;
+  final productId = selectedKodeProduk ?? '';
+  final statusPro = statusController.text;
+  final tanggalProduksi = _selectedTanggalProduksi ?? DateTime.now();
+  final tanggalRencana = _selectedTanggalRencana ?? DateTime.now();
+  final tanggalSelesai = _selectedTanggalSelesai ?? DateTime.now();
+
+  final productionOrder = ProductionOrder(
+    id: '',
+    bomId: bomId,
+    jumlahProduksiEst: jumlahProduksi,
+    jumlahTenagaKerjaEst: jumlahTenagaKerja,
+    lamaWaktuEst: lamaWaktuEst,
+    productId: productId,
+    status: 1,
+    statusPro: statusPro,
+    tanggalProduksi: tanggalProduksi,
+    tanggalRencana: tanggalRencana,
+    tanggalSelesai: tanggalSelesai,
+    catatan: catatanController.text,
+    detailProductionOrderList: [],
+    detailMesinProductionOrderList: [],
+  );
+
+  for (var productCardData in billOfMaterialsData) {
+    final jumlahBOM = productCardData['jumlahBom'];
+    final materialId = productCardData['materialId'];
+
+    if (jumlahBOM != null && materialId != null) {
+      final detailProductionOrder = DetailProductionOrder(
+        id: '',
+        jumlahBOM: jumlahBOM,
+        materialId: materialId,
+        productionOrderId: '',
+        batch: productCardData['batch'],
+        satuan: productCardData['satuan'],
+        status: 1,
+      );
+      productionOrder.detailProductionOrderList?.add(detailProductionOrder);
+    }
   }
 
-    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinPencampuran['batch'], id: '', machineId: mesinPencampuran['machine_id'], productionOrderId: '', status: 1));
-    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinSheet['batch'], id: '', machineId: mesinSheet['machine_id'], productionOrderId: '', status: 1));
-    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(batch: mesinPencetak['batch'], id: '', machineId: mesinPencetak['machine_id'], productionOrderId: '', status: 1));
+  final mesinPencampuranBatch = mesinPencampuran['batch'];
+  final mesinPencampuranMachineId = mesinPencampuran['machine_id'];
+  final mesinSheetBatch = mesinSheet['batch'];
+  final mesinSheetMachineId = mesinSheet['machine_id'];
+  final mesinPencetakBatch = mesinPencetak['batch'];
+  final mesinPencetakMachineId = mesinPencetak['machine_id'];
 
-    if(widget.productionOrderId!=null){
-      _productionOrderBloc.add(UpdateProductionOrderEvent(widget.productionOrderId??'', productionOrder));
-    }else{
-      _productionOrderBloc.add(AddProductionOrderEvent(productionOrder));
-    }
+  if (mesinPencampuranBatch != null && mesinPencampuranMachineId != null) {
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(
+      batch: mesinPencampuranBatch,
+      id: '',
+      machineId: mesinPencampuranMachineId,
+      productionOrderId: '',
+      status: 1,
+    ));
+  }
 
-    _showSuccessMessageAndNavigateBack();
+  if (mesinSheetBatch != null && mesinSheetMachineId != null) {
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(
+      batch: mesinSheetBatch,
+      id: '',
+      machineId: mesinSheetMachineId,
+      productionOrderId: '',
+      status: 1,
+    ));
+  }
+
+  if (mesinPencetakBatch != null && mesinPencetakMachineId != null) {
+    productionOrder.detailMesinProductionOrderList?.add(MachineDetail(
+      batch: mesinPencetakBatch,
+      id: '',
+      machineId: mesinPencetakMachineId,
+      productionOrderId: '',
+      status: 1,
+    ));
+  }
+
+  if (widget.productionOrderId != null) {
+    _productionOrderBloc.add(UpdateProductionOrderEvent(widget.productionOrderId ?? '', productionOrder));
+  } else {
+    _productionOrderBloc.add(AddProductionOrderEvent(productionOrder));
+  }
 }
 
 void _showSuccessMessageAndNavigateBack() {
@@ -273,346 +323,385 @@ void clearForm() {
 @override
 Widget build(BuildContext context) {
   final bool isBomSelected = selectedKodeBOM != null;
-  return BlocProvider(
-    create: (context) => ProductionOrderBloc(),
+  return BlocListener<ProductionOrderBloc, ProductionOrderBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is LoadingState) {
+        setState(() {
+          isLoading = true; // Aktifkan isLoading saat LoadingState
+        });
+      }
+
+      // Hanya jika bukan LoadingState, atur isLoading ke false
+      if (state is! LoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context,null);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context,null);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                      child: Text(
-                        'Perintah Produksi',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-             DatePickerButton(
-                        label: 'Tanggal Rencana',
-                        selectedDate: _selectedTanggalRencana,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalRencana = newDate;
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              DatePickerButton(
-                        label: 'Tanggal Produksi',
-                        selectedDate: _selectedTanggalProduksi,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalProduksi = newDate;
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              DatePickerButton(
-                        label: 'Tanggal Selesai',
-                        selectedDate: _selectedTanggalSelesai,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedTanggalSelesai = newDate;
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child:  ProdukDropDown(namaProdukController: namaProdukController,productId: widget.productId,)
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                          child: Text(
+                            'Perintah Produksi',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(child:
-                   TextFieldWidget(
-                      label: 'Nama Produk',
-                      placeholder: 'Nama Produk',
-                      controller: namaProdukController,
-                      isEnabled: false,
-                    ),
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                DatePickerButton(
+                            label: 'Tanggal Rencana',
+                            selectedDate: _selectedTanggalRencana,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedTanggalRencana = newDate;
+                              });
+                            },
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              BillOfMaterialDropDown(selectedBOM: selectedKodeBOM, onChanged: (newValue) {
-                    setState(() {
-                      selectedKodeBOM = newValue;
-                      billOfMaterialsData.clear();
-                    });
-              },),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child:  TextFieldWidget(
-                      label: 'Jumlah Produksi (est)',
-                      placeholder: '0',
-                      controller: jumlahProduksiController,
-                    ),
+                  const SizedBox(height: 16.0,),
+                  DatePickerButton(
+                            label: 'Tanggal Produksi',
+                            selectedDate: _selectedTanggalProduksi,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedTanggalProduksi = newDate;
+                              });
+                            },
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: TextFieldWidget(
-                    label: 'Jumlah Tenaga Kerja (est)',
-                    placeholder: 'Jumlah Tenaga Kerja',
-                    controller: jumlahTenagaKerjaController,
-                    ),
+                  const SizedBox(height: 16.0,),
+                  DatePickerButton(
+                            label: 'Tanggal Selesai',
+                            selectedDate: _selectedTanggalSelesai,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedTanggalSelesai = newDate;
+                              });
+                            },
                   ),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFieldWidget(
-                      label: 'Perkiraan Lama Waktu',
-                      placeholder: 'Waktu est.',
-                      controller: perkiraanLamaWaktuController,
-                    ),             
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:  ProdukDropDown(namaProdukController: namaProdukController,productId: widget.productId,)
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(child:
+                      TextFieldWidget(
+                          label: 'Nama Produk',
+                          placeholder: 'Nama Produk',
+                          controller: namaProdukController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  const Expanded(
-                    child: TextFieldWidget(
-                    label: '',
-                    placeholder: 'Menit',
-                    isEnabled: false,
-                    ),
+                  const SizedBox(height: 16),
+                  BillOfMaterialDropDown(selectedBOM: selectedKodeBOM, onChanged: (newValue) {
+                        setState(() {
+                          selectedKodeBOM = newValue;
+                        });
+                  },),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child:  TextFieldWidget(
+                          label: 'Jumlah Produksi (est)',
+                          placeholder: '0',
+                          controller: jumlahProduksiController,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: TextFieldWidget(
+                        label: 'Jumlah Tenaga Kerja (est)',
+                        placeholder: 'Jumlah Tenaga Kerja',
+                        controller: jumlahTenagaKerjaController,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ), 
-            const SizedBox(height: 16.0,),
-            TextFieldWidget(
-                    label: 'Status',
-                    placeholder: 'Dalam Proses',
-                    isEnabled: false,
-                    controller: statusController,
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-               const Text(
-                'Instruksi Produksi',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              CustomCard(
-                content: [
-                  CustomCardContent(text: '1. Campur bahan recycle dan biji plastik PP.'),
-                  CustomCardContent(text: '2. Ekstruksi dan Bentuk PP Sheet.'),
-                  CustomCardContent(text: '3. Cetak PP Sheet menjadi gelas plastik'),
-                  CustomCardContent(text: '4. Uji kualitas dan pengemasan'),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-              const Text(
-                'Mesin',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              MachineDropdown(selectedMachine: selectedMesinMixer, onChanged: (newValue) {
-                    setState(() {
-                      selectedMesinMixer = newValue;
-                      mesinPencampuran.clear();
-                      mesinPencampuran = {
-                        'batch' : 'Pencampuran',
-                        'machine_id' : newValue,
-                      };
-                    });
-              }, title: 'Pencampuran',),
-            const SizedBox(height: 16.0,),
-            MachineDropdown(selectedMachine: selectedMesinSheet, onChanged: (newValue) {
-                    setState(() {
-                      selectedMesinSheet = newValue;
-                      mesinSheet.clear();
-                      mesinSheet = {
-                        'batch' : 'Sheet',
-                        'machine_id' : newValue
-                      };
-                    });
-              }, title: 'Sheet',),
-            const SizedBox(height: 16.0,),
-            MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
-                    setState(() {
-                      selectedMesinCetak = newValue;
-                      mesinPencetak.clear();
-                      mesinPencetak = {
-                        'batch' : 'Pencetakan',
-                        'machine_id' : newValue
-                      };
-                    });
-              }, title: 'Cetak',),
-              const SizedBox(height: 16.0,),
-             if (isBomSelected)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFieldWidget(
+                          label: 'Perkiraan Lama Waktu',
+                          placeholder: 'Waktu est.',
+                          controller: perkiraanLamaWaktuController,
+                        ),             
+                      ),
+                      const SizedBox(width: 16.0),
+                      const Expanded(
+                        child: TextFieldWidget(
+                        label: '',
+                        placeholder: 'Menit',
+                        isEnabled: false,
+                        ),
+                      ),
+                    ],
+                  ), 
+                const SizedBox(height: 16.0,),
+                TextFieldWidget(
+                        label: 'Status',
+                        placeholder: 'Dalam Proses',
+                        isEnabled: false,
+                        controller: statusController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
                   const Text(
-                    'Bahan',
+                    'Instruksi Produksi',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 16.0,),
-                  FutureBuilder<QuerySnapshot>(
-                    future: (widget.productionOrderId != null && isFirstTime == true)
-                      ? firestore
-                          .collection('production_orders')
-                          .doc(widget.productionOrderId)
-                          .collection('detail_production_orders')
-                          .get()
-                      : firestore
-                          .collection('bill_of_materials')
-                          .doc(selectedKodeBOM)
-                          .collection('detail_bill_of_materials')
-                          .get(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      }
-                      if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Text('Tidak ada data bahan.');
-                      }
-
-                      final List<CustomCard> customCards = [];
-                      billOfMaterialsData.clear();
-                      for (final doc in snapshot.data!.docs) {
-                        final data = doc.data() as Map<String, dynamic>;
-                        int jumlah = 0;
-                        if(widget.productionOrderId!=null){
-                           jumlah = data['jumlah_bom'];
-                        }else{
-                           jumlah = data['jumlah'];
-                        }
-                        customCards.add(
-                          CustomCard(
-                            content: [
-                              CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
-                              CustomCardContent(text: 'Jumlah: ${jumlah}'),
-                              CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
-                              CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
-                            ],
-                          ),
-                        );
-                        Map<String, dynamic> billOfMaterial = {
-                          'materialId': doc['material_id'], // Add fields you need
-                          'jumlahBom': jumlah,
-                          'satuan': doc['satuan'],
-                          'batch': doc['batch'],
-                        };
-                        billOfMaterialsData.add(billOfMaterial); // Add to the list
-                        isFirstTime = false;
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: customCards.length,
-                        itemBuilder: (context, index) {
-                          return customCards[index];
+                  CustomCard(
+                    content: [
+                      CustomCardContent(text: '1. Campur bahan recycle dan biji plastik PP.'),
+                      CustomCardContent(text: '2. Ekstruksi dan Bentuk PP Sheet.'),
+                      CustomCardContent(text: '3. Cetak PP Sheet menjadi gelas plastik'),
+                      CustomCardContent(text: '4. Uji kualitas dan pengemasan'),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0,),
+                  const Text(
+                    'Mesin',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0,),
+                  MachineDropdown(selectedMachine: selectedMesinMixer, onChanged: (newValue) {
+                        setState(() {
+                          selectedMesinMixer = newValue;
+                          mesinPencampuran.clear();
+                          mesinPencampuran = {
+                            'batch' : 'Pencampuran',
+                            'machine_id' : newValue,
+                          };
+                        });
+                  }, title: 'Pencampuran',),
+                const SizedBox(height: 16.0,),
+                MachineDropdown(selectedMachine: selectedMesinSheet, onChanged: (newValue) {
+                        setState(() {
+                          selectedMesinSheet = newValue;
+                          mesinSheet.clear();
+                          mesinSheet = {
+                            'batch' : 'Sheet',
+                            'machine_id' : newValue
+                          };
+                        });
+                  }, title: 'Sheet',),
+                const SizedBox(height: 16.0,),
+                MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
+                        setState(() {
+                          selectedMesinCetak = newValue;
+                          mesinPencetak.clear();
+                          mesinPencetak = {
+                            'batch' : 'Pencetakan',
+                            'machine_id' : newValue
+                          };
+                        });
+                  }, title: 'Cetak',),
+                  const SizedBox(height: 16.0,),
+                if (isBomSelected)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bahan',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0,),
+                      FutureBuilder<QuerySnapshot>(
+                        future: (widget.productionOrderId != null && isFirstTime == true)
+                          ? firestore
+                              .collection('production_orders')
+                              .doc(widget.productionOrderId)
+                              .collection('detail_production_orders')
+                              .get()
+                          : firestore
+                              .collection('bill_of_materials')
+                              .doc(selectedKodeBOM)
+                              .collection('detail_bill_of_materials')
+                              .get(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                            return const Text('Tidak ada data bahan.');
+                          }
+                          
+                          billOfMaterialsData.clear();
+                          final List<CustomCard> customCards = [];
+                          for (final doc in snapshot.data!.docs) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            int jumlah = 0;
+                            if(widget.productionOrderId!=null && isFirstTime){
+                              jumlah = data['jumlah_bom'];
+                            }else{
+                              jumlah = data['jumlah'];
+                            }
+                            customCards.add(
+                              CustomCard(
+                                content: [
+                                  CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
+                                  CustomCardContent(text: 'Jumlah: $jumlah'),
+                                  CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
+                                  CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
+                                ],
+                              ),
+                            );
+                            Map<String, dynamic> billOfMaterial = {
+                              'materialId': doc['material_id'], // Add fields you need
+                              'jumlahBom': jumlah,
+                              'satuan': doc['satuan'],
+                              'batch': doc['batch'],
+                            };
+                            billOfMaterialsData.add(billOfMaterial); // Add to the list
+                            isFirstTime = false;
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: customCards.length,
+                            itemBuilder: (context, index) {
+                              return customCards[index];
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdate();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearForm();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearForm();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ),
+           if (isLoading)
+            Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      )
     ),
   )
   );

@@ -84,3 +84,7 @@ exports.productionResValidate = onCall(productionResValidate);
 //production confirmation
 const {productionConfirmationValidation} = require("./src/produksi/productionConfirmation");
 exports.productionConfirmationValidation = onCall(productionConfirmationValidation);
+
+//production order
+const {productionOrderValidate} = require("./src/produksi/productionOrder");
+exports.productionOrderValidate = onCall(productionOrderValidate);

@@ -14,6 +14,7 @@ class ProductionOrder {
   DateTime tanggalProduksi;
   DateTime tanggalRencana;
   DateTime tanggalSelesai;
+  String catatan;
   List<DetailProductionOrder>? detailProductionOrderList; // List tidak perlu menjadi opsional,
   List<MachineDetail>? detailMesinProductionOrderList;
 
@@ -29,6 +30,7 @@ class ProductionOrder {
     required this.tanggalProduksi,
     required this.tanggalRencana,
     required this.tanggalSelesai,
+    required this.catatan,
     this.detailProductionOrderList = const [], // Initialize the list
     this.detailMesinProductionOrderList = const[]
   });
@@ -43,6 +45,7 @@ class ProductionOrder {
       productId: json['product_id'] as String,
       status: json['status'] as int,
       statusPro: json['status_pro'] as String,
+      catatan: json['catatan'] as String,
       tanggalProduksi: DateTime.parse(json['tanggal_produksi'] as String),
       tanggalRencana: DateTime.parse(json['tanggal_rencana'] as String),
       tanggalSelesai: DateTime.parse(json['tanggal_selesai'] as String),
@@ -73,6 +76,7 @@ class ProductionOrder {
       'product_id': productId,
       'status': status,
       'status_pro': statusPro,
+      'catatan': catatan,
       'tanggal_produksi': tanggalProduksi.toIso8601String(),
       'tanggal_rencana': tanggalRencana.toIso8601String(),
       'tanggal_selesai': tanggalSelesai.toIso8601String(),

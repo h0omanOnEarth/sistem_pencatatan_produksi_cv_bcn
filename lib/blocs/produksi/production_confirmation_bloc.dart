@@ -64,7 +64,7 @@ class ProductionConfirmationBloc
       if(confirmations.isNotEmpty){
          try {
           final HttpsCallableResult<dynamic> result = await proConfCallable.call(<String, dynamic>{
-              'confirmations': confirmations.map((material) => material.toJson()).toList(),
+              'confirmations': confirmations.map((confirmation) => confirmation.toJson()).toList(),
             });
 
            if (result.data['success'] == true) {
