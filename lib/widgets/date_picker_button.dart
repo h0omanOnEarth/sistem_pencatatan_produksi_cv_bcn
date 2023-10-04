@@ -30,7 +30,7 @@ class DatePickerButton extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         ElevatedButton(
           onPressed: () async {
             final DateTime? pickedDate = await showDatePicker(
@@ -45,7 +45,7 @@ class DatePickerButton extends StatelessWidget {
             }
           },
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // Meningkatkan padding vertikal
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0), // Meningkatkan padding vertikal
             backgroundColor: Colors.white,
             elevation: 0, // Menonaktifkan bayangan
             shape: RoundedRectangleBorder(
@@ -59,7 +59,7 @@ class DatePickerButton extends StatelessWidget {
                 Icons.calendar_today,
                 color: Colors.grey[600],
               ),
-              SizedBox(width: 8.0),
+              const SizedBox(width: 8.0),
               Text(
                 dateText,
                 style: TextStyle(

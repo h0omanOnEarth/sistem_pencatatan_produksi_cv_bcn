@@ -11,7 +11,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 class BottomNavigationGudang extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
-  static dynamic menu = HomeScreenGudang();
+  static dynamic menu = const HomeScreenGudang();
 
   BottomNavigationGudang({this.key, required this.onItemTapped}) : super(key: key);
 
@@ -20,21 +20,21 @@ class BottomNavigationGudang extends StatefulWidget {
 
   static dynamic getMenuByIndex(int index) {
     if (index == 0) {
-      return HomeScreenGudang(); // Return HomeScreenGudang widget
+      return const HomeScreenGudang(); // Return HomeScreenGudang widget
     } else if (index == 1) {
-      return MainMasterGudangScreen(); // Return MainMasterGudangScreen widget
+      return const MainMasterGudangScreen(); // Return MainMasterGudangScreen widget
     } else if (index == 2) {
-      return MainPembelianGudangScreen();
+      return const MainPembelianGudangScreen();
     } else if (index == 3) {
-      return MainPenjualanGudangScreen();
+      return const MainPenjualanGudangScreen();
     } else if (index == 4) {
-      return MainProduksiGudangScreen();
+      return const MainProduksiGudangScreen();
     } else if (index == 5) {
-      return MainLaporanGudangScreen();
+      return const MainLaporanGudangScreen();
     } else if (index == 6) {
-      return ProfileScreen(); // Return ProfileScreen widget
+      return const ProfileScreen(); // Return ProfileScreen widget
     }
-    return HomeScreenGudang(); // Default menu
+    return const HomeScreenGudang(); // Default menu
   }
 }
 
@@ -56,12 +56,12 @@ class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
         children: [
           Icon(
             iconData,
-            color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
+            color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
           ),
           Text(
             label,
             style: TextStyle(
-              color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
+              color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
             ),
           ),
         ],

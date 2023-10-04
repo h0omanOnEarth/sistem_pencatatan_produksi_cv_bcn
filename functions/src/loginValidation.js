@@ -17,7 +17,7 @@ exports.loginValidation = async (req) => {
     const qSnap = await employeesColl.where("email", "==", email).get();
     log(qSnap);
     if (qSnap.empty) {
-      return {success:false,message: "Email tidak dapat ditemukan"};
+      return {success: false, message: "Email tidak dapat ditemukan"};
     }
 
     // Ambil dokumen pertama yang cocok dengan email
@@ -27,8 +27,8 @@ exports.loginValidation = async (req) => {
     // Bandingkan kata sandi yang diberikan dengan kata sandi yang tersimpan
     if (userData.password !== password) {
       return {
-        success:false,
-        message: "Password salah"
+        success: false,
+        message: "Password salah",
       };
     }
 
@@ -38,14 +38,13 @@ exports.loginValidation = async (req) => {
       user: {
         email: userData['email'],
         password: userData['passsword'],
-        posisi: userData['posisi']
-      }
-    }
+        posisi: userData['posisi'],
+      },
+    };
   } catch (error) {
     return {
       success: false,
-      message: error.message
+      message: error.message,
     };
   }
-
-}
+};

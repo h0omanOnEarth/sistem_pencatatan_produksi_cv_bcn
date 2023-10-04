@@ -56,7 +56,7 @@ class ProductionOrder {
 
     final detailProductionOrdersSnapshot = await detailProductionOrdersQuery.get();
     final detailProductionOrdersData = detailProductionOrdersSnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data();
       return DetailProductionOrder.fromJson(data);
     }).toList();
 

@@ -41,7 +41,7 @@ class MainAdministrasi extends StatefulWidget {
 }
 
 class _MainAdministrasiState extends State<MainAdministrasi> {
-  late dynamic menu = HomeScreenAdministrasi();
+  late dynamic menu = const HomeScreenAdministrasi();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -74,7 +74,7 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             ProfileScreen.routeName:(context)=>const ProfileScreen(),
             MainAdministrasi.routeName: (context) => const MainAdministrasi(),
             MainMasterAdministrasiScreen.routeName:(context) => const MainMasterAdministrasiScreen(),
-            NotifikasiScreen.routeName:(context)=>NotifikasiScreen(),
+            NotifikasiScreen.routeName:(context)=>const NotifikasiScreen(),
             MainPembelianAdministrasiScreen.routeName:(context) => const MainPembelianAdministrasiScreen(),
             MainPenjulanAdministrasiScreen.routeName:(context) => const MainPenjulanAdministrasiScreen(),
             MainLaporanAdministrasiScreen.routeName:(context) => const MainLaporanAdministrasiScreen(),

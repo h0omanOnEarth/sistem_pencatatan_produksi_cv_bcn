@@ -52,7 +52,7 @@ class CustomerOrder {
 
     final detailCustomerOrdersSnapshot = await detailCustomerOrdersQuery.get();
     final detailCustomerOrdersData = detailCustomerOrdersSnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
+      final data = doc.data();
       return DetailCustomerOrder.fromJson(data);
     }).toList();
 

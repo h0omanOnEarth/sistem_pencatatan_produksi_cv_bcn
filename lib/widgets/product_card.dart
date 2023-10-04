@@ -20,7 +20,7 @@ class _ProductCardState extends State<ProductCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
         side: BorderSide(color: Colors.grey[300]!),
@@ -28,7 +28,7 @@ class _ProductCardState extends State<ProductCard> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: widget.children,
             ),
@@ -40,7 +40,7 @@ class _ProductCardState extends State<ProductCard> {
               child: ElevatedButton(
                 onPressed: widget.onDelete,
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   backgroundColor: Colors.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),

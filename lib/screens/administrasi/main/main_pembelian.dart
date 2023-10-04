@@ -18,7 +18,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasi
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('images/background_white.jpg'),
                 fit: BoxFit.cover,
@@ -51,7 +51,7 @@ class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasi
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -135,7 +135,7 @@ class CardItem extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 16.0),
+              const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically

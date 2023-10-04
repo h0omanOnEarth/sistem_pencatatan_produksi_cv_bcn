@@ -108,7 +108,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationBlocState> {
 
   Future<String> _generateNextNotificationId() async {
   final QuerySnapshot snapshot = await notificationsRef.get();
-  final List<String> existingIds = snapshot.docs.map((doc) => doc.id as String).toList();
+  final List<String> existingIds = snapshot.docs.map((doc) => doc.id).toList();
   int notificationCount = 1;
 
   while (true) {

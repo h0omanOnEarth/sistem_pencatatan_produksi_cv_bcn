@@ -10,7 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 class BottomNavigationAdministrasi extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
-  static dynamic menu = HomeScreenAdministrasi();
+  static dynamic menu = const HomeScreenAdministrasi();
 
   BottomNavigationAdministrasi({this.key, required this.onItemTapped}) : super(key: key);
 
@@ -19,19 +19,19 @@ class BottomNavigationAdministrasi extends StatefulWidget {
 
   static dynamic getMenuByIndex(int index) {
     if (index == 0) {
-      return HomeScreenAdministrasi();
+      return const HomeScreenAdministrasi();
     } else if (index == 1) {
-      return MainMasterAdministrasiScreen();
+      return const MainMasterAdministrasiScreen();
     } else if (index == 2) {
-      return MainPembelianAdministrasiScreen();
+      return const MainPembelianAdministrasiScreen();
     } else if (index == 3) {
-      return MainPenjulanAdministrasiScreen();
+      return const MainPenjulanAdministrasiScreen();
     }else if (index ==4){
-      return MainLaporanAdministrasiScreen();
+      return const MainLaporanAdministrasiScreen();
     }else if(index ==5){
-      return ProfileScreen();
+      return const ProfileScreen();
     }
-    return HomeScreenAdministrasi(); // Default menu
+    return const HomeScreenAdministrasi(); // Default menu
   }
 }
 
@@ -53,12 +53,12 @@ class _BottomNavigationAdministrasiState extends State<BottomNavigationAdministr
         children: [
           Icon(
             iconData,
-            color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
+            color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
           ),
           Text(
             label,
             style: TextStyle(
-              color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
+              color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
             ),
           ),
         ],

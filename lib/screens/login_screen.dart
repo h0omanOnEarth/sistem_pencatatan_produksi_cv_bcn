@@ -18,14 +18,14 @@
   class _LoginPageScreenState extends State<LoginPageScreen> {
     @override
     Widget build(BuildContext context) {
-      return Scaffold(
+      return const Scaffold(
         body: LoginPage(),
       );
     }
   }
 
   class LoginPage extends StatelessWidget {
-    LoginPage({Key? key}) : super(key: key);
+    const LoginPage({Key? key}) : super(key: key);
 
     @override
     Widget build(BuildContext context) {

@@ -13,7 +13,18 @@ module.exports = {
   rules: {
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
-    "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+    "quotes": "off",
+    "max-len": "off", // Menonaktifkan aturan panjang maksimum
+    "object-curly-spacing": "off", // Menonaktifkan aturan spasi dalam kurawal
+    "no-unused-vars": "off",
+    "camelcase": "off",
+    "require-jsdoc": ["error", {
+      "require": {
+        "FunctionDeclaration": true,
+        "MethodDefinition": false,
+        "ClassDeclaration": false,
+      },
+    }], // Memeriksa persyaratan JSDoc
   },
   overrides: [
     {

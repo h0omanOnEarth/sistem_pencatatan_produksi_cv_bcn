@@ -78,7 +78,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
 
           if (result.data['success'] == true) {
             final String nextDLOHId = await _generateNextDLOHId();
-            final DLOHRef = _firestore.collection('direct_labor_overhead_costs').doc(nextDLOHId);
+            final dlohRef = _firestore.collection('direct_labor_overhead_costs').doc(nextDLOHId);
 
               final Map<String, dynamic> dlohData = {
               'id': nextDLOHId,
@@ -95,7 +95,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
             };
 
             // Add the material request data to Firestore
-            await DLOHRef.set(dlohData);
+            await dlohRef.set(dlohData);
             yield SuccessState();
           }else{
             yield ErrorState(result.data['message']);
