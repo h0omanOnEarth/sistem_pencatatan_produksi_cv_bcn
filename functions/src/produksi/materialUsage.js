@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.materialUsageValidation = async (req) => {
-  const { materials, materialRequestId, productionOrderId } = req.data;
+  const {materials, materialRequestId, productionOrderId} = req.data;
 
   // Pemeriksaan apakah productionOrderId sama dengan production_order_id di koleksi material_requests
   const materialRequestSnapshot = await admin.firestore().collection("material_requests").doc(materialRequestId).get();

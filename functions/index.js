@@ -20,63 +20,67 @@ const {loginValidation} = require("./src/loginValidation");
 exports.loginValidation = onCall(loginValidation);
 
 // validasi pegawai
-const {pegawaiAdd} = require("./src/master/pegawaiModif");
+const {pegawaiAdd} = require("./src/master/pegawai");
 exports.pegawaiAdd = onCall(pegawaiAdd);
 
-const {pegawaiUpdate} = require("./src/master/pegawaiModif");
+const {pegawaiUpdate} = require("./src/master/pegawai");
 exports.pegawaiUpdate = onCall(pegawaiUpdate);
 
 // validasi supplier
-const {supplierAdd} = require("./src/master/supplierModif");
+const {supplierAdd} = require("./src/master/supplier");
 exports.supplierAdd = onCall(supplierAdd);
 
 // validasi bahan
-const {materialModif} = require("./src/master/bahanValidation");
+const {materialModif} = require("./src/master/bahan");
 exports.materialModif = onCall(materialModif);
 
 // validasi barang
-const {productValidation} = require("./src/master/barangValidation");
+const {productValidation} = require("./src/master/barang");
 exports.productValidation = onCall(productValidation);
 
 // validasi mesin
-const {mesinValidation} = require("./src/master/mesinValidation");
+const {mesinValidation} = require("./src/master/mesin");
 exports.mesinValidation = onCall(mesinValidation);
 
 // validasi bom
-const {bomValidation} = require("./src/master/bomValidation");
+const {bomValidation} = require("./src/master/bom");
 exports.bomValidation = onCall(bomValidation);
 
-const {detailBOMValidation} = require("./src/master/bomValidation");
+const {detailBOMValidation} = require("./src/master/bom");
 exports.detailBOMValidation = onCall(detailBOMValidation);
 
 // validasi purchase order
-const {purchaseOrderValidation} = require("./src/pembelian/pembelianValidation");
+const {purchaseOrderValidation} = require("./src/pembelian/pembelian");
 exports.purchaseOrderValidation = onCall(purchaseOrderValidation);
 
 // customer order
-const {customerOrderValidation} = require("./src/penjualan/pesananPelangganValidation");
+const {customerOrderValidation} = require("./src/penjualan/pesananPelanggan");
 exports.customerOrderValidation = onCall(customerOrderValidation);
 
 // invoice
-const {invoiceValidation} = require("./src/penjualan/invoiceValidation");
+const {invoiceValidation} = require("./src/penjualan/invoice");
 exports.invoiceValidation = onCall(invoiceValidation);
 
 // material request
-const {materialRequestValidation} = require("./src/produksi/materialRequestValidation");
+const {materialRequestValidation} = require("./src/produksi/materialRequest");
 exports.materialRequestValidation = onCall(materialRequestValidation);
 
 // material usage
-const {materialUsageValidation} = require("./src/produksi/materialUsageValidation");
+const {materialUsageValidation} = require("./src/produksi/materialUsage");
 exports.materialUsageValidation = onCall(materialUsageValidation);
 
 // material return
-const {materialReturnValidation} = require("./src/produksi/materialReturnValidation");
+const {materialReturnValidation} = require("./src/produksi/materialReturn");
 exports.materialReturnValidation = onCall(materialReturnValidation);
 
 // dloh
-const {dlohValidation} = require("./src/produksi/dlohValidation");
+const {dlohValidation} = require("./src/produksi/dloh");
 exports.dlohValidation = onCall(dlohValidation);
 
-//production result
-const {productionResValidate} = require("./src/produksi/productionResultValidation");
+// production result
+const {productionResValidate} = require("./src/produksi/productionResult");
 exports.productionResValidate = onCall(productionResValidate);
+
+//production confirmation
+const {productionConfirmationValidation} = require("./src/produksi/productionConfirmation");
+exports.productionConfirmationValidation = onCall(productionConfirmationValidation);

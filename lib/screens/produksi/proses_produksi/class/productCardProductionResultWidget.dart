@@ -39,7 +39,8 @@ class _ProductCardProductionResultWidgetState extends State<ProductCardProductio
         DropdownProdukDetailWidget(
               label: 'Hasil Produksi',
               selectedValue: widget.productCardData.nomorHasilProduksi,
-             onChanged: (newValue) async {
+              onChanged: (newValue) async {
+               if (!widget.productCards.any((card) => card.nomorHasilProduksi == newValue)) {
                 final selectedProduct = widget.productData.firstWhere(
                   (product) => product['id'] == newValue,
                   orElse: () => {'nama': ''},
@@ -55,6 +56,14 @@ class _ProductCardProductionResultWidgetState extends State<ProductCardProductio
                   widget.productCardData.namaBarang = product?['product_name'];
                   widget.productCardData.kodeBarang = product?['product_id'];
                 });
+               }else{
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('hasil produksi sudah dipilih'),
+                    duration: Duration(seconds: 2), // Duration to display the Snackbar
+                  ),
+                );
+               }
               },
               products: widget.productData, // productData adalah daftar produk dari Firestore
             ),

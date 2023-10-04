@@ -9,11 +9,11 @@ class BahanDropdown extends StatefulWidget {
   final TextEditingController? satuanBahanController;
   final String? bahanId; // Tambahkan parameter customerId
 
-  BahanDropdown({
+  const BahanDropdown({super.key, 
     required this.namaBahanController,
     this.bahanId,
     this.satuanBahanController
-  }): super();
+  });
 
   @override
   _BahanDropdownState createState() => _BahanDropdownState();
