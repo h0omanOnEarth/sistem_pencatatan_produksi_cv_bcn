@@ -40,7 +40,7 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Permintaan Pembelian', formScreen: FormPermintaanPembelianScreen()),
+                const CustomAppBar(title: 'Permintaan\n Pembelian Bahan', formScreen: FormPermintaanPembelianScreen()),
                 const SizedBox(height: 24.0),
                 Row(
                   children: [
@@ -161,9 +161,10 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID': data['id'],
                                 'Tanggal Permintaan': DateFormat('dd/MM/yyyy').format((data['tanggal_permintaan'] as Timestamp).toDate()), // Format tanggal
-                                'Id Bahan' : data['material_id']
+                                'ID Bahan' : data['material_id'],
+                                'Status': data['status_prq']
                               };
                               return ListCard(
                                 title: id,

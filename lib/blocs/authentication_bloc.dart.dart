@@ -19,6 +19,8 @@ abstract class LoginState {}
 
 class LoginInitial extends LoginState {}
 
+class LoginLoading extends LoginState {}
+
 class LoginSuccess extends LoginState {
    final User user;
 
@@ -38,6 +40,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   @override
   Stream<LoginState> mapEventToState(LoginEvent event) async* {
     if (event is LoginButtonPressed) {
+      yield LoginLoading(); // Menampilkan Loading
       try {
         final email = event.email;
         final password = event.password;

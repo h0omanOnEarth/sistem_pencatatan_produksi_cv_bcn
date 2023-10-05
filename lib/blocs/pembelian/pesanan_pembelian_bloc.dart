@@ -56,25 +56,17 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
 
       final hargaSatuan = event.purchaseOrder.hargaSatuan;
       final jumlah = event.purchaseOrder.jumlah;
-      final keterangan = event.purchaseOrder.keterangan;
       final materialId = event.purchaseOrder.materialId;
-      final satuan = event.purchaseOrder.satuan;
-      final status = event.purchaseOrder.status;
-      final statusPembayaran = event.purchaseOrder.statusPembayaran;
-      final statusPengiriman = event.purchaseOrder.statusPengiriman;
       final supplierId = event.purchaseOrder.supplierId;
-      final tanggalKirim = event.purchaseOrder.tanggalKirim;
-      final tanggalPesan = event.purchaseOrder.tanggalPesan;
       final total = event.purchaseOrder.total;
 
     if(materialId.isNotEmpty){
       if(supplierId.isNotEmpty){
         try {
-        
          final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
-                'hargaSatuan': hargaSatuan,
-                'jumlah': jumlah,
-                'total' : total
+          'hargaSatuan': hargaSatuan,
+          'jumlah': jumlah,
+          'total' : total
         });
 
         if(result.data['success'] == true){
@@ -84,15 +76,15 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
             'id': nextPurchaseOrderId,
             'harga_satuan': hargaSatuan,
             'jumlah': jumlah,
-            'keterangan': keterangan,
+            'keterangan':  event.purchaseOrder.keterangan,
             'material_id': materialId,
-            'satuan': satuan,
-            'status': status,
-            'status_pembayaran': statusPembayaran,
-            'status_pengiriman': statusPengiriman,
+            'satuan': event.purchaseOrder.satuan,
+            'status': event.purchaseOrder.status,
+            'status_pembayaran': event.purchaseOrder.statusPembayaran,
+            'status_pengiriman': event.purchaseOrder.statusPengiriman,
             'supplier_id': supplierId,
-            'tanggal_kirim': tanggalKirim,
-            'tanggal_pesan': tanggalPesan,
+            'tanggal_kirim': event.purchaseOrder.tanggalKirim,
+            'tanggal_pesan': event.purchaseOrder.tanggalPesan,
             'total': total,
           });
 

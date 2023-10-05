@@ -1,4 +1,3 @@
-// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -7,7 +6,12 @@ class PurchaseRequestDropDown extends StatelessWidget {
   final Function(String?) onChanged;
   final TextEditingController? jumlahPermintaanController;
 
-  const PurchaseRequestDropDown({super.key, required this.selectedPurchaseRequest, required this.onChanged, this.jumlahPermintaanController});
+  const PurchaseRequestDropDown({
+    Key? key,
+    required this.selectedPurchaseRequest,
+    required this.onChanged,
+    this.jumlahPermintaanController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,7 @@ class PurchaseRequestDropDown extends StatelessWidget {
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String purchaseRequestId = document['id'];
-           String jumlahPermintaan = document['jumlah'].toString(); // Ambil nilai 'jumlah' dan konversi ke String
+          String jumlahPermintaan = document['jumlah'].toString(); // Ambil nilai 'jumlah' dan konversi ke String
 
           purchaseRequestItems.add(
             DropdownMenuItem<String>(
@@ -34,9 +38,11 @@ class PurchaseRequestDropDown extends StatelessWidget {
             ),
           );
 
-           // Perbarui jumlahPermintaanController jika diberikan
+          // Perbarui jumlahPermintaanController jika diberikan
           if (jumlahPermintaanController != null && selectedPurchaseRequest == purchaseRequestId) {
-            jumlahPermintaanController?.text = jumlahPermintaan;
+            Future.delayed(Duration.zero, () {
+              jumlahPermintaanController?.text = jumlahPermintaan;
+            });
           }
         }
 

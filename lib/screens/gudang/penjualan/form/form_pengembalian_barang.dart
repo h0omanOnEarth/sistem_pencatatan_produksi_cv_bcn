@@ -194,7 +194,7 @@ void addOrUpdate(){
     String kodeProduk = cardDataList[index].productID;
     String jumlahPesanan = cardDataList[index].jumlahPesanan.toString();
 
-    final detailCustomerOrderReturn = DetailCustomerOrderReturn(customerOrderReturnId: '', id: '', jumlahPengembalian: int.parse(jumlahPcs), jumlahPesanan: int.parse(jumlahPesanan), productId: kodeProduk, status: 1);
+    final detailCustomerOrderReturn = DetailCustomerOrderReturn(customerOrderReturnId: '', id: '', jumlahPengembalian: int.tryParse(jumlahPcs)??0, jumlahPesanan: int.tryParse(jumlahPesanan)??0, productId: kodeProduk, status: 1);
     customerOrderReturn.detailCustomerOrderReturnList.add(detailCustomerOrderReturn);
   }
 

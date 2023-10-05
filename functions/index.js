@@ -88,3 +88,11 @@ exports.productionConfirmationValidation = onCall(productionConfirmationValidati
 //production order
 const {productionOrderValidate} = require("./src/produksi/productionOrder");
 exports.productionOrderValidate = onCall(productionOrderValidate);
+
+//purchase request
+const {purchaseReqValidation} = require("./src/pembelian/purchaseRequest");
+exports.purchaseReqValidation = onCall(purchaseReqValidation);
+
+//material receive
+const {materialRecValidation} = require("./src/pembelian/materialReceive");
+exports.materialRecValidation = onCall(materialRecValidation);
