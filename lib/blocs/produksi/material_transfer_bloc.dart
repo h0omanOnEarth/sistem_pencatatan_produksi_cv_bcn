@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_transfer.dart';
@@ -27,6 +28,8 @@ abstract class MaterialTransferBlocState {}
 
 class MaterialTransferLoadingState extends MaterialTransferBlocState {}
 
+class SuccessState extends MaterialTransferBlocState{}
+
 class MaterialTransferLoadedState extends MaterialTransferBlocState {
   final MaterialTransfer materialTransfer;
   MaterialTransferLoadedState(this.materialTransfer);
@@ -46,8 +49,9 @@ class MaterialTransferBloc
     extends Bloc<MaterialTransferEvent, MaterialTransferBlocState> {
   late FirebaseFirestore _firestore;
   final notificationService = NotificationService();
+  final HttpsCallable materialTransferCallable;
 
-  MaterialTransferBloc() : super(MaterialTransferLoadingState()) {
+  MaterialTransferBloc() : materialTransferCallable = FirebaseFunctions.instance.httpsCallable('materialTransferValidation'), super(MaterialTransferLoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -56,9 +60,19 @@ class MaterialTransferBloc
       MaterialTransferEvent event) async* {
     if (event is AddMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
+
+      final materialRequestId = event.materialTransfer.materialRequestId;
+      final materials = event.materialTransfer.detailList;
+
+      if(materialRequestId.isNotEmpty){
       try {
-        // Generate a new material transfer ID (or use an existing one if you have it)
-        final nextMaterialTransferId = await _generateNextMaterialTransferId();
+        final HttpsCallableResult<dynamic> result = await materialTransferCallable.call(<String, dynamic>{
+        'materials': materials.map((material) => material.toJson()).toList(),
+        'materialRequestId': materialRequestId,
+      });
+
+      if (result.data['success'] == true) {
+         final nextMaterialTransferId = await _generateNextMaterialTransferId();
 
         // Create a reference to the material transfer document using the appropriate ID
         final materialTransferRef =
@@ -67,7 +81,7 @@ class MaterialTransferBloc
         // Set the material transfer data
         final Map<String, dynamic> materialTransferData = {
           'id': nextMaterialTransferId,
-          'material_request_id': event.materialTransfer.materialRequestId,
+          'material_request_id': materialRequestId,
           'status_mtr': event.materialTransfer.statusMtr,
           'tanggal_pemindahan': event.materialTransfer.tanggalPemindahan,
           'catatan': event.materialTransfer.catatan,
@@ -104,13 +118,30 @@ class MaterialTransferBloc
 
         await notificationService.addNotification('Terdapat pemindahan bahan baru $nextMaterialTransferId untuk ${event.materialTransfer.materialRequestId}', 'Produksi');
 
-        yield MaterialTransferLoadedState(event.materialTransfer);
+        yield SuccessState();
+      }else{
+        yield MaterialTransferErrorState(result.data['message']);
+      }
+
       } catch (e) {
-        yield MaterialTransferErrorState("Failed to add Material Transfer.");
+        yield MaterialTransferErrorState(e.toString());
+      }
+      }else{
+        yield MaterialTransferErrorState('nomor permintaan bahan tidak boleh kosong');
       }
     } else if (event is UpdateMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
+      final materialRequestId = event.materialTransfer.materialRequestId;
+      final materials = event.materialTransfer.detailList;
+
+      if(materialRequestId.isNotEmpty){
       try {
+      final HttpsCallableResult<dynamic> result = await materialTransferCallable.call(<String, dynamic>{
+      'materials': materials.map((material) => material.toJson()).toList(),
+      'materialRequestId': materialRequestId,
+      });
+
+      if (result.data['success'] == true) {
         // Get a reference to the material transfer document to be updated
         final materialTransferToUpdateRef =
             _firestore.collection('material_transfers').doc(event.materialTransferId);
@@ -159,11 +190,18 @@ class MaterialTransferBloc
             detailCount++;
           }
         }
-
-        yield MaterialTransferUpdatedState();
-      } catch (e) {
-        yield MaterialTransferErrorState("Failed to update Material Transfer.");
+        yield SuccessState();
+      }else{
+        yield MaterialTransferErrorState(result.data['message']);
       }
+      
+      } catch (e) {
+        yield MaterialTransferErrorState(e.toString());
+      }
+      }else{
+        yield MaterialTransferErrorState("nomor permintaan bahan tidak boleh kosong");
+      }
+
     } else if (event is DeleteMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
       try {

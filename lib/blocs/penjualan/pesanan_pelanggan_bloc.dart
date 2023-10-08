@@ -74,7 +74,6 @@ class CustomerOrderBloc extends Bloc<CustomerOrderEvent, CustomerOrderBlocState>
       if(customerId.isNotEmpty){
         if(alamatPengiriman.isNotEmpty){
           try {
-
             final HttpsCallableResult<dynamic> result = await customerOrderCallable.call(<String, dynamic>{
                 'products': products?.map((product) => product.toJson()).toList(),
                 'totalProduk': totalProduk,

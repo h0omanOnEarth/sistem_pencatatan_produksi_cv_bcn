@@ -112,15 +112,8 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
 
         final hargaSatuan = event.updatedPurchaseOrder.hargaSatuan;
         final jumlah = event.updatedPurchaseOrder.jumlah;
-        final keterangan = event.updatedPurchaseOrder.keterangan;
         final materialId = event.updatedPurchaseOrder.materialId;
-        final satuan = event.updatedPurchaseOrder.satuan;
-        final status = event.updatedPurchaseOrder.status;
-        final statusPembayaran = event.updatedPurchaseOrder.statusPembayaran;
-        final statusPengiriman = event.updatedPurchaseOrder.statusPengiriman;
         final supplierId = event.updatedPurchaseOrder.supplierId;
-        final tanggalKirim = event.updatedPurchaseOrder.tanggalKirim;
-        final tanggalPesan = event.updatedPurchaseOrder.tanggalPesan;
         final total = event.updatedPurchaseOrder.total;
 
         if(materialId.isNotEmpty){
@@ -139,15 +132,15 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
                   'id': event.purchaseOrderId,
                   'harga_satuan': hargaSatuan,
                   'jumlah': jumlah,
-                  'keterangan': keterangan,
+                  'keterangan': event.updatedPurchaseOrder.keterangan,
                   'material_id': materialId,
-                  'satuan': satuan,
-                  'status': status,
-                  'status_pembayaran': statusPembayaran,
-                  'status_pengiriman': statusPengiriman,
+                  'satuan': event.updatedPurchaseOrder.satuan,
+                  'status': event.updatedPurchaseOrder.status,
+                  'status_pembayaran': event.updatedPurchaseOrder.statusPembayaran,
+                  'status_pengiriman': event.updatedPurchaseOrder.statusPengiriman,
                   'supplier_id': supplierId,
-                  'tanggal_kirim': tanggalKirim,
-                  'tanggal_pesan': tanggalPesan,
+                  'tanggal_kirim': event.updatedPurchaseOrder.tanggalKirim,
+                  'tanggal_pesan': event.updatedPurchaseOrder.tanggalPesan,
                   'total': total,
                 }
               );

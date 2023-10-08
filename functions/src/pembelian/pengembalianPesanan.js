@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.purchaseReturnValidation = async (req) => {
-  // Modifikasi berhasil
+
   return {
     success: true,
   };

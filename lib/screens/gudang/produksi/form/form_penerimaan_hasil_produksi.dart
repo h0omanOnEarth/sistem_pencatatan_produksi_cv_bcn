@@ -30,6 +30,8 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
   String? selectedNomorKonfirmasi;
   String selectedStatus = 'Dalam Proses';
   bool  isFirstTime = true;
+  bool isLoading = false;
+  bool isSave = false;
 
   TextEditingController catatanController = TextEditingController();
   TextEditingController tanggalKonfirmasiController = TextEditingController();
@@ -143,7 +145,6 @@ void addOrUpdate() {
     itemReceiveBloc.add(AddItemReceiveEvent(itemReceive));
   }
 
-  _showSuccessMessageAndNavigateBack();
 }
 
 
@@ -163,117 +164,118 @@ void _showSuccessMessageAndNavigateBack() {
 @override
 Widget build(BuildContext context) {
   final bool isProductionConf = selectedNomorKonfirmasi != null;
-  return BlocProvider(
-    create: (context) => ItemReceiveBloc(),
+    return BlocListener<ItemReceiveBloc, ItemReceiveBlocState>(
+    listener: (context, state) async {
+      if (state is SuccessState) {
+        _showSuccessMessageAndNavigateBack();
+        setState(() {
+          isLoading = false; // Matikan isLoading saat successState
+        });
+      } else if (state is ItemReceiveErrorState) {
+        final snackbar = SnackBar(content: Text(state.errorMessage));
+        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+      } else if (state is ItemReceiveLoadingState) {
+        setState(() {
+          isLoading = true;
+        });
+      }
+      if (state is! ItemReceiveLoadingState) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context,null);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context,null);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                        child: Text(
-                          'Penerimaan Barang',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
                           ),
                         ),
                       ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-             DatePickerButton(
-                        label: 'Tanggal Penerimaan',
-                        selectedDate: _selectedDate,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedDate = newDate;
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              ProductionConfirmationDropDown(selectedProductionConfirmationDropdown: selectedNomorKonfirmasi,  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorKonfirmasi = newValue??'';
-                      materialDetailsData.clear();
-                    });
-              }, tanggalKonfirmasiController: tanggalKonfirmasiController,),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Tanggal Konfirmasi',
-                placeholder: 'Tanggal Konfirmasi',
-                controller: tanggalKonfirmasiController,
-                isEnabled: false,
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-              DropdownWidget(
-                        label: 'Status',
-                        selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                        items: const ['Dalam Proses', 'Selesai'],
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                          });
-                        },
-              ),
-              const SizedBox(height: 16.0,),
-              if (!isProductionConf)
-              const Text(
-                'Detail Penerimaan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              if (!isProductionConf)
-              const Text(
-                'Tidak ada detail penerimaan',
-                style: TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-              //cards
-               if (isProductionConf)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                            child: Text(
+                              'Penerimaan Barang',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                DatePickerButton(
+                            label: 'Tanggal Penerimaan',
+                            selectedDate: _selectedDate,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedDate = newDate;
+                              });
+                            },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  ProductionConfirmationDropDown(selectedProductionConfirmationDropdown: selectedNomorKonfirmasi,  onChanged: (newValue) {
+                        setState(() {
+                          selectedNomorKonfirmasi = newValue??'';
+                          materialDetailsData.clear();
+                        });
+                  }, tanggalKonfirmasiController: tanggalKonfirmasiController,),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Tanggal Konfirmasi',
+                    placeholder: 'Tanggal Konfirmasi',
+                    controller: tanggalKonfirmasiController,
+                    isEnabled: false,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  DropdownWidget(
+                            label: 'Status',
+                            selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                            items: const ['Dalam Proses', 'Selesai'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                              });
+                            },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  if (!isProductionConf)
                   const Text(
                     'Detail Penerimaan',
                     style: TextStyle(
@@ -282,135 +284,173 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 16.0,),
-                    FutureBuilder<QuerySnapshot>(
-                  future: (widget.itemReceivceId != null && isFirstTime == true)
-                      ? firestore
-                          .collection('item_receives')
-                          .doc(widget.itemReceivceId)
-                          .collection('detail_item_receives')
-                          .get()
-                      : firestore
-                          .collection('production_confirmations')
-                          .doc(selectedNomorKonfirmasi)
-                          .collection('detail_production_confirmations')
-                          .get(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Text('Tidak ada data detail barang.');
-                    }
+                  if (!isProductionConf)
+                  const Text(
+                    'Tidak ada detail penerimaan',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0,),
+                  //cards
+                  if (isProductionConf)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Detail Penerimaan',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0,),
+                        FutureBuilder<QuerySnapshot>(
+                      future: (widget.itemReceivceId != null && isFirstTime == true)
+                          ? firestore
+                              .collection('item_receives')
+                              .doc(widget.itemReceivceId)
+                              .collection('detail_item_receives')
+                              .get()
+                          : firestore
+                              .collection('production_confirmations')
+                              .doc(selectedNomorKonfirmasi)
+                              .collection('detail_production_confirmations')
+                              .get(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        }
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Text('Tidak ada data detail barang.');
+                        }
 
-                    final List<Widget> customCards = [];
+                        final List<Widget> customCards = [];
 
-                    for (final doc in snapshot.data!.docs) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      final productId = data['product_id'] as String? ?? '';
+                        for (final doc in snapshot.data!.docs) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final productId = data['product_id'] as String? ?? '';
 
-                      Future<Map<String, dynamic>> productInfoFuture =
-                          productService.fetchProductInfo(productId);
-                      customCards.add(
-                        FutureBuilder<Map<String, dynamic>>(
-                          future: productInfoFuture,
-                          builder: (context, materialInfoSnapshot) {
-                            if (materialInfoSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            }
-                            if (materialInfoSnapshot.hasError) {
-                              return Text('Error: ${materialInfoSnapshot.error}');
-                            }
+                          Future<Map<String, dynamic>> productInfoFuture =
+                              productService.fetchProductInfo(productId);
+                          customCards.add(
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: productInfoFuture,
+                              builder: (context, materialInfoSnapshot) {
+                                if (materialInfoSnapshot.connectionState ==
+                                    ConnectionState.waiting && isSave == false) {
+                                  return const CircularProgressIndicator();
+                                }
+                                if (materialInfoSnapshot.hasError) {
+                                  return Text('Error: ${materialInfoSnapshot.error}');
+                                }
 
-                            final productInfoData = materialInfoSnapshot.data ?? {};
-                            final productName = productInfoData['nama'] as String;
-                            final jumlahDusString = (data['jumlah_konfirmasi'] ~/ 2000).toString();
+                                final productInfoData = materialInfoSnapshot.data ?? {};
+                                final productName = productInfoData['nama'] as String;
+                                final jumlahDusString = (data['jumlah_konfirmasi'] ~/ 2000).toString();
 
-                            return CustomCard(
-                              content: [
-                                CustomCardContent(text: 'Kode Bahan: $productId'),
-                                CustomCardContent(text: 'Nama: $productName'),
-                                CustomCardContent(
-                                    text: 'Jumlah Pcs: ${data['jumlah_konfirmasi'].toString()} Pcs'),
-                                CustomCardContent(text: 'Jumlah Dus: $jumlahDusString Dus'),
-                              ],
-                            );
+                                return CustomCard(
+                                  content: [
+                                    CustomCardContent(text: 'Kode Bahan: $productId'),
+                                    CustomCardContent(text: 'Nama: $productName'),
+                                    CustomCardContent(
+                                        text: 'Jumlah Pcs: ${data['jumlah_konfirmasi'].toString()} Pcs'),
+                                    CustomCardContent(text: 'Jumlah Dus: $jumlahDusString Dus'),
+                                  ],
+                                );
+                              },
+                            ),
+                          );
+                          Map<String, dynamic> detailMaterial = {
+                            'productId': doc['product_id'], // Add fields you need
+                            'jumlah': doc['jumlah_konfirmasi']
+                          };
+                          materialDetailsData.add(detailMaterial); // Add to the list
+                          isFirstTime = false;
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: customCards.length,
+                          itemBuilder: (context, index) {
+                            return customCards[index];
                           },
-                        ),
-                      );
-                      Map<String, dynamic> detailMaterial = {
-                        'productId': doc['product_id'], // Add fields you need
-                        'jumlah': doc['jumlah_konfirmasi']
-                      };
-                      materialDetailsData.add(detailMaterial); // Add to the list
-                      isFirstTime = false;
-                    }
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: customCards.length,
-                      itemBuilder: (context, index) {
-                        return customCards[index];
+                        );
                       },
-                    );
-                  },
-                ),
-                ],
-              ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
                     ),
+                    ],
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearForm();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdate();
+                            isSave = true;
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearForm();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ),
+          if (isLoading)
+          Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      )
     ),
   )
   );

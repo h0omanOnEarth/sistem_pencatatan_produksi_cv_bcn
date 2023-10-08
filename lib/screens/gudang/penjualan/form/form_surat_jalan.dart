@@ -30,7 +30,6 @@ class CardData {
   });
 }
 
-
 class FormSuratJalanScreen extends StatefulWidget {
   static const routeName = '/form_surat_jalan_screen';
   final String? shipmentId;
@@ -46,6 +45,7 @@ class FormSuratJalanScreen extends StatefulWidget {
 class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
   DateTime? _selectedDate;
   String? selectedNomorPerintahPengiriman;
+  bool isLoading = false;
 
   //List
   List<Widget> detailPesananWidgets = [];
@@ -155,10 +155,10 @@ void fetchDetail() async {
 
 void fetchCustomerDetail() async{
  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(widget.deliveryId??'');
- final customer_order_id = deliveryOrder?['customerOrderId'];
-  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customer_order_id);
+ final customerOrderId = deliveryOrder?['customerOrderId'];
+  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
   Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
-  nomorPesananPelanggan.text = customer_order_id;
+  nomorPesananPelanggan.text = customerOrderId;
   namaPenerimaController.text = customer?['nama'];
   kodePenerimaController.text = customer?['id'];
 }
@@ -179,21 +179,17 @@ void clearForm() {
   totalPcsProdukController.clear();
   statusController.clear();
   catatanController.clear();
-  nomorPesananPelanggan.clear();
-  
+  nomorPesananPelanggan.clear(); 
   // Hapus semua data dalam cardDataList
   cardDataList.clear();
-
   // Hapus semua widget dalam detailPesananWidgets
   detailPesananWidgets.clear();
-
   // Panggil setState agar tampilan diperbarui
   setState(() {});
 }
 
 @override
 void initState() {
-  // initState harus berupa void dan tidak boleh mengembalikan Future
   super.initState();
   Future.delayed(Duration.zero, () { //untuk mengatasi asinkronus pada init state
     suratJalanService.generateNextShipmentId().then((nomorSuratJalan) {
@@ -239,16 +235,16 @@ void initState() {
 
 void addOrUpdate() {
   final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);  
-  final shipment = Shipment(id: nomorSuratJalanController.text, alamatPenerima: alamatController.text, catatan: catatanController.text, deliveryOrderId: selectedNomorPerintahPengiriman??'', status: 1, statusShp: statusController.text, totalPcs: int.parse(totalPcsProdukController.text),tanggalPembuatan: _selectedDate??DateTime.now(), detailListShipment: []);
+  final shipment = Shipment(id: nomorSuratJalanController.text, alamatPenerima: alamatController.text, catatan: catatanController.text, deliveryOrderId: selectedNomorPerintahPengiriman??'', status: 1, statusShp: statusController.text, totalPcs: int.tryParse(totalPcsProdukController.text)??0,tanggalPembuatan: _selectedDate??DateTime.now(), detailListShipment: []);
   for (int index = 0; index < cardDataList.length; index++) {
     String jumlahDus = cardDataList[index].dusController.text;
     String jumlahPcs = cardDataList[index].pcsController.text;
     String kodeProduk = cardDataList[index].productID;
     String jumlahPesanan = cardDataList[index].jumlahPesanan.toString();
-    double jumlahDusPesanan = double.parse(jumlahPesanan)/2000;
+    double jumlahDusPesanan = (double.tryParse(jumlahPesanan)??0)/2000;
     int jumlahDusPesananInt = jumlahDusPesanan.toInt();
 
-    final detailShipment = DetailShipment(id: '',shipmentId: '', jumlahDusPesanan: jumlahDusPesananInt, jumlahPengiriman: int.parse(jumlahPcs), jumlahPengirimanDus: int.parse(jumlahDus), jumlahPesanan: int.parse(jumlahPesanan), productId: kodeProduk, status: 1);
+    final detailShipment = DetailShipment(id: '',shipmentId: '', jumlahDusPesanan: jumlahDusPesananInt, jumlahPengiriman: int.tryParse(jumlahPcs)??0, jumlahPengirimanDus: int.tryParse(jumlahDus)??0, jumlahPesanan: int.tryParse(jumlahPesanan)??0, productId: kodeProduk, status: 1);
     shipment.detailListShipment.add(detailShipment);
   }
 
@@ -259,7 +255,6 @@ void addOrUpdate() {
   }
 
    updateTotalPcsProduk();
-  _showSuccessMessageAndNavigateBack();
 }
 
 void _showSuccessMessageAndNavigateBack() {
@@ -277,222 +272,260 @@ showDialog(
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ShipmentBloc(),
+      return BlocListener<ShipmentBloc, ShipmentBlocState>(
+      listener: (context, state) async {
+        if (state is SuccessState) {
+          _showSuccessMessageAndNavigateBack();
+          setState(() {
+            isLoading = false; // Matikan isLoading saat successState
+          });
+        } else if (state is ErrorState) {
+          final snackbar = SnackBar(content: Text(state.errorMessage));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        } else if (state is LoadingState) {
+          setState(() {
+            isLoading = true;
+          });
+        }
+        if (state is! LoadingState) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      },
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
+          child: Stack(
+            children: [
+              Center(
+                child: SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context, null);
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(context, null);
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                            ],
+                              child: const CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: Icon(Icons.arrow_back, color: Colors.black),
+                              ),
+                            ),
                           ),
-                          child: const CircleAvatar(
-                            backgroundColor: Colors.white,
-                            child: Icon(Icons.arrow_back, color: Colors.black),
+                          const SizedBox(width: 16.0),
+                          const Flexible(
+                            child: Text(
+                              'Surat Jalan',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 16.0),
-                      const Flexible(
-                        child: Text(
-                          'Surat Jalan',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextFieldWidget(
-                    label: 'Nomor Surat Jalan',
-                    placeholder: 'Nomor Surat Jalan',
-                    controller: nomorSuratJalanController,
-                    isEnabled: false,
-                  ),
-                  const SizedBox(height: 16.0,),
-                  DatePickerButton(
-                    label: 'Tanggal Pembuatan',
-                    selectedDate: _selectedDate,
-                    onDateSelected: (newDate) {
-                      setState(() {
-                        _selectedDate = newDate;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16.0,),
-                  DeliveryOrderDropDown(
-                    selecteDO: selectedNomorPerintahPengiriman,
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedNomorPerintahPengiriman = newValue??'';
-                        fetchDataFromFirestore(selectedNomorPerintahPengiriman??'');
-                      });
-                    },
-                    namaPelangganController: namaPenerimaController,
-                    kodePelangganController: kodePenerimaController,
-                    alamatController: alamatController,
-                    nomorPesananPelanggan: nomorPesananPelanggan,
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFieldWidget(
-                          label: 'Penerima',
-                          placeholder: 'Penerima',
-                          controller: kodePenerimaController,
-                          isEnabled: false,
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: TextFieldWidget(
-                          label: 'Nama Penerima',
-                          placeholder: 'Nama Penerima',
-                          controller: namaPenerimaController,
-                          isEnabled: false,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0,),
-                  TextFieldWidget(
-                        label: 'Nomor Pesanan Pelanggan',
-                        placeholder: 'Nomor Pesanan Pelanggan',
-                        controller: nomorPesananPelanggan,
+                      const SizedBox(height: 16.0),
+                      TextFieldWidget(
+                        label: 'Nomor Surat Jalan',
+                        placeholder: 'Nomor Surat Jalan',
+                        controller: nomorSuratJalanController,
                         isEnabled: false,
                       ),
-                  const SizedBox(height: 16),
-                  TextFieldWidget(
-                    label: 'Alamat Penerima',
-                    placeholder: 'Alamat',
-                    controller: alamatController,
-                    multiline: true,
-                  ),
-                  const SizedBox(height: 16.0,),
-                    Row(
-                    children: [
-                      Expanded(
-                        child: TextFieldWidget(
-                          label: 'Total Produk',
-                          placeholder: '0',
-                          controller: totalPcsProdukController,
-                          isEnabled: false,
+                      const SizedBox(height: 16.0,),
+                      DatePickerButton(
+                        label: 'Tanggal Pembuatan',
+                        selectedDate: _selectedDate,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            _selectedDate = newDate;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16.0,),
+                      DeliveryOrderDropDown(
+                        selecteDO: selectedNomorPerintahPengiriman,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedNomorPerintahPengiriman = newValue??'';
+                            fetchDataFromFirestore(selectedNomorPerintahPengiriman??'');
+                          });
+                        },
+                        namaPelangganController: namaPenerimaController,
+                        kodePelangganController: kodePenerimaController,
+                        alamatController: alamatController,
+                        nomorPesananPelanggan: nomorPesananPelanggan,
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFieldWidget(
+                              label: 'Penerima',
+                              placeholder: 'Penerima',
+                              controller: kodePenerimaController,
+                              isEnabled: false,
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFieldWidget(
+                              label: 'Nama Penerima',
+                              placeholder: 'Nama Penerima',
+                              controller: namaPenerimaController,
+                              isEnabled: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0,),
+                      TextFieldWidget(
+                            label: 'Nomor Pesanan Pelanggan',
+                            placeholder: 'Nomor Pesanan Pelanggan',
+                            controller: nomorPesananPelanggan,
+                            isEnabled: false,
+                          ),
+                      const SizedBox(height: 16),
+                      TextFieldWidget(
+                        label: 'Alamat Penerima',
+                        placeholder: 'Alamat',
+                        controller: alamatController,
+                        multiline: true,
+                      ),
+                      const SizedBox(height: 16.0,),
+                        Row(
+                        children: [
+                          Expanded(
+                            child: TextFieldWidget(
+                              label: 'Total Produk',
+                              placeholder: '0',
+                              controller: totalPcsProdukController,
+                              isEnabled: false,
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFieldWidget(
+                              label: ' ',
+                              placeholder: 'Pcs',
+                              controller: namaPenerimaController,
+                              isEnabled: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0,),
+                      TextFieldWidget(
+                        label: 'Status',
+                        placeholder: 'Dalam Proses',
+                        controller: statusController,
+                        isEnabled: false,
+                      ),
+                      const SizedBox(height: 16.0,),
+                      TextFieldWidget(
+                        label: 'Catatan',
+                        placeholder: 'Catatan',
+                        controller: catatanController,
+                      ),
+                      const SizedBox(height: 16.0,),
+                      const Text(
+                        'Detail Pesanan',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: TextFieldWidget(
-                          label: ' ',
-                          placeholder: 'Pcs',
-                          controller: namaPenerimaController,
-                          isEnabled: false,
-                        ),
+                      const SizedBox(height: 16.0,),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: detailPesananWidgets.length,
+                        itemBuilder: (context, index) {
+                          return detailPesananWidgets[index];
+                        },
+                      ),
+                      const SizedBox(height: 16.0,),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Handle save button press
+                                addOrUpdate();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  'Simpan',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Handle clear button press
+                                clearForm();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.0),
+                                child: Text(
+                                  'Bersihkan',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16.0,),
-                  TextFieldWidget(
-                    label: 'Status',
-                    placeholder: 'Dalam Proses',
-                    controller: statusController,
-                    isEnabled: false,
-                  ),
-                  const SizedBox(height: 16.0,),
-                  TextFieldWidget(
-                    label: 'Catatan',
-                    placeholder: 'Catatan',
-                    controller: catatanController,
-                  ),
-                  const SizedBox(height: 16.0,),
-                  const Text(
-                    'Detail Pesanan',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                   const SizedBox(height: 16.0,),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: detailPesananWidgets.length,
-                    itemBuilder: (context, index) {
-                      return detailPesananWidgets[index];
-                    },
-                  ),
-                  const SizedBox(height: 16.0,),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Handle save button press
-                            addOrUpdate();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
-                            child: Text(
-                              'Simpan',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16.0),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Handle clear button press
-                            clearForm();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16.0),
-                            child: Text(
-                              'Bersihkan',
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+              ),
+              if (isLoading)
+              Positioned( // Menambahkan Positioned untuk indikator loading
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              ),
+            ],
+          )
         ),
       ),
     );

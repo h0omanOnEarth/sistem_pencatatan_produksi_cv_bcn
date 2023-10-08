@@ -27,6 +27,7 @@ DateTime? _selectedTanggalPermintaan;
 String? selectedNoPerintah;
 bool isFirstTime = false;
 bool isLoading = false;
+bool isSave = false;
 
 TextEditingController tanggalProduksiController = TextEditingController();
 TextEditingController catatanController = TextEditingController();
@@ -334,7 +335,7 @@ Widget build(BuildContext context) {
                               .collection('detail_production_orders')
                               .get(),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
                               return const CircularProgressIndicator();
                             }
                             if (snapshot.hasError) {
@@ -357,7 +358,7 @@ Widget build(BuildContext context) {
                                 FutureBuilder<Map<String, dynamic>>(
                                   future: materialInfoFuture,
                                   builder: (context, materialInfoSnapshot) {
-                                    if (materialInfoSnapshot.connectionState == ConnectionState.waiting) {
+                                    if (materialInfoSnapshot.connectionState == ConnectionState.waiting && isSave == false) {
                                       return const CircularProgressIndicator();
                                     }
                                     if (materialInfoSnapshot.hasError) {
@@ -409,6 +410,7 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
+                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

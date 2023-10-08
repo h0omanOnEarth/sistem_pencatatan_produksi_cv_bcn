@@ -39,6 +39,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   int totalProduk=0;
   bool isNomorRekeningDisabled = false;
   bool isLoading = false;
+  bool isSave = false;
   
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaPelangganController = TextEditingController();
@@ -502,7 +503,7 @@ Widget build(BuildContext context) {
                               .collection('detail_shipments')
                               .get(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
                           return const CircularProgressIndicator();
                         }
                         if (snapshot.hasError) {
@@ -526,7 +527,7 @@ Widget build(BuildContext context) {
                               future: productInfoFuture,
                               builder: (context, materialInfoSnapshot) {
                                 if (materialInfoSnapshot.connectionState ==
-                                    ConnectionState.waiting) {
+                                    ConnectionState.waiting && isSave == false) {
                                   return const CircularProgressIndicator();
                                 }
                                 if (materialInfoSnapshot.hasError) {
@@ -593,6 +594,7 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
+                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

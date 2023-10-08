@@ -45,6 +45,7 @@ class FormPengembalianBarangScreen extends StatefulWidget {
 class _FormPengembalianBarangScreenState extends State<FormPengembalianBarangScreen> {
   DateTime? _selectedDate;
   String? selectedNomorFaktur;
+  bool isLoading = false;
 
   TextEditingController jumlahController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
@@ -180,9 +181,8 @@ void initState(){
   if(widget.invoiceId!=null){
     fetchDataFromFirestore(widget.invoiceId??''); 
     fetchCustomerDetail();
+    fetchDetail();
   }
-
-   fetchDetail();
 }
 
 void addOrUpdate(){
@@ -203,8 +203,6 @@ void addOrUpdate(){
   }else{
     customerOrderReturnBloc.add(AddCustomerOrderReturnEvent(customerOrderReturn));
   }
-
-  _showSuccessMessageAndNavigateBack();
 
 }
 
@@ -245,218 +243,256 @@ void clearFormFields() {
 
 @override
 Widget build(BuildContext context) {
-  return BlocProvider(
-    create: (context) => CustomerOrderReturnBloc(),
+    return BlocListener<CustomerOrderReturnBloc, CustomerOrderReturnBlocState>(
+      listener: (context, state) async {
+        if (state is SuccessState) {
+          _showSuccessMessageAndNavigateBack();
+          setState(() {
+            isLoading = false; // Matikan isLoading saat successState
+          });
+        } else if (state is CustomerOrderReturnErrorState) {
+          final snackbar = SnackBar(content: Text(state.errorMessage));
+          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        } else if (state is CustomerOrderReturnLoadingState) {
+          setState(() {
+            isLoading = true;
+          });
+        }
+        if (state is! CustomerOrderReturnLoadingState) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      },
     child: Scaffold(
     body: SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+      child: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.pop(context,null);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.white,
-                        child: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  const Flexible(
-                      child: Text(
-                        'Pengembalian Barang',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16.0),
-              // Di dalam widget buildProductCard atau tempat lainnya
-             DatePickerButton(
-                        label: 'Tanggal Pengembalian',
-                        selectedDate: _selectedDate,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedDate = newDate;
-                          });
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context,null);
                         },
-              ),
-              const SizedBox(height: 16.0,),
-              FakturDropdown(
-                  selectedFaktur: selectedNomorFaktur,
-                  onChanged: (newValue) {
-                    setState(() {
-                      selectedNomorFaktur = newValue??'';
-                      //fetch cards
-                      fetchDataFromFirestore(selectedNomorFaktur??'');
-                    });
-                  },
-                  namaPelangganController: namaPelangganController,
-                  kodePelangganController: kodePelangganController,
-                  nomorPesananPelanggan: nomorPesananPelanggan,
-                  nomorSuratJalanController: nomorSuratJalanController,
-                  alamatController: alamatController,
-                ),
-             const SizedBox(height: 16.0,),
-             TextFieldWidget(
-              label: 'Nomor Surat Jalan',
-              placeholder: 'Nomor Surat Jalan',
-              isEnabled: false,
-              controller: nomorSuratJalanController,
-              ),
-              const SizedBox(height: 16.0),
-              TextFieldWidget(
-              label: 'Nomor Pesanan Pelanggan',
-              placeholder: 'Nomor Pesanan Pelanggan',
-              isEnabled: false,
-              controller: nomorPesananPelanggan,
-              ),
-              const SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(child:  
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.white,
+                            child: Icon(Icons.arrow_back, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      const Flexible(
+                          child: Text(
+                            'Pengembalian Barang',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  // Di dalam widget buildProductCard atau tempat lainnya
+                DatePickerButton(
+                            label: 'Tanggal Pengembalian',
+                            selectedDate: _selectedDate,
+                            onDateSelected: (newDate) {
+                              setState(() {
+                                _selectedDate = newDate;
+                              });
+                            },
+                  ),
+                  const SizedBox(height: 16.0,),
+                  FakturDropdown(
+                      selectedFaktur: selectedNomorFaktur,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedNomorFaktur = newValue??'';
+                          //fetch cards
+                          fetchDataFromFirestore(selectedNomorFaktur??'');
+                        });
+                      },
+                      namaPelangganController: namaPelangganController,
+                      kodePelangganController: kodePelangganController,
+                      nomorPesananPelanggan: nomorPesananPelanggan,
+                      nomorSuratJalanController: nomorSuratJalanController,
+                      alamatController: alamatController,
+                    ),
+                const SizedBox(height: 16.0,),
+                TextFieldWidget(
+                  label: 'Nomor Surat Jalan',
+                  placeholder: 'Nomor Surat Jalan',
+                  isEnabled: false,
+                  controller: nomorSuratJalanController,
+                  ),
+                  const SizedBox(height: 16.0),
                   TextFieldWidget(
-                      label: 'Kode Pelanggan',
-                      placeholder: 'Kode Pelanggan',
-                      controller: kodePelangganController,
-                      isEnabled: false,
+                  label: 'Nomor Pesanan Pelanggan',
+                  placeholder: 'Nomor Pesanan Pelanggan',
+                  isEnabled: false,
+                  controller: nomorPesananPelanggan,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      Expanded(child:  
+                      TextFieldWidget(
+                          label: 'Kode Pelanggan',
+                          placeholder: 'Kode Pelanggan',
+                          controller: kodePelangganController,
+                          isEnabled: false,
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(child:
+                      TextFieldWidget(
+                          label: 'Nama Pelanggan',
+                          placeholder: 'Nama Pelanggan',
+                          controller: namaPelangganController,
+                          isEnabled: false,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextFieldWidget(
+                  label: 'Alamat',
+                  placeholder: 'Alamat',
+                  controller: alamatController,
+                  multiline: true,
+                  isEnabled: false,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFieldWidget(
+                  label: 'Alasan Pengembalian',
+                  placeholder: 'Alasan',
+                  controller: alasanPengembalianController,
+                  multiline: true,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Total Produk',
+                    placeholder: 'Total Produk',
+                    controller: totalProdukController,
+                    isEnabled: false,
+                  ),
+                  const SizedBox(height: 16),
+                  TextFieldWidget(
+                    label: 'Status',
+                    placeholder: 'Dalam Proses',
+                    controller: statusController,
+                    isEnabled: false,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  TextFieldWidget(
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  ),
+                  const SizedBox(height: 16.0,),
+                  const Text(
+                    'Detail Pesanan',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 16.0),
-                  Expanded(child:
-                   TextFieldWidget(
-                      label: 'Nama Pelanggan',
-                      placeholder: 'Nama Pelanggan',
-                      controller: namaPelangganController,
-                      isEnabled: false,
-                    ),
+                  const SizedBox(height: 16.0,),
+                  ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: detailPesananWidgets.length,
+                        itemBuilder: (context, index) {
+                          return detailPesananWidgets[index];
+                        },
+                      ),
+                  const SizedBox(height: 16.0,),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle save button press
+                            addOrUpdate();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Simpan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Handle clear button press
+                            clearFormFields();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Padding(
+                            padding:  EdgeInsets.symmetric(vertical: 16.0),
+                            child: Text(
+                              'Bersihkan',
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              TextFieldWidget(
-              label: 'Alamat',
-              placeholder: 'Alamat',
-              controller: alamatController,
-              multiline: true,
-              isEnabled: false,
-              ),
-              const SizedBox(height: 16),
-              TextFieldWidget(
-              label: 'Alasan Pengembalian',
-              placeholder: 'Alasan',
-              controller: alasanPengembalianController,
-              multiline: true,
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Total Produk',
-                placeholder: 'Total Produk',
-                controller: totalProdukController,
-                isEnabled: false,
-              ),
-               const SizedBox(height: 16),
-               TextFieldWidget(
-                label: 'Status',
-                placeholder: 'Dalam Proses',
-                controller: statusController,
-                isEnabled: false,
-              ),
-              const SizedBox(height: 16.0,),
-              TextFieldWidget(
-                label: 'Catatan',
-                placeholder: 'Catatan',
-                controller: catatanController,
-              ),
-              const SizedBox(height: 16.0,),
-              const Text(
-                'Detail Pesanan',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16.0,),
-               ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: detailPesananWidgets.length,
-                    itemBuilder: (context, index) {
-                      return detailPesananWidgets[index];
-                    },
-                  ),
-              const SizedBox(height: 16.0,),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle save button press
-                        addOrUpdate();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Simpan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Handle clear button press
-                        clearFormFields();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: const Padding(
-                        padding:  EdgeInsets.symmetric(vertical: 16.0),
-                        child: Text(
-                          'Bersihkan',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+          ),
+          if (isLoading)
+          Positioned( // Menambahkan Positioned untuk indikator loading
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
+      )
     ),
   )
   );

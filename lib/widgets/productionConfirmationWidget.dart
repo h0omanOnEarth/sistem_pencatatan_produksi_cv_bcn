@@ -42,7 +42,7 @@ class ProductionConfirmationDropDown extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Permintaan Bahan',
+              'Konfirmasi Produksi',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

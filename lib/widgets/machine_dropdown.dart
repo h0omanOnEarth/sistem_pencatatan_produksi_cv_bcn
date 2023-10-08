@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class MachineDropdown extends StatelessWidget {
   final String? selectedMachine;
-  final TextEditingController? namaMesinController; // Tambahkan parameter ini
+  final TextEditingController? namaMesinController;
   final Function(String?) onChanged;
   final String title;
 
@@ -11,7 +11,7 @@ class MachineDropdown extends StatelessWidget {
     required this.selectedMachine,
     required this.onChanged,
     required this.title,
-    this.namaMesinController, // Tambahkan parameter ini
+    this.namaMesinController,
   });
 
   @override
@@ -38,7 +38,9 @@ class MachineDropdown extends StatelessWidget {
             ),
           );
           if (selectedMachine == machineId && namaMesinController != null) {
-            namaMesinController?.text = machineName;
+            Future.delayed(Duration.zero, () {
+              namaMesinController?.text = machineName;
+            });
           }
         }
 

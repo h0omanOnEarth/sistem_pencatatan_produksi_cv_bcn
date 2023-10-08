@@ -96,3 +96,23 @@ exports.purchaseReqValidation = onCall(purchaseReqValidation);
 //material receive
 const {materialRecValidation} = require("./src/pembelian/materialReceive");
 exports.materialRecValidation = onCall(materialRecValidation);
+
+//material transfer
+const {materialTransferValidation} = require("./src/produksi/materialTransfer");
+exports.materialTransferValidation = onCall(materialTransferValidation);
+
+//item receive
+const {itemReceiveValidation} = require("./src/produksi/itemReceive");
+exports.itemReceiveValidation = onCall(itemReceiveValidation);
+
+//material transform
+const {materialTransformValidate} = require("./src/produksi/materialTransform");
+exports.materialTransformValidate = onCall(materialTransformValidate);
+
+//surat jalan
+const {suratJalanValidation} = require("./src/penjualan/suratJalan");
+exports.suratJalanValidation = onCall(suratJalanValidation);
+
+//customer order return
+const {customerOrderReturnValidation} = require("./src/penjualan/customerOrderReturn");
+exports.customerOrderReturnValidation = onCall(customerOrderReturnValidation);
