@@ -98,30 +98,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Container(
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
+                              color: Colors.white,
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.grey[400]!, // Customize the border color
-                                  width: 1.0, // Customize the border width
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(4),
-                              child: IconButton(
-                                onPressed: () {
-                                  // Aksi untuk tombol notifikasi
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.person,
-                                  color: Colors.black,
-                                  size: 32,
-                                ),
+                            padding: const EdgeInsets.all(4),
+                            child: ClipOval( // Gunakan ClipOval untuk membuat gambar menjadi lingkaran
+                              child: Image.asset(
+                                'images/profile.jpg', // Ganti dengan nama file gambar profil yang sesuai
+                                width: MediaQuery.of(context).size.width * 0.05,
+                                height: MediaQuery.of(context).size.width * 0.05,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/customer_order_return_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_pengembalian_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
@@ -21,12 +22,12 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
   final CollectionReference custReturnReqRef = FirebaseFirestore.instance.collection('customer_order_returns');
   String searchTerm = '';
   String selectedStatus = '';
-  Timestamp? selectedStartDate;
-  Timestamp? selectedEndDate;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -71,45 +72,27 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                 const SizedBox(height: 16.0,),
                 Row(
                   children: [
-                    Column(
-                      children: [
-                        const Text("Tanggal Mulai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey[400]!),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.calendar_today),
-                            onPressed: () {
-                              _selectStartDate(context);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
-                        Text(startDateText),
-                      ],
-                    ),
+                    Expanded(
+                    child:  DatePickerButton(
+                    label: 'Tanggal Mulai',
+                    selectedDate: selectedStartDate,
+                    onDateSelected: (newDate) {
+                      setState(() {
+                        selectedStartDate = newDate;
+                      });
+                    },
+                    ),),
                     const SizedBox(width: 16.0),
-                    Column(
-                      children: [
-                        const Text("Tanggal Selesai: ",style: TextStyle( fontWeight: FontWeight.bold,),),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey[400]!),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.calendar_today),
-                            onPressed: () {
-                              _selectEndDate(context);
-                            },
-                          ),
-                        ),
-                        Text(endDateText),
-                      ],
+                    Expanded(
+                    child: DatePickerButton(
+                    label: 'Tanggal Selesai',
+                    selectedDate: selectedEndDate,
+                    onDateSelected: (newDate) {
+                      setState(() {
+                        selectedEndDate = newDate;
+                      });
+                    },
+                      ), 
                     )
                   ],
                 ),
@@ -139,7 +122,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
 
                         bool isWithinDateRange = true;
                         if (selectedStartDate != null && selectedEndDate != null) {
-                          isWithinDateRange = (tanggalPembuatan.toDate().isAfter(selectedStartDate!.toDate()) && tanggalPembuatan.toDate().isBefore(selectedEndDate!.toDate()));
+                          isWithinDateRange = (tanggalPembuatan.toDate().isAfter(selectedStartDate!) && tanggalPembuatan.toDate().isBefore(selectedEndDate!));
                         }
 
                         return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
@@ -263,38 +246,6 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
         ),
       ),
     );
-  }
-
-  Future<void> _selectStartDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedStartDate?.toDate() ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null && pickedDate != selectedStartDate?.toDate()) {
-      setState(() {
-        selectedStartDate = Timestamp.fromDate(pickedDate);
-        startDateText = DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
-      });
-    }
-  }
-
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedEndDate?.toDate() ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null && pickedDate != selectedEndDate?.toDate()) {
-      setState(() {
-        selectedEndDate = Timestamp.fromDate(pickedDate);
-        endDateText = DateFormat('dd/MM/yyyy').format(pickedDate); // Tambahkan ini
-      });
-    }
   }
 
   Future<void> _showFilterDialog(BuildContext context) async {

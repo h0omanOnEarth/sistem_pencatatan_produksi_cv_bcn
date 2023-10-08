@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/calendarFilterWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -19,12 +19,11 @@ class ListPesananPembelian extends StatefulWidget {
 }
 
 class _ListPesananPembelianState extends State<ListPesananPembelian> {
-  final CollectionReference purchaseOrderRef =
-      FirebaseFirestore.instance.collection('purchase_orders');
+  final CollectionReference purchaseOrderRef = FirebaseFirestore.instance.collection('purchase_orders');
   String searchTerm = '';
   String selectedStatus = '';
-  Timestamp? selectedStartDate;
-  Timestamp? selectedEndDate;
+  DateTime? selectedStartDate;
+  DateTime? selectedEndDate;
   String startDateText = '';
   String endDateText = '';
   int startIndex = 0; // Indeks awal data yang ditampilkan
@@ -90,21 +89,28 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
   Widget buildDateRangeSelector() {
     return Row(
       children: [
-        DateSelector(
-          labelText: 'Tanggal Mulai: ',
-          onPressed: () {
-            _selectStartDate(context);
-          },
-          dateText: startDateText,
-        ),
+        Expanded(
+        child:  DatePickerButton(
+        label: 'Tanggal Mulai',
+        selectedDate: selectedStartDate,
+        onDateSelected: (newDate) {
+          setState(() {
+            selectedStartDate = newDate;
+          });
+        },
+        ),),
         const SizedBox(width: 16.0),
-        DateSelector(
-          labelText: 'Tanggal Selesai: ',
-          onPressed: () {
-            _selectEndDate(context);
-          },
-          dateText: endDateText,
-        ),
+        Expanded(
+        child: DatePickerButton(
+        label: 'Tanggal Selesai',
+        selectedDate: selectedEndDate,
+        onDateSelected: (newDate) {
+          setState(() {
+            selectedEndDate = newDate;
+          });
+        },
+          ), 
+        )
       ],
     );
   }
@@ -136,10 +142,10 @@ Widget _buildPurchaseOrderList() {
 
           bool isWithinDateRange = true;
           if (selectedStartDate != null && selectedEndDate != null) {
-            isWithinDateRange = (tanggalPesan.toDate().isAfter(selectedStartDate!.toDate()) &&
-                tanggalPesan.toDate().isBefore(selectedEndDate!.toDate())) ||
-                (tanggalKirim.toDate().isAfter(selectedStartDate!.toDate()) &&
-                    tanggalKirim.toDate().isBefore(selectedEndDate!.toDate()));
+            isWithinDateRange = (tanggalPesan.toDate().isAfter(selectedStartDate!) &&
+                tanggalPesan.toDate().isBefore(selectedEndDate!)) ||
+                (tanggalKirim.toDate().isAfter(selectedStartDate!) &&
+                    tanggalKirim.toDate().isBefore(selectedEndDate!));
           }
 
           return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
@@ -273,39 +279,6 @@ Widget _buildPurchaseOrderList() {
     },
   );
 }
-
-
-  Future<void> _selectStartDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedStartDate?.toDate() ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null && pickedDate != selectedStartDate?.toDate()) {
-      setState(() {
-        selectedStartDate = Timestamp.fromDate(pickedDate);
-        startDateText = DateFormat('dd/MM/yyyy').format(pickedDate);
-      });
-    }
-  }
-
-  Future<void> _selectEndDate(BuildContext context) async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: selectedEndDate?.toDate() ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-
-    if (pickedDate != null && pickedDate != selectedEndDate?.toDate()) {
-      setState(() {
-        selectedEndDate = Timestamp.fromDate(pickedDate);
-        endDateText = DateFormat('dd/MM/yyyy').format(pickedDate);
-      });
-    }
-  }
 
   Future<void> _showFilterDialog(BuildContext context) async {
     String? selectedValue = await showDialog<String>(

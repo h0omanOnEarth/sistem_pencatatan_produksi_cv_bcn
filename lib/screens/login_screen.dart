@@ -255,12 +255,11 @@ class LoginForm extends StatelessWidget {
                             // }
 
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MainGudang(),
-                                ),
-                              );
-
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MainAdministrasi(),
+                              ),
+                            );
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

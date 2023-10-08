@@ -45,8 +45,8 @@ class LoginRegisterPage extends StatelessWidget {
                   margin: const EdgeInsets.all(10),
                   child: Image.asset('images/logo2.png')),
               Container(
-                width: 350,
-                height: 50,
+                  width: 350,
+                  height: 50,
                 margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                   onPressed: () {

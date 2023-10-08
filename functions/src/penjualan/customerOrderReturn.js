@@ -33,6 +33,12 @@ exports.customerOrderReturnValidation = async (req) => {
       return {success: false, message: "jumlah pengembalian pada detail harus di atas 0"};
   }
 
+  if (!products.every((product) => {
+    return product.jumlah_pesanan >= product.jumlah_pengembalian;
+  })) {
+      return {success: false, message: "jumlah pesanan tidak boleh lebih kecil daripada jumlah pengembalian pada detail"};
+  }
+
   return {
     success: true,
   };

@@ -62,14 +62,12 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                               color: Colors.white,
                             ),
                             padding: const EdgeInsets.all(4),
-                            child: IconButton(
-                              onPressed: () {
-                                // Aksi untuk tombol notifikasi
-                              },
-                              icon: const Icon(
-                                Icons.person,
-                                color: Colors.black,
-                                size: 32,
+                            child: ClipOval( // Gunakan ClipOval untuk membuat gambar menjadi lingkaran
+                              child: Image.asset(
+                                'images/profile.jpg', // Ganti dengan nama file gambar profil yang sesuai
+                                width: MediaQuery.of(context).size.width * 0.05,
+                                height: MediaQuery.of(context).size.width * 0.05,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
@@ -101,7 +99,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                             ),
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(8),
                             child: IconButton(
                               onPressed: () {
                                 // Aksi untuk tombol notifikasi
