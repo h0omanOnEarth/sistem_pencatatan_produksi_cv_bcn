@@ -16,8 +16,7 @@ class MainMenuScreen extends StatelessWidget {
       ),
       home: const LoginRegisterPage(),
       routes: {
-        '/login_page_screen': (context) =>
-            const LoginPageScreen(),
+        '/login_page_screen': (context) => const LoginPageScreen(),
       },
     );
   }
@@ -41,12 +40,44 @@ class LoginRegisterPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final screenWidth = constraints.maxWidth;
+                  double fontSize = 48;
+                  double spacing = 8.0;
+
+                  if (screenWidth < 600) {
+                    fontSize = 36;
+                    spacing = 4.0;
+                  }
+
+                  return Column(
+                    children: [
+                      Text(
+                        "CV. Berlian Cangkir",
+                        style: TextStyle(
+                          fontFamily: 'Montserrat', // Sesuaikan dengan font yang digunakan
+                          fontSize: fontSize, // Sesuaikan dengan ukuran font yang diinginkan
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: spacing),
+                      Text(
+                        "Nusantara",
+                        style: TextStyle(
+                          fontFamily: 'Montserrat', // Sesuaikan dengan font yang digunakan
+                          fontSize: fontSize, // Sesuaikan dengan ukuran font yang diinginkan
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 24.0),
               Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Image.asset('images/logo2.png')),
-              Container(
-                  width: 350,
-                  height: 50,
+                width: 350,
+                height: 50,
                 margin: const EdgeInsets.all(10),
                 child: ElevatedButton(
                   onPressed: () {
@@ -59,8 +90,8 @@ class LoginRegisterPage extends StatelessWidget {
                         const Color.fromRGBO(59, 51, 51, 1)),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            15), // Set your desired border radius here
+                        borderRadius:
+                            BorderRadius.circular(15), // Set your desired border radius here
                       ),
                     ),
                   ),
