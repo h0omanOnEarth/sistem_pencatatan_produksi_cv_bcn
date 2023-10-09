@@ -62,10 +62,22 @@ class ListCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red,),
+                    Container(
+                    width: 35.0,
+                    height: 35.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: Colors.red,
+                    ),
+                    child: IconButton(
+                      iconSize: 21.0,
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
                       onPressed: onDeletePressed,
                     ),
+                  ),
                   ],
                 ),
               ],

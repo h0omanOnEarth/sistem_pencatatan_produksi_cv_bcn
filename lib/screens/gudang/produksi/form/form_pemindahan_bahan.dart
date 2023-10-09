@@ -28,14 +28,13 @@ class FormPemindahanBahan extends StatefulWidget {
 class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
   DateTime? _selectedDate;
   String? selectedNomorPermintaan;
-  bool  isFirstTime = false;
   bool isLoading = false;
-  bool isSave = false;
 
   TextEditingController catatanController = TextEditingController();
   TextEditingController statusController = TextEditingController();
   TextEditingController tanggalPermintaanController = TextEditingController();
   List<Map<String, dynamic>> materialDetailsData= []; // Initialize the list
+  List<Widget> customCards = [];
 
   final materialService = MaterialService();
 
@@ -96,17 +95,73 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
       } else {
         print('Document does not exist on Firestore');
       }
+      fetchMaterialTransfer();
     }).catchError((error) {
       print('Error getting document: $error');
     });
-    isFirstTime = true;
   }
 
   if(widget.materialRequestId!=null){
     initializeMaterial();
   }
+}
 
+Future<void> fetchMaterialTransfer() async {
+  QuerySnapshot snapshot;
+
+  if (widget.materialTransferId != null) {
+    snapshot = await firestore
+        .collection('material_transfers')
+        .doc(widget.materialTransferId)
+        .collection('detail_material_transfers')
+        .get();
+  } else {
+    snapshot = await firestore
+        .collection('material_requests')
+        .doc(selectedNomorPermintaan)
+        .collection('detail_material_requests')
+        .get();
   }
+
+  materialDetailsData.clear();
+  customCards.clear();
+
+  for (final doc in snapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    final materialId = data['material_id'] as String? ?? '';
+
+    Future<Map<String, dynamic>> materialInfoFuture =
+        materialService.fetchMaterialInfo(materialId);
+
+    final materialInfoSnapshot = await materialInfoFuture;
+
+    final materialName = materialInfoSnapshot['nama'] as String;
+    final materialStock = materialInfoSnapshot['stok'] as int;
+
+    Map<String, dynamic> detailMaterial = {
+      'materialId': materialId,
+      'jumlah': data['jumlah_bom'],
+      'satuan': data['satuan'],
+      if (widget.materialTransferId==null) 'batch': data['batch'],
+      'stok': materialStock,
+    };
+    materialDetailsData.add(detailMaterial);
+
+    final customCard = CustomCard(
+      content: [
+        CustomCardContent(text: 'Kode Bahan: $materialId'),
+        CustomCardContent(text: 'Nama: $materialName'),
+        CustomCardContent(
+            text: 'Jumlah: ${data['jumlah_bom'].toString()}'),
+        CustomCardContent(text: 'Stok: $materialStock'),
+        CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
+      ],
+    );
+    customCards.add(customCard);
+  }
+  setState((){});
+}
+
 
   @override 
   void dispose(){
@@ -120,7 +175,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
     catatanController.clear();
     statusController.text = "Dalam Proses";
     materialDetailsData.clear();
-    isFirstTime = false;
+    customCards.clear();
   });
 }
 
@@ -244,6 +299,7 @@ Widget build(BuildContext context) {
                   MaterialRequestDropdown(selectedMaterialRequest: selectedNomorPermintaan,  onChanged: (newValue) {
                         setState(() {
                           selectedNomorPermintaan = newValue??'';
+                          fetchMaterialTransfer();
                         });
                   }, tanggalPermintaanController: tanggalPermintaanController,),
                   const SizedBox(height: 16.0,),
@@ -297,86 +353,13 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       const SizedBox(height: 16.0,),
-                        FutureBuilder<QuerySnapshot>(
-                          future: (widget.materialTransferId != null && isFirstTime==true)
-                          ? firestore
-                              .collection('material_transfers')
-                              .doc(widget.materialTransferId)
-                              .collection('detail_material_transfers')
-                              .get()
-                          : firestore
-                              .collection('material_requests')
-                              .doc(selectedNomorPermintaan)
-                              .collection('detail_material_requests')
-                              .get(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
-                              return const CircularProgressIndicator();
-                            }
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
-                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                              return const Text('Tidak ada data detail pemindahan.');
-                            }
-
-                            final List<Widget> customCards = [];
-                            materialDetailsData.clear();
-
-                            for (final doc in snapshot.data!.docs) {
-                              final data = doc.data() as Map<String, dynamic>;
-                              final materialId = data['material_id'] as String? ?? '';
-
-                              Future<Map<String, dynamic>> materialInfoFuture = materialService.fetchMaterialInfo(materialId);
-                     
-                              customCards.add(
-                                FutureBuilder<Map<String, dynamic>>(
-                                  future: materialInfoFuture,
-                                  builder: (context, materialInfoSnapshot) {
-                                    if (materialInfoSnapshot.connectionState == ConnectionState.waiting && isSave == false) {
-                                      return const CircularProgressIndicator();
-                                    }
-                                    if (materialInfoSnapshot.hasError) {
-                                      return Text('Error: ${materialInfoSnapshot.error}');
-                                    }
-
-                                    final materialInfoData = materialInfoSnapshot.data ?? {};
-                                    final materialName = materialInfoData['nama'] as String;
-                                    final materialStock = materialInfoData['stok'] as int;
-
-                                     Map<String, dynamic> detailMaterial = {
-                                      'materialId': doc['material_id'], // Add fields you need
-                                      'jumlah': doc['jumlah_bom'],
-                                      'satuan': doc['satuan'],
-                                      if(!isFirstTime)
-                                      'batch': doc['batch'],
-                                      'stok': materialStock
-                                    };
-                                    materialDetailsData.add(detailMaterial); // Add to the list
-
-                                    return CustomCard(
-                                      content: [
-                                        CustomCardContent(text: 'Kode Bahan: $materialId'),
-                                        CustomCardContent(text: 'Nama: $materialName'),
-                                        CustomCardContent(text: 'Jumlah: ${data['jumlah_bom'].toString()}'),
-                                        CustomCardContent(text: 'Stok: $materialStock'), 
-                                        CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              );
-                            isFirstTime = false;
-                            }
-                            return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: customCards.length,
-                            itemBuilder: (context, index) {
-                              return customCards[index];
-                            },
-                          );
-                          },
-                        ),
+                      ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: customCards.length,
+                      itemBuilder: (context, index) {
+                        return customCards[index];
+                      },
+                    )
                     ],
                   ),
                   const SizedBox(height: 16.0,),
@@ -387,7 +370,6 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
-                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

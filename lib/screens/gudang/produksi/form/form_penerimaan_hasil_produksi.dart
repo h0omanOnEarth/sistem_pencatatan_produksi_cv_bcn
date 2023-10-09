@@ -30,19 +30,66 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
   DateTime? _selectedDate;
   String? selectedNomorKonfirmasi;
   String selectedStatus = 'Dalam Proses';
-  bool  isFirstTime = true;
   bool isLoading = false;
-  bool isSave = false;
-
   TextEditingController catatanController = TextEditingController();
   TextEditingController tanggalKonfirmasiController = TextEditingController();
-  
   List<Map<String, dynamic>> materialDetailsData= []; // Initialize the list
-
-
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final productService = ProductService();
   final productionCofirmationService = ProductionConfirmationService();
+  List<Widget> customCards = [];
+
+Future<void> fetchConfirmations() async {
+  QuerySnapshot snapshot;
+  if (widget.itemReceivceId != null) {
+    snapshot = await firestore
+        .collection('item_receives')
+        .doc(widget.itemReceivceId)
+        .collection('detail_item_receives')
+        .get();
+  } else {
+    snapshot = await firestore
+        .collection('production_confirmations')
+        .doc(selectedNomorKonfirmasi)
+        .collection('detail_production_confirmations')
+        .get();
+  }
+
+  customCards.clear();
+  materialDetailsData.clear();
+
+  for (final doc in snapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    final productId = data['product_id'] as String? ?? '';
+
+    Future<Map<String, dynamic>> productInfoFuture = productService.fetchProductInfo(productId);
+
+    final productInfoSnapshot = await productInfoFuture;
+
+    final productName = productInfoSnapshot['nama'] as String;
+    final jumlahDusString = (data['jumlah_konfirmasi'] ~/ 2000).toString();
+
+    Map<String, dynamic> detailMaterial = {
+      'productId': productId, // Add fields you need
+      'jumlah': data['jumlah_konfirmasi'],
+    };
+    materialDetailsData.add(detailMaterial);
+
+    final customCard = CustomCard(
+      content: [
+        CustomCardContent(text: 'Kode Barang: $productId'),
+        CustomCardContent(text: 'Nama: $productName'),
+        CustomCardContent(
+            text: 'Jumlah Pcs: ${data['jumlah_konfirmasi'].toString()} Pcs'),
+        CustomCardContent(text: 'Jumlah Dus: $jumlahDusString Dus'),
+      ],
+    );
+
+    customCards.add(customCard);
+  }
+  setState((){});
+}
+
 
   void initProductionConf() async{
     Map<String, dynamic>? productionConf =  await productionCofirmationService.getProductionConfirmationInfo(widget.productionConfirmationId??'');
@@ -71,7 +118,6 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
   void initState(){
     super.initState();
     if(widget.itemReceivceId!=null){
-      isFirstTime = true;
       firestore.collection('item_receives').doc(widget.itemReceivceId) // Menggunakan widget.customerOrderId
         .get()
         .then((DocumentSnapshot documentSnapshot) {
@@ -92,12 +138,11 @@ class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduks
     }).catchError((error) {
       print('Error getting document: $error');
     });
-    }else{
-      isFirstTime = false;
     }
 
     if(widget.productionConfirmationId!=null){
       initProductionConf();
+      fetchConfirmations();
     }
   }
   
@@ -113,6 +158,7 @@ void clearForm() {
     selectedNomorKonfirmasi = null;
     selectedStatus = 'Dalam Proses';
     materialDetailsData.clear();
+    customCards.clear();
   });
 }
 
@@ -249,11 +295,13 @@ Widget build(BuildContext context) {
                             },
                   ),
                   const SizedBox(height: 16.0,),
-                  ProductionConfirmationDropDown(selectedProductionConfirmationDropdown: selectedNomorKonfirmasi,  onChanged: (newValue) {
-                        setState(() {
-                          selectedNomorKonfirmasi = newValue??'';
-                          materialDetailsData.clear();
-                        });
+                  ProductionConfirmationDropDown(
+                    selectedProductionConfirmationDropdown: selectedNomorKonfirmasi, 
+                    onChanged: (newValue) {
+                    setState(() {
+                      selectedNomorKonfirmasi = newValue??'';
+                      fetchConfirmations();
+                    });
                   }, tanggalKonfirmasiController: tanggalKonfirmasiController,),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -270,14 +318,14 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16.0,),
                   DropdownWidget(
-                            label: 'Status',
-                            selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                            items: const ['Dalam Proses', 'Selesai'],
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedStatus = newValue; // Update _selectedValue saat nilai berubah
-                              });
-                            },
+                    label: 'Status',
+                    selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                    items: const ['Dalam Proses', 'Selesai'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedStatus = newValue; 
+                      });
+                    },
                   ),
                   const SizedBox(height: 16.0,),
                   if (!isProductionConf)
@@ -310,81 +358,13 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       const SizedBox(height: 16.0,),
-                        FutureBuilder<QuerySnapshot>(
-                      future: (widget.itemReceivceId != null && isFirstTime == true)
-                          ? firestore
-                              .collection('item_receives')
-                              .doc(widget.itemReceivceId)
-                              .collection('detail_item_receives')
-                              .get()
-                          : firestore
-                              .collection('production_confirmations')
-                              .doc(selectedNomorKonfirmasi)
-                              .collection('detail_production_confirmations')
-                              .get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
-                          return const CircularProgressIndicator();
-                        }
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Text('Tidak ada data detail barang.');
-                        }
-
-                        final List<Widget> customCards = [];
-
-                        for (final doc in snapshot.data!.docs) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final productId = data['product_id'] as String? ?? '';
-
-                          Future<Map<String, dynamic>> productInfoFuture =
-                              productService.fetchProductInfo(productId);
-                          customCards.add(
-                            FutureBuilder<Map<String, dynamic>>(
-                              future: productInfoFuture,
-                              builder: (context, materialInfoSnapshot) {
-                                if (materialInfoSnapshot.connectionState ==
-                                    ConnectionState.waiting && isSave == false) {
-                                  return const CircularProgressIndicator();
-                                }
-                                if (materialInfoSnapshot.hasError) {
-                                  return Text('Error: ${materialInfoSnapshot.error}');
-                                }
-
-                                final productInfoData = materialInfoSnapshot.data ?? {};
-                                final productName = productInfoData['nama'] as String;
-                                final jumlahDusString = (data['jumlah_konfirmasi'] ~/ 2000).toString();
-
-                                return CustomCard(
-                                  content: [
-                                    CustomCardContent(text: 'Kode Bahan: $productId'),
-                                    CustomCardContent(text: 'Nama: $productName'),
-                                    CustomCardContent(
-                                        text: 'Jumlah Pcs: ${data['jumlah_konfirmasi'].toString()} Pcs'),
-                                    CustomCardContent(text: 'Jumlah Dus: $jumlahDusString Dus'),
-                                  ],
-                                );
-                              },
-                            ),
-                          );
-                          Map<String, dynamic> detailMaterial = {
-                            'productId': doc['product_id'], // Add fields you need
-                            'jumlah': doc['jumlah_konfirmasi']
-                          };
-                          materialDetailsData.add(detailMaterial); // Add to the list
-                          isFirstTime = false;
-                        }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: customCards.length,
-                          itemBuilder: (context, index) {
-                            return customCards[index];
-                          },
-                        );
-                      },
-                    ),
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: customCards.length,
+                        itemBuilder: (context, index) {
+                          return customCards[index];
+                        },
+                      )
                     ],
                   ),
                   const SizedBox(height: 16.0,),
@@ -395,7 +375,6 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
-                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

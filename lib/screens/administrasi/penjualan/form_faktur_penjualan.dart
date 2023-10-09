@@ -35,12 +35,10 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   String selectedNomorRekening = '2711598075';
   String selectedMetodePembayaran = 'Transfer BCA';
   String selectedStatusPembayaran = 'Belum Bayar';
-  bool  isFirstTime = false;
   int total=0;
   int totalProduk=0;
   bool isNomorRekeningDisabled = false;
   bool isLoading = false;
-  bool isSave = false;
   
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaPelangganController = TextEditingController();
@@ -52,7 +50,8 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   TextEditingController nomorDeliveryOrderController = TextEditingController();
 
   //list
-  List<Map<String, dynamic>> materialDetailsData= []; // Initialize the list
+  List<Map<String, dynamic>> materialDetailsData= []; 
+  List<Widget> customCards = [];
 
   //service and providers
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
@@ -60,6 +59,72 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
   final deliveryOrderService = DeliveryOrderService();
+
+Future<void> fetchShipments() async {
+  QuerySnapshot snapshot;
+
+  if (widget.invoiceId != null) {
+    snapshot = await firestore
+        .collection('invoices')
+        .doc(widget.invoiceId ?? '')
+        .collection('detail_invoices')
+        .get();
+  } else {
+    snapshot = await firestore
+        .collection('shipments')
+        .doc(selectedNomorSuratJalan)
+        .collection('detail_shipments')
+        .get();
+  }
+
+  materialDetailsData.clear();
+  customCards.clear();
+
+  for (final doc in snapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    final productId = data['product_id'] as String? ?? '';
+
+    Future<Map<String, dynamic>> productInfoFuture =
+        productService.fetchProductInfo(productId);
+
+    final productInfoSnapshot = await productInfoFuture;
+
+    final productName = productInfoSnapshot['nama'] as String;
+    final productPrice = (productInfoSnapshot['harga'] as num).toDouble();
+    final jumlahPcs = data['jumlah_pengiriman'] as int? ?? 0;
+    final jumlahDus = data['jumlah_pengiriman_dus'] as int? ?? 0;
+
+    // Calculate subtotal
+    int subtotal = (productPrice * jumlahPcs).toInt(); 
+
+    // Create the CustomCard
+    final customCard = CustomCard(
+      content: [
+        CustomCardContent(text: 'Kode Barang: $productId'),
+        CustomCardContent(text: 'Nama: $productName'),
+        CustomCardContent(
+            text: 'Jumlah (Pcs): ${jumlahPcs.toString()}'),
+        CustomCardContent(
+            text: 'Jumlah (Dus): ${jumlahDus.toString()}'),
+        CustomCardContent(
+            text: 'Harga per Pcs: Rp ${productPrice.toInt().toString()}'), 
+        CustomCardContent(
+            text: 'Subtotal: Rp ${subtotal.toString()}'), 
+      ],
+    );
+
+    Map<String, dynamic> detailMaterial = {
+      'productId': productId, 
+      'jumlahPcs': jumlahPcs,
+      'jumlahDus': jumlahDus,
+      'harga': productPrice,
+      'subtotal': subtotal,
+    };
+    materialDetailsData.add(detailMaterial); 
+    customCards.add(customCard);
+  }
+  setState(() {});
+}
 
   void initializeShipment() async{
     selectedNomorSuratJalan = widget.shipmentId;
@@ -98,7 +163,6 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
     statusController.text = "Dalam Proses";
 
     if(widget.invoiceId!=null){
-      isFirstTime = true;
         firestore.collection('invoices').doc(widget.invoiceId) // Menggunakan widget.customerOrderId
         .get()
         .then((DocumentSnapshot documentSnapshot) {
@@ -114,12 +178,13 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
           selectedMetodePembayaran = data['metode_pembayaran'];
           selectedStatusPembayaran = data['status_pembayaran'];
           selectedNomorSuratJalan = data['shipment_id'];
-          _updateTotal();
            // Periksa apakah data['nomor_rekening'] adalah null atau string kosong
         if (data['nomor_rekening'] == null || data['nomor_rekening'] == '') {
           isNomorRekeningDisabled = true; // Dinonaktifkan jika null atau kosong
         }
         });
+        fetchShipments();
+        _updateTotal();
       } else {
         print('Document does not exist on Firestore');
       }
@@ -230,6 +295,7 @@ void clearFormFields() {
     kodePelangganController.clear();
     materialDetailsData.clear();
     isNomorRekeningDisabled = false;
+    customCards.clear();
   });
 }
 
@@ -314,7 +380,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       const Flexible(
                           child: Text(
-                            'Pesanan Penjualan',
+                            'Faktur Penjualan',
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
@@ -340,7 +406,7 @@ Widget build(BuildContext context) {
                         onChanged: (newValue) {
                           setState(() {
                             selectedNomorSuratJalan = newValue??'';
-                            materialDetailsData.clear();
+                            fetchShipments();
                             _updateTotal();
                             // Update text fields dengan totalHarga dan totalProduk
                           });
@@ -415,7 +481,6 @@ Widget build(BuildContext context) {
                           items: const ['Transfer BCA', 'Tunai'],
                           onChanged: (newValue) {
                             setState(() {
-                              materialDetailsData.clear();
                               selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
                               if (selectedMetodePembayaran == 'Tunai') {
                                   isNomorRekeningDisabled = true;
@@ -432,7 +497,6 @@ Widget build(BuildContext context) {
                           items: const ['2711598075', '5120181868'],
                           onChanged: (newValue) {
                             setState(() {
-                              materialDetailsData.clear();
                               selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
                             });
                           },
@@ -445,7 +509,6 @@ Widget build(BuildContext context) {
                           items: const ['Belum Bayar', 'Lunas'],
                           onChanged: (newValue) {
                             setState(() {
-                              materialDetailsData.clear();
                               selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
                             });
                           },
@@ -495,100 +558,13 @@ Widget build(BuildContext context) {
                       ),
                     ),
                     const SizedBox(height: 16.0,),
-                    FutureBuilder<QuerySnapshot>(
-                      future: (widget.invoiceId != null && isFirstTime == true)
-                          ? firestore
-                              .collection('invoices')
-                              .doc(widget.invoiceId ?? '')
-                              .collection('detail_invoices')
-                              .get()
-                          : firestore
-                              .collection('shipments')
-                              .doc(selectedNomorSuratJalan)
-                              .collection('detail_shipments')
-                              .get(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
-                          return const CircularProgressIndicator();
-                        }
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        }
-                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return const Text('Tidak ada data detail pesanan.');
-                        }
-
-                        final List<Widget> customCards = [];
-
-                        for (final doc in snapshot.data!.docs) {
-                          final data = doc.data() as Map<String, dynamic>;
-                          final productId = data['product_id'] as String? ?? '';
-
-                          Future<Map<String, dynamic>> productInfoFuture =
-                              productService.fetchProductInfo(productId);
-
-                          customCards.add(
-                            FutureBuilder<Map<String, dynamic>>(
-                              future: productInfoFuture,
-                              builder: (context, materialInfoSnapshot) {
-                                if (materialInfoSnapshot.connectionState ==
-                                    ConnectionState.waiting && isSave == false) {
-                                  return const CircularProgressIndicator();
-                                }
-                                if (materialInfoSnapshot.hasError) {
-                                  return Text('Error: ${materialInfoSnapshot.error}');
-                                }
-
-                                final productInfoData = materialInfoSnapshot.data ?? {};
-                                final productName = productInfoData['nama'] as String;
-                                final productPrice = (productInfoData['harga'] as num).toDouble();
-
-                              // Calculate subtotal
-                                int subtotal = (productPrice * data['jumlah_pengiriman']).toInt(); // 
-                              
-                                // Create the CustomCard
-                                final customCard = CustomCard(
-                                  content: [
-                                    CustomCardContent(text: 'Kode Barang: $productId'),
-                                    CustomCardContent(text: 'Nama: $productName'),
-                                    CustomCardContent(
-                                        text:
-                                            'Jumlah (Pcs): ${data['jumlah_pengiriman'].toString()}'),
-                                    CustomCardContent(
-                                        text:
-                                            'Jumlah (Dus): ${data['jumlah_pengiriman_dus'].toString()}'),
-                                    CustomCardContent(
-                                        text:
-                                            'Harga per Pcs: Rp ${productPrice.toInt().toString()}'), // Format price
-                                    CustomCardContent(
-                                        text: 'Subtotal: Rp ${subtotal.toString()}'), // Format subtotal
-                                  ],
-                                );
-                          
-                                Map<String, dynamic> detailMaterial = {
-                                  'productId': productId, // Add fields you need
-                                  'jumlahPcs': data['jumlah_pengiriman'],
-                                  'jumlahDus': data['jumlah_pengiriman_dus'],
-                                  'harga': productPrice,
-                                  'subtotal': subtotal,
-                                };
-                                materialDetailsData.add(detailMaterial); // Add to the list
-                                isFirstTime = false;
-                                return customCard;
-                              },
-                            ),
-                          );
-                        }
-
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: customCards.length,
-                          itemBuilder: (context, index) {
-                            return customCards[index];
-                          },
-                        );
-                      },
-                    ),
+                   ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: customCards.length,
+                    itemBuilder: (context, index) {
+                      return customCards[index];
+                    },
+                  )
                   ],
                 ),
                   const SizedBox(height: 16.0,),
@@ -599,7 +575,6 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
-                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

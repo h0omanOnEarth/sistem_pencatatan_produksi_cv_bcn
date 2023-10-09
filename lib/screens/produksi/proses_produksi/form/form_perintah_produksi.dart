@@ -36,9 +36,7 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   String? selectedMesinMixer;
   String? selectedMesinSheet;
   String? selectedMesinCetak;
-  bool isFirstTime = false;
   bool isLoading = false;
-  bool isSave = false;
 
   TextEditingController namaProdukController = TextEditingController();
   TextEditingController jumlahProduksiController = TextEditingController();
@@ -52,21 +50,72 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   Map<String, dynamic> mesinPencampuran = {};
   Map<String, dynamic> mesinSheet = {};
   Map<String, dynamic> mesinPencetak = {}; 
+  List<CustomCard> customCards = [];
    
-   void fetchData(){
-    // Ambil data produk dari Firestore di initState
-    firestore.collection('products').get().then((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> product = {
-          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
-          'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
-        };
-        setState(() {
-          productDataProduk.add(product); // Tambahkan produk ke daftar produk
-        });
-      }
-    });
+  void fetchData(){
+  // Ambil data produk dari Firestore di initState
+  firestore.collection('products').get().then((querySnapshot) {
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> product = {
+        'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
+        'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+      };
+      setState(() {
+        productDataProduk.add(product); // Tambahkan produk ke daftar produk
+      });
+    }
+  });
+}
+
+// Function untuk mengambil detail BOM dari Firestore
+Future<void> fetchBillOfMaterials() async {
+  QuerySnapshot snapshot;
+  if (widget.productionOrderId != null) {
+    snapshot = await firestore
+        .collection('production_orders')
+        .doc(widget.productionOrderId)
+        .collection('detail_production_orders')
+        .get();
+  } else {
+    snapshot = await firestore
+        .collection('bill_of_materials')
+        .doc(selectedKodeBOM)
+        .collection('detail_bill_of_materials')
+        .get();
   }
+
+  billOfMaterialsData.clear();
+  customCards.clear();
+
+  for (final doc in snapshot.docs) {
+    final data = doc.data() as Map<String, dynamic>;
+    int jumlah = 0;
+    if (widget.productionOrderId != null) {
+      jumlah = data['jumlah_bom'] ?? 0;
+    } else {
+      jumlah = data['jumlah'] ?? 0;
+    }
+    customCards.add(
+      CustomCard(
+        content: [
+          CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
+          CustomCardContent(text: 'Jumlah: $jumlah'),
+          CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
+          CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
+        ],
+      ),
+    );
+    Map<String, dynamic> billOfMaterial = {
+      'materialId': doc['material_id'], // Add fields you need
+      'jumlahBom': jumlah,
+      'satuan': doc['satuan'],
+      'batch': doc['batch'],
+    };
+    billOfMaterialsData.add(billOfMaterial); // Add to the list
+  }
+  setState(() {});
+}
+
 
 @override
 void dispose() {
@@ -109,7 +158,7 @@ void fetchMachines(){
       .get()
       .then((querySnapshot) {
     querySnapshot.docs.forEach((doc) async {
-      final detailData = doc.data() as Map<String, dynamic>;
+      final detailData = doc.data();
       if(detailData['batch']=='Pencampuran'){
         mesinPencampuran = {
           'batch' : 'Pencampuran',
@@ -172,23 +221,20 @@ void initState() {
           selectedKodeBOM = data['bom_id'];
           selectedKodeProduk = data['product_id'];
           fetchMachines();
+          fetchBillOfMaterials();
         });
       } else {
         print('Document does not exist on Firestore');
       }
-      isFirstTime = true;
     }).catchError((error) {
       print('Error getting document: $error');
     });
   }
 
-   if(widget.productId!=null){
-    initializeProduct();
-  }
-
    WidgetsBinding.instance.addPostFrameCallback((_) {
     selectedProdukNotifier.addListener(_selectedKodeListener);
     selectedKodeProduk = selectedProdukNotifier.value;
+    initializeProduct();
   });
 }
 
@@ -317,7 +363,7 @@ void clearForm() {
     mesinPencampuran.clear();
     mesinSheet.clear();
     mesinPencetak.clear();
-
+    customCards.clear();
     statusController.text = "Dalam Proses";
   });
 }
@@ -449,6 +495,7 @@ Widget build(BuildContext context) {
                   BillOfMaterialDropDown(selectedBOM: selectedKodeBOM, onChanged: (newValue) {
                         setState(() {
                           selectedKodeBOM = newValue;
+                          fetchBillOfMaterials();
                         });
                   },),
                   const SizedBox(height: 16.0,),
@@ -575,67 +622,13 @@ Widget build(BuildContext context) {
                         ),
                       ),
                       const SizedBox(height: 16.0,),
-                      FutureBuilder<QuerySnapshot>(
-                        future: (widget.productionOrderId != null && isFirstTime == true)
-                          ? firestore
-                              .collection('production_orders')
-                              .doc(widget.productionOrderId)
-                              .collection('detail_production_orders')
-                              .get()
-                          : firestore
-                              .collection('bill_of_materials')
-                              .doc(selectedKodeBOM)
-                              .collection('detail_bill_of_materials')
-                              .get(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting && isSave == false) {
-                            return const CircularProgressIndicator();
-                          }
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                            return const Text('Tidak ada data bahan.');
-                          }
-                          
-                          billOfMaterialsData.clear();
-                          final List<CustomCard> customCards = [];
-                          for (final doc in snapshot.data!.docs) {
-                            final data = doc.data() as Map<String, dynamic>;
-                            int jumlah = 0;
-                            if(widget.productionOrderId!=null && isFirstTime){
-                              jumlah = data['jumlah_bom'];
-                            }else{
-                              jumlah = data['jumlah'];
-                            }
-                            customCards.add(
-                              CustomCard(
-                                content: [
-                                  CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
-                                  CustomCardContent(text: 'Jumlah: $jumlah'),
-                                  CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
-                                  CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
-                                ],
-                              ),
-                            );
-                            Map<String, dynamic> billOfMaterial = {
-                              'materialId': doc['material_id'], // Add fields you need
-                              'jumlahBom': jumlah,
-                              'satuan': doc['satuan'],
-                              'batch': doc['batch'],
-                            };
-                            billOfMaterialsData.add(billOfMaterial); // Add to the list
-                            isFirstTime = false;
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: customCards.length,
-                            itemBuilder: (context, index) {
-                              return customCards[index];
-                            },
-                          );
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: customCards.length,
+                        itemBuilder: (context, index) {
+                          return customCards[index];
                         },
-                      ),
+                      )
                     ],
                   ),
                   const SizedBox(height: 16.0,),
@@ -646,7 +639,6 @@ Widget build(BuildContext context) {
                           onPressed: () {
                             // Handle save button press
                             addOrUpdate();
-                            isSave = true;
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(59, 51, 51, 1),

@@ -7,7 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardWithPrint.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedPrint.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListFakturPenjualan extends StatefulWidget {
@@ -158,7 +158,7 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                                 'Status Pembayaran': data['status_pembayaran'],
                                 'Status': data['status_fk']
                               };
-                              return ListCardPrint(
+                              return ListCardFinishedPrint(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -202,6 +202,13 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onPrintPressed: () async {
+
+                                },
+                                onFinished: () async {
+
+                                },
+                                status: data['status_fk'],
                               );
                             },
                           ),

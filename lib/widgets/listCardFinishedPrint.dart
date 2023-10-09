@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 
-class ListCardPrint extends StatelessWidget {
+class ListCardFinishedPrint extends StatelessWidget {
   final String title;
   final String description;
-  final VoidCallback onDeletePressed; // Properti onDeletePressed
-  final VoidCallback onTap; // Properti onTap
-   final VoidCallback? onPrintPressed;
+  final VoidCallback onDeletePressed;
+  final VoidCallback onTap;
+  final VoidCallback? onPrintPressed;
+  final VoidCallback? onFinished;
+  final String status;
 
-  const ListCardPrint({super.key, 
+  const ListCardFinishedPrint({
+    Key? key,
     required this.title,
     required this.description,
     required this.onDeletePressed,
     required this.onTap,
     this.onPrintPressed,
-  });
- @override
+    this.onFinished,
+    required this.status,
+  }) : super(key: key);
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
@@ -58,7 +64,26 @@ class ListCardPrint extends StatelessWidget {
                 ),
               ),
               Column(
+                mainAxisAlignment: MainAxisAlignment.end, // Push elements to the end
                 children: [
+                  if (status != "Selesai")
+                    Container(
+                      width: 35.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                      height: 35.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.green,
+                      ),
+                      child: IconButton(
+                        iconSize: 21.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                        icon: const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: onFinished,
+                      ),
+                    ),
+                  const SizedBox(height: 8.0,),
                   Container(
                     width: 35.0,
                     height: 35.0,
