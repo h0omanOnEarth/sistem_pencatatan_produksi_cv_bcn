@@ -201,6 +201,7 @@ Widget _buildPurchaseOrderList() {
                           purchaseOrderId: data['id'],
                           supplierId: data['supplier_id'],
                           bahanId: data['material_id'],
+                          purchaseRequestId: data['purchase_request_id'],
                         ),
                       ),
                     );

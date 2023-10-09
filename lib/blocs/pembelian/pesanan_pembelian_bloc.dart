@@ -13,7 +13,8 @@ class AddPurchaseOrderEvent extends PurchaseOrderEvent {
 class UpdatePurchaseOrderEvent extends PurchaseOrderEvent {
   final String purchaseOrderId;
   final PurchaseOrder updatedPurchaseOrder;
-  UpdatePurchaseOrderEvent(this.purchaseOrderId, this.updatedPurchaseOrder);
+  final String oldPurchaseRequestId;
+  UpdatePurchaseOrderEvent(this.purchaseOrderId, this.updatedPurchaseOrder, this.oldPurchaseRequestId);
 }
 
 class DeletePurchaseOrderEvent extends PurchaseOrderEvent {
@@ -63,41 +64,49 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
 
     if(materialId.isNotEmpty){
       if(supplierId.isNotEmpty){
-        try {
-         final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
-          'hargaSatuan': hargaSatuan,
-          'jumlah': jumlah,
-          'total' : total
-        });
-
-        if(result.data['success'] == true){
-          final String nextPurchaseOrderId = await _generateNextPurchaseOrderId();
-
-          await FirebaseFirestore.instance.collection('purchase_orders').add({
-            'id': nextPurchaseOrderId,
-            'harga_satuan': hargaSatuan,
+       if(purchaseRequestId.isNotEmpty){
+         try {
+          final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
+            'hargaSatuan': hargaSatuan,
             'jumlah': jumlah,
-            'keterangan':  event.purchaseOrder.keterangan,
-            'purchase_request_id': purchaseRequestId,
-            'material_id': materialId,
-            'satuan': event.purchaseOrder.satuan,
-            'status': event.purchaseOrder.status,
-            'status_pembayaran': event.purchaseOrder.statusPembayaran,
-            'status_pengiriman': event.purchaseOrder.statusPengiriman,
-            'supplier_id': supplierId,
-            'tanggal_kirim': event.purchaseOrder.tanggalKirim,
-            'tanggal_pesan': event.purchaseOrder.tanggalPesan,
-            'total': total,
+            'total' : total,
+            'materialId': materialId,
+            'purchaseRequestId': purchaseRequestId,
+            'mode': 'add',
+            'oldPurchaseRequestId': ''
           });
 
-          yield SuccessState();
-        }else{
-          yield ErrorState(result.data['message']);
-        }
+          if(result.data['success'] == true){
+            final String nextPurchaseOrderId = await _generateNextPurchaseOrderId();
 
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
+            await FirebaseFirestore.instance.collection('purchase_orders').add({
+              'id': nextPurchaseOrderId,
+              'harga_satuan': hargaSatuan,
+              'jumlah': jumlah,
+              'keterangan':  event.purchaseOrder.keterangan,
+              'purchase_request_id': purchaseRequestId,
+              'material_id': materialId,
+              'satuan': event.purchaseOrder.satuan,
+              'status': event.purchaseOrder.status,
+              'status_pembayaran': event.purchaseOrder.statusPembayaran,
+              'status_pengiriman': event.purchaseOrder.statusPengiriman,
+              'supplier_id': supplierId,
+              'tanggal_kirim': event.purchaseOrder.tanggalKirim,
+              'tanggal_pesan': event.purchaseOrder.tanggalPesan,
+              'total': total,
+            });
+
+            yield SuccessState();
+          }else{
+            yield ErrorState(result.data['message']);
+          }
+
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+       }else{
+        yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
+       }
       }else{
         yield ErrorState("kode supplier tidak boleh kosong");
       }
@@ -121,40 +130,48 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
 
         if(materialId.isNotEmpty){
          if(supplierId.isNotEmpty){
-           try {
-             final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
-                'hargaSatuan': hargaSatuan,
-                'jumlah': jumlah,
-                'total' : total
-            });
-
-            if(result.data['success']==true){
-              final purchaseOrderDoc = purchaseOrderSnapshot.docs.first;
-              await purchaseOrderDoc.reference.update(
-                {
-                  'id': event.purchaseOrderId,
-                  'harga_satuan': hargaSatuan,
+          if(purchaseRequestId.isNotEmpty){
+             try {
+              final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
+                  'hargaSatuan': hargaSatuan,
                   'jumlah': jumlah,
-                  'keterangan': event.updatedPurchaseOrder.keterangan,
-                  'purchase_request_id': purchaseRequestId,
-                  'material_id': materialId,
-                  'satuan': event.updatedPurchaseOrder.satuan,
-                  'status': event.updatedPurchaseOrder.status,
-                  'status_pembayaran': event.updatedPurchaseOrder.statusPembayaran,
-                  'status_pengiriman': event.updatedPurchaseOrder.statusPengiriman,
-                  'supplier_id': supplierId,
-                  'tanggal_kirim': event.updatedPurchaseOrder.tanggalKirim,
-                  'tanggal_pesan': event.updatedPurchaseOrder.tanggalPesan,
-                  'total': total,
-                }
-              );
-              yield SuccessState();
-            }else{
-              yield ErrorState(result.data['message']);
-            }
+                  'total' : total,
+                  'materialId': materialId,
+                  'purchaseRequestId': purchaseRequestId,
+                  'mode': 'edit',
+                  'oldPurchaseRequestId': event.oldPurchaseRequestId
+              });
 
-          } catch (e) {
-            yield ErrorState(e.toString());
+              if(result.data['success']==true){
+                final purchaseOrderDoc = purchaseOrderSnapshot.docs.first;
+                await purchaseOrderDoc.reference.update(
+                  {
+                    'id': event.purchaseOrderId,
+                    'harga_satuan': hargaSatuan,
+                    'jumlah': jumlah,
+                    'keterangan': event.updatedPurchaseOrder.keterangan,
+                    'purchase_request_id': purchaseRequestId,
+                    'material_id': materialId,
+                    'satuan': event.updatedPurchaseOrder.satuan,
+                    'status': event.updatedPurchaseOrder.status,
+                    'status_pembayaran': event.updatedPurchaseOrder.statusPembayaran,
+                    'status_pengiriman': event.updatedPurchaseOrder.statusPengiriman,
+                    'supplier_id': supplierId,
+                    'tanggal_kirim': event.updatedPurchaseOrder.tanggalKirim,
+                    'tanggal_pesan': event.updatedPurchaseOrder.tanggalPesan,
+                    'total': total,
+                  }
+                );
+                yield SuccessState();
+              }else{
+                yield ErrorState(result.data['message']);
+              }
+
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+          }else{
+            yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
           }
          }else{
           yield ErrorState('kode supplier tidak boleh kosong');

@@ -15,7 +15,8 @@ class AddMaterialReceiveEvent extends MaterialReceiveEvent {
 class UpdateMaterialReceiveEvent extends MaterialReceiveEvent {
   final String materialReceiveId;
   final MaterialReceive updatedMaterialReceive;
-  UpdateMaterialReceiveEvent(this.materialReceiveId, this.updatedMaterialReceive);
+  final int stokLama;
+  UpdateMaterialReceiveEvent(this.materialReceiveId, this.updatedMaterialReceive, this.stokLama);
 }
 
 class DeleteMaterialReceiveEvent extends MaterialReceiveEvent {
@@ -71,7 +72,10 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
               'jumlahPermintaan': jumlahPermintaan,
               'jumlahDiterima': jumlahDiterima,
               'materialId': materialId,
-              'purchaseReqId': purchaseRequestId
+              'purchaseReqId': purchaseRequestId,
+              'supplierId':supplierId,
+              'mode': 'add',
+              'stokLama':0
             });
 
             if(result.data['success'] == true){
@@ -127,7 +131,10 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
               'jumlahPermintaan': jumlahPermintaan,
               'jumlahDiterima': jumlahDiterima,
               'materialId': materialId,
-              'purchaseReqId': purchaseRequestId
+              'purchaseReqId': purchaseRequestId,
+              'supplierId':supplierId,
+              'mode': 'edit',
+              'stokLama': event.stokLama
             });
 
             if(result.data['success'] == true){
@@ -150,7 +157,7 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
               yield ErrorState('Data Material Receive dengan ID ${event.materialReceiveId} tidak ditemukan.');
             }
             }else{
-              result.data['message'];
+              yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState(e.toString());

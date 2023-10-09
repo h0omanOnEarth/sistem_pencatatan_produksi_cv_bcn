@@ -18,8 +18,9 @@ class FormPenerimaanBahanScreen extends StatefulWidget {
   final String? purchaseRequestId;
   final String? materialReceiveId;
   final String? materialId;
+  final int? stokLama;
 
-  const FormPenerimaanBahanScreen({Key? key, this.purchaseRequestId, this.materialReceiveId, this.materialId}) : super(key: key);
+  const FormPenerimaanBahanScreen({Key? key, this.purchaseRequestId, this.materialReceiveId, this.materialId, this.stokLama}) : super(key: key);
   
   @override
   State<FormPenerimaanBahanScreen> createState() =>
@@ -141,7 +142,7 @@ Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId
     final materialReceive = MaterialReceive(id: '', purchaseRequestId: selectedNomorPermintaan??'', materialId: selectedKodeBahan??'', supplierId: selectedSupplier??'', satuan: satuanController.text, jumlahPermintaan: int.tryParse(jumlahPermintaanController.text)??0, jumlahDiterima: int.tryParse(jumlahDiterimaController.text)??0, status: 1, catatan: catatanController.text, tanggalPenerimaan: _selectedDate??DateTime.now());
 
     if(widget.materialReceiveId!=null){
-      materialReceiveBloc.add(UpdateMaterialReceiveEvent(widget.materialReceiveId??'', materialReceive));
+      materialReceiveBloc.add(UpdateMaterialReceiveEvent(widget.materialReceiveId??'', materialReceive, widget.stokLama??0));
     }else{
       materialReceiveBloc.add(AddMaterialReceiveEvent(materialReceive));
     }
@@ -248,8 +249,8 @@ Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId
                     PurchaseRequestDropDown(selectedPurchaseRequest: selectedNomorPermintaan, onChanged: (newValue) {
                           setState(() {
                             selectedNomorPermintaan = newValue??'';
-                          });
-                      }, jumlahPermintaanController: jumlahPermintaanController,
+                      });
+                     }, jumlahPermintaanController: jumlahPermintaanController,
                     ),
                     const SizedBox(height: 16.0,),
                     Row(

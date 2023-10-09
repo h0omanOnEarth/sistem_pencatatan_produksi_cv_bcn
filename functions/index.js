@@ -116,3 +116,6 @@ exports.suratJalanValidation = onCall(suratJalanValidation);
 //customer order return
 const {customerOrderReturnValidation} = require("./src/penjualan/customerOrderReturn");
 exports.customerOrderReturnValidation = onCall(customerOrderReturnValidation);
+
+const {purchaseReturnValidation} = require("./src/pembelian/pengembalianPesanan");
+exports.purchaseReturnValidation = onCall(purchaseReturnValidation);

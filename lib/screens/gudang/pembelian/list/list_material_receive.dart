@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/purchase_request_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/penerimaan_bahan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/form_penerimaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
@@ -161,6 +161,7 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                                         purchaseRequestId: data['purchase_request_id'],
                                         materialReceiveId: data['id'],
                                         materialId: data['material_id'],
+                                        stokLama: data['jumlah_diterima'],
                                       )
                                     ),
                                   );
@@ -182,8 +183,8 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                                           TextButton(
                                             child: const Text("Hapus"),
                                             onPressed: () async {
-                                              final purReqBloc = BlocProvider.of<PurchaseRequestBloc>(context);
-                                              purReqBloc.add(DeletePurchaseRequestEvent(filteredDocs[startIndex + index].id));
+                                              final purReqBloc = BlocProvider.of<MaterialReceiveBloc>(context);
+                                              purReqBloc.add(DeleteMaterialReceiveEvent(filteredDocs[startIndex + index].id));
                                               Navigator.of(context).pop(true);
                                             },
                                           ),

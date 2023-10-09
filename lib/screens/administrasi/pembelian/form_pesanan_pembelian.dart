@@ -19,7 +19,8 @@ class FormPesananPembelianScreen extends StatefulWidget {
   final String? purchaseOrderId; // Terima ID PO jika dalam mode edit
   final String? supplierId;
   final String? bahanId;
-  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId, this.supplierId, this.bahanId}) : super(key: key);
+  final String? purchaseRequestId;
+  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId, this.supplierId, this.bahanId, this.purchaseRequestId}) : super(key: key);
   
   @override
   State<FormPesananPembelianScreen> createState() =>
@@ -45,6 +46,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   TextEditingController totalController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
   TextEditingController jumlahPermintaanController = TextEditingController();
+  TextEditingController satuanPermintaanController = TextEditingController();
 
   @override
   void dispose() {
@@ -160,7 +162,7 @@ void addOrUpdatePurchaseOrder() {
   );
 
   if(widget.purchaseOrderId!=null){
-    purchaseOrderBloc.add(UpdatePurchaseOrderEvent(widget.purchaseOrderId ?? '',newPurchaseOrder));
+    purchaseOrderBloc.add(UpdatePurchaseOrderEvent(widget.purchaseOrderId ?? '',newPurchaseOrder, widget.purchaseRequestId??''));
   }else{
     purchaseOrderBloc.add(AddPurchaseOrderEvent(newPurchaseOrder));
   }
@@ -241,22 +243,30 @@ void addOrUpdatePurchaseOrder() {
                         ],
                       ),
                       const SizedBox(height: 16.0),
-                       Row(
-                        children: [
-                          Expanded(
-                            child: PurchaseRequestDropDown(selectedPurchaseRequest: selectedNomorPermintaan, onChanged: (newValue) {
+                      PurchaseRequestDropDown(selectedPurchaseRequest: selectedNomorPermintaan, onChanged: (newValue) {
                                 setState(() {
                                   selectedNomorPermintaan = newValue??'';
                                 });
                             }, jumlahPermintaanController: jumlahPermintaanController,
+                            satuanPermintaanController: satuanPermintaanController,
                           ),
-                          ),
-                          const SizedBox(width: 16.0),
+                      const SizedBox(height: 16.0,),
+                       Row(
+                        children: [
                           Expanded(
                             child: TextFieldWidget(
                             label: 'Jumlah Permintaan',
                             placeholder: '0',
                             controller: jumlahPermintaanController,
+                            isEnabled: false,
+                          ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFieldWidget(
+                            label: '',
+                            placeholder: 'Satuan',
+                            controller: satuanPermintaanController,
                             isEnabled: false,
                           ),
                           ),
@@ -451,7 +461,8 @@ void addOrUpdatePurchaseOrder() {
                                 hargaSatuanController.clear();
                                 totalController.clear();
                                 catatanController.clear();
-                                jumlahPermintaanController.clear;
+                                jumlahPermintaanController.clear();
+                                satuanPermintaanController.clear();
                                 setState(() {});
                               },
                               style: ElevatedButton.styleFrom(

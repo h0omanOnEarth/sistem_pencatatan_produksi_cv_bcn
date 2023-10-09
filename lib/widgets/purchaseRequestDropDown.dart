@@ -5,12 +5,14 @@ class PurchaseRequestDropDown extends StatelessWidget {
   final String? selectedPurchaseRequest;
   final Function(String?) onChanged;
   final TextEditingController? jumlahPermintaanController;
+  final TextEditingController? satuanPermintaanController;
 
   const PurchaseRequestDropDown({
     Key? key,
     required this.selectedPurchaseRequest,
     required this.onChanged,
     this.jumlahPermintaanController,
+    this.satuanPermintaanController,
   }) : super(key: key);
 
   @override
@@ -26,7 +28,8 @@ class PurchaseRequestDropDown extends StatelessWidget {
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String purchaseRequestId = document['id'];
-          String jumlahPermintaan = document['jumlah'].toString(); // Ambil nilai 'jumlah' dan konversi ke String
+          String jumlahPermintaan = document['jumlah'].toString();
+          String satuanPermintaan = document['satuan'].toString(); // Tambah ini untuk mengambil nilai satuan
 
           purchaseRequestItems.add(
             DropdownMenuItem<String>(
@@ -38,10 +41,10 @@ class PurchaseRequestDropDown extends StatelessWidget {
             ),
           );
 
-          // Perbarui jumlahPermintaanController jika diberikan
           if (jumlahPermintaanController != null && selectedPurchaseRequest == purchaseRequestId) {
             Future.delayed(Duration.zero, () {
               jumlahPermintaanController?.text = jumlahPermintaan;
+              satuanPermintaanController?.text = satuanPermintaan; // Mengisi satuanPermintaanController
             });
           }
         }
@@ -67,12 +70,12 @@ class PurchaseRequestDropDown extends StatelessWidget {
                 items: purchaseRequestItems,
                 onChanged: (newValue) {
                   onChanged(newValue);
-                  // Perbarui jumlahPermintaanController saat item dipilih
                   if (jumlahPermintaanController != null) {
                     final selectedDoc = snapshot.data!.docs.firstWhere(
                       (doc) => doc['id'] == newValue,
                     );
                     jumlahPermintaanController?.text = selectedDoc['jumlah'].toString();
+                    satuanPermintaanController?.text = selectedDoc['satuan'].toString(); // Mengisi satuanPermintaanController
                   }
                 },
                 isExpanded: true,

@@ -14,8 +14,9 @@ class FormPermintaanPembelianScreen extends StatefulWidget {
   static const routeName = '/form_permintaan_pembelian_gudang_screen';
   final String? purchaseRequestId;
   final String? materialId;
+  final String? statusPRQ;
 
-  const FormPermintaanPembelianScreen({Key? key, this.purchaseRequestId, this.materialId}) : super(key: key);
+  const FormPermintaanPembelianScreen({Key? key, this.purchaseRequestId, this.materialId, this.statusPRQ}) : super(key: key);
   
   @override
   State<FormPermintaanPembelianScreen> createState() =>

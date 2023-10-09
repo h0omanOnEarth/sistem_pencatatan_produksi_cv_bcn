@@ -95,8 +95,6 @@ class LoginForm extends StatelessWidget {
             }
           }
         } else if (state is LoginFailure) {
-          // final snackbar = SnackBar(content: Text(state.error));
-          // ScaffoldMessenger.of(context).showSnackBar(snackbar);
           showDialog(
             context: context,
             builder: (BuildContext context) {

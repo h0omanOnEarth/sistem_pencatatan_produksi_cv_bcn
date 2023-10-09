@@ -160,6 +160,7 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
                                       builder: (context) => FormPermintaanPembelianScreen(
                                         purchaseRequestId: data['id'],
                                         materialId: data['material_id'],
+                                        statusPRQ: data['status_prq'],
                                       )
                                     ),
                                   );

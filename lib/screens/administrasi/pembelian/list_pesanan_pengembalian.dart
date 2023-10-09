@@ -195,6 +195,7 @@ class _ListPesananPengembalianPembelianState
                                         purchaseReturnId: data['id'],
                                         purchaseOrderId:
                                             data['purchase_order_id'], // Mengirimkan ID pesanan pelanggan
+                                        qtyLama: data['jumlah'],
                                       ),
                                     ),
                                   );

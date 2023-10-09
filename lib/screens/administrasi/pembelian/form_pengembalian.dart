@@ -16,7 +16,8 @@ class FormPengembalianPesananScreen extends StatefulWidget {
 
   final String? purchaseReturnId; 
   final String? purchaseOrderId;
-  const FormPengembalianPesananScreen({Key? key, this.purchaseReturnId, this.purchaseOrderId}) : super(key: key);
+  final int? qtyLama;
+  const FormPengembalianPesananScreen({Key? key, this.purchaseReturnId, this.purchaseOrderId, this.qtyLama}) : super(key: key);
   
   @override
   State<FormPengembalianPesananScreen> createState() =>
@@ -159,7 +160,7 @@ void initState() {
     final PurchaseReturn newPurchaseReturn =  PurchaseReturn(id: '', purchaseOrderId: selectedPesanan??'', jumlah: int.tryParse(jumlahController.text)??0, satuan: _selectedSatuan, alamatPengembalian: alamatPengembalianController.text, alasan: alasanController.text, status: 1, tanggalPengembalian: _selectedDate ?? DateTime.now(), jenis_bahan: '', keterangan: catatanController.text);
 
     if(widget.purchaseReturnId!=null){
-      purchaseReturnBloc.add(UpdatePurchaseReturnEvent(widget.purchaseReturnId ?? '',newPurchaseReturn));
+      purchaseReturnBloc.add(UpdatePurchaseReturnEvent(widget.purchaseReturnId ?? '',newPurchaseReturn, widget.qtyLama??0));
     }else{
       purchaseReturnBloc.add(AddPurchaseReturnEvent(newPurchaseReturn));
     }

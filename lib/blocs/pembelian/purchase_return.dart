@@ -14,7 +14,8 @@ class AddPurchaseReturnEvent extends PurchaseReturnEvent {
 class UpdatePurchaseReturnEvent extends PurchaseReturnEvent {
   final String purchaseReturnId;
   final PurchaseReturn updatedPurchaseReturn;
-  UpdatePurchaseReturnEvent(this.purchaseReturnId, this.updatedPurchaseReturn);
+  final int qtyLama;
+  UpdatePurchaseReturnEvent(this.purchaseReturnId, this.updatedPurchaseReturn, this.qtyLama);
 }
 
 class DeletePurchaseReturnEvent extends PurchaseReturnEvent {
@@ -74,21 +75,33 @@ class PurchaseReturnBloc extends Bloc<PurchaseReturnEvent, PurchaseReturnBlocSta
       if(purchaseOrderId.isNotEmpty && satuan.isNotEmpty && alamatPengembalian.isNotEmpty){
         if(jumlah>0){
             try {
-              final String nextPurchaseReturnId = await _generateNextPurchaseReturnId();
-              await FirebaseFirestore.instance.collection('purchase_returns').add({
-                'id': nextPurchaseReturnId,
-                'purchase_order_id': purchaseOrderId,
+              final HttpsCallableResult<dynamic> result = await purchaseReturnCallable.call(<String, dynamic>{
                 'jumlah': jumlah,
+                'purchaseOrderId': purchaseOrderId,
                 'satuan': satuan,
-                'alamat_pengembalian': alamatPengembalian,
-                'alasan': alasan,
-                'status': status,
-                'tanggal_pengembalian': tanggalPengembalian,
-                'jenis_bahan' : jenisBahan,
-                'keterangan': keterangan
+                'qtyLama':0,
+                'mode': 'add'
               });
 
-              yield SuccessState();
+              if(result.data['success'] == true){
+                final String nextPurchaseReturnId = await _generateNextPurchaseReturnId();
+                await FirebaseFirestore.instance.collection('purchase_returns').add({
+                  'id': nextPurchaseReturnId,
+                  'purchase_order_id': purchaseOrderId,
+                  'jumlah': jumlah,
+                  'satuan': satuan,
+                  'alamat_pengembalian': alamatPengembalian,
+                  'alasan': alasan,
+                  'status': status,
+                  'tanggal_pengembalian': tanggalPengembalian,
+                  'jenis_bahan' : jenisBahan,
+                  'keterangan': keterangan
+                });
+
+                yield SuccessState();
+              }else{
+                yield ErrorState(result.data['message']);
+              }          
             } catch (e) {
               yield ErrorState(e.toString());
             }
@@ -113,6 +126,15 @@ class PurchaseReturnBloc extends Bloc<PurchaseReturnEvent, PurchaseReturnBlocSta
         if(purchaseOrderId.isNotEmpty && satuan.isNotEmpty && alamatPengembalian.isNotEmpty){
           if(jumlah>0){
               try {
+                final HttpsCallableResult<dynamic> result = await purchaseReturnCallable.call(<String, dynamic>{
+                'jumlah': jumlah,
+                'purchaseOrderId': purchaseOrderId,
+                'satuan': satuan,
+                'qtyLama': event.qtyLama,
+                'mode': 'add'
+              });
+
+              if(result.data['success'] == true){
                 final purchaseReturnDoc = purchaseReturnSnapshot.docs.first;
                 // Ambil 'material_id' dari Firestore berdasarkan 'purchaseOrderId'
                 final materialId = await _getMaterialIdByPurchaseOrderId(event.updatedPurchaseReturn.purchaseOrderId);
@@ -126,6 +148,10 @@ class PurchaseReturnBloc extends Bloc<PurchaseReturnEvent, PurchaseReturnBlocSta
                 });
 
                 yield SuccessState();            
+              }else{
+                yield ErrorState(result.data['message']);
+              }
+
             } catch (e) {
                 yield ErrorState(e.toString());
             }

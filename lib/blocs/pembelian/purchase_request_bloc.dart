@@ -101,36 +101,41 @@ class PurchaseRequestBloc extends Bloc<PurchaseRequestEvent, PurchaseRequestBloc
       yield LoadingState();
       final materialId = event.updatedPurchaseRequest.materialId;
       final jumlah = event.updatedPurchaseRequest.jumlah;
+      final statusPrq = event.updatedPurchaseRequest.statusPrq;
 
       if(materialId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
-          'jumlah': jumlah,
-        });
-
-        if(result.data['success'] == true){
-          final purchaseRequestSnapshot = await purchaseRequestRef.where('id', isEqualTo: event.purchaseRequestId).get();
-          if (purchaseRequestSnapshot.docs.isNotEmpty) {
-            final purchaseRequestDoc = purchaseRequestSnapshot.docs.first;
-            await purchaseRequestDoc.reference.update({
-              'catatan': event.updatedPurchaseRequest.catatan,
+        if(statusPrq.isNotEmpty && statusPrq!="Selesai"){
+          try {
+            final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
               'jumlah': jumlah,
-              'material_id': materialId,
-              'satuan': event.updatedPurchaseRequest.satuan,
-              'status': event.updatedPurchaseRequest.status,
-              'status_prq': event.updatedPurchaseRequest.statusPrq,
-              'tanggal_permintaan': event.updatedPurchaseRequest.tanggalPermintaan,
             });
-            yield SuccessState();
-          } else {
-            yield ErrorState('Data Purchase Request dengan ID ${event.purchaseRequestId} tidak ditemukan.');
+
+            if(result.data['success'] == true){
+              final purchaseRequestSnapshot = await purchaseRequestRef.where('id', isEqualTo: event.purchaseRequestId).get();
+              if (purchaseRequestSnapshot.docs.isNotEmpty) {
+                final purchaseRequestDoc = purchaseRequestSnapshot.docs.first;
+                await purchaseRequestDoc.reference.update({
+                  'catatan': event.updatedPurchaseRequest.catatan,
+                  'jumlah': jumlah,
+                  'material_id': materialId,
+                  'satuan': event.updatedPurchaseRequest.satuan,
+                  'status': event.updatedPurchaseRequest.status,
+                  'status_prq': event.updatedPurchaseRequest.statusPrq,
+                  'tanggal_permintaan': event.updatedPurchaseRequest.tanggalPermintaan,
+                });
+                yield SuccessState();
+              } else {
+                yield ErrorState('Data Purchase Request dengan ID ${event.purchaseRequestId} tidak ditemukan.');
+              }
+            }else{
+              yield ErrorState(result.data['message']);
+            }
+          } catch (e) {
+            yield ErrorState(e.toString());
           }
         }else{
-          yield ErrorState(result.data['message']);
+          yield ErrorState("permintaan pembelian yang telah selesai\ntidak dapat diubah");
         }
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
       }else{
         yield ErrorState("kode bahan tidak boleh kosong");
       }
