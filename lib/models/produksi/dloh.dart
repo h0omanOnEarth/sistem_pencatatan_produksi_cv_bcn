@@ -4,7 +4,7 @@ class DLOH {
   String id;
   String materialUsageId;
   String catatan;
-  int status;
+  String status;
   int jumlahTenagaKerja;
   int jumlahJamTenagaKerja;
   int biayaTenagaKerja;
@@ -17,7 +17,7 @@ class DLOH {
     required this.id,
     required this.materialUsageId,
     required this.catatan,
-    this.status = 1,
+    this.status="",
     this.jumlahTenagaKerja = 0,
     this.jumlahJamTenagaKerja = 0,
     this.biayaTenagaKerja = 0,
@@ -33,7 +33,7 @@ class DLOH {
       id: map['id'] as String,
       materialUsageId: map['material_usage_id'] as String,
       catatan: map['catatan'] as String,
-      status: map['status'] as int,
+      status: map['status'] as String,
       jumlahTenagaKerja: map['jumlah_tenaga_kerja'] as int,
       jumlahJamTenagaKerja: map['jumlah_jam_tenaga_kerja'] as int,
       biayaTenagaKerja: map['biaya_tenaga_kerja'] as int,

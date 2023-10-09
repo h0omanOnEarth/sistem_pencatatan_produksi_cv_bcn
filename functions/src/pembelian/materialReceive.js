@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.materialRecValidation = async (req) => {
-  const { jumlahPermintaan, jumlahDiterima, materialId, purchaseReqId, supplierId, mode, stokLama } = req.data;
+  const { jumlahPermintaan, jumlahDiterima, materialId, purchaseReqId, supplierId, mode, stokLama} = req.data;
 
   if (!jumlahPermintaan || isNaN(jumlahPermintaan) || jumlahPermintaan < 0) {
     return { success: false, message: "jumlah permintaan harus lebih besar dari 0" };

@@ -6,6 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/dloh_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_directlabor_overhead.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -20,7 +21,7 @@ class ListDLOHC extends StatefulWidget {
 class _ListDLOHCState extends State<ListDLOHC> {
   final CollectionReference dlohcRef = FirebaseFirestore.instance.collection('direct_labor_overhead_costs');
   String searchTerm = '';
-  int selectedStatus = -1;
+  String selectedStatus = "";
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
@@ -116,7 +117,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
 
                       final filteredDocs = itemDocs.where((doc) {
                         final keterangan = doc['id'] as String;
-                        final status = doc['status'] as int;
+                        final status = doc['status'] as String;
                         final tanggalRencana = doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
 
                         bool isWithinDateRange = true;
@@ -125,7 +126,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
                         }
 
                         return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                            (selectedStatus.toInt() == -1 || status == selectedStatus) &&
+                            (selectedStatus.isEmpty || status == selectedStatus) &&
                             isWithinDateRange);
                       }).toList();
 
@@ -256,40 +257,19 @@ class _ListDLOHCState extends State<ListDLOHC> {
     );
   }
 
-  Future<void> _showFilterDialog(BuildContext context) async {
-    String? selectedValue = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('Filter Berdasarkan Posisi'),
-          children: <Widget>[
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, '');
-              },
-              child: const Text('Semua'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Aktif');
-              },
-              child: const Text('Aktif'),
-            ),
-            SimpleDialogOption(
-              onPressed: () {
-                Navigator.pop(context, 'Tidak Aktif');
-              },
-              child: const Text('Tidak Aktif'),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (selectedValue != null) {
-      setState(() {
-        selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
-      });
-    }
-  }
+ Future<void> _showFilterDialog(BuildContext context) async {
+  await showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      return FilterDialog(
+        title: ('Filter Berdasarkan Status Hasil Produksi'),
+        onFilterSelected: (selectedStatus) {
+          setState(() {
+            this.selectedStatus = selectedStatus!;
+          });
+        },
+      );
+    },
+  );
+}
 }

@@ -182,5 +182,15 @@ Future<String> _generateNextCustomerId() async {
     }
     return customers;
   }
+
+  Future<void> deleteDocumentsInCollection(CollectionReference collectionRef, String fieldName, String fieldValue) async {
+  // Cari dokumen dengan fieldName yang sesuai dengan fieldValue
+  QuerySnapshot querySnapshot = await collectionRef.where(fieldName, isEqualTo: fieldValue).get();
+
+  // Hapus semua dokumen yang sesuai dengan pencarian
+  for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+    await documentSnapshot.reference.delete();
+  }
+}
   
 }

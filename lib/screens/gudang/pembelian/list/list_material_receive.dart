@@ -12,21 +12,24 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 class ListMaterialReceive extends StatefulWidget {
   static const routeName = '/list_material_receive_screen';
 
-  const ListMaterialReceive({super.key});
+  const ListMaterialReceive({Key? key}) : super(key: key);
+
   @override
-  State<ListMaterialReceive> createState() => _ListMaterialReceiveState();
+  _ListMaterialReceiveState createState() => _ListMaterialReceiveState();
 }
 
 class _ListMaterialReceiveState extends State<ListMaterialReceive> {
-  final CollectionReference purchaseReqRef = FirebaseFirestore.instance.collection('material_receives');
+  final CollectionReference materialReceivesRef = FirebaseFirestore.instance.collection('material_receives');
+  final CollectionReference materialsRef = FirebaseFirestore.instance.collection('materials');
+
   String searchTerm = '';
-  int selectedStatus = -1;
+  String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
-  int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 5; // Jumlah data per halaman
+  String startDateText = '';
+  String endDateText = '';
+  int startIndex = 0;
+  int itemsPerPage = 5;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -51,7 +54,7 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                         });
                       }),
                     ),
-                    const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+                    const SizedBox(width: 16.0),
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
@@ -61,44 +64,43 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                       child: IconButton(
                         icon: const Icon(Icons.filter_list),
                         onPressed: () {
-                          // Handle filter button press
                           _showFilterDialog(context);
                         },
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(
-                    child:  DatePickerButton(
-                    label: 'Tanggal Mulai',
-                    selectedDate: selectedStartDate,
-                    onDateSelected: (newDate) {
-                      setState(() {
-                        selectedStartDate = newDate;
-                      });
-                    },
-                    ),),
+                      child: DatePickerButton(
+                        label: 'Tanggal Mulai',
+                        selectedDate: selectedStartDate,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            selectedStartDate = newDate;
+                          });
+                        },
+                      ),
+                    ),
                     const SizedBox(width: 16.0),
                     Expanded(
-                    child: DatePickerButton(
-                    label: 'Tanggal Selesai',
-                    selectedDate: selectedEndDate,
-                    onDateSelected: (newDate) {
-                      setState(() {
-                        selectedEndDate = newDate;
-                      });
-                    },
-                      ), 
-                    )
+                      child: DatePickerButton(
+                        label: 'Tanggal Selesai',
+                        selectedDate: selectedEndDate,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            selectedEndDate = newDate;
+                          });
+                        },
+                      ),
+                    ),
                   ],
                 ),
-                //cards
                 const SizedBox(height: 16.0),
                 StreamBuilder<QuerySnapshot>(
-                  stream: purchaseReqRef.snapshots(),
+                  stream: materialReceivesRef.snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
@@ -114,132 +116,150 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                       final querySnapshot = snapshot.data!;
                       final itemDocs = querySnapshot.docs;
 
-                      final filteredDocs = itemDocs.where((doc) {
-                        final keterangan = doc['id'] as String;
-                        final status = doc['status'] as int;
-                        final tanggalRencana = doc['tanggal_penerimaan'] as Timestamp; // Tanggal Pesan
+                      return FutureBuilder<QuerySnapshot>(
+                        future: materialsRef.get(),
+                        builder: (context, materialsSnapshot) {
+                          if (materialsSnapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                              ),
+                            );
+                          } else if (materialsSnapshot.hasError) {
+                            return Text('Error getting material data: ${materialsSnapshot.error}');
+                          } else {
+                            final materialDocs = materialsSnapshot.data?.docs ?? [];
 
-                        bool isWithinDateRange = true;
-                        if (selectedStartDate != null && selectedEndDate != null) {
-                          isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) && tanggalRencana.toDate().isBefore(selectedEndDate!));
-                        }
+                            final filteredDocs = itemDocs.where((doc) {
+                              final keterangan = doc['id'] as String;
+                              final tanggalRencana = doc['tanggal_penerimaan'] as Timestamp;
+                              final status = _getMaterialStatus(materialDocs, doc['material_id']);
 
-                        return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                            (selectedStatus == -1 || status == selectedStatus) &&
-                            isWithinDateRange);
-                      }).toList();
+                              bool isWithinDateRange = true;
+                              if (selectedStartDate != null && selectedEndDate != null) {
+                                isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) &&
+                                    tanggalRencana.toDate().isBefore(selectedEndDate!));
+                              }
 
-                      // Perbarui status tombol Prev dan Next
-                      isPrevButtonDisabled = startIndex == 0;
-                      isNextButtonDisabled = startIndex + itemsPerPage >= filteredDocs.length;
+                              return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                                  (selectedStatus.isEmpty || status.contains(selectedStatus)) &&
+                                  isWithinDateRange);
+                            }).toList();
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: (filteredDocs.length - startIndex).clamp(0, itemsPerPage),
-                            itemBuilder: (context, index) {
-                              final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
-                              final id = data['id'] as String;
-                              final info = {
-                                'ID Bahan' : data['material_id'],
-                                'Tanggal Penerimaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()), // Format tanggal
-                                'Catatan': data['catatan'],
-                                'Status': data['status'],
-                                'Jumlah Permintaan': data['jumlah_permintaan'],
-                                'Jumlah Diterima': data['jumlah_diterima']
-                              };
-                              return ListCard(
-                                title: id,
-                                description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FormPenerimaanBahanScreen(
-                                        purchaseRequestId: data['purchase_request_id'],
-                                        materialReceiveId: data['id'],
-                                        materialId: data['material_id'],
-                                        stokLama: data['jumlah_diterima'],
-                                      )
+                            isPrevButtonDisabled = startIndex == 0;
+                            isNextButtonDisabled = startIndex + itemsPerPage >= filteredDocs.length;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: (filteredDocs.length - startIndex).clamp(0, itemsPerPage),
+                                  itemBuilder: (context, index) {
+                                    final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
+                                    final id = data['id'] as String;
+                                    final info = {
+                                      'ID Bahan': data['material_id'],
+                                      'Tanggal Penerimaan':
+                                          DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()),
+                                      'Catatan': data['catatan'],
+                                      'Status': _getMaterialStatus(materialDocs, data['material_id']),
+                                      'Jumlah Permintaan': data['jumlah_permintaan'],
+                                      'Jumlah Diterima': data['jumlah_diterima'],
+                                    };
+                                    return ListCard(
+                                      title: id,
+                                      description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => FormPenerimaanBahanScreen(
+                                              purchaseRequestId: data['purchase_request_id'],
+                                              materialReceiveId: data['id'],
+                                              materialId: data['material_id'],
+                                              stokLama: data['jumlah_diterima'],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      onDeletePressed: () async {
+                                        final confirmed = await showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: const Text("Konfirmasi Hapus"),
+                                              content: const Text("Anda yakin ingin menghapus penerimaan bahan ini?"),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: const Text("Batal"),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop(false);
+                                                  },
+                                                ),
+                                                TextButton(
+                                                  child: const Text("Hapus"),
+                                                  onPressed: () async {
+                                                    final purReqBloc = BlocProvider.of<MaterialReceiveBloc>(context);
+                                                    purReqBloc.add(DeleteMaterialReceiveEvent(filteredDocs[startIndex + index].id));
+                                                    Navigator.of(context).pop(true);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+
+                                        if (confirmed == true) {
+                                          // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 16.0),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    ElevatedButton(
+                                      onPressed: isPrevButtonDisabled
+                                          ? null
+                                          : () {
+                                        setState(() {
+                                          startIndex -= itemsPerPage;
+                                          if (startIndex < 0) {
+                                            startIndex = 0;
+                                          }
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.brown,
+                                      ),
+                                      child: const Text("Prev"),
                                     ),
-                                  );
-                                },
-                                onDeletePressed: () async {
-                                  final confirmed = await showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text("Konfirmasi Hapus"),
-                                        content: const Text("Anda yakin ingin menghapus penerimaan bahan ini?"),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text("Batal"),
-                                            onPressed: () {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: const Text("Hapus"),
-                                            onPressed: () async {
-                                              final purReqBloc = BlocProvider.of<MaterialReceiveBloc>(context);
-                                              purReqBloc.add(DeleteMaterialReceiveEvent(filteredDocs[startIndex + index].id));
-                                              Navigator.of(context).pop(true);
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-
-                                  if (confirmed == true) {
-                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 16.0,),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              ElevatedButton(
-                                onPressed: isPrevButtonDisabled
-                                    ? null
-                                    : () {
-                                  setState(() {
-                                    startIndex -= itemsPerPage;
-                                    if (startIndex < 0) {
-                                      startIndex = 0;
-                                    }
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                    const SizedBox(width: 16),
+                                    ElevatedButton(
+                                      onPressed: isNextButtonDisabled
+                                          ? null
+                                          : () {
+                                        setState(() {
+                                          startIndex += itemsPerPage;
+                                          if (startIndex >= filteredDocs.length) {
+                                            startIndex = filteredDocs.length - itemsPerPage;
+                                          }
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.brown,
+                                      ),
+                                      child: const Text("Next"),
+                                    ),
+                                  ],
                                 ),
-                                child: const Text("Prev"),
-                              ),
-                              const SizedBox(width: 16),
-                              ElevatedButton(
-                                onPressed: isNextButtonDisabled
-                                    ? null
-                                    : () {
-                                  setState(() {
-                                    startIndex += itemsPerPage;
-                                    if (startIndex >= filteredDocs.length) {
-                                      startIndex = filteredDocs.length - itemsPerPage;
-                                    }
-                                  });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
-                                ),
-                                child: const Text("Next"),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            );
+                          }
+                        },
                       );
                     }
                   },
@@ -252,12 +272,17 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
     );
   }
 
+String _getMaterialStatus(List<QueryDocumentSnapshot> materialDocs, String materialId) {
+  final materialDoc = materialDocs.firstWhere((doc) => doc['id'] == materialId);
+  return materialDoc['jenis_bahan'] as String;
+}
+
   Future<void> _showFilterDialog(BuildContext context) async {
     String? selectedValue = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
         return SimpleDialog(
-          title: const Text('Filter Berdasarkan Penerimaan Bahan'),
+          title: const Text('Filter Berdasarkan Jenis Bahan'),
           children: <Widget>[
             SimpleDialogOption(
               onPressed: () {
@@ -267,15 +292,15 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Aktif');
+                Navigator.pop(context, 'Bahan Baku');
               },
-              child: const Text('Aktif'),
+              child: const Text('Bahan Baku'),
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Tidak Aktif');
+                Navigator.pop(context, 'Bahan Tambahan');
               },
-              child: const Text('Tidak Aktif'),
+              child: const Text('Bahan Tambahan'),
             ),
           ],
         );
@@ -284,7 +309,7 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
 
     if (selectedValue != null) {
       setState(() {
-        selectedStatus = (selectedValue == 'Aktif') ? 1 : (selectedValue == 'Tidak Aktif') ? 0 : -1;
+        selectedStatus = selectedValue;
       });
     }
   }

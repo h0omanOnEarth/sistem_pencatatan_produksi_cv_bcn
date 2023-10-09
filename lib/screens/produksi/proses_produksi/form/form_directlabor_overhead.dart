@@ -95,6 +95,7 @@ void updateTotalBiaya() {
    @override
   void initState() {
     super.initState();
+    statusController.text = 'Dalam Proses';
     if(widget.dlohId!=null){
       firestore
         .collection('direct_labor_overhead_costs')
@@ -105,7 +106,7 @@ void updateTotalBiaya() {
         final data = documentSnapshot.data() as Map<String, dynamic>;
         setState(() {
           catatanController.text = data['catatan'] ?? '';
-          statusController.text = data['status'] == 1 ? 'Aktif' : 'Tidak Aktif';
+          statusController.text = data['status'].toString();
           selectedPenggunaanBahan = data['material_usage_id'];
           upahTenagaKerjaPerJamController.text = data['upah_tenaga_kerja_perjam'].toString();
           jumlahTenagaKerjaController.text= data['jumlah_tenaga_kerja'].toString();
@@ -151,7 +152,7 @@ void updateTotalBiaya() {
     _selectedDate = null;
     totalBiayaController.text = '';
     biayaTenagaKerjaController.text = '';
-    statusController.text = 'Aktif';
+    statusController.text = 'Dalam Proses';
   });
 }
 
@@ -161,7 +162,7 @@ void addOrUpdate(){
   int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   int totalBiayaInt = int.tryParse(totalBiayaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
-  final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: 1, jumlahTenagaKerja: int.tryParse(jumlahTenagaKerjaController.text)??0, jumlahJamTenagaKerja: int.tryParse(jumlahJamTenagaKerjaController.text)??0, biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: int.tryParse(biayaOverheadController.text)??0, upahTenagaKerjaPerjam: int.tryParse(upahTenagaKerjaPerJamController.text)??0, subtotal: totalBiayaInt);
+  final dloh = DLOH(id: '', materialUsageId: selectedPenggunaanBahan??'', tanggalPencatatan: _selectedDate??DateTime.now(), catatan: catatanController.text, status: "Selesai", jumlahTenagaKerja: int.tryParse(jumlahTenagaKerjaController.text)??0, jumlahJamTenagaKerja: int.tryParse(jumlahJamTenagaKerjaController.text)??0, biayaTenagaKerja: biayaTenagaKerja, biayaOverhead: int.tryParse(biayaOverheadController.text)??0, upahTenagaKerjaPerjam: int.tryParse(upahTenagaKerjaPerJamController.text)??0, subtotal: totalBiayaInt);
 
   if(widget.dlohId!=null){
     dlohBloc.add(UpdateDLOHEvent(widget.dlohId??'', dloh));
