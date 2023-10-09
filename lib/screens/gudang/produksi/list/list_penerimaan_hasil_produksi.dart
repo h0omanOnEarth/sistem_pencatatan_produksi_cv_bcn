@@ -24,10 +24,10 @@ class _ListItemReceiveState extends State<ListItemReceive> {
   String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
-  int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 5; // Jumlah data per halaman
+  String startDateText = ''; 
+  String endDateText = '';   
+  int startIndex = 0;
+  int itemsPerPage = 5; 
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -130,7 +130,6 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                             isWithinDateRange);
                       }).toList();
 
-                      // Perbarui status tombol Prev dan Next
                       isPrevButtonDisabled = startIndex == 0;
                       isNextButtonDisabled = startIndex + itemsPerPage >= filteredDocs.length;
 
@@ -144,10 +143,10 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
-                                'Tanggal Penerimaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()), // Format tanggal
-                                'Id Konfirmasi Produksi' : data['production_confirmation_id'],
-                                'Catatan' : data['catatan']
+                                'ID Konfirmasi Produksi' : data['production_confirmation_id'],
+                                'Tanggal Penerimaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()), 
+                                'Catatan' : data['catatan'],
+                                'Status': data['status_irc']
                               };
                               return ListCard(
                                 title: id,

@@ -144,10 +144,12 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID Mesin' : data['machine_id'],
                                 'Tanggal Pengubahan': DateFormat('dd/MM/yyyy').format((data['tanggal_pengubahan'] as Timestamp).toDate()), // Format tanggal
-                                'Id Mesin' : data['machine_id'],
-                                'Catatan' : data['catatan']
+                                'Jumlah Hasil': '${data['jumlah_hasil']} ${data['satuan_hasil']}',
+                                'Total Hasil': '${data['total_hasil']} ${data['satuan_total_hasil']}',
+                                'Catatan' : data['catatan'],
+                                'Status': data['status_mtf']
                               };
                               return ListCard(
                                 title: id,

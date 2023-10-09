@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/supplierService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/purchaseRequestDropDown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
@@ -169,8 +170,12 @@ Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId
           isLoading = false; // Matikan isLoading saat successState
         });
       } else if (state is ErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+         showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is LoadingState) {
         setState(() {
           isLoading = true;

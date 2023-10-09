@@ -27,7 +27,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
   String startDateText = '';
   String endDateText = '';  
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -151,11 +151,14 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
-                                'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Penggunaan Bahan' : data['material_usage_id'],
+                                'ID Penggunaan Bahan' : data['material_usage_id'],
+                                'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), 
+                                'Jumlah Produk Cacat': '${data['jumlah_produk_cacat']} ${data['satuan']}',
+                                'Jumlah Produk Berhasil': '${data['jumlah_produk_berhasil']} ${data['satuan']}',
                                 'Total Produk': "${data['total_produk']} Pcs",
-                                'Waktu Produksi': "${data['waktu_produksi']} menit"
+                                'Waktu Produksi': "${data['waktu_produksi']} menit",
+                                'Catatan': data['catatan'],
+                                'Status': data['status_prs']
                               };
                               return ListCard(
                                 title: id,

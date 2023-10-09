@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/mesin_bloc.dart' as MesinBloc;
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
@@ -127,8 +128,12 @@ showDialog(
             isLoading = false; // Matikan isLoading saat successState
           });
         } else if (state is MesinBloc.ErrorState) {
-          final snackbar = SnackBar(content: Text(state.errorMessage));
-          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
         } else if (state is MesinBloc.LoadingState) {
           setState(() {
             isLoading = true; // Aktifkan isLoading saat LoadingState

@@ -53,7 +53,7 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -137,7 +137,7 @@ class CardItem extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 16.0),
+              const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically

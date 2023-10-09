@@ -181,10 +181,14 @@ Widget _buildPurchaseOrderList() {
                 final data = paginatedDocs[index].data() as Map<String, dynamic>;
                 final id = data['id'] as String;
                 final info = {
+                  'ID Bahan': data['material_id'],
+                  'Jumlah': '${data['jumlah']} ${data['satuan']}',
                   'Tanggal Pesan': DateFormat('dd/MM/yyyy').format(
                       (data['tanggal_pesan'] as Timestamp).toDate()),
                   'Tanggal Kirim': DateFormat('dd/MM/yyyy').format(
                       (data['tanggal_kirim'] as Timestamp).toDate()),
+                  'Catatan': data['keterangan'],
+                  'Status': data['status_pengiriman'],
                 };
                 return ListCard(
                   title: id,

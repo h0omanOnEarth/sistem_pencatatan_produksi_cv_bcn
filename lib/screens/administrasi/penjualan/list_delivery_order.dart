@@ -178,7 +178,6 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
         final data = displayedDocs[index].data() as Map<String, dynamic>;
         final id = data['id'] as String;
         final info = {
-          'ID': data['id'],
           'Customer order ID': data['customer_order_id'],
           'Tanggal Pesanan Pengiriman': DateFormat('dd/MM/yyyy')
               .format((data['tanggal_pesanan_pengiriman'] as Timestamp).toDate()),

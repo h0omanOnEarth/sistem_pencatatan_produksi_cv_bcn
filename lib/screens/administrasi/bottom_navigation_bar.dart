@@ -69,7 +69,7 @@ class _BottomNavigationAdministrasiState extends State<BottomNavigationAdministr
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      child: Container(
+      child: SizedBox(
         height: 56, // Sesuaikan dengan tinggi yang diinginkan
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,

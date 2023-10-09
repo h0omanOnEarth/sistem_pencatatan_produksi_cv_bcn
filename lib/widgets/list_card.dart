@@ -6,7 +6,7 @@ class ListCard extends StatelessWidget {
   final VoidCallback onDeletePressed; // Properti onDeletePressed
   final VoidCallback onTap; // Properti onTap
 
-  const ListCard({
+  const ListCard({super.key, 
     required this.title,
     required this.description,
     required this.onDeletePressed,
@@ -42,7 +42,7 @@ class ListCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.normal,
+                          fontWeight: FontWeight.normal, // Ganti FontWeight ke bold
                         ),
                         textAlign: TextAlign.start,
                       ),

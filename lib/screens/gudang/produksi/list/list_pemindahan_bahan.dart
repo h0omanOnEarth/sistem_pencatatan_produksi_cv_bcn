@@ -144,9 +144,10 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
-                                'Tanggal Pemindahan': DateFormat('dd/MM/yyyy').format((data['tanggal_pemindahan'] as Timestamp).toDate()), // Format tanggal
-                                'Id Permintaan Bahan' : data['material_request_id']
+                                'ID Permintaan Bahan' : data['material_request_id'],
+                                'Tanggal Pemindahan': DateFormat('dd/MM/yyyy').format((data['tanggal_pemindahan'] as Timestamp).toDate()), 
+                                'Catatan': data['catatan'],
+                                'Status': data['status_mtr'],
                               };
                               return ListCard(
                                 title: id,

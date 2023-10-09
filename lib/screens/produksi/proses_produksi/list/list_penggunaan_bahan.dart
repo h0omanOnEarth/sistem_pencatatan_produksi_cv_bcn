@@ -149,9 +149,10 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
-                                'Tanggal Penggunaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penggunaan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Perintah Produksi' : data['production_order_id'],
+                                'ID Perintah Produksi' : data['production_order_id'],
+                                'ID Permintaan Bahan': data['material_request_id'],
+                                'Batch': data['batch'],
+                                'Tanggal Penggunaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penggunaan'] as Timestamp).toDate()), 
                                 'Catatan': data['catatan'],
                                 'Status': data['status_mu'],
                               };

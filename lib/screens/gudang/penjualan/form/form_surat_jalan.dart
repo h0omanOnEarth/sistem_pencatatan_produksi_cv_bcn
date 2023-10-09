@@ -12,6 +12,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_withField_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/deliveryOrder_dropdown.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -141,7 +142,6 @@ void fetchDetail() async {
       // Find the corresponding detail shipment data by productID
       final detailShipment = shipmentDetails
           .firstWhere((detail) => detail['product_id'] == cardDataList[i].productID, orElse: () => {});
-      print(detailShipment);
       cardDataList[i].pcsController.text = detailShipment['jumlahPengiriman'].toString();
       cardDataList[i].dusController.text = detailShipment['jumlahPengirimanDus'].toString();
       cardDataList[i].pcsController.addListener(() { updateTotalPcsProduk();});
@@ -280,8 +280,12 @@ showDialog(
             isLoading = false; // Matikan isLoading saat successState
           });
         } else if (state is ErrorState) {
-          final snackbar = SnackBar(content: Text(state.errorMessage));
-          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
         } else if (state is LoadingState) {
           setState(() {
             isLoading = true;

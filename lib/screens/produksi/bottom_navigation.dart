@@ -67,7 +67,7 @@ class _BottomNavigationProduksiState extends State<BottomNavigationProduksi> {
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      child: Container(
+      child: SizedBox(
         height: 56, // Sesuaikan dengan tinggi yang diinginkan
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,

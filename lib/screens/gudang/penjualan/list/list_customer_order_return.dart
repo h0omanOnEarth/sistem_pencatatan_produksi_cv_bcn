@@ -144,9 +144,10 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID Faktur': data['invoice_id'],
                                 'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
-                                'Alasan Pengembalian' : data['alasan_pengembalian']
+                                'Alasan Pengembalian' : data['alasan_pengembalian'],
+                                'Status': data['status_cor']
                               };
                               return ListCard(
                                 title: id,

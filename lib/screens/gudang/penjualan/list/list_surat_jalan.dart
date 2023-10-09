@@ -7,7 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/f
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardWithPrint.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListSuratJalan extends StatefulWidget {
@@ -144,11 +144,12 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID Perintah Pengiriman': data['delivery_order_id'],
                                 'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
-                                'Alamat Penerima' : data['alamat_penerima']
+                                'Alamat Penerima' : data['alamat_penerima'],
+                                'Status': data['status_shp']
                               };
-                              return ListCard(
+                              return ListCardPrint(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {

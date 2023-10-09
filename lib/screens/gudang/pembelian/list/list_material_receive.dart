@@ -143,10 +143,12 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
-                                'Tanggal Penerimaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()), // Format tanggal
                                 'ID Bahan' : data['material_id'],
-                                'Status': data['status']
+                                'Tanggal Penerimaan': DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()), // Format tanggal
+                                'Catatan': data['catatan'],
+                                'Status': data['status'],
+                                'Jumlah Permintaan': data['jumlah_permintaan'],
+                                'Jumlah Diterima': data['jumlah_diterima']
                               };
                               return ListCard(
                                 title: id,

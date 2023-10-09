@@ -153,9 +153,12 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
-                                'Tanggal Perintah Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()), // Format tanggal
-                                'Tanggal Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()), // Format tanggal
+                                'ID Produk': data['product_id'],
+                                'ID BOM': data['bom_id'],
+                                'Tanggal Perintah Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()), 
+                                'Tanggal Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()),
+                                'Catatan': data['catatan'],
+                                'Status': data['status_pro'] 
                               };
                               return ListCard(
                                 title: id,

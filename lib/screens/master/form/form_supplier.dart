@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/supplier.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -87,18 +88,20 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
           if (state is SuccessState){
             _showSuccessMessageAndNavigateBack();
             setState(() {
-              isLoading = false; // Matikan isLoading saat successState
+              isLoading = false; 
             });
           } else if (state is ErrorState) {
-            final snackbar = SnackBar(content: Text(state.errorMessage));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+            showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorDialog(errorMessage: state.errorMessage);
+            },
+          );
           }else if (state is LoadingState) {
             setState(() {
-              isLoading = true; // Aktifkan isLoading saat LoadingState
+              isLoading = true; 
             });
           }
-
-           // Hanya jika bukan LoadingState, atur isLoading ke false
           if (state is! LoadingState) {
             setState(() {
               isLoading = false;

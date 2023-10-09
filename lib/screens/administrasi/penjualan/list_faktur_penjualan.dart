@@ -153,7 +153,9 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                               final info = {
                                 'ID': data['id'],
                                 'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
+                                'Metode Pembayaran': data['metode_pembayaran'],
                                 'Catatan': data['catatan'],
+                                'Status Pembayaran': data['status_pembayaran'],
                                 'Status': data['status_fk']
                               };
                               return ListCardPrint(

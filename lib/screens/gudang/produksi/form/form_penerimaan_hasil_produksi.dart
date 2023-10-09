@@ -8,6 +8,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productionConfirmationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/productionConfirmationWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
@@ -172,8 +173,12 @@ Widget build(BuildContext context) {
           isLoading = false; // Matikan isLoading saat successState
         });
       } else if (state is ItemReceiveErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is ItemReceiveLoadingState) {
         setState(() {
           isLoading = true;

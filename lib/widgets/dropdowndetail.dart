@@ -27,7 +27,7 @@ class DropdownDetailWidget extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
@@ -47,7 +47,7 @@ class DropdownDetailWidget extends StatelessWidget {
                   ),
                   child: Text(
                     value,
-                    style: TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
               );

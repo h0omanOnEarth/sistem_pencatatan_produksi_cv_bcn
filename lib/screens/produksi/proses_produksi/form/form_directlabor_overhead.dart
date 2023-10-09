@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/dloh_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/dloh.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_usage_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -80,14 +81,10 @@ void updateBiayaTenagaKerja() {
 
 
 void updateTotalBiaya() {
-  // Ambil nilai dari controller yang relevan
   int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
   int biayaOverhead = int.tryParse(biayaOverheadController.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
 
-  // Hitung total biaya
   int totalBiaya = biayaTenagaKerja + biayaOverhead;
-
-  // Format total biaya menjadi format mata uang Rupiah
   totalBiayaController.text = NumberFormat.currency(
     locale: 'id_ID', // Atur locale ke ID untuk format Rupiah
     symbol: 'Rp',
@@ -194,18 +191,20 @@ showDialog(
       if (state is SuccessState) {
         _showSuccessMessageAndNavigateBack();
         setState(() {
-          isLoading = false; // Matikan isLoading saat successState
+          isLoading = false; 
         });
       } else if (state is ErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+         showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is LoadingState) {
         setState(() {
-          isLoading = true; // Aktifkan isLoading saat LoadingState
+          isLoading = true; 
         });
       }
-
-      // Hanya jika bukan LoadingState, atur isLoading ke false
       if (state is! LoadingState) {
         setState(() {
           isLoading = false;

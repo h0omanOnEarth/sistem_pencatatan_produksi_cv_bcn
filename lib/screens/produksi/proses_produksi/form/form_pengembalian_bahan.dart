@@ -85,7 +85,7 @@ Future<void> filterProductDataBahan(String materialUsageId) async {
 void fetchDataBahan(){
   // Ambil data produk dari Firestore di initState
   firestore.collection('materials').get().then((querySnapshot) {
-    querySnapshot.docs.forEach((doc) {
+    for (var doc in querySnapshot.docs) {
       Map<String, dynamic> bahan = {
         'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
         'nama': doc['nama'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
@@ -93,7 +93,7 @@ void fetchDataBahan(){
       setState(() {
         productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
       });
-    });
+    }
   });
 }
 

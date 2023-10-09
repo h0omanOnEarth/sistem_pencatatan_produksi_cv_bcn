@@ -172,10 +172,14 @@ class _ListPesananPengembalianPembelianState
                                   .data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
+                                'ID Pembelian': data['purchase_order_id'],
                                 'Tanggal Pengembalian': DateFormat('dd/MM/yyyy')
                                     .format((data['tanggal_pengembalian']
                                             as Timestamp)
                                         .toDate()),
+                                'Jumlah Pengembalian': '${data['jumlah']} ${data['satuan']}',
+                                'Alasan': data['alasan'],
+                                'Catatan': data['catatan']
                               };
                               return ListCard(
                                 title: id,

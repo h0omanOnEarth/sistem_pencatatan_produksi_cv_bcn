@@ -150,9 +150,11 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Id': data['id'],
+                                'ID Perintah Produksi': data['production_order_id'],
                                 'Tanggal Permintaan': DateFormat('dd/MM/yyyy').format((data['tanggal_permintaan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Perintah Produksi' : data['production_order_id']
+                                'Nomor Perintah Produksi' : data['production_order_id'],
+                                'Catatan': data['catatan'],
+                                'Status': data['status_mr']
                               };
                               return ListCard(
                                 title: id,

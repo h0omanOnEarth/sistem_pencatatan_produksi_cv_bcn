@@ -7,7 +7,7 @@ class ListCardPrint extends StatelessWidget {
   final VoidCallback onTap; // Properti onTap
    final VoidCallback? onPrintPressed;
 
-  const ListCardPrint({
+  const ListCardPrint({super.key, 
     required this.title,
     required this.description,
     required this.onDeletePressed,

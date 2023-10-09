@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_usage.
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardBahanWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/class/productCardDataBahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_request_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/product_card.dart';
@@ -90,8 +91,8 @@ Future<String?> getProductName(String productId) async {
   try {
     final productQuery = await firestore
         .collection('products')
-        .where('id', isEqualTo: productId) // Ganti 'product_id' dengan nama field yang sesuai
-        .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
+        .where('id', isEqualTo: productId) 
+        .limit(1) 
         .get();
 
     if (productQuery.docs.isNotEmpty) {
@@ -126,12 +127,10 @@ Future<void> filterProductDataBahan(String materialRequestId) async {
         return productMaterialId == materialId;
       }).toList();
 
-      // Tambahkan ke daftar yang difilter
       filteredProductDataBahan.addAll(filteredData);
     }
   }
 
-  // Setelah selesai filtering, update state dengan data yang sudah difilter
   setState(() {
     productDataBahan = filteredProductDataBahan;
   });
@@ -284,18 +283,20 @@ showDialog(
       if (state is SuccessState) {
         _showSuccessMessageAndNavigateBack();
         setState(() {
-          isLoading = false; // Matikan isLoading saat successState
+          isLoading = false; 
         });
       } else if (state is ErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+         showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is LoadingState) {
         setState(() {
-          isLoading = true; // Aktifkan isLoading saat LoadingState
+          isLoading = true; 
         });
       }
-
-      // Hanya jika bukan LoadingState, atur isLoading ke false
       if (state is! LoadingState) {
         setState(() {
           isLoading = false;

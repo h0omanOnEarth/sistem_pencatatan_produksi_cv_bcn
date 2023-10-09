@@ -225,7 +225,7 @@ class CardList extends StatelessWidget {
 
     for (final collectionName in collections) {
       final querySnapshot = await firestore.collection(collectionName).get();
-      final collectionData = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      final collectionData = querySnapshot.docs.map((doc) => doc.data()).toList();
       data[collectionName] = collectionData;
     }
 

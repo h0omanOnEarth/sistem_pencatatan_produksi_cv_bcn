@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 
 class LoginPageScreen extends StatefulWidget {
   static const routeName = '/login_page_screen';
@@ -94,8 +95,14 @@ class LoginForm extends StatelessWidget {
             }
           }
         } else if (state is LoginFailure) {
-          final snackbar = SnackBar(content: Text(state.error));
-          ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          // final snackbar = SnackBar(content: Text(state.error));
+          // ScaffoldMessenger.of(context).showSnackBar(snackbar);
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorDialog(errorMessage: state.error);
+            },
+          );
         }
       },
       child: Stack(
@@ -257,7 +264,7 @@ class LoginForm extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const MainAdministrasi(),
+                                builder: (context) => const MainProduksi(),
                               ),
                             );
                         },

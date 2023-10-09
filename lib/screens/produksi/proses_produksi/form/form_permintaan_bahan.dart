@@ -6,6 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_material
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/productionorder_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -190,18 +191,20 @@ Widget build(BuildContext context) {
       if (state is SuccessState) {
         _showSuccessMessageAndNavigateBack();
         setState(() {
-          isLoading = false; // Matikan isLoading saat successState
+          isLoading = false; 
         });
       } else if (state is ErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is LoadingState) {
         setState(() {
-          isLoading = true; // Aktifkan isLoading saat LoadingState
+          isLoading = true; 
         });
       }
-
-      // Hanya jika bukan LoadingState, atur isLoading ke false
       if (state is! LoadingState) {
         setState(() {
           isLoading = false;

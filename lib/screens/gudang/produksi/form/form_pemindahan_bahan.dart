@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_transf
 import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/material_request_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -165,8 +166,12 @@ Widget build(BuildContext context) {
           isLoading = false;
         });
       } else if (state is MaterialTransferErrorState) {
-        final snackbar = SnackBar(content: Text(state.errorMessage));
-        ScaffoldMessenger.of(context).showSnackBar(snackbar);
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ErrorDialog(errorMessage: state.errorMessage);
+          },
+        );
       } else if (state is MaterialTransferLoadingState) {
         setState(() {
           isLoading = true;
@@ -227,13 +232,13 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16.0),
                 DatePickerButton(
-                            label: 'Tanggal Pemindahan',
-                            selectedDate: _selectedDate,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedDate = newDate;
-                              });
-                            },
+                  label: 'Tanggal Pemindahan',
+                  selectedDate: _selectedDate,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
                   ),
                   const SizedBox(height: 16.0,),
                   MaterialRequestDropdown(selectedMaterialRequest: selectedNomorPermintaan,  onChanged: (newValue) {

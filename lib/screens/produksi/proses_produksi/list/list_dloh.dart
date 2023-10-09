@@ -26,7 +26,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -150,9 +150,11 @@ class _ListDLOHCState extends State<ListDLOHC> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
-                                'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Penggunaan Bahan' : data['material_usage_id']
+                                'ID Penggunaan Bahan' : data['material_usage_id'],
+                                'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), 
+                                'Biaya Tenaga Kerja': data['biaya_tenaga_kerja'],
+                                'Biaya Overhead': data['biaya_overhead'],
+                                'Catatan': data['catatan'],
                               };
                               return ListCard(
                                 title: id,

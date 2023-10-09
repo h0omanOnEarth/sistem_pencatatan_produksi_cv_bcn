@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/employees_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/employee.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
@@ -117,8 +118,12 @@ void _showSuccessMessageAndNavigateBack() {
               isLoading = false; // Matikan isLoading saat successState
             });
           } else if (state is ErrorState) {
-            final snackbar = SnackBar(content: Text(state.errorMessage));
-            ScaffoldMessenger.of(context).showSnackBar(snackbar);
+            showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorDialog(errorMessage: state.errorMessage);
+            },
+          );
           }else if (state is LoadingState) {
             setState(() {
               isLoading = true; // Aktifkan isLoading saat LoadingState

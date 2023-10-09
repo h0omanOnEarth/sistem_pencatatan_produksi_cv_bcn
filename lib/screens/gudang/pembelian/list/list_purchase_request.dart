@@ -27,7 +27,7 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
   String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
   String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 3; // Jumlah data per halaman
+  int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -144,9 +144,10 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
                               final data = filteredDocs[startIndex + index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
-                                'Tanggal Permintaan': DateFormat('dd/MM/yyyy').format((data['tanggal_permintaan'] as Timestamp).toDate()), // Format tanggal
                                 'ID Bahan' : data['material_id'],
+                                'Tanggal Permintaan': DateFormat('dd/MM/yyyy').format((data['tanggal_permintaan'] as Timestamp).toDate()), 
+                                'Jumlah': data['jumlah'],
+                                'Catatan': data['catatan'],
                                 'Status': data['status_prq']
                               };
                               return ListCard(

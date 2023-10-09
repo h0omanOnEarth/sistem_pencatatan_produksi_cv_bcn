@@ -150,9 +150,10 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'ID': data['id'],
+                                'ID Penggunaan Bahan' : data['material_usage_id'],
                                 'Tanggal Pengembalian': DateFormat('dd/MM/yyyy').format((data['tanggal_pengembalian'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Penggunaan Bahan' : data['material_usage_id']
+                                'Catatan': data['catatan'],
+                                'Status': data['status_mrt']
                               };
                               return ListCard(
                                 title: id,
