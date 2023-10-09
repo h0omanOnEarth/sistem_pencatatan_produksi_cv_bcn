@@ -44,6 +44,9 @@ class _FormPerintahProduksiScreenState extends State<FormPerintahProduksiScreen>
   TextEditingController catatanController = TextEditingController();
   TextEditingController jumlahTenagaKerjaController = TextEditingController();
   TextEditingController statusController = TextEditingController();
+  TextEditingController namaMesinPencampurController = TextEditingController();
+  TextEditingController namaMesinSheetController = TextEditingController();
+  TextEditingController namaMesinCetakController = TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   List<Map<String, dynamic>> productDataProduk = []; // Inisialisasi daftar produk
   List<Map<String, dynamic>> billOfMaterialsData = []; // Initialize the list
@@ -577,7 +580,9 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 16.0,),
-                  MachineDropdown(selectedMachine: selectedMesinMixer, onChanged: (newValue) {
+                Row(
+                  children: [
+                    Expanded(child: MachineDropdown(selectedMachine: selectedMesinMixer, onChanged: (newValue) {
                         setState(() {
                           selectedMesinMixer = newValue;
                           mesinPencampuran.clear();
@@ -586,9 +591,20 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue,
                           };
                         });
-                  }, title: 'Pencampuran',),
+                  }, title: 'Pencampuran', namaMesinController: namaMesinPencampurController,),),
+                    const SizedBox(width: 16.0,),
+                    Expanded(child: TextFieldWidget(
+                        label: '',
+                        placeholder: 'Pencampur',
+                        isEnabled: false,
+                        controller: namaMesinPencampurController,
+                  ),)
+                  ],
+                ),
                 const SizedBox(height: 16.0,),
-                MachineDropdown(selectedMachine: selectedMesinSheet, onChanged: (newValue) {
+                Row(
+                  children: [
+                    Expanded(child: MachineDropdown(selectedMachine: selectedMesinSheet, onChanged: (newValue) {
                         setState(() {
                           selectedMesinSheet = newValue;
                           mesinSheet.clear();
@@ -597,9 +613,20 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue
                           };
                         });
-                  }, title: 'Sheet',),
+                  }, title: 'Sheet', namaMesinController: namaMesinSheetController,),),
+                  const SizedBox(width: 16.0,),
+                  Expanded(child: TextFieldWidget(
+                        label: '',
+                        placeholder: 'Sheet',
+                        isEnabled: false,
+                        controller: namaMesinSheetController,
+                  ),)
+                  ],
+                ),
                 const SizedBox(height: 16.0,),
-                MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
+                Row(
+                  children: [
+                    Expanded(child:  MachineDropdown(selectedMachine: selectedMesinCetak, onChanged: (newValue) {
                         setState(() {
                           selectedMesinCetak = newValue;
                           mesinPencetak.clear();
@@ -608,7 +635,33 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue
                           };
                         });
-                  }, title: 'Cetak',),
+                  }, title: 'Cetak', namaMesinController: namaMesinCetakController,),),
+                  const SizedBox(width: 16.0,),
+                  Expanded(child: TextFieldWidget(
+                        label: '',
+                        placeholder: 'Cetak',
+                        isEnabled: false,
+                        controller: namaMesinCetakController,
+                  ),)
+                  ],
+                ),
+                const SizedBox(height: 16.0,),
+                if (!isBomSelected)
+                  const Text(
+                    'Detail Bahan',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0,),
+                  if (!isBomSelected)
+                  const Text(
+                    'Tidak ada detail bahan',
+                    style: TextStyle(
+                      fontSize: 14,
+                    ),
+                  ),
                   const SizedBox(height: 16.0,),
                 if (isBomSelected)
                   Column(
