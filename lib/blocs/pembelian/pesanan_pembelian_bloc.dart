@@ -59,6 +59,7 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
       final materialId = event.purchaseOrder.materialId;
       final supplierId = event.purchaseOrder.supplierId;
       final total = event.purchaseOrder.total;
+      final purchaseRequestId = event.purchaseOrder.purchaseRequestId;
 
     if(materialId.isNotEmpty){
       if(supplierId.isNotEmpty){
@@ -77,6 +78,7 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
             'harga_satuan': hargaSatuan,
             'jumlah': jumlah,
             'keterangan':  event.purchaseOrder.keterangan,
+            'purchase_request_id': purchaseRequestId,
             'material_id': materialId,
             'satuan': event.purchaseOrder.satuan,
             'status': event.purchaseOrder.status,
@@ -115,6 +117,7 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
         final materialId = event.updatedPurchaseOrder.materialId;
         final supplierId = event.updatedPurchaseOrder.supplierId;
         final total = event.updatedPurchaseOrder.total;
+        final purchaseRequestId = event.updatedPurchaseOrder.purchaseRequestId;
 
         if(materialId.isNotEmpty){
          if(supplierId.isNotEmpty){
@@ -133,6 +136,7 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
                   'harga_satuan': hargaSatuan,
                   'jumlah': jumlah,
                   'keterangan': event.updatedPurchaseOrder.keterangan,
+                  'purchase_request_id': purchaseRequestId,
                   'material_id': materialId,
                   'satuan': event.updatedPurchaseOrder.satuan,
                   'status': event.updatedPurchaseOrder.status,

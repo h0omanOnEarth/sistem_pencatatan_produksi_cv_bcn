@@ -9,6 +9,7 @@ class PurchaseOrder {
   final DateTime tanggalKirim;
   final String statusPembayaran;
   final String statusPengiriman;
+  final String purchaseRequestId;
   final String keterangan;
   final int status;
   final int total;
@@ -24,6 +25,7 @@ class PurchaseOrder {
     required this.tanggalKirim,
     required this.statusPembayaran,
     required this.statusPengiriman,
+    required this.purchaseRequestId,
     required this.keterangan,
     required this.status,
     required this.total,
@@ -41,6 +43,7 @@ class PurchaseOrder {
       tanggalKirim: json['tanggal_kirim'],
       statusPembayaran: json['status_pembayaran'],
       statusPengiriman: json['status_pengiriman'],
+      purchaseRequestId: json['purchase_request_id'],
       keterangan: json['keterangan'],
       status: json['status'],
       total: json['total'],
@@ -59,6 +62,7 @@ class PurchaseOrder {
       'tanggal_kirim': tanggalKirim,
       'status_pembayaran': statusPembayaran,
       'status_pengiriman': statusPengiriman,
+      'purchase_request_id': purchaseRequestId,
       'keterangan': keterangan,
       'status': status,
       'total': total,

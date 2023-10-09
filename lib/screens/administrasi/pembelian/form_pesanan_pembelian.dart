@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/purchaseRequestDropDown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -28,11 +29,12 @@ class FormPesananPembelianScreen extends StatefulWidget {
 class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen> {
   DateTime? _selectedTanggalPengiriman;
   DateTime? _selectedTanggalPesanan;
-  String? selectedKode; //kode bahan
-  String? selectedSupplier; //kode
+  String? selectedKode; 
+  String? selectedSupplier; 
   String selectedSatuan = "Kg";
   String selectedStatusPembayaran = "Belum Bayar";
   String selectedStatusPengiriman = "Dalam Proses";
+  String? selectedNomorPermintaan;
   String? dropdownValue;
   bool isLoading = false;
 
@@ -42,6 +44,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   TextEditingController hargaSatuanController = TextEditingController();
   TextEditingController totalController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
+  TextEditingController jumlahPermintaanController = TextEditingController();
 
   @override
   void dispose() {
@@ -71,11 +74,6 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
   void initState() {
   super.initState();
 
-  // untuk mengganti selected kode dari file dropdown 
-  selectedBahanNotifier.addListener(_selectedKodeListener);
-    // Inisialisasi selectedPesanan berdasarkan nilai awal selectedKodeNotifier
-  selectedKode = selectedBahanNotifier.value;
-
   jumlahController.addListener(_updateTotal);
   hargaSatuanController.addListener(_updateTotal);
     if (widget.purchaseOrderId != null) {
@@ -90,10 +88,11 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
                 jumlahController.text = data['jumlah'].toString();
                 catatanController.text = data['keterangan'] ?? '';
                 hargaSatuanController.text = data['harga_satuan'].toString();
-                selectedSatuan = data['satuan'];
+                selectedSatuan = data['satuan']??'';
                 totalController.text = data['total'].toString();
-                selectedStatusPembayaran = data['status_pembayaran'];
-                selectedStatusPengiriman = data['status_pengiriman'];
+                selectedStatusPembayaran = data['status_pembayaran']??'';
+                selectedStatusPengiriman = data['status_pengiriman']??'';
+                selectedNomorPermintaan = data['purchase_request_id']??'';
                 final tanggalKirimFirestore = data['tanggal_kirim'];
                 if (tanggalKirimFirestore != null) {
                   if (tanggalKirimFirestore != null) {
@@ -136,7 +135,11 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
         print('Error getting document: $error');
       });
     }
-  }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    selectedBahanNotifier.addListener(_selectedKodeListener);
+    selectedKode = selectedBahanNotifier.value;
+    });
+}
 
   void _showSuccessMessageAndNavigateBack() {
   showDialog(
@@ -153,7 +156,7 @@ class _FormPesananPembelianScreenState extends State<FormPesananPembelianScreen>
 
 void addOrUpdatePurchaseOrder() {
   final purchaseOrderBloc = BlocProvider.of<PurchaseOrderBloc>(context);
-  final PurchaseOrder newPurchaseOrder = PurchaseOrder(id: '', supplierId: selectedSupplier??'', materialId: selectedKode??'', jumlah: int.tryParse(jumlahController.text)??0, satuan: selectedSatuan, hargaSatuan: int.tryParse(hargaSatuanController.text)??0, tanggalPesan:  _selectedTanggalPesanan ?? DateTime.now(), tanggalKirim:  _selectedTanggalPengiriman ?? DateTime.now(), statusPembayaran: selectedStatusPembayaran, statusPengiriman: selectedStatusPengiriman, keterangan: catatanController.text, status: 1, total: int.tryParse(totalController.text)??0
+  final PurchaseOrder newPurchaseOrder = PurchaseOrder(id: '', supplierId: selectedSupplier??'', materialId: selectedKode??'', jumlah: int.tryParse(jumlahController.text)??0, satuan: selectedSatuan, hargaSatuan: int.tryParse(hargaSatuanController.text)??0, tanggalPesan:  _selectedTanggalPesanan ?? DateTime.now(), tanggalKirim:  _selectedTanggalPengiriman ?? DateTime.now(), statusPembayaran: selectedStatusPembayaran, statusPengiriman: selectedStatusPengiriman, keterangan: catatanController.text, status: 1, total: int.tryParse(totalController.text)??0, purchaseRequestId: selectedNomorPermintaan??''
   );
 
   if(widget.purchaseOrderId!=null){
@@ -236,6 +239,38 @@ void addOrUpdatePurchaseOrder() {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 16.0),
+                       Row(
+                        children: [
+                          Expanded(
+                            child: PurchaseRequestDropDown(selectedPurchaseRequest: selectedNomorPermintaan, onChanged: (newValue) {
+                                setState(() {
+                                  selectedNomorPermintaan = newValue??'';
+                                });
+                            }, jumlahPermintaanController: jumlahPermintaanController,
+                          ),
+                          ),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: TextFieldWidget(
+                            label: 'Jumlah Permintaan',
+                            placeholder: '0',
+                            controller: jumlahPermintaanController,
+                            isEnabled: false,
+                          ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16.0,),
+                      // Menggunakan SupplierDropdown
+                      SupplierDropdown(
+                        selectedSupplier: selectedSupplier,
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedSupplier = newValue;
+                          });
+                        },
                       ),
                       const SizedBox(height: 16.0),
                       Row(
@@ -407,6 +442,7 @@ void addOrUpdatePurchaseOrder() {
                                 _selectedTanggalPesanan = null;
                                 selectedKode = null;
                                 selectedSupplier = null;
+                                selectedNomorPermintaan = null;
                                 selectedSatuan = "Kg";
                                 selectedStatusPembayaran = "Belum Bayar";
                                 selectedStatusPengiriman = "Dalam Proses";
@@ -415,6 +451,7 @@ void addOrUpdatePurchaseOrder() {
                                 hargaSatuanController.clear();
                                 totalController.clear();
                                 catatanController.clear();
+                                jumlahPermintaanController.clear;
                                 setState(() {});
                               },
                               style: ElevatedButton.styleFrom(

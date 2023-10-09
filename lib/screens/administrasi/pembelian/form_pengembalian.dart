@@ -44,11 +44,6 @@ class _FormPengembalianPesananScreenState extends State<FormPengembalianPesananS
 @override
 void initState() {
   super.initState();
-    // untuk mengganti selected kode dari file dropdown 
-    selectedKodeNotifier.addListener(_selectedKodeListener);
-    // Inisialisasi selectedPesanan berdasarkan nilai awal selectedKodeNotifier
-    selectedPesanan = selectedKodeNotifier.value;
-
   // Ambil data Purchase Return jika purchaseReturnId tidak null
   if (widget.purchaseReturnId != null) {
     FirebaseFirestore.instance
@@ -124,6 +119,11 @@ void initState() {
         print('Error getting document: $error');
       });
   }
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    selectedKodeNotifier.addListener(_selectedKodeListener);
+    selectedPesanan = selectedKodeNotifier.value;
+});
 }
 
   @override
