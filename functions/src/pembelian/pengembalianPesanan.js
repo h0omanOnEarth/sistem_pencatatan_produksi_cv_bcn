@@ -36,6 +36,26 @@ exports.purchaseReturnValidation = async (req) => {
       return { success: false, message: "jumlah pengembalian melebihi jumlah pada purchase order" };
     }
 
+    // Periksa jika purchase orders sudah ada dalam 'purchase_returns'
+    const purchaseReturnRef = admin.firestore().collection("purchase_returns")
+      .where("purchase_order_id", "==", purchaseOrderId);
+
+    const purchaseReturnQuery = await purchaseReturnRef.get();
+    
+    if (!purchaseReturnQuery.empty) {
+      // Hitung jumlah total dari purchase returns yang sudah ada
+      let totalJumlahPengembalian = 0;
+      purchaseReturnQuery.forEach((purchaseReturnDoc) => {
+        const purchaseReturnData = purchaseReturnDoc.data();
+        totalJumlahPengembalian += purchaseReturnData.jumlah;
+      });
+
+      // Jika jumlah melebihi total dari purchase order, berikan pesan error
+      if (jumlah + totalJumlahPengembalian > purchaseOrderData.jumlah) {
+        return { success: false, message: "jumlah pengembalian melebihi jumlah pada purchase order" };
+      }
+    }
+
     // Kurangi stok pada koleksi 'materials'
     const materialId = purchaseOrderData.material_id;
     const materialRef = admin.firestore().collection("materials").where("id", "==", materialId);
