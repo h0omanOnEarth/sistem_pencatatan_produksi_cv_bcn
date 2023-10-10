@@ -354,7 +354,7 @@ Widget build(BuildContext context) {
                     placeholder: 'Catatan',
                     controller: catatanController,
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(height: 24.0,),
                   if (!isPROselected)
                   const Text(
                     'Detail Bahan',

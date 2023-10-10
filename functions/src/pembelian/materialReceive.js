@@ -12,11 +12,11 @@ exports.materialRecValidation = async (req) => {
   const { jumlahPermintaan, jumlahDiterima, materialId, purchaseReqId, supplierId, mode, stokLama} = req.data;
 
   if (!jumlahPermintaan || isNaN(jumlahPermintaan) || jumlahPermintaan < 0) {
-    return { success: false, message: "jumlah permintaan harus lebih besar dari 0" };
+    return { success: false, message: "Jumlah permintaan harus lebih besar dari 0" };
   }
 
   if (!jumlahDiterima || isNaN(jumlahDiterima) || jumlahDiterima < 0) {
-    return { success: false, message: "jumlah diterima harus lebih besar dari 0" };
+    return { success: false, message: "Jumlah diterima harus lebih besar dari 0" };
   }
 
   try {
@@ -25,20 +25,20 @@ exports.materialRecValidation = async (req) => {
     const purchaseRequestDoc = await purchaseRequestRef.get();
 
     if (!purchaseRequestDoc.exists) {
-      return { success: false, message: "permintaan pembelian tidak ditemukan" };
+      return { success: false, message: "Permintaan pembelian tidak ditemukan" };
     }
 
     const purchaseRequestData = purchaseRequestDoc.data();
 
     if (purchaseRequestData.status_prq !== "Selesai") {
-      return { success: false, message: "permintaan pembelian masih dalam proses" };
+      return { success: false, message: "Permintaan pembelian masih dalam proses" };
     }
 
     // Periksa apakah materialId sama dengan yang ada di purchase_requests
     if (purchaseRequestData.material_id !== materialId) {
       return {
         success: false,
-        message: `material id tidak sesuai dengan yang ada pada purchase request,\nmaterial seharusnya ${purchaseRequestData.material_id}`,
+        message: `Material id tidak sesuai dengan yang ada pada purchase request,\nmaterial seharusnya ${purchaseRequestData.material_id}`,
       };
     }
 
@@ -49,7 +49,7 @@ exports.materialRecValidation = async (req) => {
         .get();
 
       if (!materialReceiveQuery.empty) {
-        return { success: false, message: "nomor permintaan telah diterima" };
+        return { success: false, message: "Nomor permintaan telah diterima" };
       }
     }
 
@@ -66,13 +66,13 @@ exports.materialRecValidation = async (req) => {
       if (purchaseOrderData.supplier_id !== supplierId) {
         return {
           success: false,
-          message: `supplier id tidak sesuai purchase order, supplier id seharusnya ${purchaseOrderData.supplier_id}`,
+          message: `Supplier id tidak sesuai purchase order, supplier id seharusnya ${purchaseOrderData.supplier_id}`,
         };
       }
       await purchaseOrderDoc.ref.update({status: "Selesai"});
     } else {
       // Purchase Order tidak ditemukan, lakukan penanganan kesalahan di sini jika diperlukan
-      return { success: false, message: "purchase order tidak ditemukan" };
+      return { success: false, message: "Purchase order tidak ditemukan" };
     }
 
     // Validasi berhasil

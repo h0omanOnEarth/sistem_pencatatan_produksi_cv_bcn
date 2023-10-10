@@ -126,6 +126,14 @@ void fetchDataDetail() {
   });
 }
 
+void resetProductCardDropdown(String newValue){
+  productCards.clear();
+  productDataBahan.clear();
+  addProductCard();
+  fetchDataBahan();
+  filterProductDataBahan(newValue);
+}
+
 void clearForm() {
   setState(() {
     selectedNomorPenggunaan = null;
@@ -322,7 +330,13 @@ void initState() {
                     MaterialUsageDropdown(selectedMaterialUsage: selectedNomorPenggunaan, onChanged: (newValue) {
                           setState(() {
                             selectedNomorPenggunaan = newValue??'';
-                            filterProductDataBahan(newValue??''); // Panggil fungsi filter di sini
+                            if(productCards[0].kodeBahan.isNotEmpty){
+                              resetProductCardDropdown(newValue??'');
+                            }else{
+                              productDataBahan.clear();
+                              fetchDataBahan();
+                              filterProductDataBahan(newValue??'');
+                            }
                           });
                     }, namaBatchController: namaBatchController,),
                     const SizedBox(height: 16.0,),

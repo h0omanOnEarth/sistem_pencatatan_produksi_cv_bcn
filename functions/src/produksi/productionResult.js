@@ -14,28 +14,28 @@ exports.productionResValidate = async (req) => {
   if (!total || total <= 0) {
     return {
       success: false,
-      message: "total hasil produksi harus lebih besar dari 0",
+      message: "Total hasil produksi harus lebih besar dari 0",
     };
   }
 
   if (!jumlahBerhasil || jumlahBerhasil <= 0) {
     return {
       success: false,
-      message: "jumlah berhasil harus lebih besar dari 0",
+      message: "Jumlah berhasil harus lebih besar dari 0",
     };
   }
 
   if (!jumlahCacat || jumlahCacat <= 0) {
     return {
       success: false,
-      message: "jumlah cacat harus lebih besar dari 0",
+      message: "Jumlah cacat harus lebih besar dari 0",
     };
   }
 
   if (!waktu || waktu <= 0) {
     return {
       success: false,
-      message: "waktu produksi harus lebih besar dari 0",
+      message: "Waktu produksi harus lebih besar dari 0",
     };
   }
 

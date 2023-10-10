@@ -322,7 +322,7 @@ Widget build(BuildContext context) {
                     isEnabled: false,
                     controller: statusController,
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(height: 24.0,),
                   if (!isMaterialReqSelected)
                   const Text(
                     'Detail Pemindahan',

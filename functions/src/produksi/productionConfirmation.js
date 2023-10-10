@@ -12,25 +12,25 @@ exports.productionConfirmationValidation = async (req) => {
     const {confirmations} = req.data;
 
     if (!confirmations || confirmations.length === 0) {
-      return {success: false, message: "detail konfirmasi harus ada satu hasil produksi"};
+      return {success: false, message: "Detail konfirmasi harus ada satu hasil produksi"};
     }
     
     if (!confirmations.every((confirmation) => {
       return confirmation.production_result_id.trim() !== "";
     })) {
-      return {success: false, message: "nomor hasil produksi pada detail\n tidak boleh kosong"};
+      return {success: false, message: "Nomor hasil produksi pada detail\n tidak boleh kosong"};
     }
   
     if (!confirmations.every((confirmation) => {
       return confirmation.jumlah_konfirmasi > 0;
     })) {
-      return {success: false, message: "jumlah konfirmasi pada detail harus di atas 0"};
+      return {success: false, message: "Jumlah konfirmasi pada detail harus di atas 0"};
     }
   
     if (!confirmations.every((confirmation) => {
       return confirmation.satuan.trim!=="";
     })) {
-      return {success: false, message: "satuan pada detail tidak boleh kosong"};
+      return {success: false, message: "Satuan pada detail tidak boleh kosong"};
     }
 
     // Mengambil koleksi 'production_results' dari Firestore

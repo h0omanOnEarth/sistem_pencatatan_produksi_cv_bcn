@@ -65,7 +65,7 @@ Future<String?> getProductName(String productId) async {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: $proId | PRODUCT ID: $productId | BOM ID: $bomId',
+                    'ID: $proId, Product ID: $productId, BOM ID: $bomId',
                     style: const TextStyle(
                       color: Colors.black,
                     ),

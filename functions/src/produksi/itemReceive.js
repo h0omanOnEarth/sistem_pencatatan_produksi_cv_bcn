@@ -13,19 +13,19 @@ exports.itemReceiveValidation = async (req) => {
     log(products);
     
     if (!products || products.length === 0) {
-        return {success: false, message: "detail harus ada satu produk"};
+        return {success: false, message: "Detail harus ada satu produk"};
     }
       
     if (!products.every((product) => {
       return product.product_id.trim() !== "";
     })) {
-      return {success: false, message: "kode produk pada detail\n tidak boleh kosong"};
+      return {success: false, message: "Kode produk pada detail\n tidak boleh kosong"};
     }
   
     if (!products.every((product) => {
       return product.jumlah_pcs > 0;
     })) {
-      return {success: false, message: "jumlah pada detail harus di atas 0"};
+      return {success: false, message: "Jumlah pada detail harus di atas 0"};
     }
 
     return {

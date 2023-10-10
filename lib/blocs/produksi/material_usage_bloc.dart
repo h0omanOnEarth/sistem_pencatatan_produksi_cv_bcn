@@ -74,7 +74,9 @@ class MaterialUsageBloc
              final HttpsCallableResult<dynamic> result = await materialUsageValidationCallable.call(<String, dynamic>{
               'materials': materials.map((material) => material.toJson()).toList(),
               'materialRequestId': materialRequestId,
-              'productionOrderId': productionOrderId
+              'productionOrderId': productionOrderId,
+              'batch': batch,
+              'mode': 'add'
             });
 
             if (result.data['success'] == true) {
@@ -154,7 +156,9 @@ class MaterialUsageBloc
             final HttpsCallableResult<dynamic> result = await materialUsageValidationCallable.call(<String, dynamic>{
             'materials': materials.map((material) => material.toJson()).toList(),
             'materialRequestId': materialRequestId,
-            'productionOrderId': productionOrderId
+            'productionOrderId': productionOrderId,
+            'batch': batch,
+            'mode': 'edit'
             });
 
             if (result.data['success'] == true) {

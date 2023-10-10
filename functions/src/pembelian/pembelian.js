@@ -13,15 +13,15 @@ exports.purchaseOrderValidation = async (req) => {
 
   // Check if hargaSatuan, jumlah, and total are provided, numeric, and not less than 0
   if (!hargaSatuan || isNaN(hargaSatuan) || hargaSatuan < 0) {
-    return { success: false, message: "harga satuan harus lebih besar dari 0" };
+    return { success: false, message: "Harga satuan harus lebih besar dari 0" };
   }
 
   if (!jumlah || isNaN(jumlah) || jumlah < 0) {
-    return { success: false, message: "jumlah satuan harus lebih besar dari 0" };
+    return { success: false, message: "Jumlah satuan harus lebih besar dari 0" };
   }
 
   if (!total || isNaN(total) || total < 0) {
-    return { success: false, message: "total satuan harus lebih besar dari 0" };
+    return { success: false, message: "Total satuan harus lebih besar dari 0" };
   }
 
   try {
@@ -31,18 +31,18 @@ exports.purchaseOrderValidation = async (req) => {
 
     // Check if the purchase request exists
     if (!purchaseRequestDoc.exists) {
-      return { success: false, message: "purchase request tidak ditemukan" };
+      return { success: false, message: "Purchase request tidak ditemukan" };
     }
 
     // Check if materialId matches the material_id in the purchase request document
     const purchaseRequestData = purchaseRequestDoc.data();
     if (purchaseRequestData.material_id !== materialId) {
-      return { success: false, message: `material id tidak sesuai dengan purchase request id,\nmaterial id yang sesuai adalah ${purchaseRequestData.material_id}` };
+      return { success: false, message: `Material id tidak sesuai dengan purchase request id,\nmaterial id yang sesuai adalah ${purchaseRequestData.material_id}` };
     }
 
     // Check if the purchase request status is "Selesai" in "add" mode
     if (mode === "add" && purchaseRequestData.status_prq === "Selesai") {
-      return { success: false, message: "tidak dapat membuat purchase order karena status purchase request sudah 'Selesai'" };
+      return { success: false, message: "Tidak dapat membuat purchase order karena status purchase request sudah 'Selesai'" };
     }
 
     // Check if oldPurchaseRequestId is provided in "edit" mode

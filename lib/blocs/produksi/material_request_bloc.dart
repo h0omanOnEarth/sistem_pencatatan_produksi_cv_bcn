@@ -70,6 +70,7 @@ class MaterialRequestBloc
       try {
         final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
           'materials': materials.map((material) => material.toJson()).toList(),
+          'productionOrderId': productionOrderId
         });
 
         if (result.data['success'] == true) {
@@ -134,6 +135,7 @@ class MaterialRequestBloc
       try {
         final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
         'materials': materials.map((material) => material.toJson()).toList(),
+        'productionOrderId': productionOrderId
         });
 
         if (result.data['success'] == true) {

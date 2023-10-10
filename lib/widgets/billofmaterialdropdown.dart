@@ -29,7 +29,7 @@ class BillOfMaterialDropDown extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ID: $bomId | Product: $productId | Versi: $versiBom',
+                  'ID: $bomId, Product: $productId, Versi: $versiBom',
                   style: const TextStyle(
                     color: Colors.black,
                   ),

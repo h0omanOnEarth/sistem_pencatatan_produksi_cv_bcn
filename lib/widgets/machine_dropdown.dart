@@ -17,7 +17,7 @@ class MachineDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('machines').snapshots(),
+      stream: FirebaseFirestore.instance.collection('machines').where('tipe', isEqualTo: title).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

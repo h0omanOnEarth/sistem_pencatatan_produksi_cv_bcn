@@ -591,7 +591,7 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue,
                           };
                         });
-                  }, title: 'Pencampuran', namaMesinController: namaMesinPencampurController,),),
+                  }, title: 'Pencampur', namaMesinController: namaMesinPencampurController,),),
                     const SizedBox(width: 16.0,),
                     Expanded(child: TextFieldWidget(
                         label: '',
@@ -635,7 +635,7 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue
                           };
                         });
-                  }, title: 'Cetak', namaMesinController: namaMesinCetakController,),),
+                  }, title: 'Pencetak', namaMesinController: namaMesinCetakController,),),
                   const SizedBox(width: 16.0,),
                   Expanded(child: TextFieldWidget(
                         label: '',

@@ -152,7 +152,6 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
                               final info = {
                                 'ID Perintah Produksi': data['production_order_id'],
                                 'Tanggal Permintaan': DateFormat('dd/MM/yyyy').format((data['tanggal_permintaan'] as Timestamp).toDate()), // Format tanggal
-                                'Nomor Perintah Produksi' : data['production_order_id'],
                                 'Catatan': data['catatan'],
                                 'Status': data['status_mr']
                               };

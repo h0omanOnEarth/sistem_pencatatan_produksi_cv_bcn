@@ -136,8 +136,6 @@ Future<void> filterProductDataBahan(String materialRequestId) async {
   });
 }
 
-
-
 void initializeProductionOrder(){
     selectedNomorPerintah = widget.productionOrderId;
     firestore
@@ -222,6 +220,14 @@ void clearForm() {
     namaProdukController.text = ""; // Mengosongkan nama produk
     productCards.clear(); // Menghapus semua product cards
   });
+}
+
+void resetProductCardDropdown(String newValue){
+  productCards.clear();
+  productDataBahan.clear();
+  addProductCard();
+  fetchDataBahan();
+  filterProductDataBahan(newValue);
 }
 
 void fetchDataBahan(){
@@ -360,7 +366,13 @@ showDialog(
                     MaterialRequestDropdown(selectedMaterialRequest: selectedNomorPermintaan,  onChanged: (newValue) {
                           setState(() {
                             selectedNomorPermintaan = newValue??'';
-                            filterProductDataBahan(newValue??'');
+                            if(productCards[0].kodeBahan.isNotEmpty){
+                              resetProductCardDropdown(newValue??'');
+                            }else{
+                              productDataBahan.clear();
+                              fetchDataBahan();
+                              filterProductDataBahan(newValue??'');
+                            }
                           });
                     }),
                     const SizedBox(height: 16.0),
@@ -418,7 +430,7 @@ showDialog(
                       placeholder: 'Catatan',
                       controller: catatanController,
                     ),
-                    const SizedBox(height: 16.0,),
+                  const SizedBox(height: 24.0,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

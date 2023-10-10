@@ -17,23 +17,23 @@ exports.purchaseReturnValidation = async (req) => {
     const purchaseOrderQuery = await purchaseOrderRef.get();
 
     if (purchaseOrderQuery.empty) {
-      return { success: false, message: "purchase order tidak ditemukan" };
+      return { success: false, message: "Purchase order tidak ditemukan" };
     }
 
     const purchaseOrderDoc = purchaseOrderQuery.docs[0];
     const purchaseOrderData = purchaseOrderDoc.data();
 
     if (purchaseOrderData.status_pengiriman !== "Selesai") {
-      return { success: false, message: "status pengiriman pada purchase order belum 'Selesai'" };
+      return { success: false, message: "Status pengiriman pada purchase order belum 'Selesai'" };
     }
 
     if (purchaseOrderData.satuan != satuan) {
-      return { success: false, message: `satuan seharusnya ${purchaseOrderData.satuan}` };
+      return { success: false, message: `Satuan seharusnya ${purchaseOrderData.satuan}` };
     }
 
     // Periksa apakah jumlah tidak melebihi jumlah pada purchase order
     if (jumlah > purchaseOrderData.jumlah) {
-      return { success: false, message: "jumlah pengembalian melebihi jumlah pada purchase order" };
+      return { success: false, message: "Jumlah pengembalian melebihi jumlah pada purchase order" };
     }
 
     // Periksa jika purchase orders sudah ada dalam 'purchase_returns'
@@ -52,7 +52,7 @@ exports.purchaseReturnValidation = async (req) => {
 
       // Jika jumlah melebihi total dari purchase order, berikan pesan error
       if (jumlah + totalJumlahPengembalian > purchaseOrderData.jumlah) {
-        return { success: false, message: "jumlah pengembalian melebihi jumlah pada purchase order" };
+        return { success: false, message: "Jumlah pengembalian melebihi jumlah pada purchase order" };
       }
     }
 
@@ -76,7 +76,7 @@ exports.purchaseReturnValidation = async (req) => {
 
       // Pastikan stok tidak menjadi negatif
       if (stokBaru < 0) {
-        return { success: false, message: "stok material tidak cukup untuk pengembalian ini" };
+        return { success: false, message: "Stok material tidak cukup untuk pengembalian ini" };
       }
 
       // Update stok di dokumen 'materials'
