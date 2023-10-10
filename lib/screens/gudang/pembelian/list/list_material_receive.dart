@@ -163,7 +163,7 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                                       'Tanggal Penerimaan':
                                           DateFormat('dd/MM/yyyy').format((data['tanggal_penerimaan'] as Timestamp).toDate()),
                                       'Catatan': data['catatan'],
-                                      'Status': _getMaterialStatus(materialDocs, data['material_id']),
+                                      'Jenis Bahan': _getMaterialStatus(materialDocs, data['material_id']),
                                       'Jumlah Permintaan': data['jumlah_permintaan'],
                                       'Jumlah Diterima': data['jumlah_diterima'],
                                     };
