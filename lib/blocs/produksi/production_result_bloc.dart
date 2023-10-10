@@ -73,7 +73,9 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
            'jumlahBerhasil': jumlahProdukBerhasil,
            'jumlahCacat': jumlahProdukCacat,
            'waktu': waktuProduksi,
-           'materialUsageId': materialUsageId
+           'materialUsageId': materialUsageId,
+           'satuan': satuan,
+           'mode': 'add'
           });
 
           if (result.data['success'] == true) {
@@ -129,7 +131,9 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
            'jumlahBerhasil': jumlahProdukBerhasil,
            'jumlahCacat': jumlahProdukCacat,
            'waktu': waktuProduksi,
-           'materialUsageId': materialUsageId
+           'materialUsageId': materialUsageId,
+           'satuan': satuan,
+           'mode': 'edit'
           });
 
           if (result.data['success'] == true) {

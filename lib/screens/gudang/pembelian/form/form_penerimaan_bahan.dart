@@ -251,6 +251,7 @@ Future<void> _loadSupplierAndMaterialData(String? supplierId, String? materialId
                             selectedNomorPermintaan = newValue??'';
                       });
                      }, jumlahPermintaanController: jumlahPermintaanController,
+                     isEnabled: widget.materialReceiveId == null,
                     ),
                     const SizedBox(height: 16.0,),
                     Row(

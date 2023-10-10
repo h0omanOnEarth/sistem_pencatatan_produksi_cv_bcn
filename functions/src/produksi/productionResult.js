@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.productionResValidate = async (req) => {
-  const {total, jumlahBerhasil, jumlahCacat, waktu, materialUsageId} = req.data;
+  const {total, jumlahBerhasil, jumlahCacat, waktu, materialUsageId, satuan, mode} = req.data;
 
   if (!total || total <= 0) {
     return {
@@ -71,11 +71,13 @@ exports.productionResValidate = async (req) => {
       .where("material_usage_id", "==", materialUsageId)
       .get();
 
-    if (!productionResultsQuery.empty) {
-      return {
-        success: false,
-        message: "Sudah ada pencatatan hasil produksi untuk nomor penggunaan bahan ini",
-      };
+    if(mode=='add'){
+      if (!productionResultsQuery.empty) {
+        return {
+          success: false,
+          message: "Sudah ada pencatatan hasil produksi untuk nomor penggunaan bahan ini",
+        };
+      }
     }
 
     // Periksa status produksi pada materialUsage
@@ -84,13 +86,40 @@ exports.productionResValidate = async (req) => {
     const productionOrderDoc = await productionOrderRef.get();
     const productionOrderStatus = productionOrderDoc.data().status_pro;
 
-    if (productionOrderStatus === "Selesai") {
-      return {
-        success: false,
-        message: "Status perintah produksi dalam nomor penggunana bahan ini sudah 'Selesai'",
-      };
+    
+    if(mode=='add'){
+      if (productionOrderStatus === "Selesai") {
+        return {
+          success: false,
+          message: "Status perintah produksi dalam nomor penggunana bahan ini sudah 'Selesai'",
+        };
+      }
     }
 
+    // Dapatkan product_id dari production_order
+    const productId = productionOrderDoc.data().product_id;
+
+    // Tambahkan stok pada koleksi products
+    const productsRef = admin.firestore().collection("products");
+    const productQuerySnapshot = await productsRef.where("id", "==", productId).get();
+
+    if (!productQuerySnapshot.empty) {
+      const productDocRef = productQuerySnapshot.docs[0].ref;
+      const currentStock = (await productDocRef.get()).data().stok;
+      const productSatuan = (await productDocRef.get()).data().satuan;
+
+      // Periksa apakah satuan sama dengan produk
+      if (satuan !== productSatuan) {
+        return {
+          success: false,
+          message: `Satuan ${satuan} tidak cocok dengan satuan produk (${productSatuan})`,
+        };
+      }
+
+      // // Perbarui stok produk
+      // await productDocRef.update({stok: currentStock + total});
+    }
+    
     // Jika semua pemeriksaan berhasil, ubah status produksi menjadi 'Selesai'
     await productionOrderRef.update({status: "Selesai"});
 

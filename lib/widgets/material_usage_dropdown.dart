@@ -6,13 +6,15 @@ class MaterialUsageDropdown extends StatefulWidget {
   final Function(String?) onChanged;
   final TextEditingController? namaBatchController;
   final TextEditingController? nomorPerintahProduksiController;
+  final bool isEnabled;
 
   const MaterialUsageDropdown({
     Key? key,
     required this.selectedMaterialUsage,
     required this.onChanged,
     this.namaBatchController,
-    this.nomorPerintahProduksiController
+    this.nomorPerintahProduksiController,
+    this.isEnabled = true,
   }) : super(key: key);
 
   @override
@@ -63,48 +65,44 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: widget.selectedMaterialUsage,
-                items: materialUsageItems,
-                onChanged: (newValue) async {
-                  widget.onChanged(newValue);
+              value: widget.selectedMaterialUsage,
+              items: materialUsageItems,
+              onChanged: widget.isEnabled ? (newValue) async {
+                widget.onChanged(newValue);
 
-                  // Ambil data batch dari Firestore berdasarkan selectedMaterialUsage
-                  final batchData = await FirebaseFirestore.instance
-                      .collection('material_usages')
-                      .doc(newValue)
-                      .get();
+                final batchData = await FirebaseFirestore.instance
+                    .collection('material_usages')
+                    .doc(newValue)
+                    .get();
 
-                  if (batchData.exists) {
-                    // Jika data batch ada, isi namaBatchController dengan nilai batch
-                    final batchValue = batchData['batch'] as String?;
-                    if (widget.namaBatchController != null) {
-                      widget.namaBatchController!.text = batchValue ?? '';
-                    }
-                    // Set selectedBatch untuk menyimpan nilainya
-                    selectedBatch = batchValue;
-
-                     if (widget.nomorPerintahProduksiController != null) {
-                      widget.nomorPerintahProduksiController!.text = batchData['production_order_id'];
-                    }
-
-                  } else {
-                    // Jika data batch tidak ditemukan, kosongkan namaBatchController
-                    if (widget.namaBatchController != null) {
-                      widget.namaBatchController!.text = '';
-                    }
-                    selectedBatch = null;
+                if (batchData.exists) {
+                  final batchValue = batchData['batch'] as String?;
+                  if (widget.namaBatchController != null) {
+                    widget.namaBatchController!.text = batchValue ?? '';
                   }
-                },
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
+                  selectedBatch = batchValue;
+
+                  if (widget.nomorPerintahProduksiController != null) {
+                    widget.nomorPerintahProduksiController!.text = batchData['production_order_id'];
+                  }
+                } else {
+                  if (widget.namaBatchController != null) {
+                    widget.namaBatchController!.text = '';
+                  }
+                  selectedBatch = null;
+                }
+              } : null, // Menonaktifkan dropdown jika isEnabled false
+              isExpanded: true,
+              autovalidateMode: widget.isEnabled ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled, // Mengatur validasi sesuai isEnabled
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
                 ),
-                style: const TextStyle(color: Colors.black),
               ),
+              style: const TextStyle(color: Colors.black),
+            ),
             ),
           ],
         );

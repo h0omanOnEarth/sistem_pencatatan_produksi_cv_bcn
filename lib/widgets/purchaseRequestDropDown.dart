@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PurchaseRequestDropDown extends StatelessWidget {
+class PurchaseRequestDropDown extends StatefulWidget {
   final String? selectedPurchaseRequest;
   final Function(String?) onChanged;
   final TextEditingController? jumlahPermintaanController;
   final TextEditingController? satuanPermintaanController;
+  final bool isEnabled;
 
   const PurchaseRequestDropDown({
     Key? key,
@@ -13,8 +14,14 @@ class PurchaseRequestDropDown extends StatelessWidget {
     required this.onChanged,
     this.jumlahPermintaanController,
     this.satuanPermintaanController,
+    this.isEnabled = true,
   }) : super(key: key);
 
+  @override
+  State<PurchaseRequestDropDown> createState() => _PurchaseRequestDropDownState();
+}
+
+class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -29,7 +36,7 @@ class PurchaseRequestDropDown extends StatelessWidget {
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String purchaseRequestId = document['id'];
           String jumlahPermintaan = document['jumlah'].toString();
-          String satuanPermintaan = document['satuan'].toString(); // Tambah ini untuk mengambil nilai satuan
+          String satuanPermintaan = document['satuan'].toString(); 
 
           purchaseRequestItems.add(
             DropdownMenuItem<String>(
@@ -41,10 +48,10 @@ class PurchaseRequestDropDown extends StatelessWidget {
             ),
           );
 
-          if (jumlahPermintaanController != null && selectedPurchaseRequest == purchaseRequestId) {
+          if (widget.jumlahPermintaanController != null && widget.selectedPurchaseRequest == purchaseRequestId) {
             Future.delayed(Duration.zero, () {
-              jumlahPermintaanController?.text = jumlahPermintaan;
-              satuanPermintaanController?.text = satuanPermintaan; // Mengisi satuanPermintaanController
+              widget.jumlahPermintaanController?.text = jumlahPermintaan;
+              widget.satuanPermintaanController?.text = satuanPermintaan; 
             });
           }
         }
@@ -66,18 +73,9 @@ class PurchaseRequestDropDown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedPurchaseRequest,
+                value: widget.selectedPurchaseRequest,
                 items: purchaseRequestItems,
-                onChanged: (newValue) {
-                  onChanged(newValue);
-                  if (jumlahPermintaanController != null) {
-                    final selectedDoc = snapshot.data!.docs.firstWhere(
-                      (doc) => doc['id'] == newValue,
-                    );
-                    jumlahPermintaanController?.text = selectedDoc['jumlah'].toString();
-                    satuanPermintaanController?.text = selectedDoc['satuan'].toString(); // Mengisi satuanPermintaanController
-                  }
-                },
+                onChanged: widget.isEnabled ? (newValue) => widget.onChanged(newValue) : null, 
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

@@ -242,7 +242,9 @@ showDialog(
                           setState(() {
                             selectedPenggunaanBahan = newValue??'';
                           });
-                    }, nomorPerintahProduksiController: nomorPerintahProduksiController, namaBatchController: namaBatchController,),
+                    }, nomorPerintahProduksiController: nomorPerintahProduksiController, namaBatchController: namaBatchController,
+                    isEnabled: widget.productionResultId==null,
+                    ),
                     const SizedBox(height: 16.0),
                     Row(
                       children: [
@@ -337,7 +339,7 @@ showDialog(
                       isEnabled: false,
                       controller: statusController,
                     ),
-                    const SizedBox(height: 16.0,),
+                    const SizedBox(height: 24.0,),
                     Row(
                       children: [
                         Expanded(
@@ -365,7 +367,6 @@ showDialog(
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () {
-                              // Handle clear button press
                               clear();
                             },
                             style: ElevatedButton.styleFrom(
