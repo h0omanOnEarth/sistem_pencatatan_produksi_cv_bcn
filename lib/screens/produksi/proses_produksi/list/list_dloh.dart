@@ -24,10 +24,10 @@ class _ListDLOHCState extends State<ListDLOHC> {
   String selectedStatus = "";
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
-  int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 5; // Jumlah data per halaman
+  String startDateText = ''; 
+  String endDateText = '';   
+  int startIndex = 0;
+  int itemsPerPage = 5; 
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 

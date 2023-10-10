@@ -15,6 +15,7 @@ exports.dlohValidation = async (req) => {
     biayaTenagaKerja,
     upahTenagaKerjaPerjam,
     subtotal,
+    materialUsageId
   } = req.data;
 
   if (!jumlahTenagaKerja || jumlahTenagaKerja <= 0) {
@@ -52,7 +53,26 @@ exports.dlohValidation = async (req) => {
     };
   }
 
-  return {
-    success: true,
-  };
+  try {
+    // Dapatkan status_mu dari dokumen materialUsageId di koleksi material_usages
+    const materialUsageRef = admin.firestore().collection("material_usages").doc(materialUsageId);
+    const materialUsageDoc = await materialUsageRef.get();
+
+    // Periksa status_mu pada materialUsageId
+    const statusMu = materialUsageDoc.data().status_mu;
+
+    if (statusMu !== "Selesai") {
+      return {
+        success: false,
+        message: `Material usage belum selesai, status saat ini: ${statusMu}`,
+      };
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error validating dloh:", error);
+    return { success: false, message: "Terjadi kesalahan dalam validasi dloh" };
+  }
 };

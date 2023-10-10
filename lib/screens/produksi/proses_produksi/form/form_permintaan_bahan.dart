@@ -196,13 +196,16 @@ void didChangeDependencies() {
   }
 }
 void clearFields(){
+  setState(() {
   _selectedTanggalPermintaan = null;
   selectedNoPerintah = null;
   tanggalProduksiController.clear();
   catatanController.clear();
+  statusController.text = "Dalam Proses";
   materialDetailsData.clear();
   customCards.clear();
-  statusController.text = "Dalam Proses";
+  });
+ 
 }
 
 void addOrUpdate(){

@@ -79,6 +79,7 @@ void clearForm() {
     totalHargaController.clear();
     waktuPengirimanController.clear();
     productCards.clear();
+    productData.clear();
     productCards.add(ProductCardDataCustomerOrder(
       kodeProduk: '',
       namaProduk: '',
@@ -87,6 +88,7 @@ void clearForm() {
       hargaSatuan: '',
       subtotal: '',
     ));
+    fetchDataProduct();
   });
 }
 

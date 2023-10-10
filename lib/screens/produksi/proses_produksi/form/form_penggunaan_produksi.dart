@@ -219,6 +219,9 @@ void clearForm() {
     kodeProdukController.text = ""; // Mengosongkan kode produk
     namaProdukController.text = ""; // Mengosongkan nama produk
     productCards.clear(); // Menghapus semua product cards
+    productDataBahan.clear();
+    addProductCard();
+    fetchDataBahan();
   });
 }
 

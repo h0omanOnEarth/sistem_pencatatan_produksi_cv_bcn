@@ -47,7 +47,7 @@ exports.materialReturnValidation = async (req) => {
       if (statusMu !== "Selesai") {
         return {
           success: false,
-          message: `Status materialUsageId bukan 'Selesai', status saat ini: ${statusMu}`,
+          message: `Material usage belum 'Selesai', status saat ini: ${statusMu}`,
         };
       }
     }

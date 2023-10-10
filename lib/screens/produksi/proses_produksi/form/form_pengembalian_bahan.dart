@@ -143,6 +143,9 @@ void clearForm() {
     namaBatchController.clear();
     catatanController.clear();
     statusController.text = "Dalam Proses";
+    productDataBahan.clear();
+    addProductCard();
+    fetchDataBahan();
   });
 }
 

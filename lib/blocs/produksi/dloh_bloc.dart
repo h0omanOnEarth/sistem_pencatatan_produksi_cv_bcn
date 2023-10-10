@@ -73,7 +73,8 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
            'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
            'biayaTenagaKerja': biayaTenagaKerja,
            'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
-           'subtotal': subtotal
+           'subtotal': subtotal,
+           'materialUsageId': materialUsageId
           });
 
           if (result.data['success'] == true) {
@@ -127,7 +128,8 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
            'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
            'biayaTenagaKerja': biayaTenagaKerja,
            'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
-           'subtotal': subtotal
+           'subtotal': subtotal,
+           'materialUsageId': materialUsageId
           });
 
           if (result.data['success'] == true) {
