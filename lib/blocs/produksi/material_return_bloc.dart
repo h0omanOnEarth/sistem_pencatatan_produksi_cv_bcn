@@ -69,6 +69,7 @@ class MaterialReturnBloc
        final HttpsCallableResult<dynamic> result = await materialRetValidationCallable.call(<String, dynamic>{
         'materials': materials.map((material) => material.toJson()).toList(),
         'materialUsageId': materialUsageId,
+        'mode': 'add'
       });
 
       if (result.data['success'] == true) {
@@ -136,6 +137,7 @@ class MaterialReturnBloc
       final HttpsCallableResult<dynamic> result = await materialRetValidationCallable.call(<String, dynamic>{
       'materials': materials.map((material) => material.toJson()).toList(),
       'materialUsageId': materialUsageId,
+      'mode': 'edit'
       });
 
       if (result.data['success'] == true) {

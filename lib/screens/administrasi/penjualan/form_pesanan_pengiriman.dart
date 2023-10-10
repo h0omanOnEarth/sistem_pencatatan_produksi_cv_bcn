@@ -194,6 +194,14 @@ Future<void> filterProductData(String customerOrderId) async {
   });
 }
 
+void resetProductCardDropdown(String newValue){
+  productCards.clear();
+  productData.clear();
+  addProductCard();
+  fetchDataProduct();
+  filterProductData(newValue);
+}
+
 void _showSuccessMessageAndNavigateBack() {
   showDialog(
     context: context,
@@ -427,8 +435,13 @@ Widget build(BuildContext context) {
                   CustomerOrderDropDownWidget(namaPelangganController: pelangganController, alamatPengirimanController: alamatController, customerOrderId: widget.customerOrderId, onChanged: (newValue) {
                     setState(() {
                       selectedPesanan = newValue??'';
-                      filterProductData(selectedPesanan??'');
-                    });
+                      if(productCards[0].kodeProduk.isNotEmpty){
+                        resetProductCardDropdown(newValue??'');
+                      }else{
+                        productData.clear();
+                        fetchDataProduct();
+                        filterProductData(newValue??'');
+                    }});
                     }),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(

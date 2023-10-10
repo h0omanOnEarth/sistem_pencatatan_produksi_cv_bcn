@@ -22,6 +22,11 @@ class DeleteMaterialUsageEvent extends MaterialUsageEvent {
   DeleteMaterialUsageEvent(this.materialUsageId);
 }
 
+class FinishedMaterialUsageEvent extends MaterialUsageEvent {
+  final String materialUsageId;
+  FinishedMaterialUsageEvent(this.materialUsageId);
+}
+
 // States
 abstract class MaterialUsageBlocState {}
 
@@ -247,6 +252,20 @@ class MaterialUsageBloc
         await materialUsageToDeleteRef.delete();
 
         yield MaterialUsageDeletedState();
+      } catch (e) {
+        yield ErrorState("Failed to delete Material Usage.");
+      }
+    }else if(event is FinishedMaterialUsageEvent){
+      yield LoadingState();
+      try {
+       
+        final materialUsageRef = _firestore.collection('material_usages').doc(event.materialUsageId);
+
+        await materialUsageRef.update({
+          'status_mu': 'Selesai',
+        });
+
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Failed to delete Material Usage.");
       }

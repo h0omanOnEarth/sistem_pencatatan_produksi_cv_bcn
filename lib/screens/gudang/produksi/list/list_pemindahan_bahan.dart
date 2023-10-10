@@ -221,7 +221,6 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
                                   );
 
                                   if (confirmed == true) {
-                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
                                 status: data['status_mtr'],

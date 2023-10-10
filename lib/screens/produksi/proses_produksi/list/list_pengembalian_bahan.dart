@@ -6,7 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_return_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_pengembalian_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPengembalianBahan extends StatefulWidget {
@@ -155,7 +155,7 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                                 'Catatan': data['catatan'],
                                 'Status': data['status_mrt']
                               };
-                              return ListCard(
+                              return ListCardFinishedDelete(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -200,6 +200,10 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onFinished: () async {
+
+                                },
+                                status: data['status_mrt'],
                               );
                             },
                           ),

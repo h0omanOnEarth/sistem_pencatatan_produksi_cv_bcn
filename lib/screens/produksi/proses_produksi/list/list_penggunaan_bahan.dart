@@ -6,7 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_usage_b
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_penggunaan_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMaterialUsage extends StatefulWidget {
@@ -156,7 +156,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                 'Catatan': data['catatan'],
                                 'Status': data['status_mu'],
                               };
-                              return ListCard(
+                              return ListCardFinishedDelete(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -202,6 +202,37 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onFinished: () async{
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Menyelesaikan"),
+                                        content: const Text("Anda yakin ingin menyelesaikan penggunaan bahan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesaikan"),
+                                            onPressed: () async {
+                                              final materialUsageBloc = BlocProvider.of<MaterialUsageBloc>(context);
+                                              materialUsageBloc.add(FinishedMaterialUsageEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+
+                                  if (confirmed == true) {
+                                  }
+                                },
+                                status: data['status_mu'],
                               );
                             },
                           ),
