@@ -39,9 +39,9 @@ exports.productionConfirmationValidation = async (req) => {
     // Membuat daftar id produksi yang diperlukan untuk pencocokan
     const productionResultIds = confirmations.map((confirmation) => confirmation.production_result_id.trim());
 
-    // Mendapatkan data produksi yang sesuai berdasarkan production_result_id
+    try {
+     // Mendapatkan data produksi yang sesuai berdasarkan production_result_id
     const productionResultsData = await productionResultsCollection.where('id', 'in', productionResultIds).get();
-
     // Memeriksa apakah jumlah_konfirmasi tidak melebihi jumlah_produk dari produksi yang sesuai
     if (!productionResultsData.empty) {
       const valid = confirmations.every((confirmation) => {
@@ -53,9 +53,21 @@ exports.productionConfirmationValidation = async (req) => {
       if (!valid) {
         return { success: false, message: "Jumlah konfirmasi melebihi jumlah produk berhasil pada hasil produksi" };
       }
-    }
-    
+  
+      // Jika semua konfirmasi valid, ubah status_prs menjadi 'Selesai'
+      const batch = admin.firestore().batch();
+      productionResultsData.docs.forEach((doc) => {
+        const productionResultRef = productionResultsCollection.doc(doc.id);
+        batch.update(productionResultRef, {status_prs: "Selesai"});
+      });
+
+      await batch.commit();
+    }  
     return {
-        success: true,
+      success: true,
     };
+    } catch (error) {
+      console.error("Error validating production confirmation:", error);
+      return { success: false, message: "Terjadi kesalahan dalam validasi konfirmasi produksi" };
+    }
 }

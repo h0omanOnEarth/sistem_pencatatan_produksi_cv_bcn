@@ -24,10 +24,10 @@ class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
   String selectedStatus ='';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
-  int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 5; // Jumlah data per halaman
+  String startDateText = ''; 
+  String endDateText = '';   
+  int startIndex = 0; 
+  int itemsPerPage = 5; 
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -151,7 +151,8 @@ class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
                               final data = paginatedDocs[index].data() as Map<String, dynamic>;
                               final id = data['id'] as String;
                               final info = {
-                                'Tanggal Konfirmasi': DateFormat('dd/MM/yyyy').format((data['tanggal_konfirmasi'] as Timestamp).toDate()), 
+                                'Tanggal Konfirmasi': DateFormat('dd/MM/yyyy').format((data['tanggal_konfirmasi'] as Timestamp).toDate()),
+                                'Total': '${data['total']} Pcs', 
                                 'Catatan': data['catatan'],
                                 'Status' : data['status_prc']
                               };

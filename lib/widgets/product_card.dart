@@ -4,11 +4,13 @@ class ProductCard extends StatefulWidget {
   final dynamic productCardData; // Gunakan dynamic
   final void Function() onDelete;
   final List<Widget> children;
+  final bool isEnabled;
 
   const ProductCard({
     required this.productCardData,
     required this.onDelete,
     required this.children,
+    this.isEnabled = true, // Tambahkan isEnabled dengan nilai default true
   });
 
   @override
@@ -33,29 +35,30 @@ class _ProductCardState extends State<ProductCard> {
               children: widget.children,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: widget.onDelete,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(10),
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+          if (widget.isEnabled) // Tambahkan pengecekan isEnabled
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: widget.onDelete,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(10),
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Hapus',
-                    style: TextStyle(fontSize: 16),
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Hapus',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

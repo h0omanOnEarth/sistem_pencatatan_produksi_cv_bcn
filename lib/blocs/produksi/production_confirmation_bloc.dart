@@ -84,6 +84,7 @@ class ProductionConfirmationBloc
               'status': event.productionConfirmation.status,
               'status_prc': event.productionConfirmation.statusPrc,
               'tanggal_konfirmasi': event.productionConfirmation.tanggalKonfirmasi,
+              'total': event.productionConfirmation.total
             };
 
             // Add the production confirmation data to Firestore
@@ -143,41 +144,41 @@ class ProductionConfirmationBloc
               'catatan': event.productionConfirmation.catatan,
               'status': event.productionConfirmation.status,
               'status_prc': event.productionConfirmation.statusPrc,
-              'tanggal_konfirmasi':
-                  event.productionConfirmation.tanggalKonfirmasi,
+              'tanggal_konfirmasi': event.productionConfirmation.tanggalKonfirmasi,
+              'total': event.productionConfirmation.total
             };
 
             // Update the production confirmation data within the existing document
             await productionConfirmationToUpdateRef
                 .set(productionConfirmationData);
 
-            // Delete all documents within the 'details' subcollection first
-            final detailsCollectionRef = productionConfirmationToUpdateRef.collection('detail_production_confirmations');
-            final detailsDocs = await detailsCollectionRef.get();
-            for (var doc in detailsDocs.docs) {
-              await doc.reference.delete();
-            }
+            // // Delete all documents within the 'details' subcollection first
+            // final detailsCollectionRef = productionConfirmationToUpdateRef.collection('detail_production_confirmations');
+            // final detailsDocs = await detailsCollectionRef.get();
+            // for (var doc in detailsDocs.docs) {
+            //   await doc.reference.delete();
+            // }
 
-            // Add the new detail documents to the 'details' subcollection
-            if (event.productionConfirmation.detailProductionConfirmations.isNotEmpty) {
-              int detailCount = 1;
-              for (var detail in event.productionConfirmation.detailProductionConfirmations) {
-                final nextDetailId =
-                    'D${detailCount.toString().padLeft(3, '0')}';
-                final detailId = event.productionConfirmationId + nextDetailId;
+            // // Add the new detail documents to the 'details' subcollection
+            // if (event.productionConfirmation.detailProductionConfirmations.isNotEmpty) {
+            //   int detailCount = 1;
+            //   for (var detail in event.productionConfirmation.detailProductionConfirmations) {
+            //     final nextDetailId =
+            //         'D${detailCount.toString().padLeft(3, '0')}';
+            //     final detailId = event.productionConfirmationId + nextDetailId;
 
-                // Add the detail documents to the 'details' collection
-                await detailsCollectionRef.add({
-                  'id': detailId,
-                  'production_confirmation_id': event.productionConfirmationId,
-                  'jumlah_konfirmasi': detail.jumlahKonfirmasi,
-                  'production_result_id': detail.productionResultId,
-                  'satuan' : detail.satuan,
-                  'product_id' : detail.productId
-                });
-                detailCount++;
-              }
-            }
+            //     // Add the detail documents to the 'details' collection
+            //     await detailsCollectionRef.add({
+            //       'id': detailId,
+            //       'production_confirmation_id': event.productionConfirmationId,
+            //       'jumlah_konfirmasi': detail.jumlahKonfirmasi,
+            //       'production_result_id': detail.productionResultId,
+            //       'satuan' : detail.satuan,
+            //       'product_id' : detail.productId
+            //     });
+            //     detailCount++;
+            //   }
+            // }
 
             yield SuccessState();
            }else{

@@ -4,13 +4,15 @@ class DropdownProdukDetailWidget extends StatelessWidget {
   final String label;
   final String selectedValue;
   final void Function(String) onChanged;
-  final List<Map<String, dynamic>> products; // Tambahkan parameter ini
+  final List<Map<String, dynamic>> products;
+  final bool isEnabled; // Tambahkan properti isEnabled
 
   DropdownProdukDetailWidget({
     required this.label,
     required this.selectedValue,
     required this.onChanged,
-    required this.products, // Tambahkan ini
+    required this.products,
+    this.isEnabled = true, // Tambahkan properti isEnabled dengan nilai default true
   });
 
   @override
@@ -46,14 +48,16 @@ class DropdownProdukDetailWidget extends StatelessWidget {
                   ),
                   child: Text(
                     productId,
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(
+                      color: isEnabled ? Colors.black : Colors.grey, // Gunakan isEnabled untuk mengatur warna teks
+                    ),
                   ),
                 ),
               );
             }).toList(),
-            onChanged: (String? newValue) {
-              onChanged(newValue ?? ''); // Pastikan untuk memberikan string kosong jika newValue adalah null
-            },
+            onChanged: isEnabled ? (String? newValue) {
+              onChanged(newValue ?? '');
+            } : null, // Nonaktifkan onChanged jika isEnabled adalah false
           ),
         ),
       ],

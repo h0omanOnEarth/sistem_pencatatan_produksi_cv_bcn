@@ -38,36 +38,58 @@ class _FormKonfirmasiProduksiScreenState extends State<FormKonfirmasiProduksiScr
   final productionOrderService = ProductionOrderService();
   TextEditingController catatanController = TextEditingController();
   TextEditingController statusController = TextEditingController();
+  TextEditingController totalController = TextEditingController();
 
-    void addProductCard() {
-    setState(() {
-      productCards.add(ProductCardDataProductionResult(
-        nomorHasilProduksi: '',
-        kodeBarang: '',
-        namaBarang: '',
-        jumlahHasil: '',
-        satuan: '',
-        jumlahKonfirmasi: '',
-      ));
-    });
+  void addProductCard() {
+  setState(() {
+    productCards.add(ProductCardDataProductionResult(
+      nomorHasilProduksi: '',
+      kodeBarang: '',
+      namaBarang: '',
+      jumlahHasil: '',
+      satuan: '',
+      jumlahKonfirmasi: '',
+    ));
+    updateTotal();
+  });
+}
+
+ void updateTotal() {
+  int total = 0;
+  for (var productCardData in productCards) {
+    if (productCardData.jumlahKonfirmasi.isNotEmpty) {
+      int subtotalValue = int.tryParse(productCardData.jumlahKonfirmasi) ?? 0;
+      total += subtotalValue;
+    }
+  }
+  setState(() {
+    totalController.text = total.toString(); // Format total harga
+  });
+}
+
+ void fetchDataProductionResult() {
+  Query collection = firestore.collection('production_results');
+
+  // Periksa apakah widget.productionConfirmationId adalah null
+  if (widget.productionConfirmationId == null) {
+    collection = collection.where('status_prs', isEqualTo: 'Dalam Proses');
   }
 
-  void fetchDataProductionResult(){
-    // Ambil data produk dari Firestore di initState
-    firestore.collection('production_results').get().then((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> pResult = {
-          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
-          'satuan': doc['satuan'] as String, // Ganti 'nama' dengan field yang sesuai di Firestore
-          'jumlahHasil' : doc['jumlah_produk_berhasil'] as int,
-          'materialUsageId' : doc['material_usage_id'] as String
-        };
-        setState(() {
-          productDataPR.add(pResult); // Tambahkan produk ke daftar produk
-        });
-      }
-    });
-  }
+  collection.get().then((querySnapshot) {
+    for (var doc in querySnapshot.docs) {
+      Map<String, dynamic> pResult = {
+        'id': doc['id'],
+        'satuan': doc['satuan'] as String,
+        'jumlahHasil': doc['jumlah_produk_berhasil'] as int,
+        'materialUsageId': doc['material_usage_id'] as String
+      };
+      setState(() {
+        productDataPR.add(pResult);
+      });
+    }
+  });
+}
+
 
   @override
   void dispose() {
@@ -133,7 +155,8 @@ void fetchDataDetail() {
         final data = documentSnapshot.data() as Map<String, dynamic>;
         setState(() {
           catatanController.text = data['catatan'] ?? '';
-          statusController.text = data['status_prc'];
+          statusController.text = data['status_prc']??'';
+          totalController.text = data['total'].toString();
           final tanggalKonfirmasiFirestore = data['tanggal_konfirmasi'];
           if (tanggalKonfirmasiFirestore != null) {
             selectedDate = (tanggalKonfirmasiFirestore as Timestamp).toDate();
@@ -164,7 +187,7 @@ void fetchDataDetail() {
 void addOrUpdate(){
   try{
    final proConfBloc =BlocProvider.of<ProductionConfirmationBloc>(context);
-   final proConf = ProductionConfirmation(id: '', catatan: catatanController.text, status: 1, statusPrc: statusController.text, tanggalKonfirmasi: selectedDate??DateTime.now(), detailProductionConfirmations: []);
+   final proConf = ProductionConfirmation(id: '', catatan: catatanController.text, status: 1, statusPrc: statusController.text, tanggalKonfirmasi: selectedDate??DateTime.now(), detailProductionConfirmations: [], total: int.tryParse(totalController.text)??0);
       // Loop melalui productCards untuk menambahkan detail customer order
   for (var productCardData in productCards) {
     final detailProductionCon = DetailProductionConfirmation(id: '', jumlahKonfirmasi: int.tryParse(productCardData.jumlahKonfirmasi)??0, productionConfirmationId: '', productionResultId: productCardData.nomorHasilProduksi, satuan: productCardData.satuan, productId: productCardData.kodeBarang, status: 1);
@@ -282,6 +305,23 @@ showDialog(
                           },
                     ),
                     const SizedBox(height: 16.0,),
+                   Row(
+                    children: [
+                      Expanded(child:  TextFieldWidget(
+                      label: 'Total',
+                      placeholder: '0',
+                      controller: totalController,
+                      isEnabled: false,
+                    ),),
+                    const SizedBox(width: 16.0,),
+                    const Expanded(child:  TextFieldWidget(
+                      label: '',
+                      placeholder: 'Pcs',
+                      isEnabled: false,
+                    ),)
+                    ],
+                   ),
+                    const SizedBox(height: 16.0,),
                     TextFieldWidget(
                       label: 'Status',
                       placeholder: 'Dalam Proses',
@@ -294,7 +334,7 @@ showDialog(
                       placeholder: 'Catatan',
                       controller: catatanController,
                     ),
-                    const SizedBox(height: 16.0,),
+                    const SizedBox(height: 24.0,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -305,6 +345,7 @@ showDialog(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        if(widget.productionConfirmationId==null)
                         InkWell(
                           onTap: () {
                             addProductCard();
@@ -329,10 +370,12 @@ showDialog(
                       onDelete: () {
                         setState(() {
                           productCards.remove(productCardData);
+                          updateTotal();
                         });
                       },
+                    isEnabled: widget.productionConfirmationId==null,
                       children: [
-                        ProductCardProductionResultWidget(productCardData: productCardData,productCards: productCards,productData: productDataPR, ),
+                        ProductCardProductionResultWidget(productCardData: productCardData,productCards: productCards,productData: productDataPR, isEnabled: widget.productionConfirmationId==null, updateTotal: updateTotal,),
                       ],
                     );
                   }).toList(),
