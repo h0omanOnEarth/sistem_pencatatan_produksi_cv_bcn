@@ -228,9 +228,8 @@ void initState() {
     fetchDataFromFirestore(widget.deliveryId??''); 
     updateTotalPcsProduk();
     fetchCustomerDetail();
+    fetchDetail();
   }
-
-  fetchDetail();
 }
 
 void addOrUpdate() {

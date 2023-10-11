@@ -7,7 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/fo
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPengubahanBahan extends StatefulWidget {
@@ -151,7 +151,7 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
                                 'Catatan' : data['catatan'],
                                 'Status': data['status_mtf']
                               };
-                              return ListCard(
+                              return ListCardFinishedDelete(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -196,6 +196,10 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onFinished: () async{
+
+                                },
+                                status: data['status_mtf'],
                               );
                             },
                           ),

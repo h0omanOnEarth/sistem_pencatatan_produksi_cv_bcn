@@ -66,6 +66,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
           final HttpsCallableResult<dynamic> result = await suratJalanCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalPcs': totalPcs,
+            'deliveryOrderId': deliveryOrderId,
+            'mode': 'add'
           });
 
           if (result.data['success'] == true) {
@@ -123,6 +125,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
           final HttpsCallableResult<dynamic> result = await suratJalanCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalPcs': totalPcs,
+            'deliveryOrderId': deliveryOrderId,
+            'mode': 'edit'
           });
 
           if (result.data['success'] == true) {   

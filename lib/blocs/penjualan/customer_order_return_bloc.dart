@@ -65,6 +65,7 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
         final HttpsCallableResult<dynamic> result = await customerOrderReturnCallable.call(<String, dynamic>{
           'products': products.map((product) => product.toJson()).toList(),
           'invoiceId': invoiceId,
+          'mode': 'add'
         });
 
         if (result.data['success'] == true) {
@@ -117,6 +118,7 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
           final HttpsCallableResult<dynamic> result = await customerOrderReturnCallable.call(<String, dynamic>{
           'products': products.map((product) => product.toJson()).toList(),
           'invoiceId': invoiceId,
+          'mode': 'edit'
         });
 
           if (result.data['success'] == true) {

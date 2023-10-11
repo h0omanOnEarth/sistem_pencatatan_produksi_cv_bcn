@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/f
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -149,7 +150,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                                 'Alasan Pengembalian' : data['alasan_pengembalian'],
                                 'Status': data['status_cor']
                               };
-                              return ListCard(
+                              return ListCardFinishedDelete(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -194,6 +195,10 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onFinished: () async{
+
+                                },
+                                status: data['status_cor'],
                               );
                             },
                           ),

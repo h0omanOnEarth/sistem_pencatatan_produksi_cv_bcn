@@ -2,18 +2,25 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ProductionConfirmationDropDown extends StatelessWidget {
+class ProductionConfirmationDropDown extends StatefulWidget {
   final String? selectedProductionConfirmationDropdown;
   final Function(String?) onChanged;
   final TextEditingController? tanggalKonfirmasiController;
+  final bool isEnabled;
 
   const ProductionConfirmationDropDown({
     Key? key,
     required this.selectedProductionConfirmationDropdown,
     required this.onChanged,
     this.tanggalKonfirmasiController,
+    this.isEnabled = true,
   }) : super(key: key);
 
+  @override
+  State<ProductionConfirmationDropDown> createState() => _ProductionConfirmationDropDownState();
+}
+
+class _ProductionConfirmationDropDownState extends State<ProductionConfirmationDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
@@ -55,11 +62,11 @@ class ProductionConfirmationDropDown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedProductionConfirmationDropdown,
+                value: widget.selectedProductionConfirmationDropdown,
                 items: productionConfirmationItems,
-                onChanged: (newValue) {
-                  onChanged(newValue);
-                  if (tanggalKonfirmasiController != null) {
+                onChanged: widget.isEnabled ? (newValue) {
+                  widget.onChanged(newValue);
+                  if (widget.tanggalKonfirmasiController != null) {
                     final selectedDoc = snapshot.data!.docs.firstWhere((doc) => doc['id'] == newValue);
                     var tanggalKonfirmasiFirestore = selectedDoc['tanggal_konfirmasi'];
                     String tanggalPermintaan = '';
@@ -79,10 +86,11 @@ class ProductionConfirmationDropDown extends StatelessWidget {
                       tanggalPermintaan = '$day $month $year';
                     }
 
-                    tanggalKonfirmasiController!.text = tanggalPermintaan;
+                    widget.tanggalKonfirmasiController!.text = tanggalPermintaan;
                   }
-                },
+                }:null,
                 isExpanded: true,
+                autovalidateMode: widget.isEnabled ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled, // Mengatur validasi sesuai isEnabled
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(

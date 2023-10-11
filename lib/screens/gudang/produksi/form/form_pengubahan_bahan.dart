@@ -221,7 +221,7 @@ Widget build(BuildContext context) {
                               setState(() {
                                 selectedKodeMesin = newValue;
                               });
-                        }, title: 'Mesin', namaMesinController: namaMesinController,),
+                        }, title: 'Penggiling', namaMesinController: namaMesinController,),
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(child:
@@ -310,7 +310,7 @@ Widget build(BuildContext context) {
                     isEnabled: false,
                     controller: statusController,
                   ),
-                  const SizedBox(height: 16.0,),
+                  const SizedBox(height: 24.0,),
                   Row(
                     children: [
                       Expanded(

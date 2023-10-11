@@ -9,7 +9,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/productionConfirmation
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/productionConfirmationWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -29,10 +28,10 @@ class FormPenerimaanHasilProduksi extends StatefulWidget {
 class _FormPenerimaanHasilProduksiState extends State<FormPenerimaanHasilProduksi> {
   DateTime? _selectedDate;
   String? selectedNomorKonfirmasi;
-  String selectedStatus = 'Dalam Proses';
   bool isLoading = false;
   TextEditingController catatanController = TextEditingController();
   TextEditingController tanggalKonfirmasiController = TextEditingController();
+  TextEditingController statusController = TextEditingController();
   List<Map<String, dynamic>> materialDetailsData= []; // Initialize the list
   final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
   final productService = ProductService();
@@ -125,7 +124,7 @@ Future<void> fetchConfirmations() async {
         final data = documentSnapshot.data() as Map<String, dynamic>;
         setState(() {
           catatanController.text = data['catatan'] ?? '';
-          selectedStatus = data['status_irc'];
+          statusController.text = data['status_irc'];
           final tanggalPenerimaanFirestore = data['tanggal_penerimaan'];
           if (tanggalPenerimaanFirestore != null) {
             _selectedDate = (tanggalPenerimaanFirestore as Timestamp).toDate();
@@ -156,7 +155,7 @@ void clearForm() {
     catatanController.clear();
     _selectedDate = null;
     selectedNomorKonfirmasi = null;
-    selectedStatus = 'Dalam Proses';
+    statusController.text = 'Dalam Proses';
     materialDetailsData.clear();
     customCards.clear();
   });
@@ -168,7 +167,7 @@ void addOrUpdate() {
     id: '',
     productionConfirmationId: selectedNomorKonfirmasi ?? '',
     status: 1,
-    statusIrc: selectedStatus,
+    statusIrc: statusController.text,
     tanggalPenerimaan: _selectedDate ?? DateTime.now(),
     detailItemReceiveList: [],
   );
@@ -302,7 +301,9 @@ Widget build(BuildContext context) {
                       selectedNomorKonfirmasi = newValue??'';
                       fetchConfirmations();
                     });
-                  }, tanggalKonfirmasiController: tanggalKonfirmasiController,),
+                  }, tanggalKonfirmasiController: tanggalKonfirmasiController,
+                  isEnabled: widget.itemReceivceId==null,
+                  ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Tanggal Konfirmasi',
@@ -317,15 +318,11 @@ Widget build(BuildContext context) {
                     controller: catatanController,
                   ),
                   const SizedBox(height: 16.0,),
-                  DropdownWidget(
+                  TextFieldWidget(
                     label: 'Status',
-                    selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
-                    items: const ['Dalam Proses', 'Selesai'],
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedStatus = newValue; 
-                      });
-                    },
+                    placeholder: 'Dalam Proses',
+                    controller: statusController,
+                    isEnabled: false,
                   ),
                   const SizedBox(height: 16.0,),
                   if (!isProductionConf)

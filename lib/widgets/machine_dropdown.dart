@@ -47,8 +47,17 @@ class MachineDropdown extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if(title!='Penggiling')
             Text(
               '$title',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            if(title=='Penggiling')
+             Text(
+              'Mesin',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],

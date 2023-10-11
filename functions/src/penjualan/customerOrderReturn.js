@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.customerOrderReturnValidation = async (req) => {
-  const {products, invoiceId} = req.data;
+  const {products, invoiceId, mode} = req.data;
 
   if (!products || products.length === 0) {
       return {success: false, message: "Detail harus ada satu produk"};
@@ -39,7 +39,40 @@ exports.customerOrderReturnValidation = async (req) => {
       return {success: false, message: "Jumlah pesanan tidak boleh lebih kecil daripada jumlah pengembalian pada detail"};
   }
 
-  return {
-    success: true,
-  };
+  try {
+    // Periksa status_fk pada invoice
+    const invoiceRef = admin.firestore().collection("invoices").doc(invoiceId);
+    const invoiceDoc = await invoiceRef.get();
+    const statusFk = invoiceDoc.data().status_fk;
+
+    if(mode=='add'){
+      if (statusFk !== "Selesai") {
+        return { success: false, message: "Invoice belum selesai" };
+      }
+    }
+
+     // Jika validasi sukses, kembalikan stok produk
+     for (const product of products) {
+      const productId = product.product_id;
+      const jumlahPengembalian = product.jumlah_pengembalian;
+
+      const productRef = admin.firestore().collection("products").doc('productXXX');
+      const productDoc = await productRef.get();
+      const currentStock = productDoc.data().stok;
+
+      // Update stok produk
+      await productRef.update({ stok: currentStock + jumlahPengembalian });
+    }
+
+    return {
+      success: true,
+    };
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error validating customer order return:", error);
+    return { success: false, message: "Terjadi kesalahan dalam validasi pengembalian pesanan pelanggan" };
+  }
 };

@@ -7,7 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/form/fo
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListItemReceive extends StatefulWidget {
@@ -148,7 +148,7 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                                 'Catatan' : data['catatan'],
                                 'Status': data['status_irc']
                               };
-                              return ListCard(
+                              return ListCardFinishedDelete(
                                 title: id,
                                 description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
                                 onTap: () {
@@ -193,6 +193,10 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                onFinished: () async{
+
+                                },
+                                status: data['status_irc'],
                               );
                             },
                           ),
@@ -229,7 +233,7 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
                                 ),
                                 child: const Text("Next"),
                               ),

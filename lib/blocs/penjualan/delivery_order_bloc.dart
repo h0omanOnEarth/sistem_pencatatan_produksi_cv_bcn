@@ -46,9 +46,9 @@ class ErrorState extends DeliveryOrderBlocState {
 // BLoC
 class DeliveryOrderBloc extends Bloc<DeliveryOrderEvent, DeliveryOrderBlocState> {
   late FirebaseFirestore _firestore;
-  final HttpsCallable customerOrderCallable; //karena sama
+  final HttpsCallable deliveryOrderCallable; //karena sama
 
-  DeliveryOrderBloc() : customerOrderCallable = FirebaseFunctions.instance.httpsCallable('customerOrderValidation'), super(LoadingState()) {
+  DeliveryOrderBloc() : deliveryOrderCallable = FirebaseFunctions.instance.httpsCallable('deliveryOrderValidate'), super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -72,7 +72,7 @@ class DeliveryOrderBloc extends Bloc<DeliveryOrderEvent, DeliveryOrderBlocState>
       if(customerOrderId.isNotEmpty){
         if(alamatPengiriman.isNotEmpty){
            try {
-             final HttpsCallableResult<dynamic> result = await customerOrderCallable.call(<String, dynamic>{
+             final HttpsCallableResult<dynamic> result = await deliveryOrderCallable.call(<String, dynamic>{
                 'products': products?.map((product) => product.toJson()).toList(),
                 'totalProduk': totalBarang,
                 'totalHarga': totalHarga
@@ -154,7 +154,7 @@ class DeliveryOrderBloc extends Bloc<DeliveryOrderEvent, DeliveryOrderBlocState>
       if(customerOrderId.isNotEmpty){
         if(alamatPengiriman.isNotEmpty){
           try {
-          final HttpsCallableResult<dynamic> result = await customerOrderCallable.call(<String, dynamic>{
+          final HttpsCallableResult<dynamic> result = await deliveryOrderCallable.call(<String, dynamic>{
                 'products': products?.map((product) => product.toJson()).toList(),
                 'totalProduk': totalBarang,
                 'totalHarga': totalHarga

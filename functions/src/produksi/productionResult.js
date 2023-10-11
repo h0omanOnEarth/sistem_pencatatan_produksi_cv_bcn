@@ -116,8 +116,16 @@ exports.productionResValidate = async (req) => {
         };
       }
 
-      // // Perbarui stok produk
+      // Perbarui stok produk gagal 
+      // // Perbarui stok produk 
       // await productDocRef.update({stok: currentStock + total});
+      // Perbarui stok produk cacat
+      // Dapatkan stok produk dengan id 'productXXX'
+      const productXXXRef = productsRef.doc('productXXX');
+      const productXXXDoc = await productXXXRef.get();
+      const stokProductXXX = productXXXDoc.data().stok;
+      // Perbarui stok produk gagal
+      await productXXXRef.update({stok: stokProductXXX + jumlahCacat});
     }
     
     // Jika semua pemeriksaan berhasil, ubah status produksi menjadi 'Selesai'
@@ -128,6 +136,6 @@ exports.productionResValidate = async (req) => {
     };
   } catch (error) {
     console.error("Error validating production result:", error);
-    return { success: false, message: "Terjadi kesalahan dalam validasi hasil produksi" };
+    return {success: false, message: "Terjadi kesalahan dalam validasi hasil produksi"};
   }
 };

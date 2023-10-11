@@ -67,6 +67,7 @@ class ItemReceiveBloc
           final HttpsCallableResult<dynamic> result = await itemReceiveCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'productionConfirmationId': productionConfirmationId,
+            'mode': 'add'
           });
 
           if (result.data['success'] == true) {
@@ -122,6 +123,7 @@ class ItemReceiveBloc
         final HttpsCallableResult<dynamic> result = await itemReceiveCallable.call(<String, dynamic>{
           'products': products.map((material) => material.toJson()).toList(),
           'productionConfirmationId': productionConfirmationId,
+          'mode': 'edit'
         });
 
         if (result.data['success'] == true) {

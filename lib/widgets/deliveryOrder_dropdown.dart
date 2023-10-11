@@ -52,7 +52,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: $DOID | CUSTOMER ORDER ID: $COID',
+                    'ID: $DOID, Customer Order ID: $COID',
                     style: const TextStyle(
                       color: Colors.black,
                     ),
