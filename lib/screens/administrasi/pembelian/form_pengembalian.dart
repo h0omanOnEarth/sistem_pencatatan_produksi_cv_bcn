@@ -241,7 +241,7 @@ void initState() {
                         ],
                       ),
                       const SizedBox(height: 16.0),
-                      PesananPembelianDropdown(kodeBahanController: kodeBahanController, namaBahanController: namaBahanController, namaSupplierController: supplierController, tanggalPemesananController: tanggalPemesananController,purchaseOrderId: widget.purchaseOrderId,),
+                      PesananPembelianDropdown(kodeBahanController: kodeBahanController, namaBahanController: namaBahanController, namaSupplierController: supplierController, tanggalPemesananController: tanggalPemesananController,purchaseOrderId: widget.purchaseOrderId, isEnabled: widget.purchaseReturnId==null,),
                       const SizedBox(height: 16.0,),
                       TextFieldWidget(
                         label: 'Tanggal Pemesanan',
@@ -330,7 +330,7 @@ void initState() {
                       ),
                       const SizedBox(height: 16.0,),
                         TextFieldWidget(
-                        label: 'Cataan',
+                        label: 'Catatan',
                         placeholder: 'Catatan',
                         controller: catatanController,
                       ),

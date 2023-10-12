@@ -7,13 +7,15 @@ class ProductionOrderDropDown extends StatefulWidget {
   late final TextEditingController? tanggalProduksiController;
   late final TextEditingController? kodeProdukController;
   late final TextEditingController? namaProdukController;
+  final bool isEnabled;
 
   ProductionOrderDropDown({super.key, 
     required this.selectedPRO, 
     required this.onChanged, 
     this.tanggalProduksiController,
     this.kodeProdukController,
-    this.namaProdukController
+    this.namaProdukController,
+    this.isEnabled = true,
     });
 
   @override
@@ -94,7 +96,7 @@ Future<String?> getProductName(String productId) async {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedPRO,
                 items: proItems,
-                onChanged: (newValue) async {
+                onChanged: widget.isEnabled ?  (newValue) async {
                   widget.onChanged(newValue);
                   _selectedDoc = snapshot.data!.docs.firstWhere(
                     (document) => document['id'] == newValue,
@@ -119,7 +121,7 @@ Future<String?> getProductName(String productId) async {
                   widget.kodeProdukController?.text = _selectedDoc['product_id'];
                   final productName = await getProductName(_selectedDoc['product_id']);
                   widget.namaProdukController?.text = productName!;
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

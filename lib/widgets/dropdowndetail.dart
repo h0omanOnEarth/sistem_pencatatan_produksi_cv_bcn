@@ -5,12 +5,14 @@ class DropdownDetailWidget extends StatelessWidget {
   final List<String> items;
   final String selectedValue;
   final void Function(String) onChanged;
+  final bool isEnabled;
 
   const DropdownDetailWidget({
     required this.label,
     required this.items,
     required this.selectedValue,
     required this.onChanged,
+    this.isEnabled = true,
   });
 
   @override
@@ -52,9 +54,9 @@ class DropdownDetailWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-            onChanged: (String? newValue) {
+            onChanged: isEnabled ? (String? newValue) {
               onChanged(newValue ?? ''); // Make sure to pass an empty string if newValue is null
-            },
+            }:null,
           ),
         ),
       ],

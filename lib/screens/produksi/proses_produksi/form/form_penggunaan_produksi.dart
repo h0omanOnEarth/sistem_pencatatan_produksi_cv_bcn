@@ -20,8 +20,9 @@ class FormPenggunaanBahanScreen extends StatefulWidget {
   final String? materialUsageId;
   final String? productionOrderId;
   final String? materialRequestId;
+  final String? statusMu;
 
-  const FormPenggunaanBahanScreen({Key? key, this.materialUsageId, this.productionOrderId, this.materialRequestId}) : super(key: key);
+  const FormPenggunaanBahanScreen({Key? key, this.materialUsageId, this.productionOrderId, this.materialRequestId, this.statusMu}) : super(key: key);
   
   @override
   State<FormPenggunaanBahanScreen> createState() =>
@@ -364,20 +365,26 @@ showDialog(
                           setState(() {
                             selectedNomorPerintah = newValue??'';
                           });
-                    }, kodeProdukController: kodeProdukController, namaProdukController: namaProdukController,),
+                    }, kodeProdukController: kodeProdukController, namaProdukController: namaProdukController,
+                    isEnabled: widget.materialUsageId == null,
+                    ),
                     const SizedBox(height: 16.0),
-                    MaterialRequestDropdown(selectedMaterialRequest: selectedNomorPermintaan,  onChanged: (newValue) {
-                          setState(() {
-                            selectedNomorPermintaan = newValue??'';
-                            if(productCards[0].kodeBahan.isNotEmpty){
-                              resetProductCardDropdown(newValue??'');
-                            }else{
-                              productDataBahan.clear();
-                              fetchDataBahan();
-                              filterProductDataBahan(newValue??'');
-                            }
-                          });
-                    }),
+                    MaterialRequestDropdown(
+                      selectedMaterialRequest: selectedNomorPermintaan,  
+                      onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorPermintaan = newValue??'';
+                        if(productCards[0].kodeBahan.isNotEmpty){
+                          resetProductCardDropdown(newValue??'');
+                        }else{
+                          productDataBahan.clear();
+                          fetchDataBahan();
+                          filterProductDataBahan(newValue??'');
+                        }
+                      });
+                    },
+                    isEnabled: widget.materialUsageId== null
+                    ),
                     const SizedBox(height: 16.0),
                     Row(
                       children: [
@@ -401,24 +408,26 @@ showDialog(
                     ),
                     const SizedBox(height: 16.0,),
                     DropdownWidget(
-                          label: 'Kode Batch',
-                          selectedValue: selectedKodeBatch, // Isi dengan nilai yang sesuai
-                          items: const ['Pencampuran', 'Sheet', 'Pencetakan', 'Penggilingan'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedKodeBatch = newValue; // Update _selectedValue saat nilai berubah
-                            });
-                          },
+                    label: 'Kode Batch',
+                    selectedValue: selectedKodeBatch, // Isi dengan nilai yang sesuai
+                    items: const ['Pencampuran', 'Sheet', 'Pencetakan', 'Penggilingan'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedKodeBatch = newValue; // Update _selectedValue saat nilai berubah
+                      });
+                    },
+                    isEnabled: widget.statusMu!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                     DatePickerButton(
-                          label: 'Tanggal Penggunaan',
-                          selectedDate: selectedDate,
-                          onDateSelected: (newDate) {
-                            setState(() {
-                              selectedDate = newDate;
-                            });
-                          },
+                      label: 'Tanggal Penggunaan',
+                      selectedDate: selectedDate,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
+                      isEnabled: widget.materialUsageId!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                     TextFieldWidget(
@@ -429,9 +438,10 @@ showDialog(
                     ),
                     const SizedBox(height: 16.0,),
                     TextFieldWidget(
-                      label: 'Catatan',
-                      placeholder: 'Catatan',
-                      controller: catatanController,
+                    label: 'Catatan',
+                    placeholder: 'Catatan',
+                    controller: catatanController,
+                  isEnabled: widget.statusMu!="Selesai",
                     ),
                   const SizedBox(height: 24.0,),
                   Row(
@@ -444,6 +454,7 @@ showDialog(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      if(widget.statusMu!="Selesai")
                       InkWell(
                         onTap: () {
                           addProductCard();
@@ -470,8 +481,9 @@ showDialog(
                           productCards.remove(productCardData);
                         });
                       },
+                      isEnabled: widget.statusMu!="Selesai",
                       children: [
-                        ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, ),
+                        ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, isEnabled: widget.statusMu!="Selesai",),
                       ],
                     );
                   }).toList(),
@@ -480,7 +492,7 @@ showDialog(
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusMu == "Selesai" ? null : () {
                               // Handle save button press
                               addOrUpdate();
                             },
@@ -502,7 +514,7 @@ showDialog(
                         const SizedBox(width: 16.0),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusMu == "Selesai" ? null : () {
                               // Handle clear button press
                               clearForm();
                             },

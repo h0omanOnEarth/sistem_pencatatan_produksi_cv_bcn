@@ -6,12 +6,15 @@ class MachineDropdown extends StatelessWidget {
   final TextEditingController? namaMesinController;
   final Function(String?) onChanged;
   final String title;
+  final bool isEnabled; 
 
-  MachineDropdown({
+  const MachineDropdown({
+    super.key, 
     required this.selectedMachine,
     required this.onChanged,
     required this.title,
     this.namaMesinController,
+    this.isEnabled = true, 
   });
 
   @override
@@ -49,7 +52,7 @@ class MachineDropdown extends StatelessWidget {
           children: [
             if(title!='Penggiling')
             Text(
-              '$title',
+              title,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -72,16 +75,16 @@ class MachineDropdown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedMachine,
                 items: machineItems,
-                onChanged: (newValue) {
+                onChanged: isEnabled ?(newValue) {
                   onChanged(newValue);
                   if (namaMesinController != null) {
                     final selectedMachineName = machineItems.firstWhere(
                       (item) => item.value == newValue,
-                      orElse: () => DropdownMenuItem<String>(value: '', child: Text('')),
+                      orElse: () => const DropdownMenuItem<String>(value: '', child: Text('')),
                     ).child as Text;
                     namaMesinController?.text = selectedMachineName.data!;
                   }
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

@@ -16,8 +16,9 @@ class FormPemindahanBahan extends StatefulWidget {
   static const routeName = '/form_pemindahan_bahan_screen';
   final String? materialRequestId;
   final String? materialTransferId;
+  final String? statusMtr;
 
-  const FormPemindahanBahan({Key? key, this.materialRequestId, this.materialTransferId}) : super(key: key);
+  const FormPemindahanBahan({Key? key, this.materialRequestId, this.materialTransferId, this.statusMtr}) : super(key: key);
   
   
   @override
@@ -294,6 +295,7 @@ Widget build(BuildContext context) {
                       _selectedDate = newDate;
                     });
                   },
+                  isEnabled: widget.statusMtr!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   MaterialRequestDropdown(selectedMaterialRequest: selectedNomorPermintaan,  onChanged: (newValue) {
@@ -301,7 +303,9 @@ Widget build(BuildContext context) {
                           selectedNomorPermintaan = newValue??'';
                           fetchMaterialTransfer();
                         });
-                  }, tanggalPermintaanController: tanggalPermintaanController,),
+                  }, tanggalPermintaanController: tanggalPermintaanController,
+                  isEnabled: widget.materialTransferId==null,
+                  ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Tanggal Permintaan',
@@ -314,6 +318,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusMtr!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -367,7 +372,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMtr == "Selesai" ? null :() {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -389,7 +394,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMtr == "Selesai" ? null : () {
                             // Handle clear button press
                             clear();
                           },

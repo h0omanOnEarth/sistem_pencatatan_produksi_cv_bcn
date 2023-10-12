@@ -231,12 +231,13 @@ void addOrUpdate(){
                             _selectedDate = newDate;
                           });
                         },
-                    ),
+                  isEnabled: widget.statusPRQ!="Selesai",
+                  ),
                   const SizedBox(height: 16.0),
                   Row(
                     children: [
                       Expanded(
-                        child: BahanDropdown(namaBahanController: namaBahanController, bahanId: widget.materialId,)
+                        child: BahanDropdown(namaBahanController: namaBahanController, bahanId: widget.materialId, isEnabled: widget.statusPRQ!="Selesai")
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(
@@ -257,6 +258,7 @@ void addOrUpdate(){
                           label: 'Jumlah Produk',
                           placeholder: 'Jumlah Produk',
                           controller: jumlahProdukController,
+                          isEnabled: widget.statusPRQ!="Selesai"
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -264,14 +266,14 @@ void addOrUpdate(){
                         child: 
                         DropdownWidget(
                           label: 'Satuan',
-                          selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
+                          selectedValue: selectedSatuan, 
                           items: const ['Pcs', 'Kg', 'Ons'],
                           onChanged: (newValue) {
                             setState(() {
-                              selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
-                              print('Selected value: $newValue');
+                              selectedSatuan = newValue; 
                             });
                           },
+                        isEnabled: widget.statusPRQ!="Selesai"
                       ),
                       ),
                     ],
@@ -281,6 +283,7 @@ void addOrUpdate(){
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusPRQ!="Selesai"
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -294,7 +297,7 @@ void addOrUpdate(){
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusPRQ == "Selesai" ? null : () {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -316,7 +319,7 @@ void addOrUpdate(){
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusPRQ == "Selesai" ? null : () {
                             // Handle clear button press
                             clearForm();
                           },

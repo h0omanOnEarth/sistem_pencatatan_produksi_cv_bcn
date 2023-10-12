@@ -18,8 +18,9 @@ class FormPerintahProduksiScreen extends StatefulWidget {
   static const routeName = '/form_perintah_produksi_screen';
   final String? productionOrderId;
   final String? productId;
+  final String? statusPro;
 
-  const FormPerintahProduksiScreen({Key? key, this.productionOrderId, this.productId}) : super(key: key);
+  const FormPerintahProduksiScreen({Key? key, this.productionOrderId, this.productId, this.statusPro}) : super(key: key);
   
   
   @override
@@ -449,39 +450,44 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
                 DatePickerButton(
-                            label: 'Tanggal Rencana',
-                            selectedDate: _selectedTanggalRencana,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedTanggalRencana = newDate;
-                              });
-                            },
+                  label: 'Tanggal Rencana',
+                  selectedDate: _selectedTanggalRencana,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedTanggalRencana = newDate;
+                    });
+                  },
+                  isEnabled: widget.statusPro!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   DatePickerButton(
-                            label: 'Tanggal Produksi',
-                            selectedDate: _selectedTanggalProduksi,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedTanggalProduksi = newDate;
-                              });
-                            },
+                    label: 'Tanggal Produksi',
+                    selectedDate: _selectedTanggalProduksi,
+                    onDateSelected: (newDate) {
+                      setState(() {
+                        _selectedTanggalProduksi = newDate;
+                      });
+                    },
+                    isEnabled: widget.statusPro!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   DatePickerButton(
-                            label: 'Tanggal Selesai',
-                            selectedDate: _selectedTanggalSelesai,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedTanggalSelesai = newDate;
-                              });
-                            },
+                    label: 'Tanggal Selesai',
+                    selectedDate: _selectedTanggalSelesai,
+                    onDateSelected: (newDate) {
+                      setState(() {
+                        _selectedTanggalSelesai = newDate;
+                      });
+                    },
+                    isEnabled: widget.statusPro!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   Row(
                     children: [
                       Expanded(
-                        child:  ProdukDropDown(namaProdukController: namaProdukController,productId: widget.productId,)
+                        child:  ProdukDropDown(namaProdukController: namaProdukController,productId: widget.productId,
+                        isEnabled: widget.productionOrderId==null,
+                        )
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(child:
@@ -500,7 +506,9 @@ Widget build(BuildContext context) {
                           selectedKodeBOM = newValue;
                           fetchBillOfMaterials();
                         });
-                  },),
+                  },
+                  isEnabled: widget.productionOrderId==null,
+                  ),
                   const SizedBox(height: 16.0,),
                   Row(
                     children: [
@@ -509,6 +517,7 @@ Widget build(BuildContext context) {
                           label: 'Jumlah Produksi (est)',
                           placeholder: '0',
                           controller: jumlahProduksiController,
+                          isEnabled: widget.statusPro!="Selesai",
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -517,6 +526,7 @@ Widget build(BuildContext context) {
                         label: 'Jumlah Tenaga Kerja (est)',
                         placeholder: 'Jumlah Tenaga Kerja',
                         controller: jumlahTenagaKerjaController,
+                        isEnabled: widget.statusPro!="Selesai",
                         ),
                       ),
                     ],
@@ -529,6 +539,7 @@ Widget build(BuildContext context) {
                           label: 'Perkiraan Lama Waktu',
                           placeholder: 'Waktu est.',
                           controller: perkiraanLamaWaktuController,
+                          isEnabled: widget.statusPro!="Selesai",
                         ),             
                       ),
                       const SizedBox(width: 16.0),
@@ -553,6 +564,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusPro!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   const Text(
@@ -591,7 +603,9 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue,
                           };
                         });
-                  }, title: 'Pencampur', namaMesinController: namaMesinPencampurController,),),
+                  }, title: 'Pencampur', namaMesinController: namaMesinPencampurController,
+                  isEnabled: widget.statusPro!="Selesai",
+                  ),),
                     const SizedBox(width: 16.0,),
                     Expanded(child: TextFieldWidget(
                         label: '',
@@ -613,7 +627,9 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue
                           };
                         });
-                  }, title: 'Sheet', namaMesinController: namaMesinSheetController,),),
+                  }, title: 'Sheet', namaMesinController: namaMesinSheetController,
+                  isEnabled: widget.statusPro!="Selesai",
+                  ),),
                   const SizedBox(width: 16.0,),
                   Expanded(child: TextFieldWidget(
                         label: '',
@@ -635,7 +651,9 @@ Widget build(BuildContext context) {
                             'machine_id' : newValue
                           };
                         });
-                  }, title: 'Pencetak', namaMesinController: namaMesinCetakController,),),
+                  }, title: 'Pencetak', namaMesinController: namaMesinCetakController,
+                  isEnabled: widget.statusPro!="Selesai",
+                  ),),
                   const SizedBox(width: 16.0,),
                   Expanded(child: TextFieldWidget(
                         label: '',
@@ -689,7 +707,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusPro == "Selesai" ? null : () {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -711,8 +729,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            // Handle clear button press
+                          onPressed: widget.statusPro == "Selesai" ? null : () {
                             clearForm();
                           },
                           style: ElevatedButton.styleFrom(
@@ -738,13 +755,13 @@ Widget build(BuildContext context) {
           ),
           ),
            if (isLoading)
-            Positioned( // Menambahkan Positioned untuk indikator loading
+            Positioned( 
             top: 0,
             bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+              color: Colors.black.withOpacity(0.3), 
               child: const Center(
                 child: CircularProgressIndicator(),
               ),

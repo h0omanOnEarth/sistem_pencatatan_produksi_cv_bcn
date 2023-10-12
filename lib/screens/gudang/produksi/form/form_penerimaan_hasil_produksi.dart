@@ -17,8 +17,9 @@ class FormPenerimaanHasilProduksi extends StatefulWidget {
   static const routeName = '/form_penerimaan_hasil_produksi_screen';
   final String? itemReceivceId;
   final String? productionConfirmationId;
+  final String? statusIrc;
 
-  const FormPenerimaanHasilProduksi({Key? key, this.itemReceivceId, this.productionConfirmationId}) : super(key: key);
+  const FormPenerimaanHasilProduksi({Key? key, this.itemReceivceId, this.productionConfirmationId, this.statusIrc}) : super(key: key);
   
   @override
   State<FormPenerimaanHasilProduksi> createState() =>
@@ -285,13 +286,14 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
                 DatePickerButton(
-                            label: 'Tanggal Penerimaan',
-                            selectedDate: _selectedDate,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedDate = newDate;
-                              });
-                            },
+                  label: 'Tanggal Penerimaan',
+                  selectedDate: _selectedDate,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                  isEnabled: widget.statusIrc!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   ProductionConfirmationDropDown(
@@ -316,6 +318,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusIrc!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -369,7 +372,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusIrc == "Selesai" ? null :() {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -391,7 +394,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusIrc == "Selesai" ? null : () {
                             // Handle clear button press
                             clearForm();
                           },

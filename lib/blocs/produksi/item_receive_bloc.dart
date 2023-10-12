@@ -22,6 +22,12 @@ class DeleteItemReceiveEvent extends ItemReceiveEvent {
   DeleteItemReceiveEvent(this.itemReceiveId);
 }
 
+class FinishedItemReceiveEvent extends ItemReceiveEvent {
+  final String itemReceiveId;
+  FinishedItemReceiveEvent(this.itemReceiveId);
+}
+
+
 // States
 abstract class ItemReceiveBlocState {}
 
@@ -191,6 +197,20 @@ class ItemReceiveBloc
         yield ItemReceiveDeletedState();
       } catch (e) {
         yield ItemReceiveErrorState("Failed to delete Item Receive.");
+      }
+    }else if(event is FinishedItemReceiveEvent){
+      yield ItemReceiveLoadingState();
+      try {
+       
+        final itemReceiveRef = _firestore.collection('item_receives').doc(event.itemReceiveId);
+
+        await itemReceiveRef.update({
+          'status_irc': 'Selesai',
+        });
+
+        yield SuccessState();
+      } catch (e) {
+        yield ItemReceiveErrorState("Failed to delete Material Transform");
       }
     }
   }

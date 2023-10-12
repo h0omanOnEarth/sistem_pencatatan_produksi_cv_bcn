@@ -165,6 +165,7 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                                       builder: (context) => FormPengembalianBahanScreen(
                                       materialUsageId: data['material_usage_id'],
                                       materialReturnId: data['id'],
+                                      statusMrt: data['status_mrt'],
                                       )
                                     ),
                                   );
@@ -201,7 +202,35 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
                                   }
                                 },
                                 onFinished: () async {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Selesai"),
+                                        content: const Text("Anda yakin ingin menyelesaikan pengembalian bahan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesai"),
+                                            onPressed: () async {
+                                              final materialReturnBloc = BlocProvider.of<MaterialReturnBloc>(context);
+                                              materialReturnBloc.add(FinishedMaterialReturnEvent(paginatedDocs[index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
+                                  if (confirmed == true) {
+                                    
+                                  }
                                 },
                                 status: data['status_mrt'],
                               );

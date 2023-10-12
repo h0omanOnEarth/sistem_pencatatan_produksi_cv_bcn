@@ -15,8 +15,9 @@ class FormPermintaanBahanScreen extends StatefulWidget {
   static const routeName = '/form_permintaan_bahan_screen';
   final String? productionOrderId;
   final String? materialRequestId;
+  final String? statusMr;
 
-  const FormPermintaanBahanScreen({Key? key, this.productionOrderId, this.materialRequestId}) : super(key: key);
+  const FormPermintaanBahanScreen({Key? key, this.productionOrderId, this.materialRequestId, this.statusMr}) : super(key: key);
   
   @override
   State<FormPermintaanBahanScreen> createState() =>
@@ -288,7 +289,7 @@ Widget build(BuildContext context) {
                     children: [
                       InkWell(
                         onTap: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, null);
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -329,6 +330,7 @@ Widget build(BuildContext context) {
                                 _selectedTanggalPermintaan = newDate;
                               });
                             },
+                  isEnabled: widget.statusMr!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   ProductionOrderDropDown(selectedPRO: selectedNoPerintah, onChanged: (newValue) {
@@ -336,7 +338,9 @@ Widget build(BuildContext context) {
                           selectedNoPerintah = newValue??'';
                           fetchProductionOrders();
                         });
-                  },tanggalProduksiController: tanggalProduksiController,),
+                  },tanggalProduksiController: tanggalProduksiController,
+                  isEnabled: widget.materialRequestId==null,
+                  ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Tanggal Produksi',
@@ -356,6 +360,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusMr!="Selesai",
                   ),
                   const SizedBox(height: 24.0,),
                   if (!isPROselected)
@@ -401,7 +406,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMr == "Selesai" ? null : () {
                             addOrUpdate();
                             isSave = true;
                           },
@@ -423,7 +428,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMr == "Selesai" ? null :() {
                             // Handle clear button press
                             clearFields();
                           },

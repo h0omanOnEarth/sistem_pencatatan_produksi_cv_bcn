@@ -11,13 +11,15 @@ class PesananPembelianDropdown extends StatefulWidget {
   final TextEditingController namaBahanController;
   final TextEditingController namaSupplierController;
   final String? purchaseOrderId;
+  final bool isEnabled;
 
   PesananPembelianDropdown({
     required this.tanggalPemesananController,
     required this.kodeBahanController,
     required this.namaBahanController,
     required this.namaSupplierController,
-    this.purchaseOrderId
+    this.purchaseOrderId,
+    this.isEnabled = true,
   }): super();
 
   @override
@@ -81,7 +83,7 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
                   child: DropdownButtonFormField<String>(
                     value: selectedPesanan,
                     items: purchaseOrderItems,
-                    onChanged: (newValue) {
+                    onChanged: widget.isEnabled ? (newValue) {
                       selectedKodeNotifier.value = newValue;
                       final selectedPurchaseOrder = snapshot.data!.docs.firstWhere(
                         (document) => document['id'] == newValue,
@@ -118,7 +120,7 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
                           widget.namaSupplierController.text = namaSupplier;
                         }
                       });
-                    },
+                    }:null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

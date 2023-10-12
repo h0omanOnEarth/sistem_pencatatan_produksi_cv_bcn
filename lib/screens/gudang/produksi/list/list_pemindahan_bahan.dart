@@ -159,6 +159,7 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
                                       builder: (context) => FormPemindahanBahan(
                                         materialRequestId: data['material_request_id'],
                                         materialTransferId: data['id'],
+                                        statusMtr: data['status_mtr'],
                                       )
                                     ),
                                   );

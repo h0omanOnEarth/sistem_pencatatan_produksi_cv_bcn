@@ -17,8 +17,9 @@ class FormPengembalianBahanScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_bahan_screen';
   final String? materialUsageId;
   final String? materialReturnId;
+  final String? statusMrt;
 
-  const FormPengembalianBahanScreen({Key? key, this.materialUsageId, this.materialReturnId}) : super(key: key);
+  const FormPengembalianBahanScreen({Key? key, this.materialUsageId, this.materialReturnId, this.statusMrt}) : super(key: key);
   
   @override
   State<FormPengembalianBahanScreen> createState() =>
@@ -292,7 +293,7 @@ void initState() {
                       children: [
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context, null);
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -326,27 +327,33 @@ void initState() {
                     ),
                     const SizedBox(height: 16.0,),
                     DatePickerButton(
-                          label: 'Tanggal Pengembalian',
-                          selectedDate: selectedDate,
-                          onDateSelected: (newDate) {
-                            setState(() {
-                              selectedDate = newDate;
-                            });
-                          },
+                      label: 'Tanggal Pengembalian',
+                      selectedDate: selectedDate,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
+                      isEnabled: widget.statusMrt!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
-                    MaterialUsageDropdown(selectedMaterialUsage: selectedNomorPenggunaan, onChanged: (newValue) {
-                          setState(() {
-                            selectedNomorPenggunaan = newValue??'';
-                            if(productCards[0].kodeBahan.isNotEmpty){
-                              resetProductCardDropdown(newValue??'');
-                            }else{
-                              productDataBahan.clear();
-                              fetchDataBahan();
-                              filterProductDataBahan(newValue??'');
-                            }
-                          });
-                    }, namaBatchController: namaBatchController,),
+                    MaterialUsageDropdown(
+                    selectedMaterialUsage: selectedNomorPenggunaan, 
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorPenggunaan = newValue??'';
+                        if(productCards[0].kodeBahan.isNotEmpty){
+                          resetProductCardDropdown(newValue??'');
+                        }else{
+                          productDataBahan.clear();
+                          fetchDataBahan();
+                          filterProductDataBahan(newValue??'');
+                        }
+                      });
+                    }, 
+                    namaBatchController: namaBatchController,
+                    isEnabled: widget.materialUsageId==null,
+                    ),
                     const SizedBox(height: 16.0,),
                     TextFieldWidget(
                       label: 'Batch',
@@ -366,6 +373,7 @@ void initState() {
                       label: 'Catatan',
                       placeholder: 'Catatan',
                       controller: catatanController,
+                      isEnabled: widget.statusMrt!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                   Row(
@@ -378,6 +386,7 @@ void initState() {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      if(widget.statusMrt!="Selesai")
                       InkWell(
                         onTap: () {
                           addProductCard();
@@ -404,8 +413,9 @@ void initState() {
                           productCards.remove(productCardData);
                         });
                       },
+                      isEnabled: widget.statusMrt!="Selesai",
                       children: [
-                        ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, ),
+                        ProductCardBahanWidget(productCardData: productCardData,productCards: productCards,productData: productDataBahan, isEnabled: widget.statusMrt!="Selesai"),
                       ],
                     );
                   }).toList(),
@@ -414,7 +424,7 @@ void initState() {
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusMrt == "Selesai" ? null : () {
                               // Handle save button press
                               addOrUpdate();
                             },
@@ -436,7 +446,7 @@ void initState() {
                         const SizedBox(width: 16.0),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusMrt == "Selesai" ? null :() {
                               // Handle clear button press
                               clearForm();
                             },
@@ -462,7 +472,7 @@ void initState() {
               ),
             ),
             ),
-             if (isLoading)
+            if (isLoading)
             Positioned( // Menambahkan Positioned untuk indikator loading
             top: 0,
             bottom: 0,

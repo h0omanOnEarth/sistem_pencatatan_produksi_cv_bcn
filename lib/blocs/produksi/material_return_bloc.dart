@@ -22,6 +22,11 @@ class DeleteMaterialReturnEvent extends MaterialReturnEvent {
   DeleteMaterialReturnEvent(this.materialReturnId);
 }
 
+class FinishedMaterialReturnEvent extends MaterialReturnEvent {
+  final String materialReturnId;
+  FinishedMaterialReturnEvent(this.materialReturnId);
+}
+
 // States
 abstract class MaterialReturnBlocState {}
 
@@ -216,7 +221,21 @@ class MaterialReturnBloc
       } catch (e) {
         yield ErrorState("Failed to delete Material Return.");
       }
-    }
+    }else if (event is FinishedMaterialReturnEvent) {
+      yield LoadingState();
+      try {
+       
+        final materialReturnRef = _firestore.collection('material_returns').doc(event.materialReturnId);
+
+        await materialReturnRef.update({
+          'status_mrt': 'Selesai',
+        });
+
+        yield SuccessState();
+      } catch (e) {
+        yield ErrorState("Failed to delete Material Return.");
+      }
+    } 
   }
 
  Future<String> _generateNextMaterialReturnId() async {

@@ -170,6 +170,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                                       builder: (context) => FormPerintahProduksiScreen(
                                         productionOrderId: data['id'],
                                         productId: data['product_id'],
+                                        statusPro: data['status_pro'],
                                       )
                                     ),
                                   );
@@ -205,6 +206,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                status: data['status_pro'],
                               );
                             },
                           ),

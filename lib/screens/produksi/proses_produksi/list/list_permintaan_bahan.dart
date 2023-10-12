@@ -165,6 +165,7 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
                                       builder: (context) => FormPermintaanBahanScreen(
                                         productionOrderId: data['production_order_id'],
                                         materialRequestId: data['id'],
+                                        statusMr: data['status_mr'],
                                       )
                                     ),
                                   );
@@ -200,6 +201,7 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                status: data['status_mr'],
                               );
                             },
                           ),

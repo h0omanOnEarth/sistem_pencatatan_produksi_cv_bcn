@@ -4,8 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class BillOfMaterialDropDown extends StatelessWidget {
   final String? selectedBOM;
   final Function(String?) onChanged;
+  final bool isEnabled;
 
-  BillOfMaterialDropDown({required this.selectedBOM, required this.onChanged});
+  BillOfMaterialDropDown({required this.selectedBOM, required this.onChanged, this.isEnabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +59,9 @@ class BillOfMaterialDropDown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedBOM,
                 items: bomItems,
-                onChanged: (newValue) {
+                onChanged: isEnabled ? (newValue) {
                   onChanged(newValue);
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

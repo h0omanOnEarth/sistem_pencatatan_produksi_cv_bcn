@@ -62,7 +62,6 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                       child: IconButton(
                         icon: const Icon(Icons.filter_list),
                         onPressed: () {
-                          // Handle filter button press
                           _showFilterDialog(context);
                         },
                       ),
@@ -158,6 +157,7 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                                       builder: (context) => FormPenerimaanHasilProduksi(
                                         itemReceivceId: data['id'],
                                         productionConfirmationId: data['production_confirmation_id'],
+                                        statusIrc: data['status_irc'],
                                       )
                                     ),
                                   );
@@ -194,7 +194,35 @@ class _ListItemReceiveState extends State<ListItemReceive> {
                                   }
                                 },
                                 onFinished: () async{
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Selesai"),
+                                        content: const Text("Anda yakin ingin menyelesaikan penerimaan barang ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesaikan"),
+                                            onPressed: () async {
+                                              final itemReceiveBloc = BlocProvider.of<ItemReceiveBloc>(context);
+                                              itemReceiveBloc.add(FinishedItemReceiveEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
                                 },
                                 status: data['status_irc'],
                               );

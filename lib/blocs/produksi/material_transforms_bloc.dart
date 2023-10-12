@@ -22,6 +22,11 @@ class DeleteMaterialTransformsEvent extends MaterialTransformsEvent {
   DeleteMaterialTransformsEvent(this.materialTransformsId);
 }
 
+class FinishedMaterialTransformsEvent extends MaterialTransformsEvent {
+  final String materialTransformsId;
+  FinishedMaterialTransformsEvent(this.materialTransformsId);
+}
+
 // States
 abstract class MaterialTransformsBlocState {}
 
@@ -171,6 +176,20 @@ class MaterialTransformsBloc extends Bloc<MaterialTransformsEvent, MaterialTrans
         yield LoadedState(materialTransformsList);
       } catch (e) {
         yield ErrorState("Failed to delete Material Transforms.");
+      }
+    }else if(event is FinishedMaterialTransformsEvent){
+      yield LoadingState();
+      try {
+       
+        final materialTransformRef = _firestore.collection('material_transforms').doc(event.materialTransformsId);
+
+        await materialTransformRef.update({
+          'status_mtf': 'Selesai',
+        });
+
+        yield SuccessState();
+      } catch (e) {
+        yield ErrorState("Failed to delete Material Transform");
       }
     }
   }

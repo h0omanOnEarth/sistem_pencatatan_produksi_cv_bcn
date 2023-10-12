@@ -170,6 +170,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                                       builder: (context) => FormHasilProduksiScreen(
                                         materialUsageId: data['material_usage_id'],
                                         productionResultId: data['id'],
+                                        statusPrs: data['status_prs'],
                                       )
                                     ),
                                   );
@@ -202,9 +203,10 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                                   );
 
                                   if (confirmed == true) {
-                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                    
                                   }
                                 },
+                                status: data['status_prs'],
                               );
                             },
                           ),
@@ -224,7 +226,7 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  backgroundColor: Colors.brown, 
                                 ),
                                 child: const Text("Prev"),
                               ),

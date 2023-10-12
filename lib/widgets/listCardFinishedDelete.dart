@@ -62,6 +62,7 @@ class ListCardFinishedDelete extends StatelessWidget {
                   ],
                 ),
               ),
+              if(status!="Selesai")
               Column(
                 mainAxisAlignment: MainAxisAlignment.end, // Push elements to the end
                 children: [

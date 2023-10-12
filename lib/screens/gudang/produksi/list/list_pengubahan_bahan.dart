@@ -24,10 +24,10 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
   String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
-  int startIndex = 0; // Indeks awal data yang ditampilkan
-  int itemsPerPage = 5; // Jumlah data per halaman
+  String startDateText = ''; 
+  String endDateText = '';   
+  int startIndex = 0; 
+  int itemsPerPage = 5; 
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
@@ -161,6 +161,7 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
                                       builder: (context) => FormPengubahanBahan(
                                         materialTransformId: data['id'],
                                         machineId: data['machine_id'],
+                                        statusMtf: data['status_mtf'],
                                       )
                                     )
                                   );
@@ -197,7 +198,35 @@ class _ListPengubahanBahanState extends State<ListPengubahanBahan> {
                                   }
                                 },
                                 onFinished: () async{
+                                   final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Selesai"),
+                                        content: const Text("Anda yakin ingin menyelesaikan pengubahan bahan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesaikan"),
+                                            onPressed: () async {
+                                              final materialTransformBloc = BlocProvider.of<MaterialTransformsBloc>(context);
+                                              materialTransformBloc.add(FinishedMaterialTransformsEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
+                                  if (confirmed == true) {
+                                    // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                                  }
                                 },
                                 status: data['status_mtf'],
                               );

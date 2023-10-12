@@ -14,8 +14,9 @@ class FormHasilProduksiScreen extends StatefulWidget {
   static const routeName = '/form_pencatatan_hasil_produksi_screen';
   final String? materialUsageId;
   final String? productionResultId;
+  final String? statusPrs;
 
-  const FormHasilProduksiScreen({Key? key, this.materialUsageId, this.productionResultId}) : super(key: key);
+  const FormHasilProduksiScreen({Key? key, this.materialUsageId, this.productionResultId, this.statusPrs}) : super(key: key);
   
   @override
   State<FormHasilProduksiScreen> createState() =>
@@ -195,7 +196,7 @@ showDialog(
                       children: [
                         InkWell(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pop(context, null);
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -236,7 +237,8 @@ showDialog(
                               _selectedDate = newDate;
                             });
                           },
-                      ),
+                    isEnabled: widget.statusPrs!="Selesai",
+                    ),
                     const SizedBox(height: 16.0),
                     MaterialUsageDropdown(selectedMaterialUsage: selectedPenggunaanBahan, onChanged: (newValue) {
                           setState(() {
@@ -272,12 +274,14 @@ showDialog(
                       label: 'Jumlah Produk Cacat',
                       placeholder: 'Jumlah Produk Cacat',
                       controller: jumlahProdukCacatController,
+                      isEnabled: widget.statusPrs!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                     TextFieldWidget(
                       label: 'Jumlah Produk Berhasil',
                       placeholder: 'Jumlah Produk Berhasil',
                       controller: jumlahProdukBerhasilController,
+                      isEnabled: widget.statusPrs!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                       Row(
@@ -294,14 +298,15 @@ showDialog(
                         Expanded(
                           child: 
                           DropdownWidget(
-                            label: 'Satuan',
-                            selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
-                            items: const ['Pcs', 'Kg', 'Ons'],
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
-                              });
-                            },
+                          label: 'Satuan',
+                          selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
+                          items: const ['Pcs', 'Kg', 'Ons'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
+                            });
+                          },
+                          isEnabled: widget.statusPrs!="Selesai",
                         ),
                         ),
                       ],
@@ -314,6 +319,7 @@ showDialog(
                           label: 'Waktu Produksi',
                           placeholder: 'Waktu Produksi',
                           controller: waktuProduksiController,
+                          isEnabled: widget.statusPrs!="Selesai",
                           ),
                         ), 
                         const SizedBox(width: 16.0,),
@@ -331,6 +337,7 @@ showDialog(
                       label: 'Catatan',
                       placeholder: 'Catatan',
                       controller: catatanController,
+                      isEnabled: widget.statusPrs!="Selesai",
                     ),
                     const SizedBox(height: 16.0,),
                     TextFieldWidget(
@@ -344,7 +351,7 @@ showDialog(
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusPrs == "Selesai" ? null : () {
                               // Handle save button press
                               addOrUpdate();
                             },
@@ -366,7 +373,7 @@ showDialog(
                         const SizedBox(width: 16.0),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: widget.statusPrs == "Selesai" ? null : () {
                               clear();
                             },
                             style: ElevatedButton.styleFrom(

@@ -165,6 +165,7 @@ class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
                                     MaterialPageRoute(
                                       builder: (context) =>FormKonfirmasiProduksiScreen(
                                         productionConfirmationId: data['id'],
+                                        statusPrc: data['status_prc'],
                                       )
                                     ),
                                   );

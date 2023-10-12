@@ -12,6 +12,7 @@ class ProdukDropDown extends StatefulWidget {
   late final TextEditingController? ketebalanController;
   late final TextEditingController? satuanController;
   final String? productId; // Tambahkan parameter customerId
+  final bool isEnabled;
 
   ProdukDropDown({
     required this.namaProdukController,
@@ -20,7 +21,8 @@ class ProdukDropDown extends StatefulWidget {
     this.beratController,
     this.ketebalanController,
     this.satuanController,
-    this.productId
+    this.productId,
+    this.isEnabled = true
   }): super();
 
   @override
@@ -113,7 +115,7 @@ Future<int> _generateNextVersion(String productId) async {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: productItems,
-                    onChanged: (newValue) async {
+                    onChanged: widget.isEnabled ? (newValue) async {
                       selectedProdukNotifier.value = newValue; // Gunakan selectedBahanNotifier
                       final selectedProduk = snapshot.data!.docs.firstWhere(
                         (document) => document['id'] == newValue,
@@ -129,7 +131,7 @@ Future<int> _generateNextVersion(String productId) async {
                       final nextVersion = await _generateNextVersion(selectedProduk['id']);
                       widget.versionController?.text = nextVersion.toString();
 
-                    },
+                    }:null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

@@ -5,12 +5,14 @@ class ListCard extends StatelessWidget {
   final String description;
   final VoidCallback onDeletePressed; // Properti onDeletePressed
   final VoidCallback onTap; // Properti onTap
+  final String? status;
 
   const ListCard({super.key, 
     required this.title,
     required this.description,
     required this.onDeletePressed,
     required this.onTap,
+    this.status,
   });
 
   @override
@@ -59,6 +61,7 @@ class ListCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if(status==null || status!="Selesai")
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

@@ -5,12 +5,14 @@ class MaterialRequestDropdown extends StatelessWidget {
   final String? selectedMaterialRequest;
   final Function(String?) onChanged;
   final TextEditingController? tanggalPermintaanController;
+  final bool isEnabled;
 
   const MaterialRequestDropdown({
     Key? key,
     required this.selectedMaterialRequest,
     required this.onChanged,
     this.tanggalPermintaanController,
+    this.isEnabled = true,
   }) : super(key: key);
 
   @override
@@ -56,7 +58,7 @@ class MaterialRequestDropdown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedMaterialRequest,
                 items: materialRequestItems,
-                onChanged: (newValue) {
+                onChanged: isEnabled ?  (newValue) {
                   onChanged(newValue);
                   if (tanggalPermintaanController != null) {
                     final selectedDoc = snapshot.data!.docs.firstWhere((doc) => doc['id'] == newValue);
@@ -80,7 +82,7 @@ class MaterialRequestDropdown extends StatelessWidget {
 
                     tanggalPermintaanController!.text = tanggalPermintaan;
                   }
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

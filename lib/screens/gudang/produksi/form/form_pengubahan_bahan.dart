@@ -14,8 +14,9 @@ class FormPengubahanBahan extends StatefulWidget {
   static const routeName = '/form_pengubahan_bahan_screen';
   final String? materialTransformId;
   final String? machineId;
+  final String? statusMtf;
 
-  const FormPengubahanBahan({Key? key, this.materialTransformId, this.machineId}) : super(key: key);
+  const FormPengubahanBahan({Key? key, this.materialTransformId, this.machineId, this.statusMtf}) : super(key: key);
   
   @override
   State<FormPengubahanBahan> createState() =>
@@ -205,13 +206,14 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
                 DatePickerButton(
-                            label: 'Tanggal Pengubahan',
-                            selectedDate: _selectedDate,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedDate = newDate;
-                              });
-                            },
+                    label: 'Tanggal Pengubahan',
+                    selectedDate: _selectedDate,
+                    onDateSelected: (newDate) {
+                      setState(() {
+                        _selectedDate = newDate;
+                      });
+                    },
+                    isEnabled: widget.statusMtf!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   Row(
@@ -221,7 +223,9 @@ Widget build(BuildContext context) {
                               setState(() {
                                 selectedKodeMesin = newValue;
                               });
-                        }, title: 'Penggiling', namaMesinController: namaMesinController,),
+                        }, title: 'Penggiling', namaMesinController: namaMesinController,
+                        isEnabled: widget.statusMtf!="Selesai",
+                        ),
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(child:
@@ -242,6 +246,7 @@ Widget build(BuildContext context) {
                         label: 'Jumlah Barang Gagal',
                         placeholder: '0',
                         controller: jumlahController,
+                        isEnabled: widget.statusMtf!="Selesai",
                       ),
                     ),
                     const SizedBox(width: 16.0),
@@ -263,6 +268,7 @@ Widget build(BuildContext context) {
                         label: 'Jumlah Hasil Pengubahan',
                         placeholder: '0',
                         controller: jumlahHasilController,
+                        isEnabled: widget.statusMtf!="Selesai",
                       ),
                     ),
                     const SizedBox(width: 16.0),
@@ -284,6 +290,7 @@ Widget build(BuildContext context) {
                           label: 'Total Pengubahan',
                           placeholder: '0',
                           controller: totalPengubahanController,
+                          isEnabled: widget.statusMtf!="Selesai",
                         ),
                       ),
                       const SizedBox(width: 16.0),
@@ -302,6 +309,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusMtf!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -315,7 +323,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMtf == "Selesai" ? null : () {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -337,7 +345,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusMtf == "Selesai" ? null : () {
                             // Handle clear button press
                             clearForm();
                           },

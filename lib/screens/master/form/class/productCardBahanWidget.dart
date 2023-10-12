@@ -8,11 +8,14 @@ class ProductCardBahanWidget extends StatefulWidget {
   final ProductCardDataBahan productCardData;
   final List<Map<String, dynamic>> productData;
   final List<ProductCardDataBahan> productCards;
+  final bool isEnabled;
 
   const ProductCardBahanWidget({super.key, 
   required this.productCardData,  
   required this.productData,
-  required this.productCards,});
+  required this.productCards,
+  this.isEnabled = true,
+  });
 
   @override
   _ProductCardBahanWidgetState createState() => _ProductCardBahanWidgetState();
@@ -56,6 +59,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
                 });
               },
               products: widget.productData, // productData adalah daftar produk dari Firestore
+              isEnabled: widget.isEnabled,
             ),
         const SizedBox(height: 8.0),
         TextFieldWidget(
@@ -75,6 +79,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
                 widget.productCardData.namaBatch = newValue;
               });
             },
+            isEnabled: widget.isEnabled,
       ),
       if (widget.productCardData.namaBatch != null)
       const SizedBox(height: 16.0,),    
@@ -90,6 +95,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
                     widget.productCardData.jumlah = newValue;
                   });
                 },
+                isEnabled: widget.isEnabled,
               ), 
           ),
           const SizedBox(width: 16.0),
@@ -103,7 +109,8 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
                     setState(() {
                       widget.productCardData.satuan = newValue;
                     });
-                  },
+              },
+            isEnabled: widget.isEnabled,
             ),
           ),
         ],

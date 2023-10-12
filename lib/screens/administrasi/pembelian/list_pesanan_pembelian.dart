@@ -202,6 +202,7 @@ Widget _buildPurchaseOrderList() {
                           supplierId: data['supplier_id'],
                           bahanId: data['material_id'],
                           purchaseRequestId: data['purchase_request_id'],
+                          statusCO: data['status_pengiriman'],
                         ),
                       ),
                     );
@@ -237,6 +238,7 @@ Widget _buildPurchaseOrderList() {
                       // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                     }
                   },
+                  status: data['status_pengiriman'],
                 );
               },
             ),

@@ -7,12 +7,15 @@ ValueNotifier<String?> selectedBahanNotifier = ValueNotifier<String?>(null);
 class BahanDropdown extends StatefulWidget {
   final TextEditingController namaBahanController;
   final TextEditingController? satuanBahanController;
-  final String? bahanId; // Tambahkan parameter customerId
+  final String? bahanId;
+  final bool isEnabled; 
 
-  const BahanDropdown({super.key, 
+  const BahanDropdown({
+    super.key,
     required this.namaBahanController,
     this.bahanId,
-    this.satuanBahanController
+    this.satuanBahanController,
+    this.isEnabled = true, 
   });
 
   @override
@@ -33,7 +36,7 @@ class _BahanDropdownState extends State<BahanDropdown> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String?>(
-      valueListenable: selectedBahanNotifier, // Gunakan selectedBahanNotifier
+      valueListenable: selectedBahanNotifier,
       builder: (context, selectedBahan, _) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,7 +71,6 @@ class _BahanDropdownState extends State<BahanDropdown> {
                   );
                 }
 
-                // Atur nilai awal dropdown sesuai dengan selectedBahan
                 String? initialValue = selectedBahan;
 
                 return Container(
@@ -79,15 +81,15 @@ class _BahanDropdownState extends State<BahanDropdown> {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: materialItems,
-                    onChanged: (newValue) {
-                      selectedBahanNotifier.value = newValue; // Gunakan selectedBahanNotifier
+                    onChanged: widget.isEnabled ? (newValue) { // Periksa isEnabled
+                      selectedBahanNotifier.value = newValue;
                       final selectedMaterial = snapshot.data!.docs.firstWhere(
                         (document) => document['id'] == newValue,
                       );
                       widget.namaBahanController.text =
                           selectedMaterial['nama'] ?? '';
-                      widget.satuanBahanController?.text = selectedMaterial['satuan']??'';
-                    },
+                      widget.satuanBahanController?.text = selectedMaterial['satuan'] ?? '';
+                    } : null, // Nonaktifkan dropdown jika isEnabled adalah false
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

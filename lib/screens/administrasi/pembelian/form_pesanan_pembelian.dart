@@ -20,7 +20,8 @@ class FormPesananPembelianScreen extends StatefulWidget {
   final String? supplierId;
   final String? bahanId;
   final String? purchaseRequestId;
-  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId, this.supplierId, this.bahanId, this.purchaseRequestId}) : super(key: key);
+  final String? statusCO;
+  const FormPesananPembelianScreen({Key? key, this.purchaseOrderId, this.supplierId, this.bahanId, this.purchaseRequestId, this.statusCO}) : super(key: key);
   
   @override
   State<FormPesananPembelianScreen> createState() =>
@@ -247,9 +248,11 @@ void addOrUpdatePurchaseOrder() {
                                 setState(() {
                                   selectedNomorPermintaan = newValue??'';
                                 });
-                            }, jumlahPermintaanController: jumlahPermintaanController,
-                            satuanPermintaanController: satuanPermintaanController,
-                          ),
+                            }, 
+                      jumlahPermintaanController: jumlahPermintaanController,
+                      satuanPermintaanController: satuanPermintaanController,
+                      isEnabled: widget.purchaseOrderId==null,
+                      ),
                       const SizedBox(height: 16.0,),
                        Row(
                         children: [
@@ -281,12 +284,13 @@ void addOrUpdatePurchaseOrder() {
                             selectedSupplier = newValue;
                           });
                         },
+                      isEnabled: widget.statusCO!="Selesai",
                       ),
                       const SizedBox(height: 16.0),
                       Row(
                         children: [
                           Expanded(
-                            child: BahanDropdown(namaBahanController:namaBahanController, bahanId: widget.bahanId,)
+                            child: BahanDropdown(namaBahanController:namaBahanController, bahanId: widget.bahanId, isEnabled:  widget.statusCO!="Selesai",)
                           ),
                           const SizedBox(width: 16.0),
                           Expanded(
@@ -300,16 +304,6 @@ void addOrUpdatePurchaseOrder() {
                         ],
                       ),
                       const SizedBox(height: 16.0,),
-                      // Menggunakan SupplierDropdown
-                      SupplierDropdown(
-                        selectedSupplier: selectedSupplier,
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedSupplier = newValue;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
                       Row(
                         children: [
                           Expanded(child: 
@@ -317,6 +311,7 @@ void addOrUpdatePurchaseOrder() {
                             label: 'Jumlah',
                             placeholder: 'Jumlah',
                             controller: jumlahController,
+                            isEnabled:  widget.statusCO!="Selesai",
                           ),),
                           const SizedBox(width: 16.0),
                           Expanded(
@@ -329,6 +324,7 @@ void addOrUpdatePurchaseOrder() {
                                 selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
                               });
                             },
+                            isEnabled: widget.statusCO!="Selesai",
                           ),
                           ),
                         ],
@@ -341,6 +337,7 @@ void addOrUpdatePurchaseOrder() {
                             label: 'Harga Satuan',
                             placeholder: 'Harga Satuan',
                             controller: hargaSatuanController,
+                            isEnabled:  widget.statusCO!="Selesai",
                           ),
                           ),
                           const SizedBox(width: 16.0),
@@ -366,6 +363,7 @@ void addOrUpdatePurchaseOrder() {
                                   _selectedTanggalPesanan = newDate;
                                 });
                               },
+                              isEnabled:  widget.statusCO!="Selesai",
                             ),
                           ),
                           const SizedBox(width: 16.0),
@@ -378,6 +376,7 @@ void addOrUpdatePurchaseOrder() {
                                   _selectedTanggalPengiriman = newDate;
                                 });
                               },
+                              isEnabled:  widget.statusCO!="Selesai",
                             ),
                           ),
                         ],
@@ -387,7 +386,7 @@ void addOrUpdatePurchaseOrder() {
                         children: [
                           Expanded(
                             child: DropdownWidget(
-                            label: 'Status Pemayaran',
+                            label: 'Status Pembayaran',
                             selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
                             items: const ['Belum Bayar', 'Dalam Proses', 'Selesai'],
                             onChanged: (newValue) {
@@ -395,6 +394,7 @@ void addOrUpdatePurchaseOrder() {
                                 selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
                               });
                             },
+                           isEnabled: widget.statusCO!="Selesai",
                           ),
                           ),
                           const SizedBox(width: 16.0),
@@ -408,6 +408,7 @@ void addOrUpdatePurchaseOrder() {
                                 selectedStatusPengiriman = newValue; // Update _selectedValue saat nilai berubah
                               });
                             },
+                            isEnabled:  widget.statusCO!="Selesai",
                           ),
                           ),
                         ],
@@ -417,14 +418,14 @@ void addOrUpdatePurchaseOrder() {
                         label: 'Catatan',
                         placeholder: 'Catatan',
                         controller: catatanController,
-                    
+                        isEnabled: widget.statusCO!="Selesai",
                       ),
                       const SizedBox(height: 16.0,),
                       Row(
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: widget.statusCO == "Selesai" ? null : () {
                                 // Handle save button press
                                 addOrUpdatePurchaseOrder();
                               },
@@ -446,7 +447,7 @@ void addOrUpdatePurchaseOrder() {
                           const SizedBox(width: 16.0),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: widget.statusCO == "Selesai" ? null : () {
                                 // Handle clear button press
                                 _selectedTanggalPengiriman = null;
                                 _selectedTanggalPesanan = null;

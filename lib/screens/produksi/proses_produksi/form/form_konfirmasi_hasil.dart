@@ -17,8 +17,9 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 class FormKonfirmasiProduksiScreen extends StatefulWidget {
   static const routeName = '/form_konfirmasi_produksi_screen';
   final String? productionConfirmationId;
+  final String? statusPrc;
 
-  const FormKonfirmasiProduksiScreen({Key? key, this.productionConfirmationId}) : super(key: key);
+  const FormKonfirmasiProduksiScreen({Key? key, this.productionConfirmationId, this.statusPrc}) : super(key: key);
   
   
   @override
@@ -296,13 +297,14 @@ showDialog(
                     ),
                     const SizedBox(height: 16.0,),
                     DatePickerButton(
-                          label: 'Tanggal Pencatatan',
-                          selectedDate: selectedDate,
-                          onDateSelected: (newDate) {
-                            setState(() {
-                              selectedDate = newDate;
-                            });
-                          },
+                      label: 'Tanggal Pencatatan',
+                      selectedDate: selectedDate,
+                      onDateSelected: (newDate) {
+                        setState(() {
+                          selectedDate = newDate;
+                        });
+                      },
+                      isEnabled: widget.statusPrc != "Selesai" 
                     ),
                     const SizedBox(height: 16.0,),
                    Row(
@@ -333,6 +335,7 @@ showDialog(
                       label: 'Catatan',
                       placeholder: 'Catatan',
                       controller: catatanController,
+                      isEnabled: widget.statusPrc != "Selesai" 
                     ),
                     const SizedBox(height: 24.0,),
                     Row(
@@ -384,8 +387,7 @@ showDialog(
                       children: [
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Handle save button press
+                            onPressed: widget.statusPrc == "Selesai" ? null : () {
                               addOrUpdate();
                             },
                             style: ElevatedButton.styleFrom(
@@ -406,8 +408,7 @@ showDialog(
                         const SizedBox(width: 16.0),
                         Expanded(
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Handle clear button press
+                            onPressed: widget.statusPrc == "Selesai" ? null :() {
                               clear();
                             },
                             style: ElevatedButton.styleFrom(

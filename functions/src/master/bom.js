@@ -40,6 +40,16 @@ exports.bomValidation = async (req) => {
     return {success: false, message: "Satuan tidak boleh kosong"};
   }
 
+  // Pemeriksaan batch
+  if (!materials.every((material) => {
+    return ["Pencampuran", "Sheet", "Pencetakan"].includes(material.batch);
+  })) {
+    return {
+      success: false,
+      message: "Batch harus 'Pencampuran', 'Sheet', atau 'Pencetakan'",
+    };
+  }
+
   // Modifikasi berhasil
   return {success: true};
 };

@@ -167,6 +167,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                                         materialUsageId: data['id'],
                                         productionOrderId: data['production_order_id'],
                                         materialRequestId: data['material_request_id'],
+                                        statusMu: data['status_mu'],
                                       )
                                     ),
                                   );
