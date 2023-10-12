@@ -22,6 +22,11 @@ class DeleteInvoiceEvent extends InvoiceEvent {
   DeleteInvoiceEvent(this.invoiceId);
 }
 
+class FinishedInvoiceEvent extends InvoiceEvent {
+  final String invoiceId;
+  FinishedInvoiceEvent(this.invoiceId);
+}
+
 // States
 abstract class InvoiceBlocState {}
 
@@ -241,6 +246,20 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
         yield InvoiceDeletedState();
       } catch (e) {
         yield ErrorState("Failed to delete Invoice.");
+      }
+    }else if(event is FinishedInvoiceEvent){
+      yield LoadingState();
+      try {
+       
+        final invoiceRef = _firestore.collection('invoices').doc(event.invoiceId);
+
+        await invoiceRef.update({
+          'status_fk': 'Selesai',
+        });
+
+        yield SuccessState();
+      } catch (e) {
+        yield ErrorState("Failed to finsihed invoice");
       }
     }
   }

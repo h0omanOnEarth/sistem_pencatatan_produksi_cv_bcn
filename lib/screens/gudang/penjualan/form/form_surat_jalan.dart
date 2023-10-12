@@ -35,8 +35,9 @@ class FormSuratJalanScreen extends StatefulWidget {
   static const routeName = '/form_surat_jalan_screen';
   final String? shipmentId;
   final String? deliveryId;
+  final String? statusShp;
 
-  const FormSuratJalanScreen({Key? key, this.shipmentId, this.deliveryId}) : super(key: key);
+  const FormSuratJalanScreen({Key? key, this.shipmentId, this.deliveryId, this.statusShp}) : super(key: key);
   
   @override
   State<FormSuratJalanScreen> createState() =>
@@ -359,6 +360,7 @@ showDialog(
                             _selectedDate = newDate;
                           });
                         },
+                        isEnabled: widget.statusShp!="Selesai",
                       ),
                       const SizedBox(height: 16.0,),
                       DeliveryOrderDropDown(
@@ -373,6 +375,7 @@ showDialog(
                         kodePelangganController: kodePenerimaController,
                         alamatController: alamatController,
                         nomorPesananPelanggan: nomorPesananPelanggan,
+                        isEnabled: widget.shipmentId==null,
                       ),
                       const SizedBox(height: 16.0),
                       Row(
@@ -409,6 +412,7 @@ showDialog(
                         placeholder: 'Alamat',
                         controller: alamatController,
                         multiline: true,
+                        isEnabled: widget.statusShp!="Selesai",
                       ),
                       const SizedBox(height: 16.0,),
                         Row(
@@ -444,6 +448,7 @@ showDialog(
                         label: 'Catatan',
                         placeholder: 'Catatan',
                         controller: catatanController,
+                        isEnabled: widget.statusShp!="Selesai",
                       ),
                       const SizedBox(height: 16.0,),
                       const Text(
@@ -466,7 +471,7 @@ showDialog(
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: widget.statusShp == "Selesai" ? null : () {
                                 // Handle save button press
                                 addOrUpdate();
                               },
@@ -488,7 +493,7 @@ showDialog(
                           const SizedBox(width: 16.0),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: widget.statusShp == "Selesai" ? null :() {
                                 // Handle clear button press
                                 clearForm();
                               },

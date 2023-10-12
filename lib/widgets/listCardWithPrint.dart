@@ -5,7 +5,8 @@ class ListCardPrint extends StatelessWidget {
   final String description;
   final VoidCallback onDeletePressed; // Properti onDeletePressed
   final VoidCallback onTap; // Properti onTap
-   final VoidCallback? onPrintPressed;
+  final VoidCallback? onPrintPressed;
+  final String? status;
 
   const ListCardPrint({super.key, 
     required this.title,
@@ -13,6 +14,7 @@ class ListCardPrint extends StatelessWidget {
     required this.onDeletePressed,
     required this.onTap,
     this.onPrintPressed,
+    this.status,
   });
  @override
   Widget build(BuildContext context) {
@@ -76,6 +78,7 @@ class ListCardPrint extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8.0,),
+                  if (status != "Selesai")
                   Container(
                     width: 35.0,
                     height: 35.0,

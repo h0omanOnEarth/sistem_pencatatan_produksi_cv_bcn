@@ -171,6 +171,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                                       builder: (context) => FormPesananPelangganScreen(
                                         customerOrderId: data['id'], // Mengirimkan ID customer order
                                         customerId: data['customer_id'],
+                                        statusCO: data['status_pesanan'],
                                       ),
                                     ),
                                   );
@@ -206,6 +207,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                status: data['status_pesanan'],
                               );
                             },
                           ),

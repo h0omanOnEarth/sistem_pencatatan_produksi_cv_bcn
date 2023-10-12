@@ -101,6 +101,7 @@ class ListCardFinishedPrint extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8.0,),
+                  if (status != "Selesai")
                   Container(
                     width: 35.0,
                     height: 35.0,

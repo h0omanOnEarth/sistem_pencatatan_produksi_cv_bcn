@@ -189,7 +189,7 @@ class MaterialTransformsBloc extends Bloc<MaterialTransformsEvent, MaterialTrans
 
         yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Material Transform");
+        yield ErrorState("Failed to finish Material Transform");
       }
     }
   }

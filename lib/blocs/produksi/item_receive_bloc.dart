@@ -210,7 +210,7 @@ class ItemReceiveBloc
 
         yield SuccessState();
       } catch (e) {
-        yield ItemReceiveErrorState("Failed to delete Material Transform");
+        yield ItemReceiveErrorState("Failed to finish Material Transform");
       }
     }
   }

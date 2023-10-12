@@ -18,8 +18,9 @@ class FormPesananPelangganScreen extends StatefulWidget {
   static const routeName = '/form_pesanan_pelanggan_screen';
   final String? customerOrderId;
   final String? customerId;
+  final String? statusCO;
 
-  const FormPesananPelangganScreen({Key? key, this.customerOrderId, this.customerId}) : super(key: key);
+  const FormPesananPelangganScreen({Key? key, this.customerOrderId, this.customerId, this.statusCO}) : super(key: key);
   
   @override
   State<FormPesananPelangganScreen> createState() =>
@@ -376,7 +377,9 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
-                  PelangganDropdownWidget(namaPelangganController: namaPelangganController, customerId: widget.customerId,),
+                  PelangganDropdownWidget(namaPelangganController: namaPelangganController, customerId: widget.customerId,
+                  isEnabled: widget.customerOrderId==null,
+                  ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Nama Pelanggan',
@@ -388,14 +391,15 @@ Widget build(BuildContext context) {
                   Row(
                     children: [
                       Expanded(child: DatePickerButton(
-                            label: 'Tanggal Pesan',
-                            selectedDate: _selectedTanggalPesan,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedTanggalPesan = newDate;
-                              });
-                            },
-                          ), 
+                        label: 'Tanggal Pesan',
+                        selectedDate: _selectedTanggalPesan,
+                        onDateSelected: (newDate) {
+                          setState(() {
+                            _selectedTanggalPesan = newDate;
+                          });
+                        },
+                        isEnabled: widget.statusCO!="Selesai",
+                      ), 
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(child: DatePickerButton(
@@ -406,6 +410,7 @@ Widget build(BuildContext context) {
                               _selectedTanggalKirim = newDate;
                             });
                           },
+                          isEnabled: widget.statusCO!="Selesai",
                         ), 
                       ),
                     ],
@@ -416,12 +421,14 @@ Widget build(BuildContext context) {
                     placeholder: 'Alamat Pengiriman',
                     controller: alamatPengirimanController,
                     multiline: true,
+                    isEnabled: widget.statusCO!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusCO!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   Row(
@@ -483,14 +490,14 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   if (productCards.isNotEmpty)
                     ...productCards.map((productCardData) {
-                      return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards);
+                      return ProductCardCustOrder(productCardData: productCardData, updateTotalHargaProduk: updateTotalHargaProduk, productData: productData, productCards: productCards, isEnabled: widget.statusCO!="Selesai",);
                     }).toList(),
                   const SizedBox(height: 16.0,),
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusCO == "Selesai" ? null : () {
                             // Handle save button press
                             addOrUpdateCustomerOrder();
                           },
@@ -512,7 +519,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusCO == "Selesai" ? null :() {
                             // Handle clear button press
                             clearForm();
                           },

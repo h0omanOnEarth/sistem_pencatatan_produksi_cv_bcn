@@ -11,6 +11,7 @@ class DeliveryOrderDropDown extends StatefulWidget {
   late final TextEditingController? nomorPesananPelanggan;
   late final TextEditingController? kodePelangganController;
   late final TextEditingController? alamatController;
+  final bool isEnabled;
 
   DeliveryOrderDropDown({
     required this.selecteDO, 
@@ -18,7 +19,8 @@ class DeliveryOrderDropDown extends StatefulWidget {
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
-    this.alamatController
+    this.alamatController,
+    this.isEnabled = true,
     });
 
   @override
@@ -81,7 +83,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selecteDO,
                 items: DOItems,
-                onChanged: (newValue) async {
+                onChanged: widget.isEnabled ? (newValue) async {
                   widget.onChanged(newValue);
                   _selectedDoc = snapshot.data!.docs.firstWhere(
                     (document) => document['id'] == newValue,
@@ -94,7 +96,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
                   widget.namaPelangganController?.text = customer?['nama'];
                   widget.kodePelangganController?.text = customer?['id'];
                   widget.nomorPesananPelanggan?.text = customerOrder?['id'];
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

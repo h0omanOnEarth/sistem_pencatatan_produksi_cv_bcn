@@ -9,12 +9,14 @@ class ProductCardCustOrder extends StatefulWidget {
   final Function() updateTotalHargaProduk;
   final List<Map<String, dynamic>> productData;
   final List<ProductCardDataCustomerOrder> productCards;
+  final bool isEnabled;
 
   const ProductCardCustOrder({
     required this.productCardData,
     required this.updateTotalHargaProduk,
     required this.productData,
     required this.productCards,
+    this.isEnabled = true,
   });
 
   @override
@@ -61,6 +63,7 @@ class _ProductCardState extends State<ProductCardCustOrder> {
                     });
                   },
                   products: widget.productData, // productData adalah daftar produk dari Firestore
+                  isEnabled: widget.isEnabled,
                 ),
               const SizedBox(height: 8.0),
               TextFieldWidget(
@@ -74,6 +77,7 @@ class _ProductCardState extends State<ProductCardCustOrder> {
               label: 'Jumlah',
               placeholder: 'Jumlah',
               controller: widget.productCardData.jumlahController,
+              isEnabled: widget.isEnabled,
               onChanged: (value) {
               setState(() {
                 widget.productCardData.jumlah = value;
@@ -84,20 +88,22 @@ class _ProductCardState extends State<ProductCardCustOrder> {
             ),
               const SizedBox(height: 8.0),
              DropdownDetailWidget(
-            label: 'Satuan',
-            items: const ['Pcs', 'Kg', 'Ons','Dus'],
-            selectedValue: widget.productCardData.satuan,
-            onChanged: (newValue) {
-              setState(() {
-                widget.productCardData.satuan = newValue;
-              });
-            },
-          ),
+              label: 'Satuan',
+              items: const ['Pcs', 'Kg', 'Ons','Dus'],
+              selectedValue: widget.productCardData.satuan,
+              onChanged: (newValue) {
+                setState(() {
+                  widget.productCardData.satuan = newValue;
+                });
+              },
+             isEnabled: widget.isEnabled,
+             ),
               const SizedBox(height: 8.0),
               TextFieldWidget(
                 label: 'Harga Satuan',
                 placeholder: 'Harga Satuan',
                 controller: widget.productCardData.hargaSatuanController,
+                isEnabled: widget.isEnabled,
                 onChanged: (value) {
                 setState(() {
                   widget.productCardData.hargaSatuan = value;
@@ -116,6 +122,7 @@ class _ProductCardState extends State<ProductCardCustOrder> {
             ],
           ),
         ),
+        if(widget.isEnabled)
         Padding(
           padding: const EdgeInsets.all(8.0), // Add the desired margin
           child: Container(

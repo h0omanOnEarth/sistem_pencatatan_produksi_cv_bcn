@@ -35,8 +35,9 @@ class FormPengembalianBarangScreen extends StatefulWidget {
   static const routeName = '/form_pengembalian_barang_screen';
   final String? invoiceId;
   final String? custOrderReturnId;
+  final String? statusCor;
 
-  const FormPengembalianBarangScreen({Key? key, this.invoiceId, this.custOrderReturnId}) : super(key: key);
+  const FormPengembalianBarangScreen({Key? key, this.invoiceId, this.custOrderReturnId, this.statusCor}) : super(key: key);
   
   @override
   State<FormPengembalianBarangScreen> createState() =>
@@ -319,29 +320,31 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
                 DatePickerButton(
-                            label: 'Tanggal Pengembalian',
-                            selectedDate: _selectedDate,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedDate = newDate;
-                              });
-                            },
+                  label: 'Tanggal Pengembalian',
+                  selectedDate: _selectedDate,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                  isEnabled: widget.statusCor!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   FakturDropdown(
-                      selectedFaktur: selectedNomorFaktur,
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedNomorFaktur = newValue??'';
-                          //fetch cards
-                          fetchDataFromFirestore(selectedNomorFaktur??'');
-                        });
-                      },
-                      namaPelangganController: namaPelangganController,
-                      kodePelangganController: kodePelangganController,
-                      nomorPesananPelanggan: nomorPesananPelanggan,
-                      nomorSuratJalanController: nomorSuratJalanController,
-                      alamatController: alamatController,
+                    selectedFaktur: selectedNomorFaktur,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorFaktur = newValue??'';
+                        //fetch cards
+                        fetchDataFromFirestore(selectedNomorFaktur??'');
+                      });
+                    },
+                    namaPelangganController: namaPelangganController,
+                    kodePelangganController: kodePelangganController,
+                    nomorPesananPelanggan: nomorPesananPelanggan,
+                    nomorSuratJalanController: nomorSuratJalanController,
+                    alamatController: alamatController,
+                    isEnabled: widget.custOrderReturnId==null,
                     ),
                 const SizedBox(height: 16.0,),
                 TextFieldWidget(
@@ -393,6 +396,7 @@ Widget build(BuildContext context) {
                   placeholder: 'Alasan',
                   controller: alasanPengembalianController,
                   multiline: true,
+                  isEnabled: widget.statusCor!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -413,6 +417,7 @@ Widget build(BuildContext context) {
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusCor!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   const Text(
@@ -435,7 +440,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusCor == "Selesai" ? null :() {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -457,7 +462,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusCor == "Selesai" ? null :() {
                             // Handle clear button press
                             clearFormFields();
                           },

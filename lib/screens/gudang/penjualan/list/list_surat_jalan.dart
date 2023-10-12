@@ -159,6 +159,7 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
                                       builder: (context) => FormSuratJalanScreen(
                                         shipmentId: data['id'],
                                         deliveryId: data['delivery_order_id'],
+                                        statusShp: data['status_shp'],
                                       )
                                     ),
                                   );
@@ -194,6 +195,7 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
                                     // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                                   }
                                 },
+                                status: data['status_shp'],
                               );
                             },
                           ),

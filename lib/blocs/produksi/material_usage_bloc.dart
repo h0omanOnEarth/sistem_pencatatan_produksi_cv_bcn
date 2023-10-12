@@ -267,7 +267,7 @@ class MaterialUsageBloc
 
         yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Material Usage.");
+        yield ErrorState("Failed to finish Material Usage.");
       }
     }
   }

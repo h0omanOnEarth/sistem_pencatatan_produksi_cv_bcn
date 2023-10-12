@@ -8,12 +8,14 @@ class CustomerOrderDropDownWidget extends StatefulWidget {
   final TextEditingController alamatPengirimanController;
   final String? customerOrderId;
   final Function(String?) onChanged;
+  final bool isEnabled;
 
   CustomerOrderDropDownWidget({
     required this.namaPelangganController,
     required this.alamatPengirimanController,
     required this.onChanged,
     this.customerOrderId,
+    this.isEnabled = true,
   }) : super();
 
   @override
@@ -96,7 +98,7 @@ class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidge
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: customerOrderItems,
-                    onChanged: (newValue) async {
+                    onChanged: widget.isEnabled ? (newValue) async {
                       widget.onChanged(newValue);
                       selectedCustomerOrderNotifier.value = newValue;
                       final selectedCustomerOrder = snapshot.data!.docs.firstWhere(
@@ -110,7 +112,7 @@ class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidge
                       if (selectedCustomerName != null) {
                         widget.namaPelangganController.text = selectedCustomerName!;
                       }
-                    },
+                    }:null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

@@ -12,6 +12,7 @@ class SuratJalanDropDown extends StatefulWidget {
   late final TextEditingController? nomorPesananPelanggan;
   late final TextEditingController? kodePelangganController;
   late final TextEditingController? nomorDeliveryOrderController;
+  final bool isEnabled;
 
   SuratJalanDropDown({super.key, 
     required this.selectedSuratJalan, 
@@ -19,7 +20,8 @@ class SuratJalanDropDown extends StatefulWidget {
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
-    this.nomorDeliveryOrderController
+    this.nomorDeliveryOrderController,
+    this.isEnabled = true,
     });
 
   @override
@@ -82,7 +84,7 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedSuratJalan,
                 items: shipmentItems,
-                onChanged: (newValue) async {
+                onChanged:  widget.isEnabled ? (newValue) async {
                   widget.onChanged(newValue);
                   _selectedDoc = snapshot.data!.docs.firstWhere(
                     (document) => document['id'] == newValue,
@@ -95,7 +97,7 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
                   widget.kodePelangganController?.text = customer?['id'];
                   widget.nomorPesananPelanggan?.text = customerOrder?['id'];
                   widget.nomorDeliveryOrderController?.text = _selectedDoc['delivery_order_id'];
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

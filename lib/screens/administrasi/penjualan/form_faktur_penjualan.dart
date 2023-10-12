@@ -21,8 +21,9 @@ class FormFakturPenjualanScreen extends StatefulWidget {
   static const routeName = '/form_faktur_penjualan_screen';
   final String? invoiceId;
   final String? shipmentId;
+  final String? statusFk;
 
-  const FormFakturPenjualanScreen({Key? key, this.invoiceId, this.shipmentId}) : super(key: key);
+  const FormFakturPenjualanScreen({Key? key, this.invoiceId, this.shipmentId, this.statusFk}) : super(key: key);
   
   @override
   State<FormFakturPenjualanScreen> createState() =>
@@ -392,30 +393,32 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 16.0),
                   // Di dalam widget buildProductCard atau tempat lainnya
                 DatePickerButton(
-                            label: 'Tanggal Faktur',
-                            selectedDate: _selectedDate,
-                            onDateSelected: (newDate) {
-                              setState(() {
-                                _selectedDate = newDate;
-                              });
-                            },
+                  label: 'Tanggal Faktur',
+                  selectedDate: _selectedDate,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                  isEnabled: widget.statusFk!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   SuratJalanDropDown(
-                        selectedSuratJalan: selectedNomorSuratJalan,
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedNomorSuratJalan = newValue??'';
-                            fetchShipments();
-                            _updateTotal();
-                            // Update text fields dengan totalHarga dan totalProduk
-                          });
-                        },
-                        namaPelangganController: namaPelangganController,
-                        kodePelangganController: kodePelangganController,
-                        nomorPesananPelanggan: nomorPesananPelanggan,
-                        nomorDeliveryOrderController: nomorDeliveryOrderController,
-                      ),
+                    selectedSuratJalan: selectedNomorSuratJalan,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorSuratJalan = newValue??'';
+                        fetchShipments();
+                        _updateTotal();
+                        // Update text fields dengan totalHarga dan totalProduk
+                      });
+                    },
+                    namaPelangganController: namaPelangganController,
+                    kodePelangganController: kodePelangganController,
+                    nomorPesananPelanggan: nomorPesananPelanggan,
+                    nomorDeliveryOrderController: nomorDeliveryOrderController,
+                    isEnabled: widget.invoiceId==null,
+                  ),
                   const SizedBox(height: 16.0),
                   TextFieldWidget(
                       label: 'Nomor Perintah Pengiriman',
@@ -476,48 +479,51 @@ Widget build(BuildContext context) {
                   ),
                   const SizedBox(height: 16.0,),
                   DropdownWidget(
-                          label: 'Metode Pembayaran',
-                          selectedValue: selectedMetodePembayaran, // Isi dengan nilai yang sesuai
-                          items: const ['Transfer BCA', 'Tunai'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
-                              if (selectedMetodePembayaran == 'Tunai') {
-                                  isNomorRekeningDisabled = true;
-                                } else {
-                                  isNomorRekeningDisabled = false;
-                                }
-                            });
-                          },
+                    label: 'Metode Pembayaran',
+                    selectedValue: selectedMetodePembayaran, // Isi dengan nilai yang sesuai
+                    items: const ['Transfer BCA', 'Tunai'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedMetodePembayaran = newValue; // Update _selectedValue saat nilai berubah
+                        if (selectedMetodePembayaran == 'Tunai') {
+                            isNomorRekeningDisabled = true;
+                          } else {
+                            isNomorRekeningDisabled = false;
+                          }
+                      });
+                    },
+                    isEnabled: widget.statusFk!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   DropdownWidget(
-                          label: 'Nomor Rekening',
-                          selectedValue: selectedNomorRekening, // Isi dengan nilai yang sesuai
-                          items: const ['2711598075', '5120181868'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
-                            });
-                          },
-                    isEnabled: !isNomorRekeningDisabled,
+                    label: 'Nomor Rekening',
+                    selectedValue: selectedNomorRekening, // Isi dengan nilai yang sesuai
+                    items: const ['2711598075', '5120181868'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedNomorRekening = newValue; // Update _selectedValue saat nilai berubah
+                      });
+                    },
+                    isEnabled: !isNomorRekeningDisabled && widget.statusFk!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   DropdownWidget(
-                          label: 'Status Pembayaran',
-                          selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
-                          items: const ['Belum Bayar', 'Lunas'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
-                            });
-                          },
+                    label: 'Status Pembayaran',
+                    selectedValue: selectedStatusPembayaran, // Isi dengan nilai yang sesuai
+                    items: const ['Belum Bayar', 'Lunas'],
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedStatusPembayaran = newValue; // Update _selectedValue saat nilai berubah
+                      });
+                    },
+                    isEnabled: widget.statusFk!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
                     label: 'Catatan',
                     placeholder: 'Catatan',
                     controller: catatanController,
+                    isEnabled: widget.statusFk!="Selesai",
                   ),
                   const SizedBox(height: 16.0,),
                   TextFieldWidget(
@@ -572,7 +578,7 @@ Widget build(BuildContext context) {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusFk == "Selesai" ? null :() {
                             // Handle save button press
                             addOrUpdate();
                           },
@@ -594,7 +600,7 @@ Widget build(BuildContext context) {
                       const SizedBox(width: 16.0),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: widget.statusFk == "Selesai" ? null : () {
                             // Handle clear button press
                             clearFormFields();
                           },

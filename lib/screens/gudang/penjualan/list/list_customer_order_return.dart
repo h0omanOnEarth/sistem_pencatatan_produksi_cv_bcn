@@ -159,6 +159,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                                       builder: (context) =>FormPengembalianBarangScreen(
                                         invoiceId: data['invoice_id'],
                                         custOrderReturnId: data['id'],
+                                        statusCor: data['status_cor'],
                                       )
                                     ),
                                   );
@@ -195,7 +196,35 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                                   }
                                 },
                                 onFinished: () async{
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Selesai"),
+                                        content: const Text("Anda yakin ingin menyelesaikan pengembalian barang ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesaikan"),
+                                            onPressed: () async {
+                                              final custReturnBloc = BlocProvider.of<CustomerOrderReturnBloc>(context);
+                                              custReturnBloc.add(FinishedCustomerOrderReturnEvent(filteredDocs[startIndex + index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
+                                  if (confirmed == true) {
+                                   
+                                  }
                                 },
                                 status: data['status_cor'],
                               );
@@ -234,7 +263,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                                  backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
                                 ),
                                 child: const Text("Next"),
                               ),

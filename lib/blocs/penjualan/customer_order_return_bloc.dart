@@ -22,6 +22,11 @@ class DeleteCustomerOrderReturnEvent extends CustomerOrderReturnEvent {
   DeleteCustomerOrderReturnEvent(this.customerOrderReturnId);
 }
 
+class FinishedCustomerOrderReturnEvent extends CustomerOrderReturnEvent {
+  final String customerOrderReturnId;
+  FinishedCustomerOrderReturnEvent(this.customerOrderReturnId);
+}
+
 // States
 abstract class CustomerOrderReturnBlocState {}
 
@@ -188,6 +193,20 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
         yield CustomerOrderReturnDeletedState();
       } catch (e) {
         yield CustomerOrderReturnErrorState("Failed to delete Customer Order Return.");
+      }
+    }else if(event is FinishedCustomerOrderReturnEvent){
+      yield CustomerOrderReturnLoadingState();
+      try {
+       
+        final customerOrderReturnRef = _firestore.collection('customer_order_returns').doc(event.customerOrderReturnId);
+
+        await customerOrderReturnRef.update({
+          'status_cor': 'Selesai',
+        });
+
+        yield SuccessState();
+      } catch (e) {
+        yield CustomerOrderReturnErrorState("Failed to finsihed customer order return");
       }
     }
   }

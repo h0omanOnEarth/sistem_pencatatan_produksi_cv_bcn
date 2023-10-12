@@ -14,6 +14,7 @@ class FakturDropdown extends StatefulWidget {
   late final TextEditingController? kodePelangganController;
   late final TextEditingController? nomorSuratJalanController;
   late final TextEditingController? alamatController;
+  final bool isEnabled;
 
   FakturDropdown({
     required this.selectedFaktur, 
@@ -22,7 +23,8 @@ class FakturDropdown extends StatefulWidget {
     this.nomorPesananPelanggan,
     this.kodePelangganController,
     this.nomorSuratJalanController,
-    this.alamatController
+    this.alamatController,
+    this.isEnabled = true,
     });
 
   @override
@@ -86,7 +88,7 @@ class _FakturDropdownState extends State<FakturDropdown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedFaktur,
                 items: invoiceItems,
-                onChanged: (newValue) async {
+                onChanged: widget.isEnabled ? (newValue) async {
                   widget.onChanged(newValue);
                   _selectedDoc = snapshot.data!.docs.firstWhere(
                     (document) => document['id'] == newValue,
@@ -102,7 +104,7 @@ class _FakturDropdownState extends State<FakturDropdown> {
                   widget.kodePelangganController?.text = customer?['id'];
                   widget.nomorPesananPelanggan?.text = customerOrder?['id'];
                   widget.nomorSuratJalanController?.text = shipment?['id'];
-                },
+                }:null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

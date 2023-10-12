@@ -195,6 +195,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
                 builder: (context) => FormPesananPengirimanScreen(
                   deliveryOrderId: data['id'],
                   customerOrderId: data['customer_order_id'],
+                  statusDo: data['status_pesanan_pengiriman'],
                 ),
               ),
             );

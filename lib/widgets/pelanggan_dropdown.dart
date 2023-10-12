@@ -7,10 +7,12 @@ ValueNotifier<String?> selectedPelangganNotifier = ValueNotifier<String?>(null);
 class PelangganDropdownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
   final String? customerId; // Tambahkan parameter customerId
+  final bool isEnabled; 
 
   PelangganDropdownWidget({
     required this.namaPelangganController,
     this.customerId, // Jadikan customerId sebagai parameter opsional
+    this.isEnabled = true, 
   }): super();
 
   @override
@@ -78,14 +80,14 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: customerItems,
-                    onChanged: (newValue) {
+                    onChanged: widget.isEnabled ?(newValue) {
                       selectedPelangganNotifier.value = newValue; // Gunakan selectedBahanNotifier
                       final selectedPelanggan = snapshot.data!.docs.firstWhere(
                         (document) => document['id'] == newValue,
                       );
                       widget.namaPelangganController.text =
                           selectedPelanggan['nama'] ?? '';
-                    },
+                    }:null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

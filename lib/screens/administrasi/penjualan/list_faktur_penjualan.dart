@@ -168,6 +168,7 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                                       builder: (context) => FormFakturPenjualanScreen(
                                         invoiceId: data['id'],
                                         shipmentId: data['shipment_id'],
+                                        statusFk: data['status_fk'],
                                       )
                                     ),
                                   );
@@ -206,7 +207,34 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
 
                                 },
                                 onFinished: () async {
-
+                                   final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi Selesai"),
+                                        content: const Text("Anda yakin ingin menyelesaikan faktur penjualan ini?"),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text("Batal"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(false);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text("Selesaikan"),
+                                            onPressed: () async {
+                                              final customerOrderBloc = BlocProvider.of<InvoiceBloc>(context);
+                                              customerOrderBloc.add(FinishedInvoiceEvent(paginatedDocs[index].id));
+                                              Navigator.of(context).pop(true);
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (confirmed == true) {
+                                   
+                                  }
                                 },
                                 status: data['status_fk'],
                               );

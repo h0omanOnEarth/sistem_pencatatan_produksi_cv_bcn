@@ -244,7 +244,7 @@ class MaterialTransferBloc
 
         yield SuccessState();
       } catch (e) {
-        yield MaterialTransferErrorState("Failed to delete Material Transfer.");
+        yield MaterialTransferErrorState("Failed to finish Material Transfer");
       }
     }
   }

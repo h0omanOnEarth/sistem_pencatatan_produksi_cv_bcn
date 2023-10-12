@@ -233,7 +233,7 @@ class MaterialReturnBloc
 
         yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Material Return.");
+        yield ErrorState("Failed to finish Material Return.");
       }
     } 
   }
