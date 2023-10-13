@@ -125,7 +125,7 @@ class CardItem extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Container(
+              SizedBox(
                 width: 40.0, // Set the width for the icon
                 child: Align(
                   alignment: Alignment.centerLeft,

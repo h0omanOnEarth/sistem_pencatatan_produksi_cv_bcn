@@ -12,7 +12,7 @@ class BottomNavigationAdministrasi extends StatefulWidget {
   final Function(int) onItemTapped;
   static dynamic menu = const HomeScreenAdministrasi();
 
-  BottomNavigationAdministrasi({this.key, required this.onItemTapped}) : super(key: key);
+  const BottomNavigationAdministrasi({this.key, required this.onItemTapped}) : super(key: key);
 
   @override
   _BottomNavigationAdministrasiState createState() => _BottomNavigationAdministrasiState();

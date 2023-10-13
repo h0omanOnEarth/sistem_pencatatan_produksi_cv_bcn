@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/bottom_navigation_bar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pengembalian.dart';
@@ -33,82 +35,129 @@ import 'main_penjualan.dart';
 
 class MainAdministrasi extends StatefulWidget {
   static const routeName = '/main_admnistrasi';
+  final int? selectedIndex;
 
-  const MainAdministrasi({Key? key}) : super(key: key);
+  const MainAdministrasi({Key? key,this.selectedIndex}) : super(key: key);
 
   @override
-  State<MainAdministrasi> createState() => _MainAdministrasiState();
+  State<MainAdministrasi> createState() => _MainAdministrasiState(selectedIndex ?? 0);
 }
 
 class _MainAdministrasiState extends State<MainAdministrasi> {
   late dynamic menu = const HomeScreenAdministrasi();
+  int _selectedIndex;
+
+  bool _isSidebarCollapsed = false; // Add this line
+
+  _MainAdministrasiState(this._selectedIndex);
+
+  @override
+  void initState() {
+    super.initState();
+    _onItemTapped(_selectedIndex); // Pindahkan _onItemTapped ke initState
+  }
+
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       BottomNavigationAdministrasi.menu = BottomNavigationAdministrasi.getMenuByIndex(index);
       menu = BottomNavigationAdministrasi.menu;
+      _selectedIndex = index; // Add this line
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return  MaterialApp(
-          title: 'Main Administrasi',
+          title: 'Main Gudang',
           theme: ThemeData(
             primaryColor: Colors.white, // Replace with your desired color
           ),
-          home: Scaffold(
-            body: GestureDetector(
-              onTap: () => setState(() {
-                menu = BottomNavigationAdministrasi.menu;
-              }),
-              child: menu,
-            ),
-            bottomNavigationBar: BottomNavigationAdministrasi(
-              onItemTapped: _onItemTapped,
-            ),
-          ),
-          routes: {
-            //Administrasi
-            HomeScreenAdministrasi.routeName:(context)=>const HomeScreenAdministrasi(),
-            ProfileScreen.routeName:(context)=>const ProfileScreen(),
-            MainAdministrasi.routeName: (context) => const MainAdministrasi(),
-            MainMasterAdministrasiScreen.routeName:(context) => const MainMasterAdministrasiScreen(),
-            NotifikasiScreen.routeName:(context)=>const NotifikasiScreen(),
-            MainPembelianAdministrasiScreen.routeName:(context) => const MainPembelianAdministrasiScreen(),
-            MainPenjulanAdministrasiScreen.routeName:(context) => const MainPenjulanAdministrasiScreen(),
-            MainLaporanAdministrasiScreen.routeName:(context) => const MainLaporanAdministrasiScreen(),
+          home: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+              return Scaffold(
+                body: Row(
+                  children: [
+                    SidebarAdministrasiWidget(
+                      selectedIndex: _selectedIndex,
+                      onItemTapped: _onItemTapped,
+                      isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                      onToggleSidebar: _toggleSidebar, // Add this line
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() {
+                          menu = BottomNavigationAdministrasi.menu;
+                        }),
+                        child: menu,
+                      ),
+                    ),
+                  ],
+                ),
+                bottomNavigationBar: null,
+              );
+            } else {
+              return Scaffold(
+                body: GestureDetector(
+                  onTap: () => setState(() {
+                    menu = BottomNavigationAdministrasi.menu;
+                  }),
+                  child: menu,
+                ),
+                bottomNavigationBar: BottomNavigationAdministrasi(
+                  onItemTapped: _onItemTapped,
+                ),
+              );
+            }
+          },
+        ),
+        routes: {
+          //Administrasi
+          HomeScreenAdministrasi.routeName:(context)=>const HomeScreenAdministrasi(),
+          ProfileScreen.routeName:(context)=>const ProfileScreen(),
+          MainAdministrasi.routeName: (context) => const MainAdministrasi(),
+          MainMasterAdministrasiScreen.routeName:(context) => const MainMasterAdministrasiScreen(),
+          NotifikasiScreen.routeName:(context)=>const NotifikasiScreen(),
+          MainPembelianAdministrasiScreen.routeName:(context) => const MainPembelianAdministrasiScreen(),
+          MainPenjulanAdministrasiScreen.routeName:(context) => const MainPenjulanAdministrasiScreen(),
+          MainLaporanAdministrasiScreen.routeName:(context) => const MainLaporanAdministrasiScreen(),
 
-            //Form Master
-            FormMasterPelangganScreen.routeName:(context)=> const FormMasterPelangganScreen(),
-            FormMasterSupplierScreen.routeName:(context)=> const FormMasterSupplierScreen(),
-            FormMasterPegawaiScreen.routeName:(context)=> const FormMasterPegawaiScreen(),
-            FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
-            FormMasterMesinScreen.routeName:(context)=> const FormMasterMesinScreen(),
-            FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
+          //Form Master
+          FormMasterPelangganScreen.routeName:(context)=> const FormMasterPelangganScreen(),
+          FormMasterSupplierScreen.routeName:(context)=> const FormMasterSupplierScreen(),
+          FormMasterPegawaiScreen.routeName:(context)=> const FormMasterPegawaiScreen(),
+          FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
+          FormMasterMesinScreen.routeName:(context)=> const FormMasterMesinScreen(),
+          FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
 
-            //list master
-            ListMasterPelangganScreen.routeName:(context) => const ListMasterPelangganScreen(),
-            ListMasterMesinScreen.routeName:(context) => const ListMasterMesinScreen(),
-            ListMasterSupplierScreen.routeName:(context)=> const ListMasterSupplierScreen(),
-            ListMasterPegawaiScreen.routeName:(context)=> const ListMasterPegawaiScreen(),
-            ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
-            ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
+          //list master
+          ListMasterPelangganScreen.routeName:(context) => const ListMasterPelangganScreen(),
+          ListMasterMesinScreen.routeName:(context) => const ListMasterMesinScreen(),
+          ListMasterSupplierScreen.routeName:(context)=> const ListMasterSupplierScreen(),
+          ListMasterPegawaiScreen.routeName:(context)=> const ListMasterPegawaiScreen(),
+          ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
+          ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
 
-            //Form Pembelian
-            FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
-            FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen(),
-            ListPesananPembelian.routeName:(context)=> const ListPesananPembelian(),
-            ListPesananPengembalianPembelian.routeName:(context)=> const ListPesananPengembalianPembelian(),
-            
-            //Form Penjualan
-            FormPesananPelangganScreen.routeName:(context) => const FormPesananPelangganScreen(),
-            FormPesananPengirimanScreen.routeName:(context) => const FormPesananPengirimanScreen(),
-            FormFakturPenjualanScreen.routeName:(context) => const FormFakturPenjualanScreen(),
-            ListPesananPelanggan.routeName:(context) => const ListPesananPelanggan(),
-            ListPesananPengiriman.routeName:(context) => const ListPesananPengiriman(),
-            ListFakturPenjualan.routeName:(context)=> const ListFakturPenjualan()
-            
-          });
+          //Form Pembelian
+          FormPesananPembelianScreen.routeName:(context)=> const FormPesananPembelianScreen(),
+          FormPengembalianPesananScreen.routeName:(context)=> const FormPengembalianPesananScreen(),
+          ListPesananPembelian.routeName:(context)=> const ListPesananPembelian(),
+          ListPesananPengembalianPembelian.routeName:(context)=> const ListPesananPengembalianPembelian(),
+          
+          //Form Penjualan
+          FormPesananPelangganScreen.routeName:(context) => const FormPesananPelangganScreen(),
+          FormPesananPengirimanScreen.routeName:(context) => const FormPesananPengirimanScreen(),
+          FormFakturPenjualanScreen.routeName:(context) => const FormFakturPenjualanScreen(),
+          ListPesananPelanggan.routeName:(context) => const ListPesananPelanggan(),
+          ListPesananPengiriman.routeName:(context) => const ListPesananPengiriman(),
+          ListFakturPenjualan.routeName:(context)=> const ListFakturPenjualan()
+          }    
+        );
   }
 }

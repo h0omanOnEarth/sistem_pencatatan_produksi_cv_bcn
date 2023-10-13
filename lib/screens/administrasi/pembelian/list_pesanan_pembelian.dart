@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
@@ -31,11 +34,43 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
-  @override
-  Widget build(BuildContext context) {
-   
-    return Scaffold(
-      body: SafeArea(
+int _selectedIndex = 2;
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: SafeArea(
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+            return _buildDesktopContent();
+          } else {
+            return _buildMobileContent();
+          }
+        },
+      ),
+    ),
+  );
+}
+
+Widget _buildDesktopContent() {
+  return Row(
+    children: [
+      SidebarAdministrasiWidget(
+        selectedIndex: _selectedIndex,
+        onItemTapped: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          // Implementasi navigasi berdasarkan index terpilih
+          _navigateToScreen(index, context);
+        },
+        isSidebarCollapsed: false,
+        onToggleSidebar: () {
+          // Implementasi fungsi toogle sidebar di sini jika diperlukan
+        },
+      ),
+      Expanded(
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(16.0),
@@ -45,7 +80,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                 const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen()),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
-                const SizedBox(height: 16.0,),
+                const SizedBox(height: 16.0),
                 buildDateRangeSelector(),
                 const SizedBox(height: 16.0),
                 _buildPurchaseOrderList(),
@@ -53,9 +88,37 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
             ),
           ),
         ),
+      )
+    ],
+  );
+}
+
+  // Fungsi navigasi berdasarkan index terpilih
+  void _navigateToScreen(int index, BuildContext context) {
+  final mainAdminsitrasiScreen = MainAdministrasi(selectedIndex: index);
+  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainAdminsitrasiScreen));
+}
+
+
+Widget _buildMobileContent() {
+  return SingleChildScrollView(
+    child: Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen()),
+          const SizedBox(height: 24.0),
+          _buildSearchBar(),
+          const SizedBox(height: 16.0,),
+          buildDateRangeSelector(),
+          const SizedBox(height: 16.0),
+          _buildPurchaseOrderList(),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildSearchBar() {
     return Row(

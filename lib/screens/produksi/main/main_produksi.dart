@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
@@ -19,6 +20,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_permintaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/sidebar_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_barang.dart';
@@ -37,12 +39,22 @@ class MainProduksi extends StatefulWidget {
 }
 
 class _MainProduksiState extends State<MainProduksi> {
-  late dynamic menu = HomeScreenProduksi();
+  late dynamic menu = const HomeScreenProduksi();
+  int _selectedIndex = 0; // Add this line
+
+  bool _isSidebarCollapsed = false; // Add this line
+
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       BottomNavigationProduksi.menu = BottomNavigationProduksi.getMenuByIndex(index);
       menu = BottomNavigationProduksi.menu;
+      _selectedIndex = index;
     });
   }
 
@@ -53,17 +65,45 @@ class _MainProduksiState extends State<MainProduksi> {
           theme: ThemeData(
             primaryColor: Colors.white, // Replace with your desired color
           ),
-          home: Scaffold(
-            body: GestureDetector(
-              onTap: () => setState(() {
-                menu = BottomNavigationProduksi.menu;
-              }),
-              child: menu,
-            ),
-            bottomNavigationBar: BottomNavigationProduksi(
-              onItemTapped: _onItemTapped,
-            ),
-          ),
+          home: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+              return Scaffold(
+                body: Row(
+                  children: [
+                    SidebarProduksiWidget(
+                      selectedIndex: _selectedIndex,
+                      onItemTapped: _onItemTapped,
+                      isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                      onToggleSidebar: _toggleSidebar, // Add this line
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() {
+                          menu = BottomNavigationProduksi.menu;
+                        }),
+                        child: menu,
+                      ),
+                    ),
+                  ],
+                ),
+                bottomNavigationBar: null,
+              );
+            } else {
+              return Scaffold(
+                body: GestureDetector(
+                  onTap: () => setState(() {
+                    menu = BottomNavigationProduksi.menu;
+                  }),
+                  child: menu,
+                ),
+                bottomNavigationBar: BottomNavigationProduksi(
+                  onItemTapped: _onItemTapped,
+                ),
+              );
+            }
+          },
+        ),
           routes: {
             //Gudang
            ProfileScreen.routeName:(context)=> const ProfileScreen(),

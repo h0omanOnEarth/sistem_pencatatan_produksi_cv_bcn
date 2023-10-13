@@ -125,7 +125,7 @@ class _ProductCardState extends State<ProductCardCustOrder> {
         if(widget.isEnabled)
         Padding(
           padding: const EdgeInsets.all(8.0), // Add the desired margin
-          child: Container(
+          child: SizedBox(
             width: double.infinity, // Make the button full width
             child: ElevatedButton(
               onPressed: () {
