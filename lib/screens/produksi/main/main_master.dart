@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainMasterProduksiScreen extends StatefulWidget {
   static const routeName = '/main_master_produksi';
@@ -78,10 +80,10 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: ListMasterBahanScreen()),
-                    const CardItem(icon: Icons.notes_rounded, textA: 'Master Bill of Material', textB: 'Memodifikasi dan melihat data BOM', pageRoute: ListBOMScreen()),
-                    const CardItem(icon: Icons.factory_outlined, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: ListMasterMesinScreen()),
-                    const CardItem(icon: Icons.gif_box, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: ListMasterBarangScreen()),
+                    const CardItem(icon: Icons.warehouse, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=3'),
+                    const CardItem(icon: Icons.notes_rounded, textA: 'Master Bill of Material', textB: 'Memodifikasi dan melihat data BOM', pageRoute: ListBOMScreen.routeName),
+                    const CardItem(icon: Icons.factory_outlined, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: '${ListMasterMesinScreen.routeName}?mode=3'),
+                    const CardItem(icon: Icons.gif_box, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: '${ListMasterBarangScreen.routeName}?mode=3'),
                   ],
                 ),
               ),
@@ -93,71 +95,3 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
   }
 }
 
-class CardItem extends StatelessWidget {
-  final IconData icon;
-  final String textA;
-  final String textB;
-  final Widget pageRoute; // New property to specify the page route
-
-  const CardItem({
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
-      );
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Set corner radius
-          side: const BorderSide(
-            color: Colors.grey, // Set border color
-            width: 1.0, // Set border width
-          ),
-        ),
-        child: Container(
-          height: 90.0, // Set the desired height of the card
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 40.0, // Set the width for the icon
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    icon,
-                    size: 36, // Customize the icon size
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textA,
-                      style: const TextStyle(
-                        fontSize: 18, // Customize the font size
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                    ),
-                    Text(textB),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

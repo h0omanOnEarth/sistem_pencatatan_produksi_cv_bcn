@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/delivery_order_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_pengiriman.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/circleFilterWidget.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
@@ -21,8 +23,7 @@ class ListPesananPengiriman extends StatefulWidget {
 }
 
 class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
-  final CollectionReference deliveryOrderRef =
-      FirebaseFirestore.instance.collection('delivery_orders');
+  final CollectionReference deliveryOrderRef = FirebaseFirestore.instance.collection('delivery_orders');
   String searchTerm = '';
   String selectedStatus = '';
   DateTime? selectedStartDate;
@@ -33,21 +34,58 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
   int itemsPerPage = 5;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
+  int _selectedIndex = 2;
+  bool _isSidebarCollapsed = false; 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
+  return Scaffold(
+    body: SafeArea(
+      child: ResponsiveBuilder(
+        builder: (context, sizingInformation) {
+          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+            return _buildDesktopContent();
+          } else {
+            return _buildMobileContent();
+          }
+        },
+      ),
+    ),
+  );
+}
+
+void _toggleSidebar() {
+  setState(() {
+    _isSidebarCollapsed = !_isSidebarCollapsed;
+  });
+}
+
+Widget _buildDesktopContent() {
+  return Row(
+    children: [
+      SidebarAdministrasiWidget(
+        selectedIndex: _selectedIndex,
+        onItemTapped: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          // Implementasi navigasi berdasarkan index terpilih
+          _navigateToScreen(index, context);
+        },
+        isSidebarCollapsed: _isSidebarCollapsed,
+        onToggleSidebar:  _toggleSidebar
+      ),
+      Expanded(
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Pesanan Pengiriman', formScreen: FormPesananPengirimanScreen()),
+                const CustomAppBar(title: 'Pesanan Pengiriman', formScreen: FormPesananPengirimanScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
                 const SizedBox(height: 24.0),
-                buildSearchBar(),
-                const SizedBox(height: 16.0,),
+                _buildSearchBar(),
+                const SizedBox(height: 16.0),
                 buildDateRangeSelector(),
                 const SizedBox(height: 16.0),
                 buildDeliveryOrderList(),
@@ -55,11 +93,38 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
             ),
           ),
         ),
-      ),
-    );
-  }
+      )
+    ],
+  );
+}
 
-  Widget buildSearchBar() {
+  // Fungsi navigasi berdasarkan index terpilih
+void _navigateToScreen(int index, BuildContext context) {
+  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+}
+
+
+Widget _buildMobileContent() {
+  return SingleChildScrollView(
+    child: Container(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const CustomAppBar(title: 'Pesanan Pengiriman', formScreen: FormPesananPengirimanScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
+          const SizedBox(height: 24.0),
+          _buildSearchBar(),
+          const SizedBox(height: 16.0,),
+          buildDateRangeSelector(),
+          const SizedBox(height: 16.0),
+          buildDeliveryOrderList(),
+        ],
+      ),
+    ),
+  );
+}
+
+  Widget _buildSearchBar() {
     return Row(
       children: [
         Expanded(
@@ -69,11 +134,20 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
             });
           }),
         ),
-        const SizedBox(width: 16.0),
-        CircleFilterNotCalendarIconButton(
-          onPressed: () {
-            _showFilterDialog(context);
-          },
+        const SizedBox(width: 16.0), 
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            border: Border.all(color: Colors.grey[400]!),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              // Handle filter button press
+              _showFilterDialog(context);
+            },
+          ),
         ),
       ],
     );
@@ -107,7 +181,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
       ],
     );
   }
-
+  
   Widget buildDeliveryOrderList() {
     return StreamBuilder<QuerySnapshot>(
       stream: deliveryOrderRef.snapshots(),

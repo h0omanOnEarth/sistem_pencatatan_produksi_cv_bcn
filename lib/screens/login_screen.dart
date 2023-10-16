@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
@@ -70,28 +71,18 @@ class LoginForm extends StatelessWidget {
             final posisi = userDoc.get('posisi');
             if (posisi == 'Administrasi') {
               // ignore: use_build_context_synchronously
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainAdministrasi(),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const MainAdministrasi(),
+              //   ),
+              // );
+              Routemaster.of(context).push(MainAdministrasi.routeName);
             } else if (posisi == 'Gudang') {
-              // ignore: use_build_context_synchronously
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainGudang(),
-                ),
-              );
+              Routemaster.of(context).push(MainGudang.routeName);
             } else if (posisi == 'Produksi') {
               // ignore: use_build_context_synchronously
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainProduksi(),
-                ),
-              );
+              Routemaster.of(context).push(MainProduksi.routeName);
             }
           }
         } else if (state is LoginFailure) {
@@ -259,12 +250,14 @@ class LoginForm extends StatelessWidget {
                             //   ScaffoldMessenger.of(context).showSnackBar(snackbar);
                             // }
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const MainAdministrasi(),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => const MainProduksi(),
+                            //   ),
+                            // );
+
+                            Routemaster.of(context).push(MainAdministrasi.routeName);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

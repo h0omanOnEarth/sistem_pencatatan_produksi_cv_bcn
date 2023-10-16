@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
@@ -33,8 +33,8 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
   int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-
-int _selectedIndex = 2;
+  int _selectedIndex = 2;
+  bool _isSidebarCollapsed = false; 
 
 @override
 Widget build(BuildContext context) {
@@ -53,6 +53,12 @@ Widget build(BuildContext context) {
   );
 }
 
+void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+  }
+
 Widget _buildDesktopContent() {
   return Row(
     children: [
@@ -65,10 +71,8 @@ Widget _buildDesktopContent() {
           // Implementasi navigasi berdasarkan index terpilih
           _navigateToScreen(index, context);
         },
-        isSidebarCollapsed: false,
-        onToggleSidebar: () {
-          // Implementasi fungsi toogle sidebar di sini jika diperlukan
-        },
+        isSidebarCollapsed: _isSidebarCollapsed,
+        onToggleSidebar:  _toggleSidebar
       ),
       Expanded(
         child: SingleChildScrollView(
@@ -77,7 +81,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen()),
+                const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '/main_admnistrasi?selectedIndex=2',),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -94,9 +98,8 @@ Widget _buildDesktopContent() {
 }
 
   // Fungsi navigasi berdasarkan index terpilih
-  void _navigateToScreen(int index, BuildContext context) {
-  final mainAdminsitrasiScreen = MainAdministrasi(selectedIndex: index);
-  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainAdminsitrasiScreen));
+void _navigateToScreen(int index, BuildContext context) {
+  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
 }
 
 
@@ -107,7 +110,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen()),
+          const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '/main_admnistrasi?selectedIndex=2',),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0,),

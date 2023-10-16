@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  static const routeName = '/splash_screen_route';
+  static const routeName = '/';
 
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -22,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Timer untuk mengatur waktu tampilan SplashScreen
     Timer(const Duration(seconds: 3), () {
       // Navigasi ke halaman berikutnya setelah 3 detik
-      Navigator.of(context).pushNamed(MainMenuScreen.routeName);
+      Routemaster.of(context).push('/main_menu_screen');
     });
 
     // Membuat AnimationController

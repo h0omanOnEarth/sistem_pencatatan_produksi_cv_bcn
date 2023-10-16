@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 
 class CustomAppBar extends StatelessWidget {
   final String title;
   final Widget formScreen;
+  final String? routes;
 
   const CustomAppBar({
     required this.title,
     required this.formScreen,
+    this.routes,
     Key? key,
   }) : super(key: key);
 
@@ -26,7 +29,11 @@ class CustomAppBar extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: InkWell(
                     onTap: () {
-                      Navigator.pop(context);
+                      if(routes==null){
+                        Navigator.pop(context);
+                      }else{
+                         Routemaster.of(context).push(routes!);
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(

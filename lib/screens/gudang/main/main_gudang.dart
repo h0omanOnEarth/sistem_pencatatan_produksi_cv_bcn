@@ -30,23 +30,26 @@ import 'main_pembelian.dart';
 
 class MainGudang extends StatefulWidget {
   static const routeName = '/main_gudang';
+  final int? selectedIndex;
 
-  const MainGudang({Key? key}) : super(key: key);
+  const MainGudang({Key? key,this.selectedIndex}) : super(key: key);
 
   @override
-  State<MainGudang> createState() => _MainGudangState();
+   State<MainGudang> createState() => _MainGudangState(selectedIndex ?? 0);
 }
 
 class _MainGudangState extends State<MainGudang> {
   late dynamic menu = const HomeScreenGudang();
-  int _selectedIndex = 0; // Add this line
+  int _selectedIndex;
 
   bool _isSidebarCollapsed = false; // Add this line
 
-  void _toggleSidebar() {
-    setState(() {
-      _isSidebarCollapsed = !_isSidebarCollapsed;
-    });
+  _MainGudangState(this._selectedIndex);
+
+  @override
+  void initState() {
+    super.initState();
+    _onItemTapped(_selectedIndex); // Pindahkan _onItemTapped ke initState
   }
 
   void _onItemTapped(int index) {
@@ -54,6 +57,13 @@ class _MainGudangState extends State<MainGudang> {
       BottomNavigationGudang.menu = BottomNavigationGudang.getMenuByIndex(index);
       menu = BottomNavigationGudang.menu;
       _selectedIndex = index;
+    });
+  }
+
+  
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
     });
   }
 

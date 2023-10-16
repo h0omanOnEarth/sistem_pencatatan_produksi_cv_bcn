@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 
 
@@ -82,8 +83,7 @@ class LoginRegisterPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     // Tombol login ditekan
-                    Navigator.pushNamed(context,
-                        '/login_page_screen'); // Pindahkan ke halaman login
+                   Routemaster.of(context).push(LoginPageScreen.routeName);
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(

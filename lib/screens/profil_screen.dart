@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
@@ -203,10 +204,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     //   );
                     // });
 
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const MainMenuScreen()),
-                      );
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => const MainMenuScreen()),
+                    //   );
+
+                    
+                    Routemaster.of(context).push(MainMenuScreen.routeName);
                   
                   },
                   child: Card(

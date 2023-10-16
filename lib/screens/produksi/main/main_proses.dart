@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_permintaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainProsesProduksiScreen extends StatefulWidget {
   static const routeName = '/main_proses_produksi';
@@ -81,13 +82,13 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: ListProductionOrder()),
-                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: ListMaterialRequest()),
-                    const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: ListMaterialUsage()),
-                    const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: ListPengembalianBahan()),
-                    const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: ListDLOHC()),
-                    const CardItem(icon: Icons.sticky_note_2, textA: 'Hasil Produksi', textB: 'Memodifikasi dan melihat hasil produksi', pageRoute: ListHasilProduksi()),
-                    const CardItem(icon: Icons.check_circle, textA: 'Konfirmasi Produksi', textB: 'Memodifikasi dan melihat Konfirmasi Produksi', pageRoute: ListKonfirmasiProduksi()),
+                    const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: ListProductionOrder.routeName),
+                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: ListMaterialRequest.routeName),
+                    const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: ListMaterialUsage.routeName),
+                    const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: ListPengembalianBahan.routeName),
+                    const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: ListDLOHC.routeName),
+                    const CardItem(icon: Icons.sticky_note_2, textA: 'Hasil Produksi', textB: 'Memodifikasi dan melihat hasil produksi', pageRoute: ListHasilProduksi.routeName),
+                    const CardItem(icon: Icons.check_circle, textA: 'Konfirmasi Produksi', textB: 'Memodifikasi dan melihat Konfirmasi Produksi', pageRoute: ListKonfirmasiProduksi.routeName),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -100,71 +101,4 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
   }
 }
 
-class CardItem extends StatelessWidget {
-  final IconData icon;
-  final String textA;
-  final String textB;
-  final Widget pageRoute; // New property to specify the page route
 
-  const CardItem({
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
-      );
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Set corner radius
-          side: const BorderSide(
-            color: Colors.grey, // Set border color
-            width: 1.0, // Set border width
-          ),
-        ),
-        child: Container(
-          height: 110.0, // Set the desired height of the card
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 40.0, // Set the width for the icon
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    icon,
-                    size: 36, // Customize the icon size
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textA,
-                      style: const TextStyle(
-                        fontSize: 18, // Customize the font size
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                    ),
-                    Text(textB),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

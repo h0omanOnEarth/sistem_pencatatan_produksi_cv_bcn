@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainMasterGudangScreen extends StatefulWidget {
   static const routeName = '/main_master_gudang';
@@ -51,7 +52,7 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -76,8 +77,8 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: ListMasterBahanScreen()),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang Jadi', textB: 'Memodifikasi dan melihat data barang jadi', pageRoute: ListMasterBarangScreen()),
+                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=2'),
+                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang Jadi', textB: 'Memodifikasi dan melihat data barang jadi', pageRoute: '${ListMasterBarangScreen.routeName}?mode=2'),
                   ],
                 ),
               ),
@@ -89,71 +90,3 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
   }
 }
 
-class CardItem extends StatelessWidget {
-  final IconData icon;
-  final String textA;
-  final String textB;
-  final Widget pageRoute; // New property to specify the page route
-
-  const CardItem({
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
-      );
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Set corner radius
-          side: const BorderSide(
-            color: Colors.grey, // Set border color
-            width: 1.0, // Set border width
-          ),
-        ),
-        child: Container(
-          height: 90.0, // Set the desired height of the card
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 40.0, // Set the width for the icon
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    icon,
-                    size: 36, // Customize the icon size
-                  ),
-                ),
-              ),
-              SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textA,
-                      style: const TextStyle(
-                        fontSize: 18, // Customize the font size
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                    ),
-                    Text(textB),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

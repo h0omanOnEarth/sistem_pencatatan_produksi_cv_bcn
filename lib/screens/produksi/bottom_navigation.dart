@@ -10,26 +10,26 @@ import 'main/main_proses.dart';
 class BottomNavigationProduksi extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
-  static dynamic menu = HomeScreenProduksi();
+  static dynamic menu = const HomeScreenProduksi();
 
-  BottomNavigationProduksi({this.key, required this.onItemTapped}) : super(key: key);
+  const BottomNavigationProduksi({this.key, required this.onItemTapped}) : super(key: key);
 
   @override
   _BottomNavigationProduksiState createState() => _BottomNavigationProduksiState();
 
   static dynamic getMenuByIndex(int index) {
     if (index == 0) {
-      return HomeScreenProduksi(); // Return HomeScreenGudang widget
+      return const HomeScreenProduksi(); // Return HomeScreenGudang widget
     } else if (index == 1) {
-      return MainMasterProduksiScreen();
+      return const MainMasterProduksiScreen();
     } else if (index == 2) {
-     return MainProsesProduksiScreen();
+     return const MainProsesProduksiScreen();
     } else if (index == 3) {
-      return MainLaporanProduksiScreen();
+      return const MainLaporanProduksiScreen();
     } else if (index == 4) {
-     return ProfileScreen();
+     return const ProfileScreen();
     }
-    return HomeScreenProduksi(); // Default menu
+    return const HomeScreenProduksi(); // Default menu
   }
 }
 
@@ -51,12 +51,12 @@ class _BottomNavigationProduksiState extends State<BottomNavigationProduksi> {
         children: [
           Icon(
             iconData,
-            color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
+            color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
           ),
           Text(
             label,
             style: TextStyle(
-              color: _selectedIndex == index ? Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
+              color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
             ),
           ),
         ],

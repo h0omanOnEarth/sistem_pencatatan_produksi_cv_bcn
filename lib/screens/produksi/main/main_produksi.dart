@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/routes/router.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
@@ -31,18 +33,27 @@ import 'main_proses.dart';
 
 class MainProduksi extends StatefulWidget {
   static const routeName = '/main_produksi';
+  final int? selectedIndex;
 
-  const MainProduksi({Key? key}) : super(key: key);
+  const MainProduksi({Key? key,this.selectedIndex}) : super(key: key);
 
   @override
-  State<MainProduksi> createState() => _MainProduksiState();
+  State<MainProduksi> createState() => _MainProduksiState(selectedIndex ?? 0);
 }
 
 class _MainProduksiState extends State<MainProduksi> {
   late dynamic menu = const HomeScreenProduksi();
-  int _selectedIndex = 0; // Add this line
+  int _selectedIndex;
 
   bool _isSidebarCollapsed = false; // Add this line
+
+  _MainProduksiState(this._selectedIndex);
+
+  @override
+  void initState() {
+    super.initState();
+    _onItemTapped(_selectedIndex); // Pindahkan _onItemTapped ke initState
+  }
 
   void _toggleSidebar() {
     setState(() {
@@ -60,81 +71,15 @@ class _MainProduksiState extends State<MainProduksi> {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-          title: 'Main Produksi',
-          theme: ThemeData(
-            primaryColor: Colors.white, // Replace with your desired color
-          ),
-          home: ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-              return Scaffold(
-                body: Row(
-                  children: [
-                    SidebarProduksiWidget(
-                      selectedIndex: _selectedIndex,
-                      onItemTapped: _onItemTapped,
-                      isSidebarCollapsed: _isSidebarCollapsed, // Add this line
-                      onToggleSidebar: _toggleSidebar, // Add this line
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          menu = BottomNavigationProduksi.menu;
-                        }),
-                        child: menu,
-                      ),
-                    ),
-                  ],
-                ),
-                bottomNavigationBar: null,
-              );
-            } else {
-              return Scaffold(
-                body: GestureDetector(
-                  onTap: () => setState(() {
-                    menu = BottomNavigationProduksi.menu;
-                  }),
-                  child: menu,
-                ),
-                bottomNavigationBar: BottomNavigationProduksi(
-                  onItemTapped: _onItemTapped,
-                ),
-              );
-            }
-          },
-        ),
-          routes: {
-            //Gudang
-           ProfileScreen.routeName:(context)=> const ProfileScreen(),
-           HomeScreenProduksi.routeName:(context)=>const HomeScreenProduksi(),
-           MainMasterProduksiScreen.routeName:(context)=> const MainMasterProduksiScreen(),
-           MainProsesProduksiScreen.routeName:(context)=> const MainProsesProduksiScreen(),
-           MainLaporanProduksiScreen.routeName:(context)=> const MainLaporanProduksiScreen(),
-
-
-          //form
-          FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
-          FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
-          FormMasterMesinScreen.routeName: (context)=> const FormMasterMesinScreen(),
-          FormMasterBOMScreen.routeName:(context)=> const FormMasterBOMScreen(),
-          FormPenggunaanBahanScreen.routeName:(context)=> const FormPenggunaanBahanScreen(),
-          FormPengembalianBahanScreen.routeName:(context)=> const FormPengembalianBahanScreen(),
-          FormPencatatanDirectLaborScreen.routeName:(context)=> const FormPencatatanDirectLaborScreen(),
-          FormHasilProduksiScreen.routeName:(context)=> const FormHasilProduksiScreen(),
-          FormKonfirmasiProduksiScreen.routeName:(context)=> const FormKonfirmasiProduksiScreen(),
-          ListBOMScreen.routeName:(context)=> const ListBOMScreen(),
-          ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
-          ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
-          ListMasterMesinScreen.routeName:(context)=> const ListMasterMesinScreen(),
-          ListProductionOrder.routeName:(context) => const ListProductionOrder(),
-          ListMaterialRequest.routeName:(context) => const ListMaterialRequest(),
-          ListMaterialUsage.routeName:(context) => const ListMaterialUsage(),
-          ListPengembalianBahan.routeName:(context) => const ListPengembalianBahan(),
-          ListDLOHC.routeName:(context)=> const ListDLOHC(),
-          ListHasilProduksi.routeName:(context)=> const ListHasilProduksi(),
-          ListKonfirmasiProduksi.routeName:(context)=> const ListKonfirmasiProduksi()
-
-          });
+    return 
+    MaterialApp.router(
+      routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
+      routeInformationParser: const RoutemasterParser(),
+      title: 'Pencatatan CV. Berlian Cangkir Nusantara',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+    );
   }
 }
