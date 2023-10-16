@@ -72,14 +72,50 @@ class _MainProduksiState extends State<MainProduksi> {
   @override
   Widget build(BuildContext context) {
     return 
-    MaterialApp.router(
-      routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
-      routeInformationParser: const RoutemasterParser(),
-      title: 'Pencatatan CV. Berlian Cangkir Nusantara',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-    );
+    MaterialApp(
+          title: 'Produksi',
+          theme: ThemeData(
+            primaryColor: Colors.white, // Replace with your desired color
+          ),
+          home: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+              return Scaffold(
+                body: Row(
+                  children: [
+                    SidebarProduksiWidget(
+                      selectedIndex: _selectedIndex,
+                      onItemTapped: _onItemTapped,
+                      isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                      onToggleSidebar: _toggleSidebar, // Add this line
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() {
+                          menu = BottomNavigationProduksi.menu;
+                        }),
+                        child: menu,
+                      ),
+                    ),
+                  ],
+                ),
+                bottomNavigationBar: null,
+              );
+            } else {
+              return Scaffold(
+                body: GestureDetector(
+                  onTap: () => setState(() {
+                    menu = BottomNavigationProduksi.menu;
+                  }),
+                  child: menu,
+                ),
+                bottomNavigationBar: BottomNavigationProduksi(
+                  onItemTapped: _onItemTapped,
+                ),
+              );
+            }
+          },
+        ), 
+        );
   }
 }

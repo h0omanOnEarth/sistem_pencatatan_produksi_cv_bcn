@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Timer untuk mengatur waktu tampilan SplashScreen
     Timer(const Duration(seconds: 3), () {
       // Navigasi ke halaman berikutnya setelah 3 detik
-      Routemaster.of(context).push('/main_menu_screen');
+      Routemaster.of(context).push(MainMenuScreen.routeName);
     });
 
     // Membuat AnimationController
