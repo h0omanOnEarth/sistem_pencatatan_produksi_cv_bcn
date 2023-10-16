@@ -340,7 +340,7 @@ Widget _buildMaterialReturnList() {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
                   ),
-                  child: const Text("Prev"),
+                  child: const Text("Prev",style: TextStyle(color: Colors.white),),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
@@ -357,7 +357,7 @@ Widget _buildMaterialReturnList() {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
                   ),
-                  child: const Text("Next"),
+                  child: const Text("Next",style: TextStyle(color: Colors.white),),
                 ),
               ],
             ),  

@@ -54,6 +54,9 @@ import '/screens/gudang/main/main_penjualan.dart';
 import '/screens/gudang/main/main_produksi.dart';
 
 final routes = RouteMap(
+  onUnknownRoute: (path) {
+    return const MaterialPage(child: MainMenuScreen()); // Rute default jika rute tidak ditemukan
+  },
   routes: {
     SplashScreen.routeName: (_) => const MaterialPage(child: SplashScreen()),
     MainMenuScreen.routeName: (_) => const MaterialPage(child: MainMenuScreen()),

@@ -257,7 +257,7 @@ class LoginForm extends StatelessWidget {
                             //   ),
                             // );
 
-                            Routemaster.of(context).push(MainProduksi.routeName);
+                            Routemaster.of(context).push(MainGudang.routeName);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
@@ -268,7 +268,7 @@ class LoginForm extends StatelessWidget {
                             ),
                           ),
                         ),
-                        child: const Text('Sign In'),
+                        child: const Text('Sign In',style: TextStyle(color: Colors.white),),
                       ),
                     ),
                   ],

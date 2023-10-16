@@ -115,7 +115,39 @@ class _MainProduksiState extends State<MainProduksi> {
               );
             }
           },
-        ), 
+        ),
+        routes: {
+            //Gudang
+           ProfileScreen.routeName:(context)=> const ProfileScreen(),
+           HomeScreenProduksi.routeName:(context)=>const HomeScreenProduksi(),
+           MainMasterProduksiScreen.routeName:(context)=> const MainMasterProduksiScreen(),
+           MainProsesProduksiScreen.routeName:(context)=> const MainProsesProduksiScreen(),
+           MainLaporanProduksiScreen.routeName:(context)=> const MainLaporanProduksiScreen(),
+
+
+          //form
+          FormMasterBahanScreen.routeName: (context)=> const FormMasterBahanScreen(),
+          FormMasterBarangScreen.routeName:(context) =>const FormMasterBarangScreen(),
+          FormMasterMesinScreen.routeName: (context)=> const FormMasterMesinScreen(),
+          FormMasterBOMScreen.routeName:(context)=> const FormMasterBOMScreen(),
+          FormPenggunaanBahanScreen.routeName:(context)=> const FormPenggunaanBahanScreen(),
+          FormPengembalianBahanScreen.routeName:(context)=> const FormPengembalianBahanScreen(),
+          FormPencatatanDirectLaborScreen.routeName:(context)=> const FormPencatatanDirectLaborScreen(),
+          FormHasilProduksiScreen.routeName:(context)=> const FormHasilProduksiScreen(),
+          FormKonfirmasiProduksiScreen.routeName:(context)=> const FormKonfirmasiProduksiScreen(),
+          ListBOMScreen.routeName:(context)=> const ListBOMScreen(),
+          ListMasterBahanScreen.routeName:(context)=> const ListMasterBahanScreen(),
+          ListMasterBarangScreen.routeName:(context)=> const ListMasterBarangScreen(),
+          ListMasterMesinScreen.routeName:(context)=> const ListMasterMesinScreen(),
+          ListProductionOrder.routeName:(context) => const ListProductionOrder(),
+          ListMaterialRequest.routeName:(context) => const ListMaterialRequest(),
+          ListMaterialUsage.routeName:(context) => const ListMaterialUsage(),
+          ListPengembalianBahan.routeName:(context) => const ListPengembalianBahan(),
+          ListDLOHC.routeName:(context)=> const ListDLOHC(),
+          ListHasilProduksi.routeName:(context)=> const ListHasilProduksi(),
+          ListKonfirmasiProduksi.routeName:(context)=> const ListKonfirmasiProduksi()
+
+          } 
         );
   }
 }

@@ -33,15 +33,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
     providers: AppBlocProviders.providers,
-    child :  MaterialApp.router(
-      routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
-      routeInformationParser: const RoutemasterParser(),
-      title: 'Pencatatan CV. Berlian Cangkir Nusantara',
+    child :  MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primaryColor: Colors.white, // Ganti dengan warna putih
         useMaterial3: true,
+        buttonTheme: const ButtonThemeData(
+          textTheme: ButtonTextTheme.primary,
+        ),
       ),
-    )
+      // Tambahkan initialRoute dan set ke '/' untuk rute awal
+      initialRoute: '/',
+      home: MaterialApp.router(
+        routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
+        routeInformationParser: const RoutemasterParser(),
+      ),
+      title: 'Pencatatan CV. Berlian Cangkir Nusantara',
+      )
       );
   }
 }
