@@ -25,6 +25,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/li
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pengubahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bom.dart';
@@ -108,5 +109,12 @@ final routes = RouteMap(
     ListItemReceive.routeName: (_)=> const MaterialPage(child: ListItemReceive()),
     ListPemindahanBahan.routeName: (_)=> const MaterialPage(child: ListPemindahanBahan()),
     ListPengubahanBahan.routeName: (_)=> const MaterialPage(child: ListPengubahanBahan()),
+
+    FormMasterSupplierScreen.routeName: (data) {
+      final supplierId = data.queryParameters['supplierId'];
+      final supplierIdValue = supplierId ??'';
+      // Kemudian gunakan selectedIndexValue sesuai kebutuhan
+      return MaterialPage(child: FormMasterSupplierScreen(supplierId: supplierId));
+    },
   },
 );

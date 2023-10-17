@@ -154,7 +154,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CustomAppBar(title: 'Bahan', formScreen: FormMasterBahanScreen(), routes: routeName,),
+          CustomAppBar(title: 'Bahan', formScreen: const FormMasterBahanScreen(), routes: routeName,),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0),

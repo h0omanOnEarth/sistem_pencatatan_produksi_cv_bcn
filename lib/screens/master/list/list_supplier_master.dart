@@ -6,7 +6,6 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/suppliers_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
@@ -23,8 +22,7 @@ class ListMasterSupplierScreen extends StatefulWidget {
 }
 
 class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
-  final CollectionReference supplierRef =
-      FirebaseFirestore.instance.collection('suppliers');
+  final CollectionReference supplierRef = FirebaseFirestore.instance.collection('suppliers');
   String searchTerm = '';
   String selectedJenis = '';
   int startIndex = 0; // Indeks awal data yang ditampilkan
@@ -33,6 +31,7 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 1;
   bool _isSidebarCollapsed = false; 
+  bool isDesktop = false;
 
 @override
 Widget build(BuildContext context) {
@@ -41,6 +40,7 @@ Widget build(BuildContext context) {
       child: ResponsiveBuilder(
         builder: (context, sizingInformation) {
           if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+            isDesktop = true;
             return _buildDesktopContent();
           } else {
             return _buildMobileContent();
@@ -79,7 +79,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Pelanggan', formScreen: FormMasterPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=1',),
+                const CustomAppBar(title: 'Supplier', formScreen: FormMasterSupplierScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=1', routeName: FormMasterSupplierScreen.routeName),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -106,10 +106,11 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CustomAppBar(title: 'Pelanggan', formScreen: FormMasterPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=1',),
+          const CustomAppBar(title: 'Supplier', formScreen: FormMasterSupplierScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=1',),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0,),
+          buildSupplierList()
         ],
       ),
     ),
@@ -210,7 +211,10 @@ Widget buildSupplierList() {
                         .map((e) => '${e.key}: ${e.value}')
                         .join('\n'),
                     onTap: () {
-                      Navigator.push(
+                      if(isDesktop==true){
+                        Routemaster.of(context).push('${FormMasterSupplierScreen.routeName}?supplierId=${data['id']}');
+                      }else{
+                        Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
@@ -219,6 +223,7 @@ Widget buildSupplierList() {
                           ),
                         ),
                       );
+                      }
                     },
                     onDeletePressed: () async {
                       final confirmed = await showDialog(

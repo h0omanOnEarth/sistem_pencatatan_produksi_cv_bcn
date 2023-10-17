@@ -5,11 +5,13 @@ class CustomAppBar extends StatelessWidget {
   final String title;
   final Widget formScreen;
   final String? routes;
+  final String? routeName;
 
   const CustomAppBar({
     required this.title,
     required this.formScreen,
     this.routes,
+    this.routeName,
     Key? key,
   }) : super(key: key);
 
@@ -32,7 +34,7 @@ class CustomAppBar extends StatelessWidget {
                       if(routes==null){
                         Navigator.pop(context);
                       }else{
-                         Routemaster.of(context).push(routes!);
+                        Routemaster.of(context).push(routes!);
                       }
                     },
                     child: Container(
@@ -78,12 +80,16 @@ class CustomAppBar extends StatelessWidget {
                     icon: const Icon(Icons.add),
                     color: Colors.white,
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => formScreen,
-                        ),
-                      );
+                      if(routeName==null){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => formScreen,
+                          ),
+                        );
+                      }else{
+                        Routemaster.of(context).push(routeName!);
+                      }
                     },
                   ),
                 ),
