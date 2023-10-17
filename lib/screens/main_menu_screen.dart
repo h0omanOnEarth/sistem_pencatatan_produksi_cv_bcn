@@ -4,22 +4,12 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 
 
 class MainMenuScreen extends StatelessWidget {
-  static const routeName = '/main_menu_screen';
+  static const routeName = '/menu';
   const MainMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Main Menu Page',
-      theme: ThemeData(
-        primaryColor:
-            Colors.white, // Ganti dengan kode hex warna yang diinginkan
-      ),
-      home: const LoginRegisterPage(),
-      routes: {
-        '/login_page_screen': (context) => const LoginPageScreen(),
-      },
-    );
+    return const LoginRegisterPage();
   }
 }
 

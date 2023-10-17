@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/roundedTextfieldWidget.dart';
 
 class EditPasswordScreen extends StatefulWidget {
-  static const routeName = '/edit_password_screen';
+  static const routeName = '/profile/password';
 
   const EditPasswordScreen({super.key});
   @override

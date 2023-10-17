@@ -13,7 +13,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPemindahanBahan extends StatefulWidget {
-  static const routeName = '/form_pemindahan_bahan_screen';
+  static const routeName = '/gudang/produksi/pemindahan/form';
   final String? materialRequestId;
   final String? materialTransferId;
   final String? statusMtr;

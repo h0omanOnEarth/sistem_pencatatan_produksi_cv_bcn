@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPemindahanBahan extends StatefulWidget {
-  static const routeName = '/list_pemindahan_bahan';
+  static const routeName = '/gudang/produksi/pemindahan/list';
 
   const ListPemindahanBahan({super.key});
   @override

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class NotifikasiScreen extends StatefulWidget {
-  static const routeName = '/notifikasi_screen';
+  static const routeName = '/notifikasi';
 
   const NotifikasiScreen({Key? key}) : super(key: key);
 

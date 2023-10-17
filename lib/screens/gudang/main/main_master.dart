@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainMasterGudangScreen extends StatefulWidget {
-  static const routeName = '/main_master_gudang';
+  static const routeName = '/gudang/master';
   const MainMasterGudangScreen({Key? key});
 
   @override

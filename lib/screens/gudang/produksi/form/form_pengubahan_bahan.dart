@@ -11,7 +11,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPengubahanBahan extends StatefulWidget {
-  static const routeName = '/form_pengubahan_bahan_screen';
+  static const routeName = '/gudang/produksi/pengubahan/form';
   final String? materialTransformId;
   final String? machineId;
   final String? statusMtf;

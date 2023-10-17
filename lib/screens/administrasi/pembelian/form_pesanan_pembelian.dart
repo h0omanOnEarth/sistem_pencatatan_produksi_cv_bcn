@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 
 
 class FormPesananPembelianScreen extends StatefulWidget {
-  static const routeName = '/form_pesanan_pembelian_screen';
+  static const routeName = '/administrasi/pembelian/pesanan/form';
 
   final String? purchaseOrderId; // Terima ID PO jika dalam mode edit
   final String? supplierId;

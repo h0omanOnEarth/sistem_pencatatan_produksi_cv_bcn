@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPurchaseRequest extends StatefulWidget {
-  static const routeName = '/list_purchase_request_screen';
+  static const routeName = '/gudang/pembelian/permintaan/list';
 
   const ListPurchaseRequest({super.key});
   @override

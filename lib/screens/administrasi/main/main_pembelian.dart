@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainPembelianAdministrasiScreen extends StatefulWidget {
-  static const routeName = '/main_pembelian_administrasi';
+  static const routeName = '/administrasi/pembelian';
   const MainPembelianAdministrasiScreen({Key? key});
 
   @override

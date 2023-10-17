@@ -16,7 +16,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPenggunaanBahanScreen extends StatefulWidget {
-  static const routeName = '/form_penggunaan_bahan_screen';
+  static const routeName = '/produksi/proses/penggunaan/form';
   final String? materialUsageId;
   final String? productionOrderId;
   final String? materialRequestId;

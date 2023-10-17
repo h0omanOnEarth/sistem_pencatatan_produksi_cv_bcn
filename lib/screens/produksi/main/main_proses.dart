@@ -10,7 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainProsesProduksiScreen extends StatefulWidget {
-  static const routeName = '/main_proses_produksi';
+  static const routeName = '/proses';
   const MainProsesProduksiScreen({Key? key});
 
   @override

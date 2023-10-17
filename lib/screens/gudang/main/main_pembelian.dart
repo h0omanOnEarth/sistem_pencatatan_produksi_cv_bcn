@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainPembelianGudangScreen extends StatefulWidget {
-  static const routeName = '/main_pembelian_gudang';
+  static const routeName = '/gudang/pembelian';
   const MainPembelianGudangScreen({Key? key});
 
   @override
@@ -52,7 +52,7 @@ class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },

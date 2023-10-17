@@ -12,7 +12,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPengembalianPesananScreen extends StatefulWidget {
-  static const routeName = '/form_pengembalian_pesanan_pembelian_screen';
+  static const routeName = '/administrasi/pembelian/pengembalian/form';
 
   final String? purchaseReturnId; 
   final String? purchaseOrderId;

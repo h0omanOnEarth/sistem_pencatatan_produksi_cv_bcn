@@ -32,7 +32,7 @@ class CardData {
 }
 
 class FormSuratJalanScreen extends StatefulWidget {
-  static const routeName = '/form_surat_jalan_screen';
+  static const routeName = '/gudang/penjualan/shipment/form';
   final String? shipmentId;
   final String? deliveryId;
   final String? statusShp;

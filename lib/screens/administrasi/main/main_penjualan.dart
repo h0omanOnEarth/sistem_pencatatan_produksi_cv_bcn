@@ -6,7 +6,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainPenjulanAdministrasiScreen extends StatefulWidget {
-  static const routeName = '/main_penjualan_administrasi';
+  static const routeName = '/administrasi/penjualan';
   const MainPenjulanAdministrasiScreen({Key? key});
 
   @override

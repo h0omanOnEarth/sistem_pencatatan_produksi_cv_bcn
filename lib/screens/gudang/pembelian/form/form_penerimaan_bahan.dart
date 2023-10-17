@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/supplier_dropdown.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPenerimaanBahanScreen extends StatefulWidget {
-  static const routeName = '/form_penerimaan_bahan_screen';
+  static const routeName = '/gudang/pembelian/penerimaan/form';
   final String? purchaseRequestId;
   final String? materialReceiveId;
   final String? materialId;

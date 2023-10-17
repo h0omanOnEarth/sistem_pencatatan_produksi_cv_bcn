@@ -13,7 +13,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMasterSupplierScreen extends StatefulWidget {
-  static const routeName = '/list_master_supplier_screen';
+  static const routeName = '/master/supplier/list';
 
   const ListMasterSupplierScreen({Key? key}) : super(key: key);
 
@@ -95,7 +95,7 @@ Widget _buildDesktopContent() {
 
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
 }
 
 

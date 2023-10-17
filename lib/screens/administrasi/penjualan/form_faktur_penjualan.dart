@@ -18,7 +18,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/suratJalanDropdown.dart
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormFakturPenjualanScreen extends StatefulWidget {
-  static const routeName = '/form_faktur_penjualan_screen';
+  static const routeName = '/administrasi/penjualan/faktur/form';
   final String? invoiceId;
   final String? shipmentId;
   final String? statusFk;

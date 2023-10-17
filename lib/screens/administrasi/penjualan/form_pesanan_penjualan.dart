@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 
 
 class FormPesananPelangganScreen extends StatefulWidget {
-  static const routeName = '/form_pesanan_pelanggan_screen';
+  static const routeName = 'administrasi/penjualan/pesanan/form';
   final String? customerOrderId;
   final String? customerId;
   final String? statusCO;

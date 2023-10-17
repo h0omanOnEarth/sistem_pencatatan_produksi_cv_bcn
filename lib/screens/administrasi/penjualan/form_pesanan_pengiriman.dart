@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPesananPengirimanScreen extends StatefulWidget {
-  static const routeName = '/form_pesanan_pengiriman_screen';
+  static const routeName = 'administrasi/penjualan/pengiriman/form';
 
   final String? deliveryOrderId;
   final String? customerOrderId;

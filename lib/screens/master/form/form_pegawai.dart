@@ -9,7 +9,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterPegawaiScreen extends StatefulWidget {
-  static const routeName = '/form_master_pegawai_screen';
+  static const routeName = '/master/pegawai/form';
 
   final String? pegawaiId; // Terima ID pegawai jika dalam mode edit
   final String? currentUsername;

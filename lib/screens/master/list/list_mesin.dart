@@ -16,7 +16,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMasterMesinScreen extends StatefulWidget {
-  static const routeName = '/list_master_mesin_screen';
+  static const routeName = '/master/mesin/list';
   final int? mode;
   const ListMasterMesinScreen({Key? key, this.mode}) : super(key: key);
 
@@ -137,13 +137,12 @@ Widget _buildDesktopContent() {
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
   if(widget.mode==1){
-    Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+    Routemaster.of(context).push('${MainAdministrasi.routeName}selectedIndex=$index');
   }else if(widget.mode==2){
-     Routemaster.of(context).push('/main_gudang?selectedIndex=$index');
+     Routemaster.of(context).push('${MainGudang.routeName}?selectedIndex=$index');
   }else{
-     Routemaster.of(context).push('/main_produksi?selectedIndex=$index');
+     Routemaster.of(context).push('${MainProduksi.routeName}?selectedIndex=$index');
   }
-
 }
 
 

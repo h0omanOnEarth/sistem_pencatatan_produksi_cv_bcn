@@ -9,7 +9,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/material.dart';
 
 class FormMasterBahanScreen extends StatefulWidget {
-  static const routeName = '/form_master_bahan_screen';
+  static const routeName = '/master/bahan/form';
 
   final String? materialId; // Terima ID pelanggan jika dalam mode edit
   const FormMasterBahanScreen({Key? key, this.materialId}) : super(key: key);

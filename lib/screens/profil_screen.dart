@@ -7,7 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  static const routeName = '/profile_screen';
+  static const routeName = '/profile';
 
   const ProfileScreen({super.key});
   @override

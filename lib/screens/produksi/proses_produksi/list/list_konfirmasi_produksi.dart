@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListKonfirmasiProduksi extends StatefulWidget {
-  static const routeName = '/list_konfirmasi_produksi_screen';
+  static const routeName = '/produksi/proses/konfirmasi/list';
 
   const ListKonfirmasiProduksi({super.key});
   @override

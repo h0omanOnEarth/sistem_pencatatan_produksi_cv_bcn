@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListItemReceive extends StatefulWidget {
-  static const routeName = '/list_item_receive_screen';
+  static const routeName = '/gudang/produksi/penerimaan/list';
 
   const ListItemReceive({super.key});
   @override

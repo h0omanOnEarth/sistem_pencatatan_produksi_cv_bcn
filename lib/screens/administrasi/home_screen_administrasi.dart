@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_home.dart';
 
 class HomeScreenAdministrasi extends StatefulWidget {
-  static const routeName = '/home_screen_administrasi';
+  static const routeName = '/administrasi/home';
   const HomeScreenAdministrasi({Key? key});
 
   @override

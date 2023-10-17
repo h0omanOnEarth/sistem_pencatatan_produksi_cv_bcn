@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/roundedTextfieldWidget.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  static const routeName = '/edit_profile_screen';
+  static const routeName = '/profile/edit';
 
   const EditProfileScreen({super.key});
   @override

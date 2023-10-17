@@ -5,11 +5,12 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/authentication_bloc.dart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 
 class LoginPageScreen extends StatefulWidget {
-  static const routeName = '/login_page_screen';
+  static const routeName = '/login';
 
   const LoginPageScreen({Key? key}) : super(key: key);
 
@@ -77,8 +78,10 @@ class LoginForm extends StatelessWidget {
               //     builder: (context) => const MainAdministrasi(),
               //   ),
               // );
+              // ignore: use_build_context_synchronously
               Routemaster.of(context).push(MainAdministrasi.routeName);
             } else if (posisi == 'Gudang') {
+              // ignore: use_build_context_synchronously
               Routemaster.of(context).push(MainGudang.routeName);
             } else if (posisi == 'Produksi') {
               // ignore: use_build_context_synchronously
@@ -119,7 +122,8 @@ class LoginForm extends StatelessWidget {
                       alignment: Alignment.topLeft,
                       child: InkWell(
                         onTap: () {
-                          Navigator.pop(context);
+                          // Navigator.pop(context);
+                          Routemaster.of(context).push(MainMenuScreen.routeName);
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -257,7 +261,7 @@ class LoginForm extends StatelessWidget {
                             //   ),
                             // );
 
-                            Routemaster.of(context).push(MainGudang.routeName);
+                            Routemaster.of(context).push(MainProduksi.routeName);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

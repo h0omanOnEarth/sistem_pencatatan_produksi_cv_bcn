@@ -12,7 +12,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListBOMScreen extends StatefulWidget {
-  static const routeName = '/list_bom_screen';
+  static const routeName = '/master/bom/list';
 
   const ListBOMScreen({Key? key}) : super(key: key);
 

@@ -32,7 +32,7 @@ class CardData {
 }
 
 class FormPengembalianBarangScreen extends StatefulWidget {
-  static const routeName = '/form_pengembalian_barang_screen';
+  static const routeName = '/gudang/penjualan/pengembalian/form';
   final String? invoiceId;
   final String? custOrderReturnId;
   final String? statusCor;

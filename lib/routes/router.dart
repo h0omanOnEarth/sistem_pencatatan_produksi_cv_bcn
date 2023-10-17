@@ -55,7 +55,7 @@ import '/screens/gudang/main/main_produksi.dart';
 
 final routes = RouteMap(
   onUnknownRoute: (path) {
-    return const MaterialPage(child: MainMenuScreen()); // Rute default jika rute tidak ditemukan
+    return const MaterialPage(child: SplashScreen()); // Rute default jika rute tidak ditemukan
   },
   routes: {
     SplashScreen.routeName: (_) => const MaterialPage(child: SplashScreen()),

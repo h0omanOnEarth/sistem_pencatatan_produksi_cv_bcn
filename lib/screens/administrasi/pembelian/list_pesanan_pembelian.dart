@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/form_pesanan_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
@@ -13,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPesananPembelian extends StatefulWidget {
-  static const routeName = '/list_pesanan_pembelian_screen';
+  static const routeName = '/administrasi/pembelian/pesanan/list';
 
   const ListPesananPembelian({Key? key}) : super(key: key);
 
@@ -81,7 +82,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '/main_admnistrasi?selectedIndex=2',),
+                const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=2',),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -99,7 +100,7 @@ Widget _buildDesktopContent() {
 
   // Fungsi navigasi berdasarkan index terpilih
 void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
 }
 
 
@@ -110,7 +111,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '/main_admnistrasi?selectedIndex=2',),
+          const CustomAppBar(title: 'Pesanan Pembelian', formScreen: FormPesananPembelianScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=2',),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0,),

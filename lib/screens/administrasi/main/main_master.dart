@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_mesin.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pelanggan.dart';
@@ -9,7 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart
 
 
 class MainMasterAdministrasiScreen extends StatefulWidget {
-  static const routeName = '/main_master_administrasi';
+  static const routeName = '/administrasi/master';
   const MainMasterAdministrasiScreen({Key? key});
   
 
@@ -87,7 +88,7 @@ class _MainMasterAdministrasiScreenState extends State<MainMasterAdministrasiScr
                     const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=1'),
                     const CardItem(icon: Icons.precision_manufacturing, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: '${ListMasterMesinScreen.routeName}?mode=1'),
                     const CardItem(icon: Icons.emoji_people_outlined, textA: 'Master Pegawai', textB: 'Memodifikasi dan melihat data pegawai', pageRoute: ListMasterPegawaiScreen.routeName),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: '/list_master_barang_screen?mode=1'),
+                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: '${ListMasterBarangScreen.routeName}?mode=1'),
                   ],
                 ),
               ),

@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMaterialUsage extends StatefulWidget {
-  static const routeName = '/list_material_usage_screen';
+  static const routeName = '/produksi/proses/penggunaan/list';
 
   const ListMaterialUsage({super.key});
   @override

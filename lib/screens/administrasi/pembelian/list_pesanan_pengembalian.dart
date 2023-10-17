@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPesananPengembalianPembelian extends StatefulWidget {
-  static const routeName = '/list_pengembalian_pembelian_screen';
+  static const routeName = '/administrasi/pembelian/pengembalian/list';
 
   const ListPesananPengembalianPembelian({super.key});
   @override
@@ -85,7 +85,7 @@ void _toggleSidebar() {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const CustomAppBar(title: 'Pesanan Pengembalian', formScreen: FormPengembalianPesananScreen(), routes: '/main_admnistrasi?selectedIndex=2'),
+                  const CustomAppBar(title: 'Pesanan Pengembalian', formScreen: FormPengembalianPesananScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=2'),
                   const SizedBox(height: 24.0),
                   _buildSearchBar(),
                   const SizedBox(height: 16.0),
@@ -103,7 +103,7 @@ void _toggleSidebar() {
 
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
 }
 
 
@@ -114,7 +114,7 @@ void _toggleSidebar() {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const CustomAppBar(title: 'Pesanan Pengembalian', formScreen: FormPengembalianPesananScreen(), routes: '/main_admnistrasi?selectedIndex=2'),
+            const CustomAppBar(title: 'Pesanan Pengembalian', formScreen: FormPengembalianPesananScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=2'),
             const SizedBox(height: 24.0),
             _buildSearchBar(),
             const SizedBox(height: 16.0,),

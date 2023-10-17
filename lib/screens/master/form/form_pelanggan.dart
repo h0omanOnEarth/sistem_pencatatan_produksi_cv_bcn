@@ -8,7 +8,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterPelangganScreen extends StatefulWidget {
-  static const routeName = '/form_master_pelanggan_screen';
+  static const routeName = '/master/pelanggan/form';
 
   final String? customerId; // Terima ID pelanggan jika dalam mode edit
   const FormMasterPelangganScreen({Key? key, this.customerId}) : super(key: key);

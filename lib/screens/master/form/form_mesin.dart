@@ -10,7 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/master/machine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FormMasterMesinScreen extends StatefulWidget {
-  static const routeName = '/form_master_mesin_screen';
+  static const routeName = '/master/mesin/form';
 
   final String? mesinId;
   final String? supplierId;

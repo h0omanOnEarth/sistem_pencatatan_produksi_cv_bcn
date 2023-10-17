@@ -8,7 +8,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterSupplierScreen extends StatefulWidget {
-  static const routeName = '/form_master_supplier_screen';
+  static const routeName = '/master/supplier/form';
 
   final String? supplierId;
   const FormMasterSupplierScreen({Key? key, this.supplierId}) : super(key: key);

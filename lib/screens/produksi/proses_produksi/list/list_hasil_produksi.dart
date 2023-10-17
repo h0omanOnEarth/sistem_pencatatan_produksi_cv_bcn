@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListHasilProduksi extends StatefulWidget {
-  static const routeName = '/list_hasil_produksi_screen';
+  static const routeName = '/produksi/proses/hasil/list';
 
   const ListHasilProduksi({super.key});
   @override

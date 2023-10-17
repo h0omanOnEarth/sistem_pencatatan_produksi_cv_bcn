@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/faktur_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
@@ -14,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedPrint.d
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListFakturPenjualan extends StatefulWidget {
-  static const routeName = '/list_faktur_penjualan_screen';
+  static const routeName = '/administrasi/penjualan/faktur/list';
 
   const ListFakturPenjualan({super.key});
   @override
@@ -81,7 +82,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
+                const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -99,7 +100,7 @@ Widget _buildDesktopContent() {
 
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
 }
 
 
@@ -110,7 +111,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
+          const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0,),

@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMaterialReceive extends StatefulWidget {
-  static const routeName = '/list_material_receive_screen';
+  static const routeName = '/gudang/pembelian/penerimaan/list';
 
   const ListMaterialReceive({Key? key}) : super(key: key);
 

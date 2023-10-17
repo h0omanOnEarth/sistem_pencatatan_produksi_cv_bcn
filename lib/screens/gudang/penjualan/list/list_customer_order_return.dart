@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListCustomerOrderReturn extends StatefulWidget {
-  static const routeName = '/list_customer_order_return_screen';
+  static const routeName = '/gudang/penjualan/pengembalian/list';
 
   const ListCustomerOrderReturn({super.key});
   @override

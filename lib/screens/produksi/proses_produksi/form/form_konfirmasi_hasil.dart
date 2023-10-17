@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 
 
 class FormKonfirmasiProduksiScreen extends StatefulWidget {
-  static const routeName = '/form_konfirmasi_produksi_screen';
+  static const routeName = '/produksi/proses/konfirmasi/form';
   final String? productionConfirmationId;
   final String? statusPrc;
 

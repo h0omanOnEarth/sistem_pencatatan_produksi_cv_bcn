@@ -16,7 +16,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart'
 
 
 class FormMasterBOMScreen extends StatefulWidget {
-  static const routeName = '/form_master_bom_screen';
+  static const routeName = '/master/bom/form';
   final String? bomId; // Terima ID pelanggan jika dalam mode edit
   final String? productId;
 

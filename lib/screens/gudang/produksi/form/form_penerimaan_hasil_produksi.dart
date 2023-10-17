@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormPenerimaanHasilProduksi extends StatefulWidget {
-  static const routeName = '/form_penerimaan_hasil_produksi_screen';
+  static const routeName = '/gudang/produksi/penerimaan/form';
   final String? itemReceivceId;
   final String? productionConfirmationId;
   final String? statusIrc;

@@ -9,7 +9,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/success_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class FormMasterBarangScreen extends StatefulWidget {
-  static const routeName = '/form_master_barang_screen';
+  static const routeName = '/master/barang/form';
 
   final String? productId;
   const FormMasterBarangScreen({Key? key, this.productId}) : super(key: key);

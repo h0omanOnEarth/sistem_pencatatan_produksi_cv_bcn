@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListProductionOrder extends StatefulWidget {
-  static const routeName = '/list_production_order_screen';
+  static const routeName = '/produksi/proses/perintah/list';
 
   const ListProductionOrder({super.key});
   @override

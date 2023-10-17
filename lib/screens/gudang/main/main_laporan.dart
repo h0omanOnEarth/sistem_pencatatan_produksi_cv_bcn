@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainLaporanGudangScreen extends StatefulWidget {
-  static const routeName = '/main_laporan_gudang';
+  static const routeName = '/gudang/laporan';
   const MainLaporanGudangScreen({Key? key});
 
   @override

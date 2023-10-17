@@ -15,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardWithPrint.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListSuratJalan extends StatefulWidget {
-  static const routeName = '/list_surat_jalan_screen';
+  static const routeName = '/gudang/penjualan/shipment/list';
 
   const ListSuratJalan({super.key});
   @override

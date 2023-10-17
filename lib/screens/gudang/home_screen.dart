@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_home.dart';
 
 class HomeScreenGudang extends StatefulWidget {
-  static const routeName = '/home_screen_gudang';
+  static const routeName = '/gudang/home';
   const HomeScreenGudang({Key? key});
 
   @override

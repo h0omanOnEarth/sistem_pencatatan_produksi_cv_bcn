@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/pesanan_pelanggan_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_pesanan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
@@ -14,7 +15,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListPesananPelanggan extends StatefulWidget {
-  static const routeName = '/list_pesanan_pelanggan_screen';
+  static const routeName = '/administrasi/penjualan/pesanan/list';
 
   const ListPesananPelanggan({super.key});
   @override
@@ -82,7 +83,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
+                const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -102,7 +103,7 @@ Widget _buildDesktopContent() {
   void _navigateToScreen(int index, BuildContext context) {
   // final mainAdminsitrasiScreen = MainAdministrasi(selectedIndex: index);
   // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainAdminsitrasiScreen));
-  Routemaster.of(context).push('/main_admnistrasi?selectedIndex=$index');
+  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
 }
 
 
@@ -113,7 +114,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '/main_admnistrasi?selectedIndex=3',),
+          const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0,),

@@ -14,7 +14,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
 class ListMaterialRequest extends StatefulWidget {
-  static const routeName = '/list_material_request_screen';
+  static const routeName = '/produksi/proses/permintaan/list';
 
   const ListMaterialRequest({super.key});
   @override
