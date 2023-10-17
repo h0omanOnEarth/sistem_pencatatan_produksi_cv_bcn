@@ -34,7 +34,7 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
   int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-   int _selectedIndex = 2;
+   int _selectedIndex = 3;
   bool _isSidebarCollapsed = false; 
 
 @override

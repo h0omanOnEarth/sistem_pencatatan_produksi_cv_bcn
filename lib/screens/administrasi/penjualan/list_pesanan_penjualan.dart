@@ -35,7 +35,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
-  int _selectedIndex = 2;
+  int _selectedIndex = 3;
   bool _isSidebarCollapsed = false; 
 
 @override

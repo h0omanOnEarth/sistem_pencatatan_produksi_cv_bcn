@@ -35,7 +35,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
   int itemsPerPage = 5;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-  int _selectedIndex = 2;
+  int _selectedIndex = 3;
   bool _isSidebarCollapsed = false; 
 
   @override
