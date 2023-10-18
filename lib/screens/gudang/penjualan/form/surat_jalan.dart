@@ -92,7 +92,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
         title: Text('Surat Jalan Report'),
       ),
       body: PdfPreview(
-        allowPrinting: false, // Nonaktifkan opsi cetak
+        allowPrinting: true, // Nonaktifkan opsi cetak
         build: (format) => generateDocument(format),
       ),
     );
