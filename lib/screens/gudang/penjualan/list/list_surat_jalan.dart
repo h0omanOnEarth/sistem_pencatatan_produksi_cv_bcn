@@ -7,6 +7,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/surat_jalan_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/form_surat_jalan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/sidebar_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
@@ -280,6 +281,14 @@ Widget _buildMobileContent() {
                       if (confirmed == true) {
                         // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                       }
+                    }, 
+                    onPrintPressed: () async {
+                        Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SuratJalanReport(idShipment: data['id'])
+                        ),
+                      );
                     },
                     status: data['status_shp'],
                   );
