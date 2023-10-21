@@ -120,7 +120,7 @@ Widget _buildDesktopContent() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CustomAppBar(title: 'Barang', formScreen: FormMasterBarangScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=1',),
+                CustomAppBar(title: 'Barang', formScreen: FormMasterBarangScreen(), routes: routeName,),
                 const SizedBox(height: 24.0),
                 _buildSearchBar(),
                 const SizedBox(height: 16.0),
@@ -154,7 +154,7 @@ Widget _buildMobileContent() {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CustomAppBar(title: 'Barang', formScreen: FormMasterBarangScreen(), routes: routeName,),
+          CustomAppBar(title: 'Barang', formScreen: const FormMasterBarangScreen(), routes: routeName,),
           const SizedBox(height: 24.0),
           _buildSearchBar(),
           const SizedBox(height: 16.0),
