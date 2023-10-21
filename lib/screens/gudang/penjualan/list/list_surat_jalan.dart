@@ -283,7 +283,7 @@ Widget _buildMobileContent() {
                       }
                     }, 
                     onPrintPressed: () async {
-                        Navigator.push(
+                      Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => SuratJalanReport(idShipment: data['id'])

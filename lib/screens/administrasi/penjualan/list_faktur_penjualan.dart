@@ -6,6 +6,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/penjualan/faktur_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/faktur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/form_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
@@ -289,7 +290,12 @@ Widget _buildMobileContent() {
                       }
                     },
                     onPrintPressed: () async {
-
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => FakturPenjualanReport(idInvoice: data['id'])
+                        ),
+                      );
                     },
                     onFinished: () async {
                         final confirmed = await showDialog(

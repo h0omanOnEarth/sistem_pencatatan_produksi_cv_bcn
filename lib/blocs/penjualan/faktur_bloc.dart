@@ -196,8 +196,7 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
         if (event.updatedInvoice.detailInvoices.isNotEmpty) {
           int detailCount = 1;
           for (var detailInvoice in event.updatedInvoice.detailInvoices) {
-            final nextDetailInvoiceId =
-                '$event.invoiceId${'D${detailCount.toString().padLeft(3, '0')}'}';
+            final nextDetailInvoiceId ='$event.invoiceId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
             await detailInvoiceCollectionRef.add({
               'id': nextDetailInvoiceId,
