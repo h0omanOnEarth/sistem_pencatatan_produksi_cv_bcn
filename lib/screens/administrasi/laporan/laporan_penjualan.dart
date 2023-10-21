@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 
 //Local imports
@@ -37,6 +39,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+           Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=4');
+          },
+        ),
       ),
       body: Center(
         child: Column(
@@ -95,10 +103,21 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     sheet.getRangeByIndex(i + 3, 4).setText(order['status_pesanan']);
     sheet.getRangeByIndex(i + 3, 5).setDateTime(order['tanggal_pesan'].toDate());
     sheet.getRangeByIndex(i + 3, 6).setDateTime(order['tanggal_kirim'].toDate());
-    sheet.getRangeByIndex(i + 3, 7).setText(order['total_harga'].toString());
+    sheet.getRangeByIndex(i + 3, 7).setNumber(order['total_harga']);
     sheet.getRangeByIndex(i + 3, 8).setText(order['total_produk'].toString());
     sheet.getRangeByIndex(i + 3, 9).setText(order['satuan']);
   }
+
+  // Add "Total" to the left of the subtotal
+  final totalCell = sheet.getRangeByIndex(orders.length + 3, 6);
+  totalCell.setText('Total');
+  totalCell.cellStyle.bold = true;
+
+  final subtotalRange = sheet.getRangeByIndex(orders.length + 3, 7);
+  subtotalRange.setFormula('SUM(G3:G${orders.length + 2})');
+  subtotalRange.cellStyle.bold = true;
+  subtotalRange.cellStyle.backColor = '#C0C0C0';
+
 
   // Save and launch the excel.
   final List<int> bytes = workbook.saveAsStream();
