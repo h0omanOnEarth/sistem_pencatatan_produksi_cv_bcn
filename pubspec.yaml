@@ -42,15 +42,17 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   routemaster: ^1.0.1
-  path_provider: ^2.1.1
   pdf: ^3.10.4
   printing: ^5.11.0
-
-
+  excel: ^2.1.0
+  path_provider: ^2.1.1
+  syncfusion_flutter_xlsio: ^23.1.41
+  syncfusion_flutter_pdfviewer: ^23.1.41
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   bloc: ^7.2.1
+  open_file: ^3.3.2
 
 dev_dependencies:
   flutter_test:

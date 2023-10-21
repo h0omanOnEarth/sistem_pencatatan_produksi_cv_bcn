@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_pembelian.dart';
@@ -114,7 +115,8 @@ final routes = RouteMap(
       final supplierId = data.queryParameters['supplierId'];
       final supplierIdValue = supplierId ??'';
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
-      return MaterialPage(child: FormMasterSupplierScreen(supplierId: supplierId));
+      return MaterialPage(child: FormMasterSupplierScreen(supplierId: supplierIdValue));
     },
+    LaporanPesananPelanggan.routeName: (_)=> const MaterialPage(child: LaporanPesananPelanggan()),
   },
 );
