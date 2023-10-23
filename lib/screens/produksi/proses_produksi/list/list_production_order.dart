@@ -182,164 +182,213 @@ Widget _buildMobileContent() {
     );
   }
 
-
   Widget _buildProductionOrderList() {
-   return StreamBuilder<QuerySnapshot>(
-    stream: productionOrderRef.snapshots(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-          ),
-        );
-      } else if (snapshot.hasError) {
-        return Text('Error: ${snapshot.error}');
-      } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
-        return const Text('Tidak ada data perintah produksi.');
-      } else {
-        final querySnapshot = snapshot.data!;
-        final itemDocs = querySnapshot.docs;
+    return StreamBuilder<QuerySnapshot>(
+      stream: productionOrderRef.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data?.docs.isEmpty == true) {
+          return const Text('Tidak ada data perintah produksi.');
+        } else {
+          final querySnapshot = snapshot.data!;
+          final itemDocs = querySnapshot.docs;
 
-        final filteredDocs = itemDocs.where((doc) {
-          final keterangan = doc['id'] as String;
-          final status = doc['status_pro'] as String;
-          final tanggalRencana = doc['tanggal_rencana'] as Timestamp; // Tanggal Pesan
-          final tanggalProduksi = doc['tanggal_produksi'] as Timestamp; // Tanggal Kirim
+          // Anda perlu mendapatkan data 'material_usages' dari Firestore
+          final materialUsagesRef = FirebaseFirestore.instance.collection('material_usages');
 
-          bool isWithinDateRange = true;
-          if (selectedStartDate != null && selectedEndDate != null) {
-            isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) && tanggalRencana.toDate().isBefore(selectedEndDate!)) ||
-                (tanggalProduksi.toDate().isAfter(selectedStartDate!) && tanggalProduksi.toDate().isBefore(selectedEndDate!));
-          }
+          return StreamBuilder<QuerySnapshot>(
+            stream: materialUsagesRef.snapshots(),
+            builder: (context, materialUsagesSnapshot) {
+              if (materialUsagesSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                  ),
+                );
+              } else if (materialUsagesSnapshot.hasError) {
+                return Text('Error: ${materialUsagesSnapshot.error}');
+              } else if (!materialUsagesSnapshot.hasData || materialUsagesSnapshot.data?.docs.isEmpty == true) {
+                return const Text('Tidak ada data material usages.');
+              } else {
+                final materialUsagesQuerySnapshot = materialUsagesSnapshot.data!;
+                final materialUsagesDocs = materialUsagesQuerySnapshot.docs;
 
-          return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
-              (selectedStatus.isEmpty || status == selectedStatus) &&
-              isWithinDateRange);
-        }).toList();
+                final filteredDocs = itemDocs.where((doc) {
+                  final keterangan = doc['id'] as String;
+                  final status = doc['status_pro'] as String;
+                  final tanggalRencana = doc['tanggal_rencana'] as Timestamp;
+                  final tanggalProduksi = doc['tanggal_produksi'] as Timestamp;
 
-        // Implementasi Pagination
-        final endIndex = startIndex + itemsPerPage;
-        final paginatedDocs = filteredDocs.sublist(
-          startIndex,
-          endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
-        );
+                  bool isWithinDateRange = true;
+                  if (selectedStartDate != null && selectedEndDate != null) {
+                    isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) &&
+                        tanggalRencana.toDate().isBefore(selectedEndDate!)) ||
+                        (tanggalProduksi.toDate().isAfter(selectedStartDate!) &&
+                            tanggalProduksi.toDate().isBefore(selectedEndDate!));
+                  }
 
-        // Mengatur tombol "Prev" dan "Next"
-        isPrevButtonDisabled = startIndex == 0;
-        isNextButtonDisabled = endIndex >= filteredDocs.length;
+                  return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                      (selectedStatus.isEmpty || status == selectedStatus) &&
+                      isWithinDateRange);
+                }).toList();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListView.builder(
-              shrinkWrap: true,
-              itemCount: paginatedDocs.length,
-              itemBuilder: (context, index) {
-                final data = paginatedDocs[index].data() as Map<String, dynamic>;
-                final id = data['id'] as String;
-                final info = {
-                  'ID Produk': data['product_id'],
-                  'ID BOM': data['bom_id'],
-                  'Tanggal Perintah Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()), 
-                  'Tanggal Produksi': DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()),
-                  'Catatan': data['catatan'],
-                  'Status': data['status_pro'] 
-                };
-                return ListCard(
-                  title: id,
-                  description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FormPerintahProduksiScreen(
-                          productionOrderId: data['id'],
-                          productId: data['product_id'],
-                          statusPro: data['status_pro'],
-                        )
-                      ),
-                    );
-                  },
-                  onDeletePressed: () async {
-                    final confirmed = await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Konfirmasi Hapus"),
-                          content: const Text("Anda yakin ingin menghapus perintah produksi ini?"),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text("Batal"),
-                              onPressed: () {
-                                Navigator.of(context).pop(false);
+                // Implementasi Pagination
+                final endIndex = startIndex + itemsPerPage;
+                final paginatedDocs = filteredDocs.sublist(
+                  startIndex,
+                  endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+                );
+
+                // Mengatur tombol "Prev" dan "Next"
+                isPrevButtonDisabled = startIndex == 0;
+                isNextButtonDisabled = endIndex >= filteredDocs.length;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: paginatedDocs.length,
+                      itemBuilder: (context, index) {
+                        final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                        final id = data['id'] as String;
+                        // Dapatkan batch yang sesuai dengan produksi
+                        final batch = calculateCurrentBatch(materialUsagesDocs, data['id']);
+                        // Dapatkan nilai progress bar
+                        final progressBarValue = calculateProgressBarValue(materialUsagesDocs, data['id'], batch);
+
+                        final info = {
+                          'ID Produk': data['product_id'],
+                          'ID BOM': data['bom_id'],
+                          'Tanggal Perintah Produksi':
+                              DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()),
+                          'Tanggal Produksi':
+                              DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()),
+                          'Catatan': data['catatan'],
+                          'Status': data['status_pro'],
+                          'Current Batch': batch
+                        };
+                        return ListCard(
+                          title: id,
+                          description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FormPerintahProduksiScreen(
+                                  productionOrderId: data['id'],
+                                  productId: data['product_id'],
+                                  statusPro: data['status_pro'],
+                                ),
+                              ),
+                            );
+                          },
+                          onDeletePressed: () async {
+                            final confirmed = await showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Konfirmasi Hapus"),
+                                  content: const Text("Anda yakin ingin menghapus perintah produksi ini?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: const Text("Batal"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: const Text("Hapus"),
+                                      onPressed: () async {
+                                        final productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
+                                        productionOrderBloc.add(DeleteProductionOrderEvent(data['id']));
+                                        Navigator.of(context).pop(true);
+                                      },
+                                    ),
+                                  ],
+                                );
                               },
-                            ),
-                            TextButton(
-                              child: const Text("Hapus"),
-                              onPressed: () async {
-                                final productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
-                                productionOrderBloc.add(DeleteProductionOrderEvent(paginatedDocs[index].id));
-                                Navigator.of(context).pop(true);
-                              },
-                            ),
-                          ],
+                            );
+
+                            if (confirmed == true) {
+                              // Data telah dihapus, tidak perlu melakukan apa-apa lagi
+                            }
+                          },
+                          status: data['status_pro'],
+                          progressBarValue: progressBarValue,
                         );
                       },
-                    );
-
-                    if (confirmed == true) {
-                      // Data telah dihapus, tidak perlu melakukan apa-apa lagi
-                    }
-                  },
-                  status: data['status_pro'],
+                    ),
+                    const SizedBox(height: 16.0,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ElevatedButton(
+                          onPressed: isPrevButtonDisabled ? null : () {
+                            setState(() {
+                              startIndex -= itemsPerPage;
+                              if (startIndex < 0) {
+                                startIndex = 0;
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                          ),
+                          child: const Text("Prev"),
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton(
+                          onPressed: isNextButtonDisabled ? null : () {
+                            setState(() {
+                              startIndex += itemsPerPage;
+                              if (startIndex >= filteredDocs.length) {
+                                startIndex = filteredDocs.length - itemsPerPage;
+                              }
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                          ),
+                          child: const Text("Next"),
+                        ),
+                      ],
+                    ),
+                  ],
                 );
-              },
-            ),
-            const SizedBox(height: 16.0,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: isPrevButtonDisabled
-                      ? null
-                      : () {
-                    setState(() {
-                      startIndex -= itemsPerPage;
-                      if (startIndex < 0) {
-                        startIndex = 0;
-                      }
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
-                  ),
-                  child: const Text("Prev"),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: isNextButtonDisabled
-                      ? null
-                      : () {
-                    setState(() {
-                      startIndex += itemsPerPage;
-                      if (startIndex >= filteredDocs.length) {
-                        startIndex = filteredDocs.length - itemsPerPage;
-                      }
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
-                  ),
-                  child: const Text("Next"),
-                ),
-              ],
-            ),  
-          ],
-        );
+              }
+            },
+          );
+        }
+      },
+    );
+  }
+
+  String calculateCurrentBatch(List<QueryDocumentSnapshot> materialUsagesDocs, String productionOrderId) {
+    for (var usage in materialUsagesDocs) {
+      if (usage['production_order_id'] == productionOrderId) {
+        return usage['batch'] ?? 'Pencampuran';
       }
-    },
-  ); 
+    }
+    return 'Pencampuran'; // Jika tidak ditemukan, kembalikan 'Pencampuran'
+  }
+
+
+  double calculateProgressBarValue(List<QueryDocumentSnapshot> materialUsagesDocs, String productionOrderId, String productionOrderBatch) {
+    if (materialUsagesDocs.any((usage) => usage['production_order_id'] == productionOrderId && usage['batch'] == 'Pencetakan')) {
+      return 0.9; // Jika batch 'Pencetakan' ada, progress bar 90%
+    } else if (materialUsagesDocs.any((usage) => usage['production_order_id'] == productionOrderId && usage['batch'] == 'Sheet')) {
+      return 0.6; // Jika batch 'Sheet' ada, progress bar 60%
+    } else {
+      return 0.3; // Jika keduanya tidak ada, progress bar 30%
+    }
   }
 
   Future<void> _showFilterDialog(BuildContext context) async {

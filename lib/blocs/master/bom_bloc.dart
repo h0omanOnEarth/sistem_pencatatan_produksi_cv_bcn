@@ -196,24 +196,25 @@ class BillOfMaterialBloc extends Bloc<BillOfMaterialEvent, BillOfMaterialBlocSta
     } else if (event is DeleteBillOfMaterialEvent) {
       yield LoadingState();
       try {
-        // Get a reference to the BOM document to be deleted
-        final bomToDeleteRef = _firestore.collection('bill_of_materials').doc(event.bomId);
+        // Query to find the BOM with the specified ID
+        final bomQuery = await _firestore
+            .collection('bill_of_materials')
+            .where('id', isEqualTo: event.bomId)
+            .get();
 
-        // Get a reference to the 'bom_details' subcollection within the BOM document
-        final bomDetailsCollectionRef = bomToDeleteRef.collection('detail_bill_of_materials');
+        if (bomQuery.docs.isNotEmpty) {
+          // Get a reference to the BOM document to be updated
+          final bomToUpdateRef = bomQuery.docs.first.reference;
 
-        // Delete all documents in the 'bom_details' subcollection
-        final bomDetailDocs = await bomDetailsCollectionRef.get();
-        for (var doc in bomDetailDocs.docs) {
-          await doc.reference.delete();
+          // Update the 'status' field to 0
+          await bomToUpdateRef.update({'status': 0});
+
+          yield BillOfMaterialDeletedState();
+        } else {
+          yield ErrorState("Bill Of Material not found.");
         }
-
-        // After deleting all documents in the subcollection, delete the BOM document itself
-        await bomToDeleteRef.delete();
-
-        yield BillOfMaterialDeletedState();
       } catch (e) {
-        yield ErrorState("Failed to delete Bill Of Material.");
+        yield ErrorState("Failed to update Bill Of Material status.");
       }
     }
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/homeService.dart';
 
 class HomeScreenProduksi extends StatefulWidget {
   static const routeName = '/produksi/home';
@@ -129,7 +129,9 @@ class CardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(),
+      future: HomeService().fetchFirestoreData(['production_orders',
+    'material_usages',
+    'products']),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -245,28 +247,3 @@ class CardList extends StatelessWidget {
   }
 }
 
-Future<Map<String, dynamic>> fetchFirestoreData() async {
-  final firestore = FirebaseFirestore.instance;
-  final collections = [
-    'production_orders',
-    'material_usages',
-    'products'
-  ];
-
-  final data = <String, dynamic>{};
-
-  for (final collectionName in collections) {
-    final querySnapshot = await firestore.collection(collectionName).get();
-    final collectionData = querySnapshot.docs.map((doc) => doc.data()).toList();
-
-    if (collectionName == 'production_orders') {
-      // Filter production_orders dengan status_pro == 'Dalam Proses'
-      final filteredProductionOrders = collectionData.where((order) => order['status_pro'] == 'Dalam Proses').toList();
-      data[collectionName] = filteredProductionOrders;
-    } else {
-      data[collectionName] = collectionData;
-    }
-  }
-
-  return data;
-}

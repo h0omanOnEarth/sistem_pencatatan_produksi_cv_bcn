@@ -3,17 +3,20 @@ import 'package:flutter/material.dart';
 class ListCard extends StatelessWidget {
   final String title;
   final String description;
-  final VoidCallback onDeletePressed; // Properti onDeletePressed
-  final VoidCallback onTap; // Properti onTap
+  final VoidCallback onDeletePressed;
+  final VoidCallback onTap;
   final String? status;
+  final double? progressBarValue; // Tambahkan parameter progressBarValue
 
-  const ListCard({super.key, 
+  const ListCard({
+    Key? key, // Tambahkan key yang hilang
     required this.title,
     required this.description,
     required this.onDeletePressed,
     required this.onTap,
     this.status,
-  });
+    this.progressBarValue, // Tambahkan parameter progressBarValue
+  }) : super(key: key); // Tambahkan key ke dalam constructor
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +32,7 @@ class ListCard extends StatelessWidget {
         ),
       ),
       child: InkWell(
-        onTap: onTap, // Panggil onTap saat card ditekan
+        onTap: onTap,
         child: SizedBox(
           width: screenWidth,
           child: Container(
@@ -44,7 +47,7 @@ class ListCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           fontSize: 18,
-                          fontWeight: FontWeight.normal, // Ganti FontWeight ke bold
+                          fontWeight: FontWeight.normal,
                         ),
                         textAlign: TextAlign.start,
                       ),
@@ -58,31 +61,46 @@ class ListCard extends StatelessWidget {
                         textAlign: TextAlign.start,
                       ),
                       const SizedBox(height: 8.0),
+                      if (progressBarValue != null) 
+                      ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0), 
+                      child: LinearProgressIndicator(
+                        value: progressBarValue,
+                        minHeight: 20,
+                        backgroundColor: Colors.grey,
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    ),
+                    if (progressBarValue != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text('${(progressBarValue! * 100).toStringAsFixed(0)}% Complete'),
+                    ),
                     ],
                   ),
                 ),
-                if(status==null || status!="Selesai")
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                    width: 35.0,
-                    height: 35.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: Colors.red,
-                    ),
-                    child: IconButton(
-                      iconSize: 21.0,
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
+                if (status == null || status != "Selesai")
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: 35.0,
+                        height: 35.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: Colors.red,
+                        ),
+                        child: IconButton(
+                          iconSize: 21.0,
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          onPressed: onDeletePressed,
+                        ),
                       ),
-                      onPressed: onDeletePressed,
-                    ),
+                    ],
                   ),
-                  ],
-                ),
               ],
             ),
           ),
