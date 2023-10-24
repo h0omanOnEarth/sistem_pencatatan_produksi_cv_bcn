@@ -274,7 +274,6 @@ class CardList extends StatelessWidget {
       },
     );
   }
-  // ...
 }
 
 Future<List<String>> fetchFirestoreData(
