@@ -14,7 +14,7 @@ class CustomerOrderChart extends StatelessWidget{
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Penggunaan Material',
+              'Produk Berdasarkan Pesanan Pelanggan',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

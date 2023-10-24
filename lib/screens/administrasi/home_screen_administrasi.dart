@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
@@ -184,7 +185,7 @@ class CombinedCard extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final data = snapshot.data as List<String>;
+          final data = snapshot.data as List<Map>;
           final itemCount = data.length; // Hitung jumlah data
 
           return Card(
@@ -204,7 +205,7 @@ class CombinedCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 200, // Atur tinggi card sesuai kebutuhan Anda
+                  height: MediaQuery.of(context).size.height * 0.3, // Atur tinggi card sesuai kebutuhan Anda
                   child: CardList(
                     collectionName: collectionName,
                     statusField: statusField,
@@ -247,11 +248,12 @@ class CardList extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final data = snapshot.data as List<String>;
+          final data = snapshot.data as List<Map>;
           return ListView.builder(
-            scrollDirection: Axis.vertical, // Mengubah scroll direction ke vertical
+            scrollDirection: Axis.vertical,
             itemCount: data.length,
             itemBuilder: (context, index) {
+              final itemData = data[index];
               return Container(
                 margin: const EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
@@ -263,8 +265,18 @@ class CardList extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(data[index]),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ID: ${itemData['id']}'),
+                      Text('Total Barang: ${itemData['total_barang']}'),
+                      Text('Total Harga: ${itemData['total_harga']}'),
+                      // Tambahan sesuai dengan koleksi (customer_orders atau delivery_orders)
+                      if (collectionName == 'customer_orders')
+                        Text('Customer ID: ${itemData['customer_id']}'),
+                      if (collectionName == 'delivery_orders')
+                        Text('Customer Order ID: ${itemData['customer_order_id']}'),
+                    ],
                   ),
                 ),
               );
@@ -276,11 +288,38 @@ class CardList extends StatelessWidget {
   }
 }
 
-Future<List<String>> fetchFirestoreData(
+Future<List<Map>> fetchFirestoreData(
   String collectionName, String statusField, String statusValue, String idField) async {
   final firestore = FirebaseFirestore.instance;
   final querySnapshot = await firestore.collection(collectionName).where(statusField, isEqualTo: statusValue).get();
-  final data = querySnapshot.docs.map((doc) => doc[idField] as String).toList();
+  final data = querySnapshot.docs.map((doc) {
+    if (collectionName == 'customer_orders') {
+      final customerID = doc['customer_id'] as String;
+      final orderDate = doc['tanggal_pesan'] as Timestamp;
+      final totalProducts = doc['total_produk'] as int;
+      final totalPrice = doc['total_harga'] as double;
+      return {
+        'id': doc[idField] as String,
+        'customer_id': customerID,
+        'tanggal_pesan': DateFormat('dd/MM/yyyy').format(orderDate.toDate()), // Format the date
+        'total_produk': totalProducts.toString(),
+        'total_harga': totalPrice.toStringAsFixed(2),
+      };
+    } else if (collectionName == 'delivery_orders') {
+      final customerOrderID = doc['customer_order_id'] as String;
+      final deliveryDate = doc['tanggal_pesanan_pengiriman'] as Timestamp;
+      final totalItems = doc['total_barang'] as int;
+      final totalPrice = doc['total_harga'] as double;
+      return {
+        'id': doc[idField] as String,
+        'customer_order_id': customerOrderID,
+        'tanggal_pesanan_pengiriman': DateFormat('dd/MM/yyyy').format(deliveryDate.toDate()), // Format the date
+        'total_barang': totalItems.toString(),
+        'total_harga': totalPrice.toStringAsFixed(2),
+      };
+    }
+    return {};
+  }).toList();
   return data;
 }
 

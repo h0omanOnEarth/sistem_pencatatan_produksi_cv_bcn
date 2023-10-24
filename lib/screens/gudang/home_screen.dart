@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_home.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
 
 class HomeScreenGudang extends StatefulWidget {
   static const routeName = '/gudang/home';
@@ -13,7 +13,7 @@ class HomeScreenGudang extends StatefulWidget {
 }
 
 class _HomeScreenGudangState extends State<HomeScreenGudang> {
-  final String userName = "John Doe";
+ final String userName = "John Doe";
 
   @override
   Widget build(BuildContext context) {
@@ -62,9 +62,9 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                               color: Colors.white,
                             ),
                             padding: const EdgeInsets.all(4),
-                            child: ClipOval( // Gunakan ClipOval untuk membuat gambar menjadi lingkaran
+                            child: ClipOval(
                               child: Image.asset(
-                                'images/profile.jpg', // Ganti dengan nama file gambar profil yang sesuai
+                                'images/profile.jpg',
                                 width: MediaQuery.of(context).size.width * 0.05,
                                 height: MediaQuery.of(context).size.width * 0.05,
                                 fit: BoxFit.cover,
@@ -99,10 +99,9 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                             ),
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(4),
                             child: IconButton(
                               onPressed: () {
-                                // Aksi untuk tombol notifikasi
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -121,24 +120,61 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                       ),
                     ),
                   ),
-                  // CardList(), // Tampilkan tiga card dengan daftar di bawahnya
+                  const SizedBox(height: 16), // Tambahkan jarak antara card dan konten di bawahnya
+                  const Row(children: [
+                    Expanded(child: CombinedCard(
+                    collectionName: 'customer_orders',
+                    statusField: 'status_pesanan',
+                    statusValue: 'Dalam Proses',
+                    idField: 'id',
+                    title: 'Pesanan Pelanggan',
+                  ),),
+                  SizedBox(height: 16), // Tambahkan jarak antara card
+                  Expanded(child: CombinedCard(
+                    collectionName: 'delivery_orders',
+                    statusField: 'status_pesanan_pengiriman',
+                    statusValue: 'Dalam Proses',
+                    idField: 'id',
+                    title: 'Perintah Pengiriman',
+                  ),)
+                  ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(child: CustomerOrderChart()),
+                      const SizedBox(width: 8.0,),
+                      Expanded(child: MaterialUsageChartCard())
+                    ],
+                  )
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 }
 
-class CardList extends StatelessWidget {
-  final int maxItems = 5;
+class CombinedCard extends StatelessWidget {
+  final String collectionName;
+  final String statusField;
+  final String statusValue;
+  final String idField;
+  final String title;
+
+  const CombinedCard({
+    required this.collectionName,
+    required this.statusField,
+    required this.statusValue,
+    required this.idField,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(),
+      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -147,62 +183,88 @@ class CardList extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
-          final data = snapshot.data as Map<String, dynamic>;
+          final data = snapshot.data as List<String>;
+          final itemCount = data.length; // Hitung jumlah data
+
+          return Card(
+            color: Colors.white,
+            margin: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    '$title On Process ($itemCount)', // Menambahkan jumlah data di dalam kurung
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 200, // Atur tinggi card sesuai kebutuhan Anda
+                  child: CardList(
+                    collectionName: collectionName,
+                    statusField: statusField,
+                    statusValue: statusValue,
+                    idField: idField,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+class CardList extends StatelessWidget {
+  final String collectionName;
+  final String statusField;
+  final String statusValue;
+  final String idField;
+  final int maxItems = 5;
+
+  const CardList({
+    required this.collectionName,
+    required this.statusField,
+    required this.statusValue,
+    required this.idField,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          final data = snapshot.data as List<String>;
           return ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical, // Mengubah scroll direction ke vertical
             itemCount: data.length,
             itemBuilder: (context, index) {
-              final collectionName = data.keys.toList()[index];
-              final collectionData = data[collectionName] as List<Map<String, dynamic>>;
-              final items = collectionData.map((item) {
-                final DateFormat dateFormat = DateFormat('dd MMMM y');
-                String formattedDate = '';
-
-                if (collectionName == 'purchase_requests') {
-                  formattedDate = dateFormat.format(item['tanggal_permintaan'].toDate());
-                } else if (collectionName == 'material_transfers') {
-                  formattedDate = dateFormat.format(item['tanggal_pemindahan'].toDate());
-                } else if (collectionName == 'item_receives') {
-                  formattedDate = dateFormat.format(item['tanggal_penerimaan'].toDate());
-                } else if (collectionName == 'material_transforms') {
-                  formattedDate = dateFormat.format(item['tanggal_pengubahan'].toDate());
-                }
-
-                String statusText = '';
-                if (item['status'] == 1) {
-                  statusText = 'Aktif';
-                } else if (item['status'] == 0) {
-                  statusText = 'Tidak Aktif';
-                }
-
-                switch (collectionName) {
-                  case 'products':
-                    return 'ID: ${item['id']}, Nama: ${item['nama']}, Stok: ${item['stok']}, Status: $statusText';
-                  case 'materials':
-                    return 'ID: ${item['id']}, Nama: ${item['nama']}, Stok: ${item['stok']}, Status: $statusText';
-                  case 'purchase_requests':
-                    return 'ID: ${item['id']}, Tanggal Permintaan: $formattedDate, Jumlah: ${item['jumlah']}, Satuan: ${item['satuan']}, Status: ${item['status_mtr']}';
-                  case 'material_transfers':
-                    return 'ID: ${item['id']}, Tanggal Pemindahan: $formattedDate, Status: ${item['status_mtr']}';
-                  case 'item_receives':
-                    return 'ID: ${item['id']}, Tanggal Penerimaan: $formattedDate, Production Confirmation ID: ${item['production_confirmation_id']}, Status: ${item['status_irc']}';
-                  case 'material_transforms':
-                    return 'ID: ${item['id']}, Tanggal Pengubahan: $formattedDate, Jumlah Hasil: ${item['jumlah_hasil']}, Satuan Hasil: ${item['satuan_hasil']}, Status: ${item['status_mtf']}';
-                  default:
-                    return '';
-                }
-              }).toList();
-
-              while (items.length < maxItems) {
-                items.add('');
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: CardItemHome(
-                  collectionName,
-                  items,
+              return Container(
+                margin: const EdgeInsets.all(8.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.grey[400]!,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(data[index]),
+                  ),
                 ),
               );
             },
@@ -211,26 +273,12 @@ class CardList extends StatelessWidget {
       },
     );
   }
+}
 
-  Future<Map<String, dynamic>> fetchFirestoreData() async {
-    final firestore = FirebaseFirestore.instance;
-    final collections = [
-      'products',
-      'materials',
-      'purchase_requests',
-      'material_transfers',
-      'item_receives',
-      'material_transforms',
-    ];
-
-    final data = <String, dynamic>{};
-
-    for (final collectionName in collections) {
-      final querySnapshot = await firestore.collection(collectionName).get();
-      final collectionData = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-      data[collectionName] = collectionData;
-    }
-
-    return data;
-  }
+Future<List<String>> fetchFirestoreData(
+  String collectionName, String statusField, String statusValue, String idField) async {
+  final firestore = FirebaseFirestore.instance;
+  final querySnapshot = await firestore.collection(collectionName).where(statusField, isEqualTo: statusValue).get();
+  final data = querySnapshot.docs.map((doc) => doc[idField] as String).toList();
+  return data;
 }
