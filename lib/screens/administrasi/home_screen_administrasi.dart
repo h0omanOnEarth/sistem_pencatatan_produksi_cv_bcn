@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
 
 
 class HomeScreenAdministrasi extends StatefulWidget {
@@ -121,7 +122,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                     ),
                   ),
                   const SizedBox(height: 16), // Tambahkan jarak antara card dan konten di bawahnya
-                  Row(children: [
+                  const Row(children: [
                     Expanded(child: CombinedCard(
                     collectionName: 'customer_orders',
                     statusField: 'status_pesanan',
@@ -129,7 +130,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                     idField: 'id',
                     title: 'Pesanan Pelanggan',
                   ),),
-                  const SizedBox(height: 16), // Tambahkan jarak antara card
+                  SizedBox(height: 16), // Tambahkan jarak antara card
                   Expanded(child: CombinedCard(
                     collectionName: 'delivery_orders',
                     statusField: 'status_pesanan_pengiriman',
@@ -139,57 +140,13 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                   ),)
                   ],
                   ),
-                  Container(
-                  height: MediaQuery.of(context).size.height * 0.35, 
-                  margin: const EdgeInsets.all(16.0),
-                  child: Card(
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: Column(
-                      children: [
-                        const ListTile(
-                          title: Text(
-                            'Produk berdasarkan Pesanan Pelanggan',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Expanded(
-                          child: FutureBuilder(
-                            future: fetchChartData(), // Mengambil data untuk chart
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError) {
-                                return Text('Error: ${snapshot.error}');
-                              } else {
-                                final chartData = snapshot.data as List<DataPoint>;
-                                return PieChart(
-                                  PieChartData(
-                                    sections: chartData
-                                        .asMap()
-                                        .entries
-                                        .map(
-                                          (entry) => PieChartSectionData(
-                                            color: getColor(entry.key), // Warna sesuai indeks
-                                            value: entry.value.value,
-                                            title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                  Row(
+                    children: [
+                      Expanded(child: CustomerOrderChart()),
+                      const SizedBox(width: 8.0,),
+                      Expanded(child: MaterialUsageChartCard())
+                    ],
+                  )
                 ],
               ),
             ),
@@ -207,7 +164,7 @@ class CombinedCard extends StatelessWidget {
   final String idField;
   final String title;
 
-  CombinedCard({
+  const CombinedCard({
     required this.collectionName,
     required this.statusField,
     required this.statusValue,
@@ -246,7 +203,7 @@ class CombinedCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 200, // Atur tinggi card sesuai kebutuhan Anda
                   child: CardList(
                     collectionName: collectionName,
@@ -263,53 +220,6 @@ class CombinedCard extends StatelessWidget {
     );
   }
 }
-
- Future<List<DataPoint>> fetchChartData() async {
-    // Dapatkan data dari Firestore dan hitung total berdasarkan product_id
-    final firestore = FirebaseFirestore.instance;
-    final querySnapshot =
-        await firestore.collection('customer_orders').get();
-    final data = querySnapshot.docs;
-
-    final chartData = <String, double>{};
-    for (final doc in data) {
-      final detailSnapshot =
-          await doc.reference.collection('detail_customer_orders').get();
-      final detailData = detailSnapshot.docs;
-      for (final detailDoc in detailData) {
-        final productId = detailDoc['product_id'] as String;
-        final quantity = detailDoc['jumlah'] as double;
-
-        chartData.update(productId, (value) => value + quantity,
-            ifAbsent: () => quantity);
-      }
-    }
-
-    final result = <DataPoint>[];
-    chartData.forEach((key, value) {
-      result.add(DataPoint(key, value));
-    });
-    return result;
-}
-
-Color getColor(int index) {
-    // Atur warna sesuai preferensi Anda, misalnya:
-    final List<Color> colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.red,
-    ];
-    return colors[index % colors.length];
-}
-
-class DataPoint {
-  final String label;
-  final double value;
-
-  DataPoint(this.label, this.value);
-}
-
 
 class CardList extends StatelessWidget {
   final String collectionName;
@@ -339,16 +249,16 @@ class CardList extends StatelessWidget {
         } else {
           final data = snapshot.data as List<String>;
           return ListView.builder(
-            scrollDirection: Axis.horizontal,
+            scrollDirection: Axis.vertical, // Mengubah scroll direction ke vertical
             itemCount: data.length,
             itemBuilder: (context, index) {
               return Container(
-                margin: const EdgeInsets.all(8.0), // Atur jarak antar card
+                margin: const EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(10), // Atur radius corner
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: Colors.grey[400]!, // Warna abu-abu (Grey 400)
+                    color: Colors.grey[400]!,
                   ),
                 ),
                 child: Padding(
