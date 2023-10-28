@@ -73,9 +73,9 @@ Future<List<DataPoint>> fetchChartData() async {
     final detailData = detailSnapshot.docs;
     for (final detailDoc in detailData) {
       final productId = detailDoc['product_id'] as String;
-      final quantity = detailDoc['jumlah'] as double;
+      final quantity = detailDoc['jumlah'] as int;
 
-      chartData.update(productId, (value) => value + quantity, ifAbsent: () => quantity);
+      chartData.update(productId, (value) => value + quantity, ifAbsent: () => quantity.toDouble());
     }
   }
 
