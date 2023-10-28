@@ -91,9 +91,9 @@ Future<List<DataPoint>> fetchProductChartData() async {
     final productInfo = await productService.fetchProductInfo(id); // Ganti dengan fetchProductInfo yang sesuai
 
     final productName = productInfo['nama'] as String;
-    final stok = productInfo['stok'] as double;
+    final stok = productInfo['stok'] as int;
 
-    chartData.add(DataPoint(productName, stok));
+    chartData.add(DataPoint(productName, stok as double));
   }
   return chartData;
 }
