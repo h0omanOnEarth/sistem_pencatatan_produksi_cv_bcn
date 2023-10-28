@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 
-class CustomerOrderChart extends StatelessWidget{
-    @override
+class CustomerOrderChart extends StatelessWidget {
+  const CustomerOrderChart({super.key});
+
+  @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
@@ -26,41 +28,41 @@ class CustomerOrderChart extends StatelessWidget{
             height: 300, // Atur tinggi card sesuai kebutuhan Anda
             padding: const EdgeInsets.all(16.0),
             child: FutureBuilder(
-            future: fetchChartData(), // Mengambil data untuk chart
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final chartData = snapshot.data as List<DataPoint>;
-                return PieChart(
-                  PieChartData(
-                    sections: chartData
-                        .asMap()
-                        .entries
-                        .map(
-                          (entry) => PieChartSectionData(
-                            color: getColor(entry.key), // Warna sesuai indeks
-                            value: entry.value.value,
-                            title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
-                          ),
-                        )
-                        .toList(),
-                  ),
-                );
-              }
-            },
-          ),
+              future: fetchChartData(), // Mengambil data untuk chart
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final chartData = snapshot.data as List<DataPoint>;
+                  return PieChart(
+                    PieChartData(
+                      sections: chartData
+                          .asMap()
+                          .entries
+                          .map(
+                            (entry) => PieChartSectionData(
+                              color: getColor(entry.key), // Warna sesuai indeks
+                              value: entry.value.value,
+                              title:
+                                  '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  );
+                }
+              },
+            ),
           )
         ],
       ),
     );
   }
 }
-
 
 Future<List<DataPoint>> fetchChartData() async {
   final firestore = FirebaseFirestore.instance;
@@ -69,7 +71,8 @@ Future<List<DataPoint>> fetchChartData() async {
 
   final chartData = <String, double>{};
   for (final doc in data) {
-    final detailSnapshot = await doc.reference.collection('detail_customer_orders').get();
+    final detailSnapshot =
+        await doc.reference.collection('detail_customer_orders').get();
     final detailData = detailSnapshot.docs;
     for (final detailDoc in detailData) {
       final productId = detailDoc['product_id'] as String;
@@ -83,21 +86,21 @@ Future<List<DataPoint>> fetchChartData() async {
   for (final productId in chartData.keys) {
     final productInfo = await ProductService().getProductInfo(productId);
     final productName = productInfo?['nama'] as String;
-    final value = chartData[productId] as int;
+    final value = chartData[productId];
     result.add(DataPoint(productName, value as double));
   }
   return result;
 }
 
 Color getColor(int index) {
-    // Atur warna sesuai preferensi Anda, misalnya:
-    final List<Color> colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.red,
-    ];
-    return colors[index % colors.length];
+  // Atur warna sesuai preferensi Anda, misalnya:
+  final List<Color> colors = [
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.red,
+  ];
+  return colors[index % colors.length];
 }
 
 class DataPoint {

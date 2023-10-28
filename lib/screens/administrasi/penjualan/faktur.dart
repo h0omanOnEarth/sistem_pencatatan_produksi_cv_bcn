@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/Pdf.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
@@ -10,7 +10,8 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 class FakturPenjualanReport extends StatefulWidget {
   final String idInvoice;
 
-  const FakturPenjualanReport({Key? key, required this.idInvoice}) : super(key: key);
+  const FakturPenjualanReport({Key? key, required this.idInvoice})
+      : super(key: key);
 
   @override
   State<FakturPenjualanReport> createState() => _FakturPenjualanReportState();
@@ -66,8 +67,10 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
 
           // Ambil data produk jika diperlukan
           // Misalnya, fetchProductInfo(productId) harus diimplementasikan.
-          Map<String, dynamic> productInfo = await productService.fetchProductInfo(productId);
-          String productName = productInfo.containsKey('nama') ? productInfo['nama'] : 'N/A';
+          Map<String, dynamic> productInfo =
+              await productService.fetchProductInfo(productId);
+          String productName =
+              productInfo.containsKey('nama') ? productInfo['nama'] : 'N/A';
 
           // Tambahkan informasi harga dan subtotal
           detail['harga'] = harga;
@@ -125,7 +128,8 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Container(
-                    child: pw.Image(pw.MemoryImage(logoImage), width: 100, height: 100),
+                    child: pw.Image(pw.MemoryImage(logoImage),
+                        width: 100, height: 100),
                   ),
                   pw.SizedBox(width: 20),
                   pw.Column(
@@ -133,10 +137,11 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                     children: [
                       pw.Text('CV. Berlian Cangkir Nusantara',
                           style: const pw.TextStyle(fontSize: 20)),
-                      pw.Text('Jl. Panglima Sudirman No.9, Sidoarjo, Jawa Timur',
+                      pw.Text(
+                          'Jl. Panglima Sudirman No.9, Sidoarjo, Jawa Timur',
                           style: const pw.TextStyle(fontSize: 20)),
                       pw.Text('031 - 7881911',
-                        style: const pw.TextStyle(fontSize: 20)),
+                          style: const pw.TextStyle(fontSize: 20)),
                     ],
                   ),
                 ],
@@ -146,17 +151,18 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                 children: [
                   pw.Text('Nomor Faktur: ',
                       style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text(id ?? 'N/A',
-                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(id ?? 'N/A', style: const pw.TextStyle(fontSize: 20)),
                 ],
               ),
               pw.Row(
                 children: [
                   pw.Text('Tanggal Pembuatan: ',
                       style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text(tanggalPembuatan != null
-                      ? DateFormat('dd/MM/yyyy').format(tanggalPembuatan.toDate())
-                      : 'N/A', // Sesuaikan dengan format tanggal yang sesuai
+                  pw.Text(
+                      tanggalPembuatan != null
+                          ? DateFormat('dd/MM/yyyy')
+                              .format(tanggalPembuatan.toDate())
+                          : 'N/A', // Sesuaikan dengan format tanggal yang sesuai
                       style: const pw.TextStyle(fontSize: 20)),
                 ],
               ),
@@ -201,20 +207,25 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                       detail['product_id'] ?? 'N/A',
                       detail['product_name']?.toString() ?? 'N/A',
                       detail['jumlah_pengiriman']?.toString() ?? 'N/A',
-                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(detail['harga'] ?? 0),
-                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(detail['subtotal'] ?? 0),
+                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp')
+                          .format(detail['harga'] ?? 0),
+                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp')
+                          .format(detail['subtotal'] ?? 0),
                     ],
                 ],
               ),
-             pw.SizedBox(height: 16.0),
+              pw.SizedBox(height: 16.0),
               // Total Pcs
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
                   pw.Text('Total Pcs:',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                  pw.Text('${NumberFormat.decimalPattern().format(totalPcs)} Pcs',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                      '${NumberFormat.decimalPattern().format(totalPcs)} Pcs',
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
                 ],
               ),
               // Total
@@ -222,9 +233,13 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
                   pw.Text('Total:',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                  pw.Text(NumberFormat.currency(locale: 'id_ID', symbol: 'Rp').format(total),
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                  pw.Text(
+                      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp')
+                          .format(total),
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
                 ],
               ),
               pw.SizedBox(height: 16.0),

@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
-
 
 class MaterialUsageChartCard extends StatelessWidget {
   const MaterialUsageChartCard({super.key});
@@ -48,7 +47,8 @@ class MaterialUsageChartCard extends StatelessWidget {
                             (entry) => PieChartSectionData(
                               color: getColor(entry.key), // Warna sesuai indeks
                               value: entry.value.value,
-                              title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
+                              title:
+                                  '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
                             ),
                           )
                           .toList(),
@@ -71,13 +71,15 @@ Future<List<DataPoint>> fetchMaterialUsageChartData() async {
 
   final chartData = <String, double>{};
   for (final doc in data) {
-    final detailSnapshot = await doc.reference.collection('detail_material_usages').get();
+    final detailSnapshot =
+        await doc.reference.collection('detail_material_usages').get();
     final detailData = detailSnapshot.docs;
     for (final detailDoc in detailData) {
       final materialId = detailDoc['material_id'] as String;
       final quantity = detailDoc['jumlah'] as int;
 
-      chartData.update(materialId, (value) => value + quantity, ifAbsent: () => quantity.toDouble());
+      chartData.update(materialId, (value) => value + quantity,
+          ifAbsent: () => quantity.toDouble());
     }
   }
 
@@ -85,21 +87,21 @@ Future<List<DataPoint>> fetchMaterialUsageChartData() async {
   for (final materialId in chartData.keys) {
     final materialInfo = await MaterialService().fetchMaterialInfo(materialId);
     final materialName = materialInfo['nama'] as String;
-    final value = chartData[materialId] as int;
-    result.add(DataPoint(materialName, value.toDouble()));
+    final value = chartData[materialId];
+    result.add(DataPoint(materialName, value as double));
   }
   return result;
 }
 
 Color getColor(int index) {
-    // Atur warna sesuai preferensi Anda, misalnya:
-    final List<Color> colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.red,
-    ];
-    return colors[index % colors.length];
+  // Atur warna sesuai preferensi Anda, misalnya:
+  final List<Color> colors = [
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.red,
+  ];
+  return colors[index % colors.length];
 }
 
 class DataPoint {
