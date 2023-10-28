@@ -297,7 +297,7 @@ Future<List<Map>> fetchFirestoreData(
       final customerID = doc['customer_id'] as String;
       final orderDate = doc['tanggal_pesan'] as Timestamp;
       final totalProducts = doc['total_produk'] as int;
-      final totalPrice = doc['total_harga'] as double;
+      final totalPrice = doc['total_harga'] as int;
       return {
         'id': doc[idField] as String,
         'customer_id': customerID,
@@ -309,7 +309,7 @@ Future<List<Map>> fetchFirestoreData(
       final customerOrderID = doc['customer_order_id'] as String;
       final deliveryDate = doc['tanggal_pesanan_pengiriman'] as Timestamp;
       final totalItems = doc['total_barang'] as int;
-      final totalPrice = doc['total_harga'] as double;
+      final totalPrice = doc['total_harga'] as int;
       return {
         'id': doc[idField] as String,
         'customer_order_id': customerOrderID,

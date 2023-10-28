@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 
 class CustomerOrderChart extends StatelessWidget{
     @override
@@ -61,32 +62,31 @@ class CustomerOrderChart extends StatelessWidget{
 }
 
 
- Future<List<DataPoint>> fetchChartData() async {
-    // Dapatkan data dari Firestore dan hitung total berdasarkan product_id
-    final firestore = FirebaseFirestore.instance;
-    final querySnapshot =
-        await firestore.collection('customer_orders').get();
-    final data = querySnapshot.docs;
+Future<List<DataPoint>> fetchChartData() async {
+  final firestore = FirebaseFirestore.instance;
+  final querySnapshot = await firestore.collection('customer_orders').get();
+  final data = querySnapshot.docs;
 
-    final chartData = <String, double>{};
-    for (final doc in data) {
-      final detailSnapshot =
-          await doc.reference.collection('detail_customer_orders').get();
-      final detailData = detailSnapshot.docs;
-      for (final detailDoc in detailData) {
-        final productId = detailDoc['product_id'] as String;
-        final quantity = detailDoc['jumlah'] as double;
+  final chartData = <String, double>{};
+  for (final doc in data) {
+    final detailSnapshot = await doc.reference.collection('detail_customer_orders').get();
+    final detailData = detailSnapshot.docs;
+    for (final detailDoc in detailData) {
+      final productId = detailDoc['product_id'] as String;
+      final quantity = detailDoc['jumlah'] as double;
 
-        chartData.update(productId, (value) => value + quantity,
-            ifAbsent: () => quantity);
-      }
+      chartData.update(productId, (value) => value + quantity, ifAbsent: () => quantity);
     }
+  }
 
-    final result = <DataPoint>[];
-    chartData.forEach((key, value) {
-      result.add(DataPoint(key, value));
-    });
-    return result;
+  final result = <DataPoint>[];
+  for (final productId in chartData.keys) {
+    final productInfo = await ProductService().getProductInfo(productId);
+    final productName = productInfo?['nama'] as String;
+    final value = chartData[productId] as int;
+    result.add(DataPoint(productName, value as double));
+  }
+  return result;
 }
 
 Color getColor(int index) {

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 
-
-class MaterialUsageChartCard extends StatelessWidget {
-  const MaterialUsageChartCard({super.key});
-
+class MaterialsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -18,7 +15,7 @@ class MaterialUsageChartCard extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Penggunaan Bahan',
+              'Ketersediaan Bahan',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -26,10 +23,10 @@ class MaterialUsageChartCard extends StatelessWidget {
             ),
           ),
           Container(
-            height: 300, // Atur tinggi card sesuai kebutuhan Anda
+            height: 300,
             padding: const EdgeInsets.all(16.0),
             child: FutureBuilder(
-              future: fetchMaterialUsageChartData(),
+              future: fetchMaterialChartData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -39,19 +36,35 @@ class MaterialUsageChartCard extends StatelessWidget {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   final chartData = snapshot.data as List<DataPoint>;
+                  const maxSectorsToShow = 4; // Jumlah maksimal sektor yang akan ditampilkan
+                  final otherData = chartData.sublist(maxSectorsToShow);
+                  final totalValue = calculateTotalValue(otherData);
+                  final dataToShow = chartData.sublist(0, maxSectorsToShow);
+
+                  // Hitung nilai "Lainnya" sebagai persentase total
+                  final otherValue = totalValue * 0.1; // Misalnya, "Lainnya" adalah 10% dari total
+
+                  if (totalValue > 0) {
+                    dataToShow.add(DataPoint("Lainnya", otherValue));
+                  }
+
                   return PieChart(
                     PieChartData(
-                      sections: chartData
+                      sections: dataToShow
                           .asMap()
                           .entries
                           .map(
                             (entry) => PieChartSectionData(
-                              color: getColor(entry.key), // Warna sesuai indeks
+                              color: getColor(entry.key),
                               value: entry.value.value,
+                              titlePositionPercentageOffset: 0.7,
                               title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
+                              radius: 60,
                             ),
                           )
                           .toList(),
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 0,
                     ),
                   );
                 }
@@ -64,42 +77,34 @@ class MaterialUsageChartCard extends StatelessWidget {
   }
 }
 
-Future<List<DataPoint>> fetchMaterialUsageChartData() async {
+Future<List<DataPoint>> fetchMaterialChartData() async {
+  final materialService = MaterialService();
   final firestore = FirebaseFirestore.instance;
-  final querySnapshot = await firestore.collection('material_usages').get();
+  final querySnapshot = await firestore.collection('materials').get();
   final data = querySnapshot.docs;
 
-  final chartData = <String, double>{};
+  final chartData = <DataPoint>[];
   for (final doc in data) {
-    final detailSnapshot = await doc.reference.collection('detail_material_usages').get();
-    final detailData = detailSnapshot.docs;
-    for (final detailDoc in detailData) {
-      final materialId = detailDoc['material_id'] as String;
-      final quantity = detailDoc['jumlah'] as int;
+    final id = doc['id'] as String;
+    final materialInfo = await materialService.fetchMaterialInfo(id); // Mengambil informasi bahan
 
-      chartData.update(materialId, (value) => value + quantity, ifAbsent: () => quantity.toDouble());
-    }
-  }
-
-  final result = <DataPoint>[];
-  for (final materialId in chartData.keys) {
-    final materialInfo = await MaterialService().fetchMaterialInfo(materialId);
     final materialName = materialInfo['nama'] as String;
-    final value = chartData[materialId] as int;
-    result.add(DataPoint(materialName, value.toDouble()));
+    final stok = materialInfo['stok'] as int;
+
+    chartData.add(DataPoint(materialName, stok as double));
   }
-  return result;
+  return chartData;
 }
 
 Color getColor(int index) {
-    // Atur warna sesuai preferensi Anda, misalnya:
-    final List<Color> colors = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.red,
-    ];
-    return colors[index % colors.length];
+  final List<Color> colors = [
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.red,
+    Colors.cyan
+  ];
+  return colors[index % colors.length];
 }
 
 class DataPoint {
@@ -107,4 +112,12 @@ class DataPoint {
   final double value;
 
   DataPoint(this.label, this.value);
+}
+
+double calculateTotalValue(List<DataPoint> data) {
+  double totalValue = 0;
+  for (final point in data) {
+    totalValue += point.value;
+  }
+  return totalValue;
 }

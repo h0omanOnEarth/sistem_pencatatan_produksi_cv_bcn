@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
@@ -124,8 +126,14 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   // Dispose the document.
   workbook.dispose();
 
-  // Save and launch the file.
-  await FileSaveHelper.saveAndLaunchFile(bytes, 'Laporan_Pesanan_Pelanggan.xlsx');
+  Uint8List uint8list = Uint8List.fromList(bytes);
+
+ // Save and launch the file using open_file
+  try {
+    await FileSaveHelper.saveAndLaunchFile(uint8list, 'Laporan_Pesanan_Pelanggan.xlsx');
+  } catch (e) {
+    print('Error opening file: $e');
+  }
 }
 
 
