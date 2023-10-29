@@ -48,7 +48,11 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable suratJalanCallable;
 
-  ShipmentBloc() : suratJalanCallable = FirebaseFunctions.instance.httpsCallable('suratJalanValidation'), super(LoadingState()) {
+  ShipmentBloc()
+      : suratJalanCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('suratJalanValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -57,13 +61,14 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
     if (event is AddShipmentEvent) {
       yield LoadingState();
 
-      final deliveryOrderId =  event.shipment.deliveryOrderId;
+      final deliveryOrderId = event.shipment.deliveryOrderId;
       final totalPcs = event.shipment.totalPcs;
       final products = event.shipment.detailListShipment;
 
-      if(deliveryOrderId.isNotEmpty){   
+      if (deliveryOrderId.isNotEmpty) {
         try {
-          final HttpsCallableResult<dynamic> result = await suratJalanCallable.call(<String, dynamic>{
+          final HttpsCallableResult<dynamic> result =
+              await suratJalanCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalPcs': totalPcs,
             'deliveryOrderId': deliveryOrderId,
@@ -72,7 +77,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
 
           if (result.data['success'] == true) {
             final nextShipmentId = await _generateNextShipmentId();
-            final shipmentRef = _firestore.collection('shipments').doc(nextShipmentId);
+            final shipmentRef =
+                _firestore.collection('shipments').doc(nextShipmentId);
             final Map<String, dynamic> shipmentData = {
               'id': nextShipmentId,
               'status': event.shipment.status,
@@ -84,11 +90,13 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
               'tanggal_pembuatan': event.shipment.tanggalPembuatan,
             };
             await shipmentRef.set(shipmentData);
-            final detailShipmentRef = shipmentRef.collection('detail_shipments');
+            final detailShipmentRef =
+                shipmentRef.collection('detail_shipments');
             if (event.shipment.detailListShipment.isNotEmpty) {
               int detailCount = 1;
               for (var detailShipment in event.shipment.detailListShipment) {
-                final nextDetailShipmentId = '$nextShipmentId${'D${detailCount.toString().padLeft(3, '0')}'}';
+                final nextDetailShipmentId =
+                    '$nextShipmentId${'D${detailCount.toString().padLeft(3, '0')}'}';
                 await detailShipmentRef.doc(nextDetailShipmentId).set({
                   'id': nextDetailShipmentId,
                   'shipment_id': nextShipmentId,
@@ -103,34 +111,35 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
               }
             }
             yield SuccessState();
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("nomor perintah pengiriman tidak boleh kosong");
       }
-
     } else if (event is UpdateShipmentEvent) {
       yield LoadingState();
 
-      final deliveryOrderId =  event.shipment.deliveryOrderId;
+      final deliveryOrderId = event.shipment.deliveryOrderId;
       final totalPcs = event.shipment.totalPcs;
       final products = event.shipment.detailListShipment;
 
-      if(deliveryOrderId.isNotEmpty){
+      if (deliveryOrderId.isNotEmpty) {
         try {
-          final HttpsCallableResult<dynamic> result = await suratJalanCallable.call(<String, dynamic>{
+          final HttpsCallableResult<dynamic> result =
+              await suratJalanCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalPcs': totalPcs,
             'deliveryOrderId': deliveryOrderId,
             'mode': 'edit'
           });
 
-          if (result.data['success'] == true) {   
-            final shipmentToUpdateRef = _firestore.collection('shipments').doc(event.shipmentId);
+          if (result.data['success'] == true) {
+            final shipmentToUpdateRef =
+                _firestore.collection('shipments').doc(event.shipmentId);
             final Map<String, dynamic> shipmentData = {
               'id': event.shipmentId,
               'status': event.shipment.status,
@@ -142,7 +151,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
               'tanggal_pembuatan': event.shipment.tanggalPembuatan,
             };
             await shipmentToUpdateRef.set(shipmentData);
-            final detailShipmentCollectionRef = shipmentToUpdateRef.collection('detail_shipments');
+            final detailShipmentCollectionRef =
+                shipmentToUpdateRef.collection('detail_shipments');
             final detailShipmentDocs = await detailShipmentCollectionRef.get();
             for (var doc in detailShipmentDocs.docs) {
               await doc.reference.delete();
@@ -150,7 +160,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
             if (event.shipment.detailListShipment.isNotEmpty) {
               int detailCount = 1;
               for (var detailShipment in event.shipment.detailListShipment) {
-                final nextDetailShipmentId = 'D${detailCount.toString().padLeft(3, '0')}';
+                final nextDetailShipmentId =
+                    'D${detailCount.toString().padLeft(3, '0')}';
                 final detailId = event.shipmentId + nextDetailShipmentId;
                 await detailShipmentCollectionRef.doc(detailId).set({
                   'id': detailId,
@@ -166,20 +177,22 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
               }
             }
             yield SuccessState();
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("nomor perintah pengiriman tidak boleh kosong");
       }
     } else if (event is DeleteShipmentEvent) {
       yield LoadingState();
       try {
-        final shipmentToDeleteRef = _firestore.collection('shipments').doc(event.shipmentId);
-        final detailShipmentCollectionRef = shipmentToDeleteRef.collection('detail_shipments');
+        final shipmentToDeleteRef =
+            _firestore.collection('shipments').doc(event.shipmentId);
+        final detailShipmentCollectionRef =
+            shipmentToDeleteRef.collection('detail_shipments');
         final detailShipmentDocs = await detailShipmentCollectionRef.get();
         for (var doc in detailShipmentDocs.docs) {
           await doc.reference.delete();
@@ -195,7 +208,8 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
   Future<String> _generateNextShipmentId() async {
     final shipmentsRef = _firestore.collection('shipments');
     final QuerySnapshot snapshot = await shipmentsRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int shipmentCount = 1;
 
     while (true) {

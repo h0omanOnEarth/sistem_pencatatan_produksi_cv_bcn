@@ -7,7 +7,13 @@ class SupplierDropdown extends StatelessWidget {
   final TextEditingController? kodeSupplierController;
   final bool isEnabled;
 
-  const SupplierDropdown({super.key, required this.selectedSupplier, required this.onChanged, this.kodeSupplierController,this.isEnabled = true,});
+  const SupplierDropdown({
+    super.key,
+    required this.selectedSupplier,
+    required this.onChanged,
+    this.kodeSupplierController,
+    this.isEnabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +59,14 @@ class SupplierDropdown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedSupplier,
                 items: supplierItems,
-                onChanged: isEnabled ? (newValue) {
-                  onChanged(newValue);
-                  if (kodeSupplierController != null) {
-                    kodeSupplierController!.text = newValue ?? '';
-                  }
-                }:null,
+                onChanged: isEnabled
+                    ? (newValue) {
+                        onChanged(newValue);
+                        if (kodeSupplierController != null) {
+                          kodeSupplierController!.text = newValue ?? '';
+                        }
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

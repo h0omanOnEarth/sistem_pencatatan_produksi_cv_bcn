@@ -22,7 +22,7 @@ class LoginInitial extends LoginState {}
 class LoginLoading extends LoginState {}
 
 class LoginSuccess extends LoginState {
-   final User user;
+  final User user;
 
   LoginSuccess({required this.user});
 }
@@ -46,7 +46,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final password = event.password;
 
         if (email.isNotEmpty && password.isNotEmpty) {
-          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('loginValidation');
+          final HttpsCallable callable =
+              FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                  .httpsCallable('loginValidation');
           final HttpsCallableResult<dynamic> result =
               await callable.call(<String, dynamic>{
             'email': email,
@@ -58,7 +60,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
               email: event.email,
               password: event.password,
             );
-             yield LoginSuccess(user: userCredential.user!);
+            yield LoginSuccess(user: userCredential.user!);
           } else {
             yield LoginFailure(error: result.data['message']);
           }
@@ -68,7 +70,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       } catch (error) {
         yield LoginFailure(error: 'Terjadi kesalahan: $error');
       }
-    } else if (event is LogoutButtonPressed) {
-    }
+    } else if (event is LogoutButtonPressed) {}
   }
 }

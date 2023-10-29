@@ -36,7 +36,8 @@ class _MainProduksiState extends State<MainProduksi> {
 
   void _onItemTapped(int index) {
     setState(() {
-      BottomNavigationProduksi.menu = BottomNavigationProduksi.getMenuByIndex(index);
+      BottomNavigationProduksi.menu =
+          BottomNavigationProduksi.getMenuByIndex(index);
       menu = BottomNavigationProduksi.menu;
       _selectedIndex = index;
     });

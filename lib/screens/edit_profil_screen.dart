@@ -51,7 +51,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   ),
                                   child: const CircleAvatar(
                                     backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back, color: Colors.black),
+                                    child: Icon(Icons.arrow_back,
+                                        color: Colors.black),
                                   ),
                                 ),
                               ),
@@ -70,14 +71,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0), // Add spacing between header and cards
-                const RoundedTextField(label: 'Nama', placeholder: 'Masukkan nama'),
+                const SizedBox(
+                    height: 24.0), // Add spacing between header and cards
+                const RoundedTextField(
+                    label: 'Nama', placeholder: 'Masukkan nama'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Nomor Telepon', placeholder: 'Masukkan nomor telepon'),
+                const RoundedTextField(
+                    label: 'Nomor Telepon',
+                    placeholder: 'Masukkan nomor telepon'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Alamat', placeholder: 'Masukkan alamat'),
+                const RoundedTextField(
+                    label: 'Alamat', placeholder: 'Masukkan alamat'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Email', placeholder: 'Masukkan email'),
+                const RoundedTextField(
+                    label: 'Email', placeholder: 'Masukkan email'),
                 const SizedBox(height: 24.0),
                 ElevatedButton(
                   onPressed: () {
@@ -105,4 +112,3 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
-

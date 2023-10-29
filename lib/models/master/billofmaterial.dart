@@ -45,8 +45,8 @@ class BillOfMaterial {
   Map<String, dynamic> toJson() {
     final List<Map<String, dynamic>>? bomDetailsJson =
         detailBOMList?.map((detail) {
-          return detail.toJson();
-        }).toList();
+      return detail.toJson();
+    }).toList();
 
     return {
       'id': id,

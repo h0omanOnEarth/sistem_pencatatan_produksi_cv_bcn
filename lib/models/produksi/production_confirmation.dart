@@ -30,13 +30,15 @@ class ProductionConfirmation {
       tanggalKonfirmasi: DateTime.parse(json['tanggal_konfirmasi'] as String),
       total: json['total'] as int,
       detailProductionConfirmations: detailsJson.map((detailJson) {
-        return DetailProductionConfirmation.fromJson(detailJson as Map<String, dynamic>);
+        return DetailProductionConfirmation.fromJson(
+            detailJson as Map<String, dynamic>);
       }).toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    final List<Map<String, dynamic>> detailsJson = detailProductionConfirmations.map((detail) {
+    final List<Map<String, dynamic>> detailsJson =
+        detailProductionConfirmations.map((detail) {
       return detail.toJson();
     }).toList();
 

@@ -51,7 +51,8 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                                   ),
                                   child: const CircleAvatar(
                                     backgroundColor: Colors.white,
-                                    child: Icon(Icons.arrow_back, color: Colors.black),
+                                    child: Icon(Icons.arrow_back,
+                                        color: Colors.black),
                                   ),
                                 ),
                               ),
@@ -70,12 +71,19 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24.0), // Add spacing between header and cards
-                const RoundedTextField(label: 'Password Sekarang', placeholder: 'Masukkan Password saat ini'),
+                const SizedBox(
+                    height: 24.0), // Add spacing between header and cards
+                const RoundedTextField(
+                    label: 'Password Sekarang',
+                    placeholder: 'Masukkan Password saat ini'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Password Baru', placeholder: 'Masukkan password baru'),
+                const RoundedTextField(
+                    label: 'Password Baru',
+                    placeholder: 'Masukkan password baru'),
                 const SizedBox(height: 16.0),
-                const RoundedTextField(label: 'Konfirmasi Password Baru', placeholder: 'Masukkan ulang password baru'),
+                const RoundedTextField(
+                    label: 'Konfirmasi Password Baru',
+                    placeholder: 'Masukkan ulang password baru'),
                 const SizedBox(height: 24.0),
                 ElevatedButton(
                   onPressed: () {
@@ -103,4 +111,3 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
     );
   }
 }
-

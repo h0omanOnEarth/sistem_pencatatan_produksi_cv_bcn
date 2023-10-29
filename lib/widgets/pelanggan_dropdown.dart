@@ -7,16 +7,17 @@ ValueNotifier<String?> selectedPelangganNotifier = ValueNotifier<String?>(null);
 class PelangganDropdownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
   final String? customerId; // Tambahkan parameter customerId
-  final bool isEnabled; 
+  final bool isEnabled;
 
   PelangganDropdownWidget({
     required this.namaPelangganController,
     this.customerId, // Jadikan customerId sebagai parameter opsional
-    this.isEnabled = true, 
-  }): super();
+    this.isEnabled = true,
+  }) : super();
 
   @override
-  _PelangganDropdownWidgetState createState() => _PelangganDropdownWidgetState();
+  _PelangganDropdownWidgetState createState() =>
+      _PelangganDropdownWidgetState();
 }
 
 class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
@@ -34,7 +35,7 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String?>(
-      valueListenable: selectedPelangganNotifier, // 
+      valueListenable: selectedPelangganNotifier, //
       builder: (context, selectedPelanggan, _) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,7 +49,9 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('customers').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('customers')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
@@ -80,14 +83,18 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: customerItems,
-                    onChanged: widget.isEnabled ?(newValue) {
-                      selectedPelangganNotifier.value = newValue; // Gunakan selectedBahanNotifier
-                      final selectedPelanggan = snapshot.data!.docs.firstWhere(
-                        (document) => document['id'] == newValue,
-                      );
-                      widget.namaPelangganController.text =
-                          selectedPelanggan['nama'] ?? '';
-                    }:null,
+                    onChanged: widget.isEnabled
+                        ? (newValue) {
+                            selectedPelangganNotifier.value =
+                                newValue; // Gunakan selectedBahanNotifier
+                            final selectedPelanggan =
+                                snapshot.data!.docs.firstWhere(
+                              (document) => document['id'] == newValue,
+                            );
+                            widget.namaPelangganController.text =
+                                selectedPelanggan['nama'] ?? '';
+                          }
+                        : null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

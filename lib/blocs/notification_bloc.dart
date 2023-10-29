@@ -47,13 +47,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationBlocState> {
   }
 
   @override
-  Stream<NotificationBlocState> mapEventToState(NotificationEvent event) async* {
+  Stream<NotificationBlocState> mapEventToState(
+      NotificationEvent event) async* {
     if (event is AddNotificationEvent) {
       yield LoadingState();
       try {
         final newId = await _generateNextNotificationId();
         await FirebaseFirestore.instance.collection('notifications').add({
-          'id' : newId,
+          'id': newId,
           'pesan': event.notification.pesan,
           'created_at': event.notification.createdAt,
           'posisi': event.notification.posisi,
@@ -67,7 +68,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationBlocState> {
     } else if (event is UpdateNotificationEvent) {
       yield LoadingState();
       try {
-        final notificationSnapshot = await notificationsRef.doc(event.notificationId).get();
+        final notificationSnapshot =
+            await notificationsRef.doc(event.notificationId).get();
         if (notificationSnapshot.exists) {
           await notificationSnapshot.reference.update({
             // Definisikan properti notifikasi sesuai kebutuhan Anda
@@ -80,7 +82,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationBlocState> {
           final notifications = await _getNotifications();
           yield LoadedState(notifications);
         } else {
-          yield ErrorState('Notifikasi dengan ID ${event.notificationId} tidak ditemukan.');
+          yield ErrorState(
+              'Notifikasi dengan ID ${event.notificationId} tidak ditemukan.');
         }
       } catch (e) {
         yield ErrorState("Gagal mengubah notifikasi.");
@@ -107,17 +110,18 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationBlocState> {
   }
 
   Future<String> _generateNextNotificationId() async {
-  final QuerySnapshot snapshot = await notificationsRef.get();
-  final List<String> existingIds = snapshot.docs.map((doc) => doc.id).toList();
-  int notificationCount = 1;
+    final QuerySnapshot snapshot = await notificationsRef.get();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc.id).toList();
+    int notificationCount = 1;
 
-  while (true) {
-    final nextNotificationId = 'NOTIF${notificationCount.toString().padLeft(5, '0')}';
-    if (!existingIds.contains(nextNotificationId)) {
-      return nextNotificationId;
+    while (true) {
+      final nextNotificationId =
+          'NOTIF${notificationCount.toString().padLeft(5, '0')}';
+      if (!existingIds.contains(nextNotificationId)) {
+        return nextNotificationId;
+      }
+      notificationCount++;
     }
-    notificationCount++;
   }
-}
-
 }

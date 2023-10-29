@@ -56,7 +56,8 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                                 ),
                                 child: const CircleAvatar(
                                   backgroundColor: Colors.white,
-                                  child: Icon(Icons.arrow_back, color: Colors.black),
+                                  child: Icon(Icons.arrow_back,
+                                      color: Colors.black),
                                 ),
                               ),
                             ),
@@ -81,10 +82,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                 builder: (context, userSnapshot) {
                   if (userSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                        ),
-                      );
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                      ),
+                    );
                   }
 
                   final user = userSnapshot.data;
@@ -97,27 +98,35 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                   return FutureBuilder<String?>(
                     future: fetchPositionEmployee(userEmailAddress!),
                     builder: (context, positionSnapshot) {
-                      if (positionSnapshot.connectionState == ConnectionState.waiting) {
-                       return const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
-                        ),
-                      );
+                      if (positionSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.grey),
+                          ),
+                        );
                       }
 
                       userPosition = positionSnapshot.data;
 
                       if (userPosition == null) {
-                        return Text('Employee not found for email: $userEmailAddress');
+                        return Text(
+                            'Employee not found for email: $userEmailAddress');
                       }
 
                       return StreamBuilder<QuerySnapshot>(
-                        stream: _firestore.collection('notifications').where('posisi', isEqualTo: userPosition).snapshots(),
+                        stream: _firestore
+                            .collection('notifications')
+                            .where('posisi', isEqualTo: userPosition)
+                            .snapshots(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                             return const Center(
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.grey),
                               ),
                             );
                           }
@@ -132,9 +141,12 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                               itemCount: notifications.length,
                               itemBuilder: (context, index) {
                                 final pesan = notifications[index]['pesan'];
-                                final createdAt = notifications[index]['created_at'] as Timestamp;
-                                final formattedDate = formatDate(createdAt.toDate());
-                                return buildCard(pesan, 'Tanggal: $formattedDate');
+                                final createdAt = notifications[index]
+                                    ['created_at'] as Timestamp;
+                                final formattedDate =
+                                    formatDate(createdAt.toDate());
+                                return buildCard(
+                                    pesan, 'Tanggal: $formattedDate');
                               },
                             ),
                           );
@@ -232,7 +244,8 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
               ),
               textAlign: TextAlign.start,
             ),
-            const SizedBox(height: 4), // Add spacing between title and description
+            const SizedBox(
+                height: 4), // Add spacing between title and description
             Text(
               description,
               style: const TextStyle(

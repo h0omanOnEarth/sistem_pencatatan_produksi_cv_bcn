@@ -16,7 +16,8 @@ class UpdateEmployeeEvent extends EmployeeEvent {
   final String employeeId;
   final Employee updatedEmployee;
   final String currentUsername;
-  UpdateEmployeeEvent(this.employeeId, this.updatedEmployee, this.currentUsername);
+  UpdateEmployeeEvent(
+      this.employeeId, this.updatedEmployee, this.currentUsername);
 }
 
 class DeleteEmployeeEvent extends EmployeeEvent {
@@ -25,7 +26,8 @@ class DeleteEmployeeEvent extends EmployeeEvent {
   DeleteEmployeeEvent(this.employeeId, this.employeePassword);
 }
 
-class LoadEmployeesEvent extends EmployeeEvent {} // Tambahkan event ini untuk memuat data pegawai
+class LoadEmployeesEvent
+    extends EmployeeEvent {} // Tambahkan event ini untuk memuat data pegawai
 
 // States
 abstract class EmployeeState {}
@@ -58,149 +60,164 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
   Stream<EmployeeState> mapEventToState(EmployeeEvent event) async* {
     if (event is AddEmployeeEvent) {
       yield LoadingState();
-        final alamat = event.employee.alamat;
-        final email = event.employee.email;
-        final gajiHarian = event.employee.gajiHarian;
-        final gajiLemburJam = event.employee.gajiLemburJam;
-        final jenisKelamin = event.employee.jenisKelamin;
-        final nama = event.employee.nama;
-        final nomorTelepon = event.employee.nomorTelepon;
-        final posisi = event.employee.posisi;
-        final status = event.employee.status;
-        final tanggalMasuk = event.employee.tanggalMasuk;
-        final username = event.employee.username;
-        final password = event.employee.password;
+      final alamat = event.employee.alamat;
+      final email = event.employee.email;
+      final gajiHarian = event.employee.gajiHarian;
+      final gajiLemburJam = event.employee.gajiLemburJam;
+      final jenisKelamin = event.employee.jenisKelamin;
+      final nama = event.employee.nama;
+      final nomorTelepon = event.employee.nomorTelepon;
+      final posisi = event.employee.posisi;
+      final status = event.employee.status;
+      final tanggalMasuk = event.employee.tanggalMasuk;
+      final username = event.employee.username;
+      final password = event.employee.password;
 
-        if(alamat.isNotEmpty && email.isNotEmpty && jenisKelamin.isNotEmpty && nama.isNotEmpty && nomorTelepon.isNotEmpty && posisi.isNotEmpty  && username.isNotEmpty && password.isNotEmpty){
+      if (alamat.isNotEmpty &&
+          email.isNotEmpty &&
+          jenisKelamin.isNotEmpty &&
+          nama.isNotEmpty &&
+          nomorTelepon.isNotEmpty &&
+          posisi.isNotEmpty &&
+          username.isNotEmpty &&
+          password.isNotEmpty) {
+        try {
+          final HttpsCallable callable =
+              FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                  .httpsCallable('pegawaiAdd');
+          final HttpsCallableResult<dynamic> result =
+              await callable.call(<String, dynamic>{
+            'email': email,
+            'password': password,
+            'username': username,
+            'telp': nomorTelepon,
+            'gajiHarian': gajiHarian,
+            'gajiLembur': gajiLemburJam,
+            'status': status
+          });
 
-          try{
-            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('pegawaiAdd');
-            final HttpsCallableResult<dynamic> result =
-            await callable.call(<String, dynamic>{
+          if (result.data['success'] == true) {
+            final String nextEmployeeId = await _generateNextEmployeeId();
+
+            //Langkah 2: Add data to Firestore employees
+            await employeesRef.add({
+              'id': nextEmployeeId,
+              'alamat': alamat,
               'email': email,
-              'password': password,
+              'gaji_harian': gajiHarian.toInt(),
+              'gaji_lembur_jam': gajiLemburJam.toInt(),
+              'jenis_kelamin': jenisKelamin,
+              'nama': nama,
+              'nomor_telepon': nomorTelepon,
+              'posisi': posisi,
+              'status': status,
+              'tanggal_masuk': tanggalMasuk,
+              'username': username,
+            });
+
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+            );
+
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+      } else {
+        yield ErrorState("Harap isi semua field!");
+      }
+    } else if (event is UpdateEmployeeEvent) {
+      yield LoadingState();
+      final employeeSnapshot =
+          await employeesRef.where('id', isEqualTo: event.employeeId).get();
+      if (employeeSnapshot.docs.isNotEmpty) {
+        final alamat = event.updatedEmployee.alamat;
+        final gajiHarian = event.updatedEmployee.gajiHarian;
+        final gajiLemburJam = event.updatedEmployee.gajiLemburJam;
+        final jenisKelamin = event.updatedEmployee.jenisKelamin;
+        final nama = event.updatedEmployee.nama;
+        final nomorTelepon = event.updatedEmployee.nomorTelepon;
+        final posisi = event.updatedEmployee.posisi;
+        final status = event.updatedEmployee.status;
+        final tanggalMasuk = event.updatedEmployee.tanggalMasuk;
+        final username = event.updatedEmployee.username;
+        final currentUsername = event.currentUsername;
+
+        if (alamat.isNotEmpty &&
+            jenisKelamin.isNotEmpty &&
+            nama.isNotEmpty &&
+            nomorTelepon.isNotEmpty &&
+            posisi.isNotEmpty &&
+            username.isNotEmpty) {
+          try {
+            final HttpsCallable callable =
+                FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                    .httpsCallable('pegawaiUpdate');
+            final HttpsCallableResult<dynamic> result =
+                await callable.call(<String, dynamic>{
               'username': username,
               'telp': nomorTelepon,
               'gajiHarian': gajiHarian,
               'gajiLembur': gajiLemburJam,
-              'status':status
+              'status': status,
+              'currentUser': currentUsername
             });
 
             if (result.data['success'] == true) {
-              final String nextEmployeeId = await _generateNextEmployeeId();
-
-              //Langkah 2: Add data to Firestore employees
-              await employeesRef.add({
-                'id': nextEmployeeId,
+              final employeeDoc = employeeSnapshot.docs.first;
+              final Map<String, dynamic> updatedData = {
                 'alamat': alamat,
-                'email': email,
-                'gaji_harian': gajiHarian.toInt(),
-                'gaji_lembur_jam': gajiLemburJam.toInt(),
+                'gaji_harian': gajiHarian,
+                'gaji_lembur_jam': gajiLemburJam,
                 'jenis_kelamin': jenisKelamin,
                 'nama': nama,
                 'nomor_telepon': nomorTelepon,
                 'posisi': posisi,
                 'status': status,
                 'tanggal_masuk': tanggalMasuk,
-                'username': username,
-              });
+                'username': username
+              };
 
-              await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                email: email,
-                password: password,
-              );
-             
+              // Langkah 2: Perbarui data pegawai di Firestore
+              await employeeDoc.reference.update(updatedData);
               yield SuccessState();
-          } else {
-            yield ErrorState(result.data['message']);
-          }
-          }catch(e){
+            } else {
+              yield ErrorState(result.data['message']);
+            }
+          } catch (e) {
             yield ErrorState(e.toString());
-          }          
-        }else{
+          }
+        } else {
           yield ErrorState("Harap isi semua field!");
         }
-
-    } else if (event is UpdateEmployeeEvent) {
-      yield LoadingState();
-        final employeeSnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
-        if (employeeSnapshot.docs.isNotEmpty) {
-
-            final alamat = event.updatedEmployee.alamat;
-            final gajiHarian = event.updatedEmployee.gajiHarian;
-            final gajiLemburJam = event.updatedEmployee.gajiLemburJam;
-            final jenisKelamin = event.updatedEmployee.jenisKelamin;
-            final nama = event.updatedEmployee.nama;
-            final nomorTelepon = event.updatedEmployee.nomorTelepon;
-            final posisi = event.updatedEmployee.posisi;
-            final status = event.updatedEmployee.status;
-            final tanggalMasuk = event.updatedEmployee.tanggalMasuk;
-            final username = event.updatedEmployee.username;
-            final currentUsername = event.currentUsername;
-
-            if(alamat.isNotEmpty && jenisKelamin.isNotEmpty && nama.isNotEmpty && nomorTelepon.isNotEmpty && posisi.isNotEmpty  && username.isNotEmpty){
-              try{
-                  final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('pegawaiUpdate');
-                  final HttpsCallableResult<dynamic> result =
-                  await callable.call(<String, dynamic>{
-                    'username': username,
-                    'telp': nomorTelepon,
-                    'gajiHarian': gajiHarian,
-                    'gajiLembur': gajiLemburJam,
-                    'status':status,
-                    'currentUser': currentUsername
-                  });
-
-                 if (result.data['success'] == true) {
-                    final employeeDoc = employeeSnapshot.docs.first;
-                    final Map<String, dynamic> updatedData = {
-                      'alamat': alamat,
-                      'gaji_harian': gajiHarian,
-                      'gaji_lembur_jam': gajiLemburJam,
-                      'jenis_kelamin': jenisKelamin,
-                      'nama': nama,
-                      'nomor_telepon': nomorTelepon,
-                      'posisi': posisi,
-                      'status': status,
-                      'tanggal_masuk': tanggalMasuk,
-                      'username': username
-                    };
-                
-                    // Langkah 2: Perbarui data pegawai di Firestore
-                    await employeeDoc.reference.update(updatedData);
-                    yield SuccessState();
-                 }else{
-                    yield ErrorState(result.data['message']);
-                 }
-            }catch(e){
-              yield ErrorState(e.toString());
-            }
-
-           }else{
-               yield ErrorState("Harap isi semua field!");
-           }
-
-        } else {
-          // Handle jika data pegawai dengan ID tersebut tidak ditemukan
-          yield ErrorState('Data pegawai dengan ID ${event.employeeId} tidak ditemukan.');
-        }
+      } else {
+        // Handle jika data pegawai dengan ID tersebut tidak ditemukan
+        yield ErrorState(
+            'Data pegawai dengan ID ${event.employeeId} tidak ditemukan.');
+      }
     } else if (event is DeleteEmployeeEvent) {
       yield LoadingState();
       try {
-          // Cari dokumen dengan 'id' yang sesuai dengan event.employeeId
-          QuerySnapshot querySnapshot = await employeesRef.where('id', isEqualTo: event.employeeId).get();
-          
-          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
-          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-            // Hapus dokumen Firestore
-            await documentSnapshot.reference.delete();
-          }
-         
-          yield LoadedState(await _getEmployees());
-        } catch (e) {
-          yield ErrorState("Gagal menghapus employee.");
+        // Cari dokumen dengan 'id' yang sesuai dengan event.employeeId
+        QuerySnapshot querySnapshot =
+            await employeesRef.where('id', isEqualTo: event.employeeId).get();
+
+        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+          // Hapus dokumen Firestore
+          await documentSnapshot.reference.delete();
         }
-    } else if (event is LoadEmployeesEvent) { // Tambahkan kondisi untuk memuat data pegawai
+
+        yield LoadedState(await _getEmployees());
+      } catch (e) {
+        yield ErrorState("Gagal menghapus employee.");
+      }
+    } else if (event is LoadEmployeesEvent) {
+      // Tambahkan kondisi untuk memuat data pegawai
       yield LoadingState();
       try {
         yield LoadedState(await _getEmployees());
@@ -212,11 +229,13 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
 
   Future<String> _generateNextEmployeeId() async {
     final QuerySnapshot snapshot = await employeesRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int employeeCount = 1;
 
     while (true) {
-      final nextEmployeeId = 'employee${employeeCount.toString().padLeft(3, '0')}';
+      final nextEmployeeId =
+          'employee${employeeCount.toString().padLeft(3, '0')}';
       if (!existingIds.contains(nextEmployeeId)) {
         return nextEmployeeId;
       }

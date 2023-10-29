@@ -7,7 +7,8 @@ class DropdownWidget extends StatelessWidget {
   final void Function(String) onChanged;
   final bool isEnabled; // Tambahkan isEnabled dengan nilai default true
 
-  const DropdownWidget({super.key, 
+  const DropdownWidget({
+    super.key,
     required this.label,
     required this.selectedValue,
     required this.items,
@@ -50,15 +51,21 @@ class DropdownWidget extends StatelessWidget {
                   child: Text(
                     value,
                     style: TextStyle(
-                      color: isEnabled ? Colors.black : Colors.grey, // Atur warna teks sesuai dengan isEnabled
+                      color: isEnabled
+                          ? Colors.black
+                          : Colors
+                              .grey, // Atur warna teks sesuai dengan isEnabled
                     ),
                   ),
                 ),
               );
             }).toList(),
-            onChanged: isEnabled ? (String? newValue) { // Hanya panggil onChanged jika isEnabled adalah true
-              onChanged(newValue ?? '');
-            } : null, // Tambahkan null jika isEnabled adalah false
+            onChanged: isEnabled
+                ? (String? newValue) {
+                    // Hanya panggil onChanged jika isEnabled adalah true
+                    onChanged(newValue ?? '');
+                  }
+                : null, // Tambahkan null jika isEnabled adalah false
           ),
         ),
       ],

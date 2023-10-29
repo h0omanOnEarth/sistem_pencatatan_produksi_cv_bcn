@@ -61,7 +61,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                               border: Border.all(
-                                color: Colors.grey, // Customize the border color
+                                color:
+                                    Colors.grey, // Customize the border color
                                 width: 1, // Customize the border width
                               ),
                             ),
@@ -78,15 +79,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditProfileScreen(),
-                              ),
-                            );
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditProfileScreen(),
+                      ),
+                    );
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0), // Set border radius
+                      borderRadius:
+                          BorderRadius.circular(12.0), // Set border radius
                       side: BorderSide(
                         color: Colors.grey[400]!, // Customize the border color
                         width: 1.0, // Set border width
@@ -102,11 +104,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: Colors.white,
                             ),
                             padding: const EdgeInsets.all(4),
-                            child: ClipOval( // Gunakan ClipOval untuk membuat gambar menjadi lingkaran
+                            child: ClipOval(
+                              // Gunakan ClipOval untuk membuat gambar menjadi lingkaran
                               child: Image.asset(
                                 'images/profile.jpg', // Ganti dengan nama file gambar profil yang sesuai
                                 width: MediaQuery.of(context).size.width * 0.05,
-                                height: MediaQuery.of(context).size.width * 0.05,
+                                height:
+                                    MediaQuery.of(context).size.width * 0.05,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -148,14 +152,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                     Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const EditPasswordScreen()),
-                      );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const EditPasswordScreen()),
+                    );
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0), // Set border radius
+                      borderRadius:
+                          BorderRadius.circular(12.0), // Set border radius
                       side: BorderSide(
                         color: Colors.grey[400]!, // Customize the border color
                         width: 1.0, // Set border width
@@ -196,7 +202,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    
                     //  FirebaseAuth.instance.signOut().then((value) {
                     //   Navigator.push(
                     //     context,
@@ -209,13 +214,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     //     MaterialPageRoute(builder: (context) => const MainMenuScreen()),
                     //   );
 
-                    
                     Routemaster.of(context).push(MainMenuScreen.routeName);
-                  
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0), // Set border radius
+                      borderRadius:
+                          BorderRadius.circular(12.0), // Set border radius
                       side: BorderSide(
                         color: Colors.grey[400]!, // Customize the border color
                         width: 1.0, // Set border width

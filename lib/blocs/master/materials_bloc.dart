@@ -44,7 +44,7 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference materialsRef;
 
-  MaterialBloc() : super(LoadingState()){
+  MaterialBloc() : super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     materialsRef = _firestore.collection('materials');
   }
@@ -54,18 +54,20 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
     if (event is AddMaterialEvent) {
       yield LoadingState();
 
-      final jenisBahan =  event.material.jenisBahan;
+      final jenisBahan = event.material.jenisBahan;
       final keterangan = event.material.keterangan;
       final nama = event.material.nama;
       final satuan = event.material.satuan;
       final status = event.material.status;
       final stok = event.material.stok;
 
-      if(nama.isNotEmpty){
+      if (nama.isNotEmpty) {
         try {
-          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('materialModif');
+          final HttpsCallable callable =
+              FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                  .httpsCallable('materialModif');
           final HttpsCallableResult<dynamic> result =
-          await callable.call(<String, dynamic>{
+              await callable.call(<String, dynamic>{
             'stok': stok,
           });
 
@@ -81,77 +83,76 @@ class MaterialBloc extends Bloc<MaterialEvent, MaterialBlocState> {
               'status': status,
               'stok': stok,
             });
-            
+
             yield SuccessState();
-          }else{
-              yield ErrorState(result.data['message']);
+          } else {
+            yield ErrorState(result.data['message']);
           }
-         
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState('nama tidak boleh kosong');
       }
-
     } else if (event is UpdateMaterialEvent) {
       yield LoadingState();
-       final materialSnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
-        if (materialSnapshot.docs.isNotEmpty) {
-          
-          final jenisBahan =  event.updatedMaterial.jenisBahan;
-          final keterangan = event.updatedMaterial.keterangan;
-          final nama = event.updatedMaterial.nama;
-          final satuan = event.updatedMaterial.satuan;
-          final status = event.updatedMaterial.status;
-          final stok = event.updatedMaterial.stok;
-          
-          if(nama.isNotEmpty){
-             try {
-              final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('materialModif');
-              final HttpsCallableResult<dynamic> result =
-              await callable.call(<String, dynamic>{
+      final materialSnapshot =
+          await materialsRef.where('id', isEqualTo: event.materialId).get();
+      if (materialSnapshot.docs.isNotEmpty) {
+        final jenisBahan = event.updatedMaterial.jenisBahan;
+        final keterangan = event.updatedMaterial.keterangan;
+        final nama = event.updatedMaterial.nama;
+        final satuan = event.updatedMaterial.satuan;
+        final status = event.updatedMaterial.status;
+        final stok = event.updatedMaterial.stok;
+
+        if (nama.isNotEmpty) {
+          try {
+            final HttpsCallable callable =
+                FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                    .httpsCallable('materialModif');
+            final HttpsCallableResult<dynamic> result =
+                await callable.call(<String, dynamic>{
+              'stok': stok,
+            });
+
+            if (result.data['success'] == true) {
+              final materialDoc = materialSnapshot.docs.first;
+              await materialDoc.reference.update({
+                'jenis_bahan': jenisBahan,
+                'keterangan': keterangan,
+                'nama': nama,
+                'satuan': satuan,
+                'status': status,
                 'stok': stok,
               });
 
-              if (result.data['success'] == true) {
-                final materialDoc = materialSnapshot.docs.first;
-                await materialDoc.reference.update({
-                  'jenis_bahan': jenisBahan,
-                  'keterangan': keterangan,
-                  'nama': nama,
-                  'satuan': satuan,
-                  'status': status,
-                  'stok': stok,
-                });
-                
-                yield SuccessState();
-              }else{
-                yield ErrorState(result.data['success']);
-              }
-             
-            } catch (e) {
-              yield ErrorState(e.toString());
+              yield SuccessState();
+            } else {
+              yield ErrorState(result.data['success']);
             }
-          }else{
-           yield ErrorState("nama tidak boleh kosong");
+          } catch (e) {
+            yield ErrorState(e.toString());
           }
-        
-        }else {
-          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
-          yield ErrorState('Data bahan dengan ID ${event.materialId} tidak ditemukan.');
+        } else {
+          yield ErrorState("nama tidak boleh kosong");
         }
-
+      } else {
+        // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+        yield ErrorState(
+            'Data bahan dengan ID ${event.materialId} tidak ditemukan.');
+      }
     } else if (event is DeleteMaterialEvent) {
       yield LoadingState();
       try {
-         // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
-          QuerySnapshot querySnapshot = await materialsRef.where('id', isEqualTo: event.materialId).get();
-          
-          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
-          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-            await documentSnapshot.reference.delete();
-          }
+        // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+        QuerySnapshot querySnapshot =
+            await materialsRef.where('id', isEqualTo: event.materialId).get();
+
+        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+          await documentSnapshot.reference.delete();
+        }
         yield LoadedState(await _getMaterials());
       } catch (e) {
         yield ErrorState("Gagal menghapus material.");

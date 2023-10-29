@@ -37,11 +37,12 @@ class FormSuratJalanScreen extends StatefulWidget {
   final String? deliveryId;
   final String? statusShp;
 
-  const FormSuratJalanScreen({Key? key, this.shipmentId, this.deliveryId, this.statusShp}) : super(key: key);
-  
+  const FormSuratJalanScreen(
+      {Key? key, this.shipmentId, this.deliveryId, this.statusShp})
+      : super(key: key);
+
   @override
-  State<FormSuratJalanScreen> createState() =>
-      _FormSuratJalanScreenState();
+  State<FormSuratJalanScreen> createState() => _FormSuratJalanScreenState();
 }
 
 class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
@@ -76,203 +77,256 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
   TextEditingController totalPcsProdukController = TextEditingController();
 
   // Fungsi untuk mengambil data dari Firestore
-Future<void> fetchDataFromFirestore(String selectedNomorPerintahPengiriman,) async {
-  final querySnapshot = await firestore.collection('delivery_orders').doc(selectedNomorPerintahPengiriman)
-      .collection('detail_delivery_orders').get();
-  
-  detailPesananWidgets.clear();
-  cardDataList.clear(); // Bersihkan list cardDataList
+  Future<void> fetchDataFromFirestore(
+    String selectedNomorPerintahPengiriman,
+  ) async {
+    final querySnapshot = await firestore
+        .collection('delivery_orders')
+        .doc(selectedNomorPerintahPengiriman)
+        .collection('detail_delivery_orders')
+        .get();
 
-  for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-    final data = doc.data() as Map<String, dynamic>;
-    final jumlahPcsController = TextEditingController();
-    final jumlahDusController = TextEditingController();
+    detailPesananWidgets.clear();
+    cardDataList.clear(); // Bersihkan list cardDataList
 
-    // Tambahkan listener untuk mengupdate total saat controller berubah
-    jumlahPcsController.addListener(() {updateTotalPcsProduk();});
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      final data = doc.data() as Map<String, dynamic>;
+      final jumlahPcsController = TextEditingController();
+      final jumlahDusController = TextEditingController();
 
-    // Tambahkan controller ke dalam list cardDataList
-    cardDataList.add(CardData(
-      pcsController: jumlahPcsController,
-      dusController: jumlahDusController,
-      productID: data['product_id'],
-      jumlahPesanan: data['jumlah'],
-    ));
+      // Tambahkan listener untuk mengupdate total saat controller berubah
+      jumlahPcsController.addListener(() {
+        updateTotalPcsProduk();
+      });
 
-    final cardContentPcs = CustomWithTextFieldCardContent(text: '', isRow: true, leftHintText: 'Jumlah',
-      rightHintText: 'Pcs', rightEnabled: false, controller: jumlahPcsController,);
-    final cardContentDus = CustomWithTextFieldCardContent(text: '', isRow: true, leftHintText: 'Jumlah',
-      rightHintText: 'Dus', rightEnabled: false, controller: jumlahDusController,);
-     Map<String, dynamic>? product = await productService.getProductInfo(data['product_id']);
-     final namaProduct = product?['nama'];
-    
-    // Menambahkan cardContent ke detailPesananWidgets
-    detailPesananWidgets.add(CustomWithTextFieldCard(
-      content: [
-        CustomWithTextFieldCardContent(text: 'Kode Barang: ${data['product_id']}'),
-        CustomWithTextFieldCardContent(text: 'Nama Barang: $namaProduct '),
-        CustomWithTextFieldCardContent(text: 'Jumlah : ${data['jumlah']} ${data['satuan']}'),
-        CustomWithTextFieldCardContent(text: 'Total: ${data['jumlah']/2000} dus'),
-        CustomWithTextFieldCardContent(text: 'Jumlah Pengiriman (Pcs):', isBold: true),
-        cardContentPcs,
-        CustomWithTextFieldCardContent(text: 'Jumlah Pengiriman (Dus):', isBold: true),
-        cardContentDus,
-      ],
-    ));
+      // Tambahkan controller ke dalam list cardDataList
+      cardDataList.add(CardData(
+        pcsController: jumlahPcsController,
+        dusController: jumlahDusController,
+        productID: data['product_id'],
+        jumlahPesanan: data['jumlah'],
+      ));
+
+      final cardContentPcs = CustomWithTextFieldCardContent(
+        text: '',
+        isRow: true,
+        leftHintText: 'Jumlah',
+        rightHintText: 'Pcs',
+        rightEnabled: false,
+        controller: jumlahPcsController,
+      );
+      final cardContentDus = CustomWithTextFieldCardContent(
+        text: '',
+        isRow: true,
+        leftHintText: 'Jumlah',
+        rightHintText: 'Dus',
+        rightEnabled: false,
+        controller: jumlahDusController,
+      );
+      Map<String, dynamic>? product =
+          await productService.getProductInfo(data['product_id']);
+      final namaProduct = product?['nama'];
+
+      // Menambahkan cardContent ke detailPesananWidgets
+      detailPesananWidgets.add(CustomWithTextFieldCard(
+        content: [
+          CustomWithTextFieldCardContent(
+              text: 'Kode Barang: ${data['product_id']}'),
+          CustomWithTextFieldCardContent(text: 'Nama Barang: $namaProduct '),
+          CustomWithTextFieldCardContent(
+              text: 'Jumlah : ${data['jumlah']} ${data['satuan']}'),
+          CustomWithTextFieldCardContent(
+              text: 'Total: ${data['jumlah'] / 2000} dus'),
+          CustomWithTextFieldCardContent(
+              text: 'Jumlah Pengiriman (Pcs):', isBold: true),
+          cardContentPcs,
+          CustomWithTextFieldCardContent(
+              text: 'Jumlah Pengiriman (Dus):', isBold: true),
+          cardContentDus,
+        ],
+      ));
+    }
+    setState(() {});
   }
-  setState(() {});
-}
 
 // Tambahkan fungsi untuk menghitung total Pcs produk
-void updateTotalPcsProduk() {
-  int totalPcs = 0;
+  void updateTotalPcsProduk() {
+    int totalPcs = 0;
 
-  for (final cardData in cardDataList) {
-    final jumlahPcs = int.tryParse(cardData.pcsController.text) ?? 0;
-    totalPcs += jumlahPcs;
-  }
-  totalPcsProdukController.text = totalPcs.toString();
-}
-
-void fetchDetail() async {
-  // Fetch the shipment detail
-  final shipmentDetails = await shipmentService.getDetailShipments(widget.shipmentId ?? '');
-  if (shipmentDetails != null) {
-    // Lakukan sesuatu dengan daftar detail pengiriman yang diterima
-    for (int i = 0; i < cardDataList.length; i++) {
-      // Find the corresponding detail shipment data by productID
-      final detailShipment = shipmentDetails
-          .firstWhere((detail) => detail['product_id'] == cardDataList[i].productID, orElse: () => {});
-      cardDataList[i].pcsController.text = detailShipment['jumlahPengiriman'].toString();
-      cardDataList[i].dusController.text = detailShipment['jumlahPengirimanDus'].toString();
-      cardDataList[i].pcsController.addListener(() { updateTotalPcsProduk();});
+    for (final cardData in cardDataList) {
+      final jumlahPcs = int.tryParse(cardData.pcsController.text) ?? 0;
+      totalPcs += jumlahPcs;
     }
-    updateTotalPcsProduk();
-  } else {
-    // Handle the case where shipmentDetails is null
-    print('Detail Shipment tidak ditemukan atau terjadi kesalahan dalam pengambilan data.');
+    totalPcsProdukController.text = totalPcs.toString();
   }
-}
 
-void fetchCustomerDetail() async{
- Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(widget.deliveryId??'');
- final customerOrderId = deliveryOrder?['customerOrderId'];
-  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
-  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
-  nomorPesananPelanggan.text = customerOrderId;
-  namaPenerimaController.text = customer?['nama'];
-  kodePenerimaController.text = customer?['id'];
-}
-
-@override
-void dispose() {
-  super.dispose();
-}
-
-void clearForm() {
-  // Hapus semua data dalam controller
-  nomorSuratJalanController.clear();
-  _selectedDate = null;
-  selectedNomorPerintahPengiriman = null;
-  kodePenerimaController.clear();
-  namaPenerimaController.clear();
-  alamatController.clear();
-  totalPcsProdukController.clear();
-  statusController.clear();
-  catatanController.clear();
-  nomorPesananPelanggan.clear(); 
-  // Hapus semua data dalam cardDataList
-  cardDataList.clear();
-  // Hapus semua widget dalam detailPesananWidgets
-  detailPesananWidgets.clear();
-  // Panggil setState agar tampilan diperbarui
-  setState(() {});
-}
-
-@override
-void initState() {
-  super.initState();
-  Future.delayed(Duration.zero, () { //untuk mengatasi asinkronus pada init state
-    suratJalanService.generateNextShipmentId().then((nomorSuratJalan) {
-      nomorSuratJalanController.text = nomorSuratJalan;
-    });
-  });
-  statusController.text = "Dalam Proses";
-  if(widget.shipmentId!=null){
-     firestore
-        .collection('shipments')
-        .doc(widget.shipmentId)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        final data = documentSnapshot.data() as Map<String, dynamic>;
-        setState(() {
-          catatanController.text = data['catatan'] ?? '';
-          statusController.text = data['status_shp'];
-          alamatController.text = data['alamat_penerima'];
-          nomorSuratJalanController.text = data['id'];
-          selectedNomorPerintahPengiriman = data['delivery_order_id'];
-          final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
-          if (tanggalPembuatanFirestore != null) {
-            _selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
-          }
+  void fetchDetail() async {
+    // Fetch the shipment detail
+    final shipmentDetails =
+        await shipmentService.getDetailShipments(widget.shipmentId ?? '');
+    if (shipmentDetails != null) {
+      // Lakukan sesuatu dengan daftar detail pengiriman yang diterima
+      for (int i = 0; i < cardDataList.length; i++) {
+        // Find the corresponding detail shipment data by productID
+        final detailShipment = shipmentDetails.firstWhere(
+            (detail) => detail['product_id'] == cardDataList[i].productID,
+            orElse: () => {});
+        cardDataList[i].pcsController.text =
+            detailShipment['jumlahPengiriman'].toString();
+        cardDataList[i].dusController.text =
+            detailShipment['jumlahPengirimanDus'].toString();
+        cardDataList[i].pcsController.addListener(() {
+          updateTotalPcsProduk();
         });
-      } else {
-        print('Document does not exist on Firestore');
       }
-    }).catchError((error) {
-      print('Error getting document: $error');
+      updateTotalPcsProduk();
+    } else {
+      // Handle the case where shipmentDetails is null
+      print(
+          'Detail Shipment tidak ditemukan atau terjadi kesalahan dalam pengambilan data.');
+    }
+  }
+
+  void fetchCustomerDetail() async {
+    Map<String, dynamic>? deliveryOrder = await deliveryOrderService
+        .getDeliveryOrderInfo(widget.deliveryId ?? '');
+    final customerOrderId = deliveryOrder?['customerOrderId'];
+    Map<String, dynamic>? customerOrder =
+        await customerOrderService.getCustomerOrderInfo(customerOrderId);
+    Map<String, dynamic>? customer =
+        await customerService.getCustomerInfo(customerOrder?['customer_id']);
+    nomorPesananPelanggan.text = customerOrderId;
+    namaPenerimaController.text = customer?['nama'];
+    kodePenerimaController.text = customer?['id'];
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void clearForm() {
+    // Hapus semua data dalam controller
+    nomorSuratJalanController.clear();
+    _selectedDate = null;
+    selectedNomorPerintahPengiriman = null;
+    kodePenerimaController.clear();
+    namaPenerimaController.clear();
+    alamatController.clear();
+    totalPcsProdukController.clear();
+    statusController.clear();
+    catatanController.clear();
+    nomorPesananPelanggan.clear();
+    // Hapus semua data dalam cardDataList
+    cardDataList.clear();
+    // Hapus semua widget dalam detailPesananWidgets
+    detailPesananWidgets.clear();
+    // Panggil setState agar tampilan diperbarui
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      //untuk mengatasi asinkronus pada init state
+      suratJalanService.generateNextShipmentId().then((nomorSuratJalan) {
+        nomorSuratJalanController.text = nomorSuratJalan;
+      });
+    });
+    statusController.text = "Dalam Proses";
+    if (widget.shipmentId != null) {
+      firestore
+          .collection('shipments')
+          .doc(widget.shipmentId)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          final data = documentSnapshot.data() as Map<String, dynamic>;
+          setState(() {
+            catatanController.text = data['catatan'] ?? '';
+            statusController.text = data['status_shp'];
+            alamatController.text = data['alamat_penerima'];
+            nomorSuratJalanController.text = data['id'];
+            selectedNomorPerintahPengiriman = data['delivery_order_id'];
+            final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
+            if (tanggalPembuatanFirestore != null) {
+              _selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
+            }
+          });
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      }).catchError((error) {
+        print('Error getting document: $error');
+      });
+    }
+
+    if (widget.deliveryId != null) {
+      fetchDataFromFirestore(widget.deliveryId ?? '');
+      updateTotalPcsProduk();
+      fetchCustomerDetail();
+      fetchDetail();
+    }
+  }
+
+  void addOrUpdate() {
+    final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);
+    final shipment = Shipment(
+        id: nomorSuratJalanController.text,
+        alamatPenerima: alamatController.text,
+        catatan: catatanController.text,
+        deliveryOrderId: selectedNomorPerintahPengiriman ?? '',
+        status: 1,
+        statusShp: statusController.text,
+        totalPcs: int.tryParse(totalPcsProdukController.text) ?? 0,
+        tanggalPembuatan: _selectedDate ?? DateTime.now(),
+        detailListShipment: []);
+    for (int index = 0; index < cardDataList.length; index++) {
+      String jumlahDus = cardDataList[index].dusController.text;
+      String jumlahPcs = cardDataList[index].pcsController.text;
+      String kodeProduk = cardDataList[index].productID;
+      String jumlahPesanan = cardDataList[index].jumlahPesanan.toString();
+      double jumlahDusPesanan = (double.tryParse(jumlahPesanan) ?? 0) / 2000;
+      int jumlahDusPesananInt = jumlahDusPesanan.toInt();
+
+      final detailShipment = DetailShipment(
+          id: '',
+          shipmentId: '',
+          jumlahDusPesanan: jumlahDusPesananInt,
+          jumlahPengiriman: int.tryParse(jumlahPcs) ?? 0,
+          jumlahPengirimanDus: int.tryParse(jumlahDus) ?? 0,
+          jumlahPesanan: int.tryParse(jumlahPesanan) ?? 0,
+          productId: kodeProduk,
+          status: 1);
+      shipment.detailListShipment.add(detailShipment);
+    }
+
+    if (widget.shipmentId != null) {
+      shipmentBloc.add(UpdateShipmentEvent(widget.shipmentId ?? '', shipment));
+    } else {
+      shipmentBloc.add(AddShipmentEvent(shipment));
+    }
+
+    updateTotalPcsProduk();
+  }
+
+  void _showSuccessMessageAndNavigateBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SuccessDialog(
+          message: 'Berhasil menyimpan surat jalan',
+        );
+      },
+    ).then((_) {
+      Navigator.pop(context, null);
     });
   }
-
-  if(widget.deliveryId!=null){
-    fetchDataFromFirestore(widget.deliveryId??''); 
-    updateTotalPcsProduk();
-    fetchCustomerDetail();
-    fetchDetail();
-  }
-}
-
-void addOrUpdate() {
-  final shipmentBloc = BlocProvider.of<ShipmentBloc>(context);  
-  final shipment = Shipment(id: nomorSuratJalanController.text, alamatPenerima: alamatController.text, catatan: catatanController.text, deliveryOrderId: selectedNomorPerintahPengiriman??'', status: 1, statusShp: statusController.text, totalPcs: int.tryParse(totalPcsProdukController.text)??0,tanggalPembuatan: _selectedDate??DateTime.now(), detailListShipment: []);
-  for (int index = 0; index < cardDataList.length; index++) {
-    String jumlahDus = cardDataList[index].dusController.text;
-    String jumlahPcs = cardDataList[index].pcsController.text;
-    String kodeProduk = cardDataList[index].productID;
-    String jumlahPesanan = cardDataList[index].jumlahPesanan.toString();
-    double jumlahDusPesanan = (double.tryParse(jumlahPesanan)??0)/2000;
-    int jumlahDusPesananInt = jumlahDusPesanan.toInt();
-
-    final detailShipment = DetailShipment(id: '',shipmentId: '', jumlahDusPesanan: jumlahDusPesananInt, jumlahPengiriman: int.tryParse(jumlahPcs)??0, jumlahPengirimanDus: int.tryParse(jumlahDus)??0, jumlahPesanan: int.tryParse(jumlahPesanan)??0, productId: kodeProduk, status: 1);
-    shipment.detailListShipment.add(detailShipment);
-  }
-
-  if(widget.shipmentId!=null){
-    shipmentBloc.add(UpdateShipmentEvent(widget.shipmentId??'', shipment));
-  }else{
-    shipmentBloc.add(AddShipmentEvent(shipment));
-  }
-
-   updateTotalPcsProduk();
-}
-
-void _showSuccessMessageAndNavigateBack() {
-showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return SuccessDialog(
-      message: 'Berhasil menyimpan surat jalan',
-    );
-  },
-  ).then((_) {
-    Navigator.pop(context,null);
-  });
-}
 
   @override
   Widget build(BuildContext context) {
-      return BlocListener<ShipmentBloc, ShipmentBlocState>(
+    return BlocListener<ShipmentBloc, ShipmentBlocState>(
       listener: (context, state) async {
         if (state is SuccessState) {
           _showSuccessMessageAndNavigateBack();
@@ -281,11 +335,11 @@ showDialog(
           });
         } else if (state is ErrorState) {
           showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ErrorDialog(errorMessage: state.errorMessage);
-          },
-        );
+            context: context,
+            builder: (BuildContext context) {
+              return ErrorDialog(errorMessage: state.errorMessage);
+            },
+          );
         } else if (state is LoadingState) {
           setState(() {
             isLoading = true;
@@ -299,10 +353,10 @@ showDialog(
       },
       child: Scaffold(
         body: SafeArea(
-          child: Stack(
-            children: [
-              Center(
-                child: SingleChildScrollView(
+            child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -328,7 +382,8 @@ showDialog(
                               ),
                               child: const CircleAvatar(
                                 backgroundColor: Colors.white,
-                                child: Icon(Icons.arrow_back, color: Colors.black),
+                                child:
+                                    Icon(Icons.arrow_back, color: Colors.black),
                               ),
                             ),
                           ),
@@ -351,7 +406,9 @@ showDialog(
                         controller: nomorSuratJalanController,
                         isEnabled: false,
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       DatePickerButton(
                         label: 'Tanggal Pembuatan',
                         selectedDate: _selectedDate,
@@ -360,22 +417,25 @@ showDialog(
                             _selectedDate = newDate;
                           });
                         },
-                        isEnabled: widget.statusShp!="Selesai",
+                        isEnabled: widget.statusShp != "Selesai",
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       DeliveryOrderDropDown(
                         selecteDO: selectedNomorPerintahPengiriman,
                         onChanged: (newValue) {
                           setState(() {
-                            selectedNomorPerintahPengiriman = newValue??'';
-                            fetchDataFromFirestore(selectedNomorPerintahPengiriman??'');
+                            selectedNomorPerintahPengiriman = newValue ?? '';
+                            fetchDataFromFirestore(
+                                selectedNomorPerintahPengiriman ?? '');
                           });
                         },
                         namaPelangganController: namaPenerimaController,
                         kodePelangganController: kodePenerimaController,
                         alamatController: alamatController,
                         nomorPesananPelanggan: nomorPesananPelanggan,
-                        isEnabled: widget.shipmentId==null,
+                        isEnabled: widget.shipmentId == null,
                       ),
                       const SizedBox(height: 16.0),
                       Row(
@@ -399,23 +459,27 @@ showDialog(
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       TextFieldWidget(
-                            label: 'Nomor Pesanan Pelanggan',
-                            placeholder: 'Nomor Pesanan Pelanggan',
-                            controller: nomorPesananPelanggan,
-                            isEnabled: false,
-                          ),
+                        label: 'Nomor Pesanan Pelanggan',
+                        placeholder: 'Nomor Pesanan Pelanggan',
+                        controller: nomorPesananPelanggan,
+                        isEnabled: false,
+                      ),
                       const SizedBox(height: 16),
                       TextFieldWidget(
                         label: 'Alamat Penerima',
                         placeholder: 'Alamat',
                         controller: alamatController,
                         multiline: true,
-                        isEnabled: widget.statusShp!="Selesai",
+                        isEnabled: widget.statusShp != "Selesai",
                       ),
-                      const SizedBox(height: 16.0,),
-                        Row(
+                      const SizedBox(
+                        height: 16.0,
+                      ),
+                      Row(
                         children: [
                           Expanded(
                             child: TextFieldWidget(
@@ -436,21 +500,27 @@ showDialog(
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       TextFieldWidget(
                         label: 'Status',
                         placeholder: 'Dalam Proses',
                         controller: statusController,
                         isEnabled: false,
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       TextFieldWidget(
                         label: 'Catatan',
                         placeholder: 'Catatan',
                         controller: catatanController,
-                        isEnabled: widget.statusShp!="Selesai",
+                        isEnabled: widget.statusShp != "Selesai",
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       const Text(
                         'Detail Pesanan',
                         style: TextStyle(
@@ -458,7 +528,9 @@ showDialog(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       ListView.builder(
                         shrinkWrap: true,
                         itemCount: detailPesananWidgets.length,
@@ -466,17 +538,22 @@ showDialog(
                           return detailPesananWidgets[index];
                         },
                       ),
-                      const SizedBox(height: 16.0,),
+                      const SizedBox(
+                        height: 16.0,
+                      ),
                       Row(
                         children: [
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: widget.statusShp == "Selesai" ? null : () {
-                                // Handle save button press
-                                addOrUpdate();
-                              },
+                              onPressed: widget.statusShp == "Selesai"
+                                  ? null
+                                  : () {
+                                      // Handle save button press
+                                      addOrUpdate();
+                                    },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(59, 51, 51, 1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
@@ -493,12 +570,15 @@ showDialog(
                           const SizedBox(width: 16.0),
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: widget.statusShp == "Selesai" ? null :() {
-                                // Handle clear button press
-                                clearForm();
-                              },
+                              onPressed: widget.statusShp == "Selesai"
+                                  ? null
+                                  : () {
+                                      // Handle clear button press
+                                      clearForm();
+                                    },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                backgroundColor:
+                                    const Color.fromRGBO(59, 51, 51, 1),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
@@ -518,23 +598,24 @@ showDialog(
                   ),
                 ),
               ),
-              ),
-              if (isLoading)
-              Positioned( // Menambahkan Positioned untuk indikator loading
+            ),
+            if (isLoading)
+              Positioned(
+                // Menambahkan Positioned untuk indikator loading
                 top: 0,
                 bottom: 0,
                 left: 0,
                 right: 0,
                 child: Container(
-                  color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
+                  color: Colors.black
+                      .withOpacity(0.3), // Latar belakang semi-transparan
                   child: const Center(
                     child: CircularProgressIndicator(),
                   ),
                 ),
               ),
-            ],
-          )
-        ),
+          ],
+        )),
       ),
     );
   }

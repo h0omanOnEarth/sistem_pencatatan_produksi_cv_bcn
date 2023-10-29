@@ -15,8 +15,7 @@ class FormMasterBahanScreen extends StatefulWidget {
   const FormMasterBahanScreen({Key? key, this.materialId}) : super(key: key);
 
   @override
-  State<FormMasterBahanScreen> createState() =>
-      _FormMasterBahanScreenState();
+  State<FormMasterBahanScreen> createState() => _FormMasterBahanScreenState();
 }
 
 class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
@@ -29,7 +28,8 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
   TextEditingController hargaController = TextEditingController();
   TextEditingController stokController = TextEditingController();
   TextEditingController keteranganController = TextEditingController();
-  final MaterialBloc _materialBloc = MaterialBloc(); // Tambahkan ini di dalam widget class
+  final MaterialBloc _materialBloc =
+      MaterialBloc(); // Tambahkan ini di dalam widget class
 
   @override
   void initState() {
@@ -92,19 +92,18 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
     }
   }
 
-void _showSuccessMessageAndNavigateBack() {
-showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return SuccessDialog(
-      message: 'Berhasil menyimpan Bahan',
-    );
-  },
-  ).then((_) {
-    Navigator.pop(context,null);
-  });
-}
-
+  void _showSuccessMessageAndNavigateBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SuccessDialog(
+          message: 'Berhasil menyimpan Bahan',
+        );
+      },
+    ).then((_) {
+      Navigator.pop(context, null);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +138,8 @@ showDialog(
         body: SafeArea(
           child: Stack(
             children: [
-              Center( // Membungkus konten dengan Center
+              Center(
+                // Membungkus konten dengan Center
                 child: SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
@@ -166,7 +166,8 @@ showDialog(
                                 ),
                                 child: const CircleAvatar(
                                   backgroundColor: Colors.white,
-                                  child: Icon(Icons.arrow_back, color: Colors.black),
+                                  child: Icon(Icons.arrow_back,
+                                      color: Colors.black),
                                 ),
                               ),
                             ),
@@ -189,11 +190,13 @@ showDialog(
                         const SizedBox(height: 16.0),
                         DropdownWidget(
                           label: 'Satuan',
-                          selectedValue: selectedKategori, // Isi dengan nilai yang sesuai
+                          selectedValue:
+                              selectedKategori, // Isi dengan nilai yang sesuai
                           items: const ['Bahan Baku', 'Bahan Tambahan'],
                           onChanged: (newValue) {
                             setState(() {
-                              selectedKategori = newValue; // Update _selectedValue saat nilai berubah
+                              selectedKategori =
+                                  newValue; // Update _selectedValue saat nilai berubah
                               print('Selected value: $newValue');
                             });
                           },
@@ -201,11 +204,13 @@ showDialog(
                         const SizedBox(height: 16.0),
                         DropdownWidget(
                           label: 'Satuan',
-                          selectedValue: selectedSatuan, // Isi dengan nilai yang sesuai
+                          selectedValue:
+                              selectedSatuan, // Isi dengan nilai yang sesuai
                           items: const ['Kg', 'Ons', 'Pcs', 'Gram', 'Sak'],
                           onChanged: (newValue) {
                             setState(() {
-                              selectedSatuan = newValue; // Update _selectedValue saat nilai berubah
+                              selectedSatuan =
+                                  newValue; // Update _selectedValue saat nilai berubah
                               print('Selected value: $newValue');
                             });
                           },
@@ -216,14 +221,18 @@ showDialog(
                           placeholder: 'Stok',
                           controller: stokController,
                         ),
-                        const SizedBox(height: 16,),
+                        const SizedBox(
+                          height: 16,
+                        ),
                         DropdownWidget(
                           label: 'Status',
-                          selectedValue: selectedStatus, // Isi dengan nilai yang sesuai
+                          selectedValue:
+                              selectedStatus, // Isi dengan nilai yang sesuai
                           items: const ['Aktif', 'Tidak Aktif'],
                           onChanged: (newValue) {
                             setState(() {
-                              selectedStatus = newValue; // Update _selectedValue saat nilai berubah
+                              selectedStatus =
+                                  newValue; // Update _selectedValue saat nilai berubah
                               print('Selected value: $newValue');
                             });
                           },
@@ -244,7 +253,8 @@ showDialog(
                                   _addMaterial(); // Panggil method _addMaterial saat tombol "Simpan" ditekan
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                  backgroundColor:
+                                      const Color.fromRGBO(59, 51, 51, 1),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
@@ -274,7 +284,8 @@ showDialog(
                                   setState(() {});
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                                  backgroundColor:
+                                      const Color.fromRGBO(59, 51, 51, 1),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
@@ -296,18 +307,20 @@ showDialog(
                 ),
               ),
               if (isLoading)
-              Positioned( // Menambahkan Positioned untuk indikator loading
-              top: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                color: Colors.black.withOpacity(0.3), // Latar belakang semi-transparan
-                child: const Center(
-                  child: CircularProgressIndicator(),
+                Positioned(
+                  // Menambahkan Positioned untuk indikator loading
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.3), // Latar belakang semi-transparan
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
                 ),
-              ),
-            ),
             ],
           ),
         ),

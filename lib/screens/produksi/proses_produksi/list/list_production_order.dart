@@ -23,118 +23,132 @@ class ListProductionOrder extends StatefulWidget {
 }
 
 class _ListProductionOrderState extends State<ListProductionOrder> {
-  final CollectionReference productionOrderRef = FirebaseFirestore.instance.collection('production_orders');
+  final CollectionReference productionOrderRef =
+      FirebaseFirestore.instance.collection('production_orders');
   String searchTerm = '';
   String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; 
-  String endDateText = '';   
+  String startDateText = '';
+  String endDateText = '';
   int startIndex = 0; // Indeks awal data yang ditampilkan
   int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-    int _selectedIndex = 2;
-  bool _isSidebarCollapsed = false; 
+  int _selectedIndex = 2;
+  bool _isSidebarCollapsed = false;
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: SafeArea(
-      child: ResponsiveBuilder(
-        builder: (context, sizingInformation) {
-          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-            return _buildDesktopContent();
-          } else {
-            return _buildMobileContent();
-          }
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType ==
+                DeviceScreenType.desktop) {
+              return _buildDesktopContent();
+            } else {
+              return _buildMobileContent();
+            }
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-void _toggleSidebar() {
+  void _toggleSidebar() {
     setState(() {
       _isSidebarCollapsed = !_isSidebarCollapsed;
     });
   }
 
-Widget _buildDesktopContent() {
-  return Row(
-    children: [
-      SidebarProduksiWidget(
-        selectedIndex: _selectedIndex,
-        onItemTapped: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Implementasi navigasi berdasarkan index terpilih
-          _navigateToScreen(index, context);
-        },
-        isSidebarCollapsed: _isSidebarCollapsed,
-        onToggleSidebar:  _toggleSidebar
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CustomAppBar(title: 'Perintah Produksi', formScreen: FormPerintahProduksiScreen(), routes: '${MainProduksi.routeName}?selectedIndex=2',),
-                const SizedBox(height: 24.0),
-                _buildSearchBar(),
-                const SizedBox(height: 16.0),
-                buildDateRangeSelector(),
-                const SizedBox(height: 16.0),
-                _buildProductionOrderList(),
-              ],
+  Widget _buildDesktopContent() {
+    return Row(
+      children: [
+        SidebarProduksiWidget(
+            selectedIndex: _selectedIndex,
+            onItemTapped: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              // Implementasi navigasi berdasarkan index terpilih
+              _navigateToScreen(index, context);
+            },
+            isSidebarCollapsed: _isSidebarCollapsed,
+            onToggleSidebar: _toggleSidebar),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Perintah Produksi',
+                    formScreen: FormPerintahProduksiScreen(),
+                    routes: '${MainProduksi.routeName}?selectedIndex=2',
+                  ),
+                  const SizedBox(height: 24.0),
+                  _buildSearchBar(),
+                  const SizedBox(height: 16.0),
+                  buildDateRangeSelector(),
+                  const SizedBox(height: 16.0),
+                  _buildProductionOrderList(),
+                ],
+              ),
             ),
           ),
-        ),
-      )
-    ],
-  );
-}
+        )
+      ],
+    );
+  }
 
   // Fungsi navigasi berdasarkan index terpilih
-void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('${MainProduksi.routeName}?selectedIndex=$index');
-}
+  void _navigateToScreen(int index, BuildContext context) {
+    Routemaster.of(context)
+        .push('${MainProduksi.routeName}?selectedIndex=$index');
+  }
 
-
-Widget _buildMobileContent() {
-  return SingleChildScrollView(
-    child: Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const CustomAppBar(title: 'Perintah Produksi', formScreen: FormPerintahProduksiScreen(), routes: '${MainProduksi.routeName}?selectedIndex=2',),
-          const SizedBox(height: 24.0),
-          _buildSearchBar(),
-          const SizedBox(height: 16.0,),
-          buildDateRangeSelector(),
-          const SizedBox(height: 16.0),
-          _buildProductionOrderList(),
-        ],
+  Widget _buildMobileContent() {
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CustomAppBar(
+              title: 'Perintah Produksi',
+              formScreen: FormPerintahProduksiScreen(),
+              routes: '${MainProduksi.routeName}?selectedIndex=2',
+            ),
+            const SizedBox(height: 24.0),
+            _buildSearchBar(),
+            const SizedBox(
+              height: 16.0,
+            ),
+            buildDateRangeSelector(),
+            const SizedBox(height: 16.0),
+            _buildProductionOrderList(),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSearchBar() {
     return Row(
       children: [
         Expanded(
-          child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          }),
+          child: SearchBarWidget(
+              searchTerm: searchTerm,
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value;
+                });
+              }),
         ),
-        const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+        const SizedBox(
+            width: 16.0), // Add spacing between calendar icon and filter button
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -157,26 +171,27 @@ Widget _buildMobileContent() {
     return Row(
       children: [
         Expanded(
-        child:  DatePickerButton(
-        label: 'Tanggal Mulai',
-        selectedDate: selectedStartDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedStartDate = newDate;
-          });
-        },
-        ),),
+          child: DatePickerButton(
+            label: 'Tanggal Mulai',
+            selectedDate: selectedStartDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedStartDate = newDate;
+              });
+            },
+          ),
+        ),
         const SizedBox(width: 16.0),
         Expanded(
-        child: DatePickerButton(
-        label: 'Tanggal Selesai',
-        selectedDate: selectedEndDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedEndDate = newDate;
-          });
-        },
-          ), 
+          child: DatePickerButton(
+            label: 'Tanggal Selesai',
+            selectedDate: selectedEndDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedEndDate = newDate;
+              });
+            },
+          ),
         )
       ],
     );
@@ -201,12 +216,14 @@ Widget _buildMobileContent() {
           final itemDocs = querySnapshot.docs;
 
           // Anda perlu mendapatkan data 'material_usages' dari Firestore
-          final materialUsagesRef = FirebaseFirestore.instance.collection('material_usages');
+          final materialUsagesRef =
+              FirebaseFirestore.instance.collection('material_usages');
 
           return StreamBuilder<QuerySnapshot>(
             stream: materialUsagesRef.snapshots(),
             builder: (context, materialUsagesSnapshot) {
-              if (materialUsagesSnapshot.connectionState == ConnectionState.waiting) {
+              if (materialUsagesSnapshot.connectionState ==
+                  ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
@@ -214,10 +231,12 @@ Widget _buildMobileContent() {
                 );
               } else if (materialUsagesSnapshot.hasError) {
                 return Text('Error: ${materialUsagesSnapshot.error}');
-              } else if (!materialUsagesSnapshot.hasData || materialUsagesSnapshot.data?.docs.isEmpty == true) {
+              } else if (!materialUsagesSnapshot.hasData ||
+                  materialUsagesSnapshot.data?.docs.isEmpty == true) {
                 return const Text('Tidak ada data material usages.');
               } else {
-                final materialUsagesQuerySnapshot = materialUsagesSnapshot.data!;
+                final materialUsagesQuerySnapshot =
+                    materialUsagesSnapshot.data!;
                 final materialUsagesDocs = materialUsagesQuerySnapshot.docs;
 
                 final filteredDocs = itemDocs.where((doc) {
@@ -228,13 +247,21 @@ Widget _buildMobileContent() {
 
                   bool isWithinDateRange = true;
                   if (selectedStartDate != null && selectedEndDate != null) {
-                    isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) &&
-                        tanggalRencana.toDate().isBefore(selectedEndDate!)) ||
+                    isWithinDateRange = (tanggalRencana
+                                .toDate()
+                                .isAfter(selectedStartDate!) &&
+                            tanggalRencana
+                                .toDate()
+                                .isBefore(selectedEndDate!)) ||
                         (tanggalProduksi.toDate().isAfter(selectedStartDate!) &&
-                            tanggalProduksi.toDate().isBefore(selectedEndDate!));
+                            tanggalProduksi
+                                .toDate()
+                                .isBefore(selectedEndDate!));
                   }
 
-                  return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
+                  return (keterangan
+                          .toLowerCase()
+                          .contains(searchTerm.toLowerCase()) &&
                       (selectedStatus.isEmpty || status == selectedStatus) &&
                       isWithinDateRange);
                 }).toList();
@@ -243,7 +270,9 @@ Widget _buildMobileContent() {
                 final endIndex = startIndex + itemsPerPage;
                 final paginatedDocs = filteredDocs.sublist(
                   startIndex,
-                  endIndex < filteredDocs.length ? endIndex : filteredDocs.length,
+                  endIndex < filteredDocs.length
+                      ? endIndex
+                      : filteredDocs.length,
                 );
 
                 // Mengatur tombol "Prev" dan "Next"
@@ -257,32 +286,39 @@ Widget _buildMobileContent() {
                       shrinkWrap: true,
                       itemCount: paginatedDocs.length,
                       itemBuilder: (context, index) {
-                        final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                        final data =
+                            paginatedDocs[index].data() as Map<String, dynamic>;
                         final id = data['id'] as String;
                         // Dapatkan batch yang sesuai dengan produksi
-                        final batch = calculateCurrentBatch(materialUsagesDocs, data['id']);
+                        final batch = calculateCurrentBatch(
+                            materialUsagesDocs, data['id']);
                         // Dapatkan nilai progress bar
-                        final progressBarValue = calculateProgressBarValue(materialUsagesDocs, data['id'], batch);
+                        final progressBarValue = calculateProgressBarValue(
+                            materialUsagesDocs, data['id'], batch);
 
                         final info = {
                           'ID Produk': data['product_id'],
                           'ID BOM': data['bom_id'],
-                          'Tanggal Perintah Produksi':
-                              DateFormat('dd/MM/yyyy').format((data['tanggal_rencana'] as Timestamp).toDate()),
-                          'Tanggal Produksi':
-                              DateFormat('dd/MM/yyyy').format((data['tanggal_produksi'] as Timestamp).toDate()),
+                          'Tanggal Perintah Produksi': DateFormat('dd/MM/yyyy')
+                              .format((data['tanggal_rencana'] as Timestamp)
+                                  .toDate()),
+                          'Tanggal Produksi': DateFormat('dd/MM/yyyy').format(
+                              (data['tanggal_produksi'] as Timestamp).toDate()),
                           'Catatan': data['catatan'],
                           'Status': data['status_pro'],
                           'Current Batch': batch
                         };
                         return ListCard(
                           title: id,
-                          description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                          description: info.entries
+                              .map((e) => '${e.key}: ${e.value}')
+                              .join('\n'),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => FormPerintahProduksiScreen(
+                                builder: (context) =>
+                                    FormPerintahProduksiScreen(
                                   productionOrderId: data['id'],
                                   productId: data['product_id'],
                                   statusPro: data['status_pro'],
@@ -296,7 +332,8 @@ Widget _buildMobileContent() {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   title: const Text("Konfirmasi Hapus"),
-                                  content: const Text("Anda yakin ingin menghapus perintah produksi ini?"),
+                                  content: const Text(
+                                      "Anda yakin ingin menghapus perintah produksi ini?"),
                                   actions: <Widget>[
                                     TextButton(
                                       child: const Text("Batal"),
@@ -307,8 +344,11 @@ Widget _buildMobileContent() {
                                     TextButton(
                                       child: const Text("Hapus"),
                                       onPressed: () async {
-                                        final productionOrderBloc = BlocProvider.of<ProductionOrderBloc>(context);
-                                        productionOrderBloc.add(DeleteProductionOrderEvent(data['id']));
+                                        final productionOrderBloc = BlocProvider
+                                            .of<ProductionOrderBloc>(context);
+                                        productionOrderBloc.add(
+                                            DeleteProductionOrderEvent(
+                                                data['id']));
                                         Navigator.of(context).pop(true);
                                       },
                                     ),
@@ -326,36 +366,45 @@ Widget _buildMobileContent() {
                         );
                       },
                     ),
-                    const SizedBox(height: 16.0,),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         ElevatedButton(
-                          onPressed: isPrevButtonDisabled ? null : () {
-                            setState(() {
-                              startIndex -= itemsPerPage;
-                              if (startIndex < 0) {
-                                startIndex = 0;
-                              }
-                            });
-                          },
+                          onPressed: isPrevButtonDisabled
+                              ? null
+                              : () {
+                                  setState(() {
+                                    startIndex -= itemsPerPage;
+                                    if (startIndex < 0) {
+                                      startIndex = 0;
+                                    }
+                                  });
+                                },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                            backgroundColor: Colors
+                                .brown, // Mengubah warna latar belakang menjadi cokelat
                           ),
                           child: const Text("Prev"),
                         ),
                         const SizedBox(width: 16),
                         ElevatedButton(
-                          onPressed: isNextButtonDisabled ? null : () {
-                            setState(() {
-                              startIndex += itemsPerPage;
-                              if (startIndex >= filteredDocs.length) {
-                                startIndex = filteredDocs.length - itemsPerPage;
-                              }
-                            });
-                          },
+                          onPressed: isNextButtonDisabled
+                              ? null
+                              : () {
+                                  setState(() {
+                                    startIndex += itemsPerPage;
+                                    if (startIndex >= filteredDocs.length) {
+                                      startIndex =
+                                          filteredDocs.length - itemsPerPage;
+                                    }
+                                  });
+                                },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                            backgroundColor: Colors
+                                .brown, // Mengubah warna latar belakang menjadi cokelat
                           ),
                           child: const Text("Next"),
                         ),
@@ -371,7 +420,8 @@ Widget _buildMobileContent() {
     );
   }
 
-  String calculateCurrentBatch(List<QueryDocumentSnapshot> materialUsagesDocs, String productionOrderId) {
+  String calculateCurrentBatch(List<QueryDocumentSnapshot> materialUsagesDocs,
+      String productionOrderId) {
     for (var usage in materialUsagesDocs) {
       if (usage['production_order_id'] == productionOrderId) {
         return usage['batch'] ?? 'Pencampuran';
@@ -380,11 +430,17 @@ Widget _buildMobileContent() {
     return 'Pencampuran'; // Jika tidak ditemukan, kembalikan 'Pencampuran'
   }
 
-
-  double calculateProgressBarValue(List<QueryDocumentSnapshot> materialUsagesDocs, String productionOrderId, String productionOrderBatch) {
-    if (materialUsagesDocs.any((usage) => usage['production_order_id'] == productionOrderId && usage['batch'] == 'Pencetakan')) {
+  double calculateProgressBarValue(
+      List<QueryDocumentSnapshot> materialUsagesDocs,
+      String productionOrderId,
+      String productionOrderBatch) {
+    if (materialUsagesDocs.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Pencetakan')) {
       return 0.9; // Jika batch 'Pencetakan' ada, progress bar 90%
-    } else if (materialUsagesDocs.any((usage) => usage['production_order_id'] == productionOrderId && usage['batch'] == 'Sheet')) {
+    } else if (materialUsagesDocs.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Sheet')) {
       return 0.6; // Jika batch 'Sheet' ada, progress bar 60%
     } else {
       return 0.3; // Jika keduanya tidak ada, progress bar 30%
@@ -392,18 +448,18 @@ Widget _buildMobileContent() {
   }
 
   Future<void> _showFilterDialog(BuildContext context) async {
-  await showDialog<String>(
-    context: context,
-    builder: (BuildContext context) {
-      return FilterDialog(
-        title: ('Filter Berdasarkan Status Perintah Produksi'),
-        onFilterSelected: (selectedStatus) {
-          setState(() {
-            this.selectedStatus = selectedStatus!;
-          });
-        },
-      );
-    },
-  );
-}
+    await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return FilterDialog(
+          title: ('Filter Berdasarkan Status Perintah Produksi'),
+          onFilterSelected: (selectedStatus) {
+            setState(() {
+              this.selectedStatus = selectedStatus!;
+            });
+          },
+        );
+      },
+    );
+  }
 }

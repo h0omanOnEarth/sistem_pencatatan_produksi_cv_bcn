@@ -27,7 +27,6 @@ class FinishedItemReceiveEvent extends ItemReceiveEvent {
   FinishedItemReceiveEvent(this.itemReceiveId);
 }
 
-
 // States
 abstract class ItemReceiveBlocState {}
 
@@ -50,27 +49,31 @@ class ItemReceiveErrorState extends ItemReceiveBlocState {
 }
 
 // BLoC
-class ItemReceiveBloc
-  extends Bloc<ItemReceiveEvent, ItemReceiveBlocState> {
+class ItemReceiveBloc extends Bloc<ItemReceiveEvent, ItemReceiveBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable itemReceiveCallable;
 
-  ItemReceiveBloc() : itemReceiveCallable = FirebaseFunctions.instance.httpsCallable('itemReceiveValidation'), super(ItemReceiveLoadingState()) {
+  ItemReceiveBloc()
+      : itemReceiveCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('itemReceiveValidation'),
+        super(ItemReceiveLoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
   @override
-  Stream<ItemReceiveBlocState> mapEventToState(
-      ItemReceiveEvent event) async* {
+  Stream<ItemReceiveBlocState> mapEventToState(ItemReceiveEvent event) async* {
     if (event is AddItemReceiveEvent) {
       yield ItemReceiveLoadingState();
 
-      final productionConfirmationId = event.itemReceive.productionConfirmationId;
+      final productionConfirmationId =
+          event.itemReceive.productionConfirmationId;
       final products = event.itemReceive.detailItemReceiveList;
 
-      if(productionConfirmationId.isNotEmpty){
-         try {
-          final HttpsCallableResult<dynamic> result = await itemReceiveCallable.call(<String, dynamic>{
+      if (productionConfirmationId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await itemReceiveCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'productionConfirmationId': productionConfirmationId,
             'mode': 'add'
@@ -78,17 +81,20 @@ class ItemReceiveBloc
 
           if (result.data['success'] == true) {
             final nextItemReceiveId = await _generateNextItemReceiveId();
-            final itemReceiveRef = _firestore.collection('item_receives').doc(nextItemReceiveId);
+            final itemReceiveRef =
+                _firestore.collection('item_receives').doc(nextItemReceiveId);
             final Map<String, dynamic> itemReceiveData = {
               'id': nextItemReceiveId,
-              'production_confirmation_id': event.itemReceive.productionConfirmationId,
+              'production_confirmation_id':
+                  event.itemReceive.productionConfirmationId,
               'status': event.itemReceive.status,
               'status_irc': event.itemReceive.statusIrc,
               'tanggal_penerimaan': event.itemReceive.tanggalPenerimaan,
               'catatan': event.itemReceive.catatan,
             };
             await itemReceiveRef.set(itemReceiveData);
-            final detailItemReceiveRef = itemReceiveRef.collection('detail_item_receives');
+            final detailItemReceiveRef =
+                itemReceiveRef.collection('detail_item_receives');
             if (event.itemReceive.detailItemReceiveList.isNotEmpty) {
               int detailCount = 1;
               for (var detailItemReceive
@@ -108,36 +114,40 @@ class ItemReceiveBloc
             }
 
             yield SuccessState();
-          }else{
+          } else {
             yield ItemReceiveErrorState(result.data['message']);
           }
         } catch (e) {
           yield ItemReceiveErrorState(e.toString());
         }
-      }else{
-        yield ItemReceiveErrorState("nomor konfirmasi produksi tidak boleh kosong");
+      } else {
+        yield ItemReceiveErrorState(
+            "nomor konfirmasi produksi tidak boleh kosong");
       }
-
     } else if (event is UpdateItemReceiveEvent) {
       yield ItemReceiveLoadingState();
 
-      final productionConfirmationId = event.itemReceive.productionConfirmationId;
+      final productionConfirmationId =
+          event.itemReceive.productionConfirmationId;
       final products = event.itemReceive.detailItemReceiveList;
 
-      if(productionConfirmationId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await itemReceiveCallable.call(<String, dynamic>{
-          'products': products.map((material) => material.toJson()).toList(),
-          'productionConfirmationId': productionConfirmationId,
-          'mode': 'edit'
-        });
+      if (productionConfirmationId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await itemReceiveCallable.call(<String, dynamic>{
+            'products': products.map((material) => material.toJson()).toList(),
+            'productionConfirmationId': productionConfirmationId,
+            'mode': 'edit'
+          });
 
-        if (result.data['success'] == true) {
-            final itemReceiveToUpdateRef = _firestore.collection('item_receives').doc(event.itemReceiveId);
+          if (result.data['success'] == true) {
+            final itemReceiveToUpdateRef =
+                _firestore.collection('item_receives').doc(event.itemReceiveId);
 
             final Map<String, dynamic> itemReceiveData = {
               'id': event.itemReceiveId,
-              'production_confirmation_id': event.itemReceive.productionConfirmationId,
+              'production_confirmation_id':
+                  event.itemReceive.productionConfirmationId,
               'status': event.itemReceive.status,
               'status_irc': event.itemReceive.statusIrc,
               'tanggal_penerimaan': event.itemReceive.tanggalPenerimaan,
@@ -146,12 +156,14 @@ class ItemReceiveBloc
 
             await itemReceiveToUpdateRef.set(itemReceiveData);
 
-            final detailItemReceiveCollectionRef = itemReceiveToUpdateRef.collection('detail_item_receives');
-            final detailItemReceiveDocs = await detailItemReceiveCollectionRef.get();
+            final detailItemReceiveCollectionRef =
+                itemReceiveToUpdateRef.collection('detail_item_receives');
+            final detailItemReceiveDocs =
+                await detailItemReceiveCollectionRef.get();
             for (var doc in detailItemReceiveDocs.docs) {
               await doc.reference.delete();
             }
-            
+
             if (event.itemReceive.detailItemReceiveList.isNotEmpty) {
               int detailCount = 1;
               for (var detailItemReceive
@@ -172,24 +184,26 @@ class ItemReceiveBloc
               }
             }
 
-          yield SuccessState();    
-        }else{
-          yield ItemReceiveErrorState(result.data['message']);
+            yield SuccessState();
+          } else {
+            yield ItemReceiveErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ItemReceiveErrorState(e.toString());
         }
-      
-      } catch (e) {
-        yield ItemReceiveErrorState(e.toString());
+      } else {
+        yield ItemReceiveErrorState(
+            "nomor konfirmasi produksi tidak boleh kosong");
       }
-      }else{
-        yield ItemReceiveErrorState("nomor konfirmasi produksi tidak boleh kosong");
-      }
-
     } else if (event is DeleteItemReceiveEvent) {
       yield ItemReceiveLoadingState();
       try {
-        final itemReceiveToDeleteRef = _firestore.collection('item_receives').doc(event.itemReceiveId);
-        final detailItemReceiveCollectionRef = itemReceiveToDeleteRef.collection('detail_item_receives');
-        final detailItemReceiveDocs = await detailItemReceiveCollectionRef.get();
+        final itemReceiveToDeleteRef =
+            _firestore.collection('item_receives').doc(event.itemReceiveId);
+        final detailItemReceiveCollectionRef =
+            itemReceiveToDeleteRef.collection('detail_item_receives');
+        final detailItemReceiveDocs =
+            await detailItemReceiveCollectionRef.get();
         for (var doc in detailItemReceiveDocs.docs) {
           await doc.reference.delete();
         }
@@ -198,11 +212,11 @@ class ItemReceiveBloc
       } catch (e) {
         yield ItemReceiveErrorState("Failed to delete Item Receive.");
       }
-    }else if(event is FinishedItemReceiveEvent){
+    } else if (event is FinishedItemReceiveEvent) {
       yield ItemReceiveLoadingState();
       try {
-       
-        final itemReceiveRef = _firestore.collection('item_receives').doc(event.itemReceiveId);
+        final itemReceiveRef =
+            _firestore.collection('item_receives').doc(event.itemReceiveId);
 
         await itemReceiveRef.update({
           'status_irc': 'Selesai',

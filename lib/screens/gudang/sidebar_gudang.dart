@@ -45,13 +45,20 @@ class SidebarGudangWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildSidebarItem(0, Icons.home, 'Home', iconSize: 24, isActive: selectedIndex == 0),
-                _buildSidebarItem(1, Icons.list, 'Master', iconSize: 24, isActive: selectedIndex == 1),
-                _buildSidebarItem(2, Icons.shopping_cart, 'Pembelian', iconSize: 24, isActive: selectedIndex == 2),
-                _buildSidebarItem(3, Icons.shop, 'Penjualan', iconSize: 24, isActive: selectedIndex == 3),
-                _buildSidebarItem(4, Icons.factory, 'Produksi', iconSize: 24, isActive: selectedIndex == 4),
-                _buildSidebarItem(5, Icons.report, 'Laporan', iconSize: 24, isActive: selectedIndex == 5),
-                _buildSidebarItem(6, Icons.person, 'Profile', iconSize: 24, isActive: selectedIndex == 6),
+                _buildSidebarItem(0, Icons.home, 'Home',
+                    iconSize: 24, isActive: selectedIndex == 0),
+                _buildSidebarItem(1, Icons.list, 'Master',
+                    iconSize: 24, isActive: selectedIndex == 1),
+                _buildSidebarItem(2, Icons.shopping_cart, 'Pembelian',
+                    iconSize: 24, isActive: selectedIndex == 2),
+                _buildSidebarItem(3, Icons.shop, 'Penjualan',
+                    iconSize: 24, isActive: selectedIndex == 3),
+                _buildSidebarItem(4, Icons.factory, 'Produksi',
+                    iconSize: 24, isActive: selectedIndex == 4),
+                _buildSidebarItem(5, Icons.report, 'Laporan',
+                    iconSize: 24, isActive: selectedIndex == 5),
+                _buildSidebarItem(6, Icons.person, 'Profile',
+                    iconSize: 24, isActive: selectedIndex == 6),
               ],
             ),
           ),
@@ -59,7 +66,8 @@ class SidebarGudangWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSidebarItem(int index, IconData iconData, String label, {double iconSize = 24, required bool isActive}) {
+  Widget _buildSidebarItem(int index, IconData iconData, String label,
+      {double iconSize = 24, required bool isActive}) {
     return GestureDetector(
       onTap: () => onItemTapped(index),
       child: Container(

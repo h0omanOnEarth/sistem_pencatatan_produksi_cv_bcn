@@ -23,118 +23,131 @@ class ListDLOHC extends StatefulWidget {
 }
 
 class _ListDLOHCState extends State<ListDLOHC> {
-  final CollectionReference dlohcRef = FirebaseFirestore.instance.collection('direct_labor_overhead_costs');
+  final CollectionReference dlohcRef =
+      FirebaseFirestore.instance.collection('direct_labor_overhead_costs');
   String searchTerm = '';
   String selectedStatus = "";
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; 
-  String endDateText = '';   
+  String startDateText = '';
+  String endDateText = '';
   int startIndex = 0;
-  int itemsPerPage = 5; 
+  int itemsPerPage = 5;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
   int _selectedIndex = 2;
-  bool _isSidebarCollapsed = false; 
+  bool _isSidebarCollapsed = false;
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: SafeArea(
-      child: ResponsiveBuilder(
-        builder: (context, sizingInformation) {
-          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-            return _buildDesktopContent();
-          } else {
-            return _buildMobileContent();
-          }
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType ==
+                DeviceScreenType.desktop) {
+              return _buildDesktopContent();
+            } else {
+              return _buildMobileContent();
+            }
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-void _toggleSidebar() {
+  void _toggleSidebar() {
     setState(() {
       _isSidebarCollapsed = !_isSidebarCollapsed;
     });
   }
 
-Widget _buildDesktopContent() {
-  return Row(
-    children: [
-      SidebarProduksiWidget(
-        selectedIndex: _selectedIndex,
-        onItemTapped: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Implementasi navigasi berdasarkan index terpilih
-          _navigateToScreen(index, context);
-        },
-        isSidebarCollapsed: _isSidebarCollapsed,
-        onToggleSidebar:  _toggleSidebar
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CustomAppBar(title: 'Direct Labor and\nOverhead Costs', formScreen: FormPencatatanDirectLaborScreen(), routes: '${MainProduksi.routeName}?selectedIndex=2',),
-                const SizedBox(height: 24.0),
-                _buildSearchBar(),
-                const SizedBox(height: 16.0),
-                buildDateRangeSelector(),
-                const SizedBox(height: 16.0),
-                _buildDlohList(),
-              ],
+  Widget _buildDesktopContent() {
+    return Row(
+      children: [
+        SidebarProduksiWidget(
+            selectedIndex: _selectedIndex,
+            onItemTapped: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              _navigateToScreen(index, context);
+            },
+            isSidebarCollapsed: _isSidebarCollapsed,
+            onToggleSidebar: _toggleSidebar),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Direct Labor and\nOverhead Costs',
+                    formScreen: FormPencatatanDirectLaborScreen(),
+                    routes: '${MainProduksi.routeName}?selectedIndex=2',
+                  ),
+                  const SizedBox(height: 24.0),
+                  _buildSearchBar(),
+                  const SizedBox(height: 16.0),
+                  buildDateRangeSelector(),
+                  const SizedBox(height: 16.0),
+                  _buildDlohList(),
+                ],
+              ),
             ),
           ),
+        )
+      ],
+    );
+  }
+
+// Fungsi navigasi berdasarkan index terpilih
+  void _navigateToScreen(int index, BuildContext context) {
+    Routemaster.of(context)
+        .push('${MainProduksi.routeName}?selectedIndex=$index');
+  }
+
+  Widget _buildMobileContent() {
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CustomAppBar(
+              title: 'Direct Labor and\nOverhead Costs',
+              formScreen: FormPencatatanDirectLaborScreen(),
+              routes: '${MainProduksi.routeName}?selectedIndex=2',
+            ),
+            const SizedBox(height: 24.0),
+            _buildSearchBar(),
+            const SizedBox(
+              height: 16.0,
+            ),
+            buildDateRangeSelector(),
+            const SizedBox(height: 16.0),
+            _buildDlohList(),
+          ],
         ),
-      )
-    ],
-  );
-}
-
-  // Fungsi navigasi berdasarkan index terpilih
-void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('${MainProduksi.routeName}?selectedIndex=$index');
-}
-
-
-Widget _buildMobileContent() {
-  return SingleChildScrollView(
-    child: Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const CustomAppBar(title: 'Direct Labor and\nOverhead Costs', formScreen: FormPencatatanDirectLaborScreen(), routes: '${MainProduksi.routeName}?selectedIndex=2',),
-          const SizedBox(height: 24.0),
-          _buildSearchBar(),
-          const SizedBox(height: 16.0,),
-          buildDateRangeSelector(),
-          const SizedBox(height: 16.0),
-          _buildDlohList(),
-        ],
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSearchBar() {
     return Row(
       children: [
         Expanded(
-          child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          }),
+          child: SearchBarWidget(
+              searchTerm: searchTerm,
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value;
+                });
+              }),
         ),
-        const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+        const SizedBox(
+            width: 16.0), // Add spacing between calendar icon and filter button
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -157,34 +170,34 @@ Widget _buildMobileContent() {
     return Row(
       children: [
         Expanded(
-        child:  DatePickerButton(
-        label: 'Tanggal Mulai',
-        selectedDate: selectedStartDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedStartDate = newDate;
-          });
-        },
-        ),),
+          child: DatePickerButton(
+            label: 'Tanggal Mulai',
+            selectedDate: selectedStartDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedStartDate = newDate;
+              });
+            },
+          ),
+        ),
         const SizedBox(width: 16.0),
         Expanded(
-        child: DatePickerButton(
-        label: 'Tanggal Selesai',
-        selectedDate: selectedEndDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedEndDate = newDate;
-          });
-        },
-          ), 
+          child: DatePickerButton(
+            label: 'Tanggal Selesai',
+            selectedDate: selectedEndDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedEndDate = newDate;
+              });
+            },
+          ),
         )
       ],
     );
   }
 
-
-Widget _buildDlohList() {
-  return StreamBuilder<QuerySnapshot>(
+  Widget _buildDlohList() {
+    return StreamBuilder<QuerySnapshot>(
       stream: dlohcRef.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -204,14 +217,19 @@ Widget _buildDlohList() {
           final filteredDocs = itemDocs.where((doc) {
             final keterangan = doc['id'] as String;
             final status = doc['status'] as String;
-            final tanggalRencana = doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
+            final tanggalRencana =
+                doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
-              isWithinDateRange = (tanggalRencana.toDate().isAfter(selectedStartDate!) && tanggalRencana.toDate().isBefore(selectedEndDate!));
+              isWithinDateRange =
+                  (tanggalRencana.toDate().isAfter(selectedStartDate!) &&
+                      tanggalRencana.toDate().isBefore(selectedEndDate!));
             }
 
-            return (keterangan.toLowerCase().contains(searchTerm.toLowerCase()) &&
+            return (keterangan
+                    .toLowerCase()
+                    .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
                 isWithinDateRange);
           }).toList();
@@ -234,27 +252,31 @@ Widget _buildDlohList() {
                 shrinkWrap: true,
                 itemCount: paginatedDocs.length,
                 itemBuilder: (context, index) {
-                  final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                  final data =
+                      paginatedDocs[index].data() as Map<String, dynamic>;
                   final id = data['id'] as String;
                   final info = {
-                    'ID Penggunaan Bahan' : data['material_usage_id'],
-                    'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pencatatan'] as Timestamp).toDate()), 
+                    'ID Penggunaan Bahan': data['material_usage_id'],
+                    'Tanggal Pencatatan': DateFormat('dd/MM/yyyy').format(
+                        (data['tanggal_pencatatan'] as Timestamp).toDate()),
                     'Biaya Tenaga Kerja': data['biaya_tenaga_kerja'],
                     'Biaya Overhead': data['biaya_overhead'],
                     'Catatan': data['catatan'],
                   };
                   return ListCard(
                     title: id,
-                    description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                    description: info.entries
+                        .map((e) => '${e.key}: ${e.value}')
+                        .join('\n'),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FormPencatatanDirectLaborScreen(
-                            materialUsageId: data['material_usage_id'],
-                            dlohId: data['id'],
-                          )
-                        ),
+                            builder: (context) =>
+                                FormPencatatanDirectLaborScreen(
+                                  materialUsageId: data['material_usage_id'],
+                                  dlohId: data['id'],
+                                )),
                       );
                     },
                     onDeletePressed: () async {
@@ -263,7 +285,8 @@ Widget _buildDlohList() {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Konfirmasi Hapus"),
-                            content: const Text("Anda yakin ingin menghapus pencatatan DLOHC ini?"),
+                            content: const Text(
+                                "Anda yakin ingin menghapus pencatatan DLOHC ini?"),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text("Batal"),
@@ -274,8 +297,10 @@ Widget _buildDlohList() {
                               TextButton(
                                 child: const Text("Hapus"),
                                 onPressed: () async {
-                                  final dlohBloc = BlocProvider.of<DLOHBloc>(context);
-                                  dlohBloc.add(DeleteDLOHEvent(paginatedDocs[index].id));
+                                  final dlohBloc =
+                                      BlocProvider.of<DLOHBloc>(context);
+                                  dlohBloc.add(
+                                      DeleteDLOHEvent(paginatedDocs[index].id));
                                   Navigator.of(context).pop(true);
                                 },
                               ),
@@ -291,7 +316,9 @@ Widget _buildDlohList() {
                   );
                 },
               ),
-              const SizedBox(height: 16.0,),
+              const SizedBox(
+                height: 16.0,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -299,34 +326,42 @@ Widget _buildDlohList() {
                     onPressed: isPrevButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex -= itemsPerPage;
-                        if (startIndex < 0) {
-                          startIndex = 0;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex -= itemsPerPage;
+                              if (startIndex < 0) {
+                                startIndex = 0;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
-                    child: const Text("Prev",style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      "Prev",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: isNextButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex += itemsPerPage;
-                        if (startIndex >= filteredDocs.length) {
-                          startIndex = filteredDocs.length - itemsPerPage;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex += itemsPerPage;
+                              if (startIndex >= filteredDocs.length) {
+                                startIndex = filteredDocs.length - itemsPerPage;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
-                    child: const Text("Next", style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      "Next",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -335,21 +370,21 @@ Widget _buildDlohList() {
         }
       },
     );
-}
+  }
 
- Future<void> _showFilterDialog(BuildContext context) async {
-  await showDialog<String>(
-    context: context,
-    builder: (BuildContext context) {
-      return FilterDialog(
-        title: ('Filter Berdasarkan Status Hasil Produksi'),
-        onFilterSelected: (selectedStatus) {
-          setState(() {
-            this.selectedStatus = selectedStatus!;
-          });
-        },
-      );
-    },
-  );
-}
+  Future<void> _showFilterDialog(BuildContext context) async {
+    await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return FilterDialog(
+          title: ('Filter Berdasarkan Status Hasil Produksi'),
+          onFilterSelected: (selectedStatus) {
+            setState(() {
+              this.selectedStatus = selectedStatus!;
+            });
+          },
+        );
+      },
+    );
+  }
 }

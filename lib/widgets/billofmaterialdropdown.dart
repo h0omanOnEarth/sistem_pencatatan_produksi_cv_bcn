@@ -6,12 +6,17 @@ class BillOfMaterialDropDown extends StatelessWidget {
   final Function(String?) onChanged;
   final bool isEnabled;
 
-  BillOfMaterialDropDown({required this.selectedBOM, required this.onChanged, this.isEnabled = true});
+  BillOfMaterialDropDown(
+      {required this.selectedBOM,
+      required this.onChanged,
+      this.isEnabled = true});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('bill_of_materials').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('bill_of_materials')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -24,20 +29,20 @@ class BillOfMaterialDropDown extends StatelessWidget {
           String bomId = document['id'];
           String versiBom = document['versi_bom'].toString();
           bomItems.add(
-           DropdownMenuItem<String>(
-            value: bomId,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ID: $bomId, Product: $productId, Versi: $versiBom',
-                  style: const TextStyle(
-                    color: Colors.black,
+            DropdownMenuItem<String>(
+              value: bomId,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'ID: $bomId, Product: $productId, Versi: $versiBom',
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           );
         }
         return Column(
@@ -59,9 +64,11 @@ class BillOfMaterialDropDown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedBOM,
                 items: bomItems,
-                onChanged: isEnabled ? (newValue) {
-                  onChanged(newValue);
-                }:null,
+                onChanged: isEnabled
+                    ? (newValue) {
+                        onChanged(newValue);
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

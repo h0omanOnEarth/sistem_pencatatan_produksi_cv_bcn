@@ -13,7 +13,8 @@ class TextFieldWidget extends StatelessWidget {
   final TextEditingController? controller;
   final void Function(String)? onChanged; // Added onChanged callback
 
-  const TextFieldWidget({super.key, 
+  const TextFieldWidget({
+    super.key,
     required this.label,
     required this.placeholder,
     this.multiline = false,

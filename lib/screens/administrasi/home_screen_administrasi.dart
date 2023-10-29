@@ -5,7 +5,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart'
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
 
-
 class HomeScreenAdministrasi extends StatefulWidget {
   static const routeName = '/administrasi/home';
   const HomeScreenAdministrasi({Key? key});
@@ -54,237 +53,240 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
     );
   }
 
-Widget buildWideLayout() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      // Profile Card
-      Card(
-        elevation: 5,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'images/profile.jpg',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+  Widget buildWideLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Profile Card
+        Card(
+          elevation: 5,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Welcome Back,",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                      padding: const EdgeInsets.all(4),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'images/profile.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Welcome Back,",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 24,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotifikasiScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.black,
-                      size: 24,
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 24,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.black,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      
-      // First Section Card
-     const Row(
+
+        // First Section Card
+        const Row(
           children: [
-            Expanded(child: CombinedCard(
-              collectionName: 'customer_orders',
-              statusField: 'status_pesanan',
-              statusValue: 'Dalam Proses',
-              idField: 'id',
-              title: 'Pesanan Pelanggan',
-            ),),
+            Expanded(
+              child: CombinedCard(
+                collectionName: 'customer_orders',
+                statusField: 'status_pesanan',
+                statusValue: 'Dalam Proses',
+                idField: 'id',
+                title: 'Pesanan Pelanggan',
+              ),
+            ),
             SizedBox(height: 16),
-            Expanded(child:  CombinedCard(
-              collectionName: 'delivery_orders',
-              statusField: 'status_pesanan_pengiriman',
-              statusValue: 'Dalam Proses',
-              idField: 'id',
-              title: 'Perintah Pengiriman',
-            ),)
+            Expanded(
+              child: CombinedCard(
+                collectionName: 'delivery_orders',
+                statusField: 'status_pesanan_pengiriman',
+                statusValue: 'Dalam Proses',
+                idField: 'id',
+                title: 'Perintah Pengiriman',
+              ),
+            )
           ],
         ),
 
-      // Second Section Card
-     const Row(
+        // Second Section Card
+        const Row(
           children: [
             Expanded(child: CustomerOrderChart()),
             SizedBox(width: 16),
             Expanded(child: MaterialUsageChartCard()),
           ],
         ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-
-Widget buildNarrowLayout() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Card(
-        elevation: 5,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'images/profile.jpg',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+  Widget buildNarrowLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Card(
+          elevation: 5,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Welcome Back,",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                      padding: const EdgeInsets.all(4),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'images/profile.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Welcome Back,",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 24,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotifikasiScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.black,
-                      size: 24,
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 24,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.black,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      const SizedBox(height: 16),
-      const CombinedCard(
-        collectionName: 'customer_orders',
-        statusField: 'status_pesanan',
-        statusValue: 'Dalam Proses',
-        idField: 'id',
-        title: 'Pesanan Pelanggan',
-      ),
-      const SizedBox(height: 16),
-      const CombinedCard(
-        collectionName: 'delivery_orders',
-        statusField: 'status_pesanan_pengiriman',
-        statusValue: 'Dalam Proses',
-        idField: 'id',
-        title: 'Perintah Pengiriman',
-      ),
-      const CustomerOrderChart(),
-      const SizedBox(height: 16),
-      const MaterialUsageChartCard(),
-      // Additional content goes here
-    ],
-  );
-}
+        const SizedBox(height: 16),
+        const CombinedCard(
+          collectionName: 'customer_orders',
+          statusField: 'status_pesanan',
+          statusValue: 'Dalam Proses',
+          idField: 'id',
+          title: 'Pesanan Pelanggan',
+        ),
+        const SizedBox(height: 16),
+        const CombinedCard(
+          collectionName: 'delivery_orders',
+          statusField: 'status_pesanan_pengiriman',
+          statusValue: 'Dalam Proses',
+          idField: 'id',
+          title: 'Perintah Pengiriman',
+        ),
+        const CustomerOrderChart(),
+        const SizedBox(height: 16),
+        const MaterialUsageChartCard(),
+        // Additional content goes here
+      ],
+    );
+  }
 }
 
 class CombinedCard extends StatelessWidget {
@@ -305,7 +307,8 @@ class CombinedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
+      future:
+          fetchFirestoreData(collectionName, statusField, statusValue, idField),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -334,7 +337,8 @@ class CombinedCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.3, // Atur tinggi card sesuai kebutuhan Anda
+                  height: MediaQuery.of(context).size.height *
+                      0.3, // Atur tinggi card sesuai kebutuhan Anda
                   child: CardList(
                     collectionName: collectionName,
                     statusField: statusField,
@@ -368,7 +372,8 @@ class CardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
+      future:
+          fetchFirestoreData(collectionName, statusField, statusValue, idField),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -404,7 +409,8 @@ class CardList extends StatelessWidget {
                       if (collectionName == 'customer_orders')
                         Text('Customer ID: ${itemData['customer_id']}'),
                       if (collectionName == 'delivery_orders')
-                        Text('Customer Order ID: ${itemData['customer_order_id']}'),
+                        Text(
+                            'Customer Order ID: ${itemData['customer_order_id']}'),
                     ],
                   ),
                 ),
@@ -417,10 +423,13 @@ class CardList extends StatelessWidget {
   }
 }
 
-Future<List<Map>> fetchFirestoreData(
-  String collectionName, String statusField, String statusValue, String idField) async {
+Future<List<Map>> fetchFirestoreData(String collectionName, String statusField,
+    String statusValue, String idField) async {
   final firestore = FirebaseFirestore.instance;
-  final querySnapshot = await firestore.collection(collectionName).where(statusField, isEqualTo: statusValue).get();
+  final querySnapshot = await firestore
+      .collection(collectionName)
+      .where(statusField, isEqualTo: statusValue)
+      .get();
   final data = querySnapshot.docs.map((doc) {
     if (collectionName == 'customer_orders') {
       final customerID = doc['customer_id'] as String;
@@ -430,7 +439,8 @@ Future<List<Map>> fetchFirestoreData(
       return {
         'id': doc[idField] as String,
         'customer_id': customerID,
-        'tanggal_pesan': DateFormat('dd/MM/yyyy').format(orderDate.toDate()), // Format the date
+        'tanggal_pesan': DateFormat('dd/MM/yyyy')
+            .format(orderDate.toDate()), // Format the date
         'total_produk': totalProducts.toString(),
         'total_harga': totalPrice.toStringAsFixed(2),
       };
@@ -442,7 +452,8 @@ Future<List<Map>> fetchFirestoreData(
       return {
         'id': doc[idField] as String,
         'customer_order_id': customerOrderID,
-        'tanggal_pesanan_pengiriman': DateFormat('dd/MM/yyyy').format(deliveryDate.toDate()), // Format the date
+        'tanggal_pesanan_pengiriman': DateFormat('dd/MM/yyyy')
+            .format(deliveryDate.toDate()), // Format the date
         'total_barang': totalItems.toString(),
         'total_harga': totalPrice.toStringAsFixed(2),
       };
@@ -451,4 +462,3 @@ Future<List<Map>> fetchFirestoreData(
   }).toList();
   return data;
 }
-

@@ -4,15 +4,15 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/bottom_nav
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 
-
 class MainAdministrasi extends StatefulWidget {
   static const routeName = '/admnistrasi';
   final int? selectedIndex;
 
-  const MainAdministrasi({Key? key,this.selectedIndex}) : super(key: key);
+  const MainAdministrasi({Key? key, this.selectedIndex}) : super(key: key);
 
   @override
-  State<MainAdministrasi> createState() => _MainAdministrasiState(selectedIndex ?? 0);
+  State<MainAdministrasi> createState() =>
+      _MainAdministrasiState(selectedIndex ?? 0);
 }
 
 class _MainAdministrasiState extends State<MainAdministrasi> {
@@ -37,7 +37,8 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
 
   void _onItemTapped(int index) {
     setState(() {
-      BottomNavigationAdministrasi.menu = BottomNavigationAdministrasi.getMenuByIndex(index);
+      BottomNavigationAdministrasi.menu =
+          BottomNavigationAdministrasi.getMenuByIndex(index);
       menu = BottomNavigationAdministrasi.menu;
       _selectedIndex = index; // Add this line
     });
@@ -45,44 +46,44 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
 
   @override
   Widget build(BuildContext context) {
-    return   ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-              return Scaffold(
-                body: Row(
-                  children: [
-                    SidebarAdministrasiWidget(
-                      selectedIndex: _selectedIndex,
-                      onItemTapped: _onItemTapped,
-                      isSidebarCollapsed: _isSidebarCollapsed, // Add this line
-                      onToggleSidebar: _toggleSidebar, // Add this line
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() {
-                          menu = BottomNavigationAdministrasi.menu;
-                        }),
-                        child: menu,
-                      ),
-                    ),
-                  ],
-                ),
-                bottomNavigationBar: null,
-              );
-            } else {
-              return Scaffold(
-                body: GestureDetector(
-                  onTap: () => setState(() {
-                    menu = BottomNavigationAdministrasi.menu;
-                  }),
-                  child: menu,
-                ),
-                bottomNavigationBar: BottomNavigationAdministrasi(
+    return ResponsiveBuilder(
+      builder: (context, sizingInformation) {
+        if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+          return Scaffold(
+            body: Row(
+              children: [
+                SidebarAdministrasiWidget(
+                  selectedIndex: _selectedIndex,
                   onItemTapped: _onItemTapped,
+                  isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                  onToggleSidebar: _toggleSidebar, // Add this line
                 ),
-              );
-            }
-          },
-        );
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() {
+                      menu = BottomNavigationAdministrasi.menu;
+                    }),
+                    child: menu,
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: null,
+          );
+        } else {
+          return Scaffold(
+            body: GestureDetector(
+              onTap: () => setState(() {
+                menu = BottomNavigationAdministrasi.menu;
+              }),
+              child: menu,
+            ),
+            bottomNavigationBar: BottomNavigationAdministrasi(
+              onItemTapped: _onItemTapped,
+            ),
+          );
+        }
+      },
+    );
   }
 }

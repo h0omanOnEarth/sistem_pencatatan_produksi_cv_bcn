@@ -24,118 +24,134 @@ class ListFakturPenjualan extends StatefulWidget {
 }
 
 class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
-  final CollectionReference invoiceRef = FirebaseFirestore.instance.collection('invoices');
+  final CollectionReference invoiceRef =
+      FirebaseFirestore.instance.collection('invoices');
   String searchTerm = '';
   String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  String startDateText =
+      ''; // Tambahkan variabel untuk menampilkan tanggal filter
+  String endDateText =
+      ''; // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
   int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-   int _selectedIndex = 3;
-  bool _isSidebarCollapsed = false; 
+  int _selectedIndex = 3;
+  bool _isSidebarCollapsed = false;
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: SafeArea(
-      child: ResponsiveBuilder(
-        builder: (context, sizingInformation) {
-          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-            return _buildDesktopContent();
-          } else {
-            return _buildMobileContent();
-          }
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType ==
+                DeviceScreenType.desktop) {
+              return _buildDesktopContent();
+            } else {
+              return _buildMobileContent();
+            }
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-void _toggleSidebar() {
+  void _toggleSidebar() {
     setState(() {
       _isSidebarCollapsed = !_isSidebarCollapsed;
     });
   }
 
-Widget _buildDesktopContent() {
-  return Row(
-    children: [
-      SidebarAdministrasiWidget(
-        selectedIndex: _selectedIndex,
-        onItemTapped: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Implementasi navigasi berdasarkan index terpilih
-          _navigateToScreen(index, context);
-        },
-        isSidebarCollapsed: _isSidebarCollapsed,
-        onToggleSidebar:  _toggleSidebar
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
-                const SizedBox(height: 24.0),
-                _buildSearchBar(),
-                const SizedBox(height: 16.0),
-                buildDateRangeSelector(),
-                const SizedBox(height: 16.0),
-                _buildInvoiceList(),
-              ],
+  Widget _buildDesktopContent() {
+    return Row(
+      children: [
+        SidebarAdministrasiWidget(
+            selectedIndex: _selectedIndex,
+            onItemTapped: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              // Implementasi navigasi berdasarkan index terpilih
+              _navigateToScreen(index, context);
+            },
+            isSidebarCollapsed: _isSidebarCollapsed,
+            onToggleSidebar: _toggleSidebar),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Faktur',
+                    formScreen: FormFakturPenjualanScreen(),
+                    routes: '${MainAdministrasi.routeName}?selectedIndex=3',
+                  ),
+                  const SizedBox(height: 24.0),
+                  _buildSearchBar(),
+                  const SizedBox(height: 16.0),
+                  buildDateRangeSelector(),
+                  const SizedBox(height: 16.0),
+                  _buildInvoiceList(),
+                ],
+              ),
             ),
           ),
-        ),
-      )
-    ],
-  );
-}
+        )
+      ],
+    );
+  }
 
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
-  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
-}
+    Routemaster.of(context)
+        .push('${MainAdministrasi.routeName}?selectedIndex=$index');
+  }
 
-
-Widget _buildMobileContent() {
-  return SingleChildScrollView(
-    child: Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const CustomAppBar(title: 'Faktur', formScreen: FormFakturPenjualanScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
-          const SizedBox(height: 24.0),
-          _buildSearchBar(),
-          const SizedBox(height: 16.0,),
-          buildDateRangeSelector(),
-          const SizedBox(height: 16.0),
-          _buildInvoiceList(),
-        ],
+  Widget _buildMobileContent() {
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CustomAppBar(
+              title: 'Faktur',
+              formScreen: FormFakturPenjualanScreen(),
+              routes: '${MainAdministrasi.routeName}?selectedIndex=3',
+            ),
+            const SizedBox(height: 24.0),
+            _buildSearchBar(),
+            const SizedBox(
+              height: 16.0,
+            ),
+            buildDateRangeSelector(),
+            const SizedBox(height: 16.0),
+            _buildInvoiceList(),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSearchBar() {
     return Row(
       children: [
         Expanded(
-          child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          }),
+          child: SearchBarWidget(
+              searchTerm: searchTerm,
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value;
+                });
+              }),
         ),
-        const SizedBox(width: 16.0), // Add spacing between calendar icon and filter button
+        const SizedBox(
+            width: 16.0), // Add spacing between calendar icon and filter button
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -158,33 +174,34 @@ Widget _buildMobileContent() {
     return Row(
       children: [
         Expanded(
-        child:  DatePickerButton(
-        label: 'Tanggal Mulai',
-        selectedDate: selectedStartDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedStartDate = newDate;
-          });
-        },
-        ),),
+          child: DatePickerButton(
+            label: 'Tanggal Mulai',
+            selectedDate: selectedStartDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedStartDate = newDate;
+              });
+            },
+          ),
+        ),
         const SizedBox(width: 16.0),
         Expanded(
-        child: DatePickerButton(
-        label: 'Tanggal Selesai',
-        selectedDate: selectedEndDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedEndDate = newDate;
-          });
-        },
-          ), 
+          child: DatePickerButton(
+            label: 'Tanggal Selesai',
+            selectedDate: selectedEndDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedEndDate = newDate;
+              });
+            },
+          ),
         )
       ],
     );
   }
 
   Widget _buildInvoiceList() {
-    return   StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot>(
       stream: invoiceRef.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -204,11 +221,14 @@ Widget _buildMobileContent() {
           final filteredDocs = itemDocs.where((doc) {
             final id = doc['id'] as String;
             final status = doc['status_fk'] as String;
-            final tanggalPembuatan = doc['tanggal_pembuatan'] as Timestamp; // Tanggal Pesan
+            final tanggalPembuatan =
+                doc['tanggal_pembuatan'] as Timestamp; // Tanggal Pesan
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
-              isWithinDateRange = (tanggalPembuatan.toDate().isAfter(selectedStartDate!) && tanggalPembuatan.toDate().isBefore(selectedEndDate!));
+              isWithinDateRange =
+                  (tanggalPembuatan.toDate().isAfter(selectedStartDate!) &&
+                      tanggalPembuatan.toDate().isBefore(selectedEndDate!));
             }
 
             return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
@@ -230,15 +250,18 @@ Widget _buildMobileContent() {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                ListView.builder(
+              ListView.builder(
                 shrinkWrap: true,
                 itemCount: paginatedDocs.length,
                 itemBuilder: (context, index) {
-                  final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                  final data =
+                      paginatedDocs[index].data() as Map<String, dynamic>;
                   final id = data['id'] as String;
                   final info = {
                     'ID': data['id'],
-                    'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format((data['tanggal_pembuatan'] as Timestamp).toDate()), // Format tanggal
+                    'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format(
+                        (data['tanggal_pembuatan'] as Timestamp)
+                            .toDate()), // Format tanggal
                     'Metode Pembayaran': data['metode_pembayaran'],
                     'Catatan': data['catatan'],
                     'Status Pembayaran': data['status_pembayaran'],
@@ -246,17 +269,18 @@ Widget _buildMobileContent() {
                   };
                   return ListCardFinishedPrint(
                     title: id,
-                    description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                    description: info.entries
+                        .map((e) => '${e.key}: ${e.value}')
+                        .join('\n'),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FormFakturPenjualanScreen(
-                            invoiceId: data['id'],
-                            shipmentId: data['shipment_id'],
-                            statusFk: data['status_fk'],
-                          )
-                        ),
+                            builder: (context) => FormFakturPenjualanScreen(
+                                  invoiceId: data['id'],
+                                  shipmentId: data['shipment_id'],
+                                  statusFk: data['status_fk'],
+                                )),
                       );
                     },
                     onDeletePressed: () async {
@@ -265,7 +289,8 @@ Widget _buildMobileContent() {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Konfirmasi Hapus"),
-                            content: const Text("Anda yakin ingin menghapus faktur penjualan ini?"),
+                            content: const Text(
+                                "Anda yakin ingin menghapus faktur penjualan ini?"),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text("Batal"),
@@ -276,8 +301,10 @@ Widget _buildMobileContent() {
                               TextButton(
                                 child: const Text("Hapus"),
                                 onPressed: () async {
-                                  final customerOrderBloc = BlocProvider.of<InvoiceBloc>(context);
-                                  customerOrderBloc.add(DeleteInvoiceEvent(paginatedDocs[index].id));
+                                  final customerOrderBloc =
+                                      BlocProvider.of<InvoiceBloc>(context);
+                                  customerOrderBloc.add(DeleteInvoiceEvent(
+                                      paginatedDocs[index].id));
                                   Navigator.of(context).pop(true);
                                 },
                               ),
@@ -291,19 +318,20 @@ Widget _buildMobileContent() {
                     },
                     onPrintPressed: () async {
                       Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FakturPenjualanReport(idInvoice: data['id'])
-                        ),
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                FakturPenjualanReport(idInvoice: data['id'])),
                       );
                     },
                     onFinished: () async {
-                        final confirmed = await showDialog(
+                      final confirmed = await showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Konfirmasi Selesai"),
-                            content: const Text("Anda yakin ingin menyelesaikan faktur penjualan ini?"),
+                            content: const Text(
+                                "Anda yakin ingin menyelesaikan faktur penjualan ini?"),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text("Batal"),
@@ -314,8 +342,10 @@ Widget _buildMobileContent() {
                               TextButton(
                                 child: const Text("Selesaikan"),
                                 onPressed: () async {
-                                  final customerOrderBloc = BlocProvider.of<InvoiceBloc>(context);
-                                  customerOrderBloc.add(FinishedInvoiceEvent(paginatedDocs[index].id));
+                                  final customerOrderBloc =
+                                      BlocProvider.of<InvoiceBloc>(context);
+                                  customerOrderBloc.add(FinishedInvoiceEvent(
+                                      paginatedDocs[index].id));
                                   Navigator.of(context).pop(true);
                                 },
                               ),
@@ -323,15 +353,15 @@ Widget _buildMobileContent() {
                           );
                         },
                       );
-                      if (confirmed == true) {
-                        
-                      }
+                      if (confirmed == true) {}
                     },
                     status: data['status_fk'],
                   );
                 },
               ),
-              const SizedBox(height: 16.0,),
+              const SizedBox(
+                height: 16.0,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -339,15 +369,16 @@ Widget _buildMobileContent() {
                     onPressed: isPrevButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex -= itemsPerPage;
-                        if (startIndex < 0) {
-                          startIndex = 0;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex -= itemsPerPage;
+                              if (startIndex < 0) {
+                                startIndex = 0;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Prev"),
                   ),
@@ -356,15 +387,16 @@ Widget _buildMobileContent() {
                     onPressed: isNextButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex += itemsPerPage;
-                        if (startIndex >= filteredDocs.length) {
-                          startIndex = filteredDocs.length - itemsPerPage;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex += itemsPerPage;
+                              if (startIndex >= filteredDocs.length) {
+                                startIndex = filteredDocs.length - itemsPerPage;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Next"),
                   ),
@@ -377,7 +409,7 @@ Widget _buildMobileContent() {
     );
   }
 
-    Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     await showDialog<String>(
       context: context,
       builder: (BuildContext context) {

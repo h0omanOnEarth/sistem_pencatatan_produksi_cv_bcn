@@ -45,7 +45,11 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
   late CollectionReference dlohRef;
   final HttpsCallable dlohValidationCallable;
 
-  DLOHBloc() : dlohValidationCallable = FirebaseFunctions.instance.httpsCallable('dlohValidation'), super(LoadingState()) {
+  DLOHBloc()
+      : dlohValidationCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('dlohValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     dlohRef = _firestore.collection('direct_labor_overhead_costs');
   }
@@ -54,7 +58,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
   Stream<DLOHBlocState> mapEventToState(DLOHEvent event) async* {
     if (event is AddDLOHEvent) {
       yield LoadingState();
-      
+
       final materialUsageId = event.dloh.materialUsageId;
       final catatan = event.dloh.catatan;
       final status = event.dloh.status;
@@ -66,22 +70,25 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
       final subtotal = event.dloh.subtotal;
       final tanggalPencatatan = event.dloh.tanggalPencatatan;
 
-      if(materialUsageId.isNotEmpty){
-         try {
-          final HttpsCallableResult<dynamic> result = await dlohValidationCallable.call(<String, dynamic>{
-           'jumlahTenagaKerja': jumlahTenagaKerja,
-           'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
-           'biayaTenagaKerja': biayaTenagaKerja,
-           'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
-           'subtotal': subtotal,
-           'materialUsageId': materialUsageId
+      if (materialUsageId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await dlohValidationCallable.call(<String, dynamic>{
+            'jumlahTenagaKerja': jumlahTenagaKerja,
+            'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
+            'biayaTenagaKerja': biayaTenagaKerja,
+            'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
+            'subtotal': subtotal,
+            'materialUsageId': materialUsageId
           });
 
           if (result.data['success'] == true) {
             final String nextDLOHId = await _generateNextDLOHId();
-            final dlohRef = _firestore.collection('direct_labor_overhead_costs').doc(nextDLOHId);
+            final dlohRef = _firestore
+                .collection('direct_labor_overhead_costs')
+                .doc(nextDLOHId);
 
-              final Map<String, dynamic> dlohData = {
+            final Map<String, dynamic> dlohData = {
               'id': nextDLOHId,
               'material_usage_id': materialUsageId,
               'catatan': catatan,
@@ -98,13 +105,13 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
             // Add the material request data to Firestore
             await dlohRef.set(dlohData);
             yield SuccessState();
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
-      }else{
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+      } else {
         yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
     } else if (event is UpdateDLOHEvent) {
@@ -121,19 +128,21 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
       final subtotal = event.updatedDLOH.subtotal;
       final tanggalPencatatan = event.updatedDLOH.tanggalPencatatan;
 
-      if(materialUsageId.isNotEmpty){
+      if (materialUsageId.isNotEmpty) {
         try {
-           final HttpsCallableResult<dynamic> result = await dlohValidationCallable.call(<String, dynamic>{
-           'jumlahTenagaKerja': jumlahTenagaKerja,
-           'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
-           'biayaTenagaKerja': biayaTenagaKerja,
-           'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
-           'subtotal': subtotal,
-           'materialUsageId': materialUsageId
+          final HttpsCallableResult<dynamic> result =
+              await dlohValidationCallable.call(<String, dynamic>{
+            'jumlahTenagaKerja': jumlahTenagaKerja,
+            'jumlahJamTenagaKerja': jumlahJamTenagaKerja,
+            'biayaTenagaKerja': biayaTenagaKerja,
+            'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
+            'subtotal': subtotal,
+            'materialUsageId': materialUsageId
           });
 
           if (result.data['success'] == true) {
-            final dlohSnapshot = await dlohRef.where('id', isEqualTo: event.dlohId).get();
+            final dlohSnapshot =
+                await dlohRef.where('id', isEqualTo: event.dlohId).get();
             if (dlohSnapshot.docs.isNotEmpty) {
               final dlohDoc = dlohSnapshot.docs.first;
               await dlohDoc.reference.update({
@@ -150,29 +159,30 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
               });
               yield SuccessState();
             } else {
-              yield ErrorState('Data DLOH dengan ID ${event.dlohId} tidak ditemukan.');
+              yield ErrorState(
+                  'Data DLOH dengan ID ${event.dlohId} tidak ditemukan.');
             }
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
-
     } else if (event is DeleteDLOHEvent) {
       yield LoadingState();
       try {
         // Cari dokumen dengan 'id' yang sesuai dengan event.dlohId
-        final QuerySnapshot querySnapshot = await dlohRef.where('id', isEqualTo: event.dlohId).get();
-          
+        final QuerySnapshot querySnapshot =
+            await dlohRef.where('id', isEqualTo: event.dlohId).get();
+
         // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
           await documentSnapshot.reference.delete();
         }
-        final dlohList = await _getDLOHList(); 
+        final dlohList = await _getDLOHList();
         yield LoadedState(dlohList);
       } catch (e) {
         yield ErrorState("Gagal menghapus DLOH.");
@@ -182,7 +192,8 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
 
   Future<String> _generateNextDLOHId() async {
     final QuerySnapshot snapshot = await dlohRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int dlohCount = 1;
 
     while (true) {

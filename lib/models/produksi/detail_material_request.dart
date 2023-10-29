@@ -36,7 +36,7 @@ class DetailMaterialRequest {
       'material_id': materialId,
       'material_request_id': materialRequestId,
       'satuan': satuan,
-      'batch' :batch,
+      'batch': batch,
       'status': status,
     };
   }

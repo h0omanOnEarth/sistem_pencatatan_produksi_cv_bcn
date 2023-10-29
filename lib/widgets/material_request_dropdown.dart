@@ -18,7 +18,9 @@ class MaterialRequestDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('material_requests').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('material_requests')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -58,31 +60,47 @@ class MaterialRequestDropdown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedMaterialRequest,
                 items: materialRequestItems,
-                onChanged: isEnabled ?  (newValue) {
-                  onChanged(newValue);
-                  if (tanggalPermintaanController != null) {
-                    final selectedDoc = snapshot.data!.docs.firstWhere((doc) => doc['id'] == newValue);
-                    var tanggalPermintaanFirestore = selectedDoc['tanggal_permintaan'];
-                    String tanggalPermintaan = '';
+                onChanged: isEnabled
+                    ? (newValue) {
+                        onChanged(newValue);
+                        if (tanggalPermintaanController != null) {
+                          final selectedDoc = snapshot.data!.docs
+                              .firstWhere((doc) => doc['id'] == newValue);
+                          var tanggalPermintaanFirestore =
+                              selectedDoc['tanggal_permintaan'];
+                          String tanggalPermintaan = '';
 
-                    if (tanggalPermintaanFirestore != null) {
-                      final timestamp = tanggalPermintaanFirestore as Timestamp;
-                      final dateTime = timestamp.toDate();
+                          if (tanggalPermintaanFirestore != null) {
+                            final timestamp =
+                                tanggalPermintaanFirestore as Timestamp;
+                            final dateTime = timestamp.toDate();
 
-                      final List<String> monthNames = [
-                        "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                      ];
+                            final List<String> monthNames = [
+                              "Januari",
+                              "Februari",
+                              "Maret",
+                              "April",
+                              "Mei",
+                              "Juni",
+                              "Juli",
+                              "Agustus",
+                              "September",
+                              "Oktober",
+                              "November",
+                              "Desember"
+                            ];
 
-                      final day = dateTime.day.toString();
-                      final month = monthNames[dateTime.month - 1];
-                      final year = dateTime.year.toString();
+                            final day = dateTime.day.toString();
+                            final month = monthNames[dateTime.month - 1];
+                            final year = dateTime.year.toString();
 
-                      tanggalPermintaan = '$day $month $year';
-                    }
+                            tanggalPermintaan = '$day $month $year';
+                          }
 
-                    tanggalPermintaanController!.text = tanggalPermintaan;
-                  }
-                }:null,
+                          tanggalPermintaanController!.text = tanggalPermintaan;
+                        }
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

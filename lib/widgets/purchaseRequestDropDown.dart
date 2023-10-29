@@ -18,14 +18,17 @@ class PurchaseRequestDropDown extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<PurchaseRequestDropDown> createState() => _PurchaseRequestDropDownState();
+  State<PurchaseRequestDropDown> createState() =>
+      _PurchaseRequestDropDownState();
 }
 
 class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('purchase_requests').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('purchase_requests')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -36,7 +39,7 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String purchaseRequestId = document['id'];
           String jumlahPermintaan = document['jumlah'].toString();
-          String satuanPermintaan = document['satuan'].toString(); 
+          String satuanPermintaan = document['satuan'].toString();
 
           purchaseRequestItems.add(
             DropdownMenuItem<String>(
@@ -48,10 +51,11 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
             ),
           );
 
-          if (widget.jumlahPermintaanController != null && widget.selectedPurchaseRequest == purchaseRequestId) {
+          if (widget.jumlahPermintaanController != null &&
+              widget.selectedPurchaseRequest == purchaseRequestId) {
             Future.delayed(Duration.zero, () {
               widget.jumlahPermintaanController?.text = jumlahPermintaan;
-              widget.satuanPermintaanController?.text = satuanPermintaan; 
+              widget.satuanPermintaanController?.text = satuanPermintaan;
             });
           }
         }
@@ -75,7 +79,9 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedPurchaseRequest,
                 items: purchaseRequestItems,
-                onChanged: widget.isEnabled ? (newValue) => widget.onChanged(newValue) : null, 
+                onChanged: widget.isEnabled
+                    ? (newValue) => widget.onChanged(newValue)
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

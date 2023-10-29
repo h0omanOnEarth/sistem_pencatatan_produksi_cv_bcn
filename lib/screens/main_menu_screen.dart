@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 
-
 class MainMenuScreen extends StatelessWidget {
   static const routeName = '/menu';
   const MainMenuScreen({super.key});
@@ -47,8 +46,10 @@ class LoginRegisterPage extends StatelessWidget {
                       Text(
                         "CV. Berlian Cangkir",
                         style: TextStyle(
-                          fontFamily: 'Montserrat', // Sesuaikan dengan font yang digunakan
-                          fontSize: fontSize, // Sesuaikan dengan ukuran font yang diinginkan
+                          fontFamily:
+                              'Montserrat', // Sesuaikan dengan font yang digunakan
+                          fontSize:
+                              fontSize, // Sesuaikan dengan ukuran font yang diinginkan
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -56,8 +57,10 @@ class LoginRegisterPage extends StatelessWidget {
                       Text(
                         "Nusantara",
                         style: TextStyle(
-                          fontFamily: 'Montserrat', // Sesuaikan dengan font yang digunakan
-                          fontSize: fontSize, // Sesuaikan dengan ukuran font yang diinginkan
+                          fontFamily:
+                              'Montserrat', // Sesuaikan dengan font yang digunakan
+                          fontSize:
+                              fontSize, // Sesuaikan dengan ukuran font yang diinginkan
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -73,15 +76,15 @@ class LoginRegisterPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     // Tombol login ditekan
-                   Routemaster.of(context).push(LoginPageScreen.routeName);
+                    Routemaster.of(context).push(LoginPageScreen.routeName);
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         const Color.fromRGBO(59, 51, 51, 1)),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(15), // Set your desired border radius here
+                        borderRadius: BorderRadius.circular(
+                            15), // Set your desired border radius here
                       ),
                     ),
                   ),

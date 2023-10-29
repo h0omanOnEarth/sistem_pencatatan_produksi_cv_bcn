@@ -9,10 +9,12 @@ class MainPembelianAdministrasiScreen extends StatefulWidget {
   const MainPembelianAdministrasiScreen({Key? key});
 
   @override
-  State<MainPembelianAdministrasiScreen> createState() => _MainMasterAdministrasiScreenState();
+  State<MainPembelianAdministrasiScreen> createState() =>
+      _MainMasterAdministrasiScreenState();
 }
 
-class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasiScreen> {
+class _MainMasterAdministrasiScreenState
+    extends State<MainPembelianAdministrasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,8 +79,16 @@ class _MainMasterAdministrasiScreenState extends State<MainPembelianAdministrasi
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pembelian', textB: 'Memodifikasi dan melihat pesanan pembelian', pageRoute: ListPesananPembelian.routeName),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pesanan Pengembalian', textB: 'Memodifikasi dan melihat pesanan pengembalian', pageRoute: ListPesananPengembalianPembelian.routeName),
+                    const CardItem(
+                        icon: Icons.point_of_sale,
+                        textA: 'Pesanan Pembelian',
+                        textB: 'Memodifikasi dan melihat pesanan pembelian',
+                        pageRoute: ListPesananPembelian.routeName),
+                    const CardItem(
+                        icon: Icons.shopping_cart_checkout,
+                        textA: 'Pesanan Pengembalian',
+                        textB: 'Memodifikasi dan melihat pesanan pengembalian',
+                        pageRoute: ListPesananPengembalianPembelian.routeName),
                   ],
                 ),
               ),

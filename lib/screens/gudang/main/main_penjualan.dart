@@ -9,11 +9,12 @@ class MainPenjualanGudangScreen extends StatefulWidget {
   const MainPenjualanGudangScreen({Key? key});
 
   @override
-  State<MainPenjualanGudangScreen> createState() => _MainPenjualanGudangScreenState();
+  State<MainPenjualanGudangScreen> createState() =>
+      _MainPenjualanGudangScreenState();
 }
 
 class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -77,8 +78,16 @@ class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.location_on_sharp, textA: 'Surat Jalan', textB: 'Memodifikasi dan melihat surat jalan', pageRoute: ListSuratJalan.routeName),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Pengembalian Barang', textB: 'Memodifikasi dan melihat pengembalian barang', pageRoute: ListCustomerOrderReturn.routeName),
+                    const CardItem(
+                        icon: Icons.location_on_sharp,
+                        textA: 'Surat Jalan',
+                        textB: 'Memodifikasi dan melihat surat jalan',
+                        pageRoute: ListSuratJalan.routeName),
+                    const CardItem(
+                        icon: Icons.shopping_cart_checkout,
+                        textA: 'Pengembalian Barang',
+                        textB: 'Memodifikasi dan melihat pengembalian barang',
+                        pageRoute: ListCustomerOrderReturn.routeName),
                   ],
                 ),
               ),
@@ -89,4 +98,3 @@ class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
     );
   }
 }
-

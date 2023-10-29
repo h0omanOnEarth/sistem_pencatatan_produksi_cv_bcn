@@ -31,90 +31,90 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_resul
 
 class AppBlocProviders {
   static final List<BlocProvider> providers = [
-     // Daftarkan AuthenticationBloc di sini
-      BlocProvider<LoginBloc>(
-        create: (BuildContext context) => LoginBloc(),
-      ),
-      BlocProvider<SupplierBloc>(
-        create: (BuildContext context) => SupplierBloc(),
-      ),
-      BlocProvider<EmployeeBloc>(
-        create: (BuildContext context) => EmployeeBloc(),
-      ),
-      BlocProvider<MesinBloc>(
-        create: (BuildContext context) => MesinBloc(),
-      ),
-        BlocProvider<MaterialBloc>(
-        create: (BuildContext context) => MaterialBloc(),
-      ),
-        BlocProvider<ProductBloc>(
-        create: (BuildContext context) => ProductBloc(),
-      ),
-        BlocProvider<CustomerBloc>(
-        create: (BuildContext context) => CustomerBloc(),
-      ),
-        BlocProvider<PurchaseOrderBloc>(
-        create: (BuildContext context) => PurchaseOrderBloc(),
-      ),
-        BlocProvider<PurchaseReturnBloc>(
-        create: (BuildContext context) => PurchaseReturnBloc(),
-      ),
-        BlocProvider<CustomerOrderBloc>(
-        create: (BuildContext context) => CustomerOrderBloc(),
-      ),
-      BlocProvider<DeliveryOrderBloc>(
-        create: (BuildContext context) => DeliveryOrderBloc(),
-      ),
-        BlocProvider<BillOfMaterialBloc>(
-        create: (BuildContext context) => BillOfMaterialBloc(),
-      ),
-        BlocProvider<ProductionOrderBloc>(
-        create: (BuildContext context) => ProductionOrderBloc(),
-      ),
-        BlocProvider<MaterialRequestBloc>(
-        create: (BuildContext context) => MaterialRequestBloc(),
-      ),
-        BlocProvider<MaterialUsageBloc>(
-        create: (BuildContext context) => MaterialUsageBloc(),
-      ),
-      BlocProvider<MaterialReturnBloc>(
-        create: (BuildContext context) => MaterialReturnBloc(),
-      ),
-      BlocProvider<DLOHBloc>(
-        create: (BuildContext context) => DLOHBloc(),
-      ),
-        BlocProvider<ProductionResultBloc>(
-        create: (BuildContext context) => ProductionResultBloc(),
-      ),
-      BlocProvider<ProductionConfirmationBloc>(
-        create: (BuildContext context) => ProductionConfirmationBloc(),
-      ),
-        BlocProvider<PurchaseRequestBloc>(
-        create: (BuildContext context) => PurchaseRequestBloc(),
-      ),
-        BlocProvider<MaterialReceiveBloc>(
-        create: (BuildContext context) => MaterialReceiveBloc(),
-      ),
-      BlocProvider<ShipmentBloc>(
-        create: (BuildContext context) => ShipmentBloc(),
-      ),
-        BlocProvider<CustomerOrderReturnBloc>(
-        create: (BuildContext context) => CustomerOrderReturnBloc(),
-      ),
-        BlocProvider<MaterialTransferBloc>(
-        create: (BuildContext context) => MaterialTransferBloc(),
-      ),
-        BlocProvider<ItemReceiveBloc>(
-        create: (BuildContext context) => ItemReceiveBloc(),
-      ),
-      BlocProvider<MaterialTransformsBloc>(
-        create: (BuildContext context) => MaterialTransformsBloc(),
-      ),
-        BlocProvider<InvoiceBloc>(
-        create: (BuildContext context) => InvoiceBloc(),
-      ),
-      BlocProvider<NotificationBloc>(
-        create: (BuildContext context) => NotificationBloc(),
-      ),
+    // Daftarkan AuthenticationBloc di sini
+    BlocProvider<LoginBloc>(
+      create: (BuildContext context) => LoginBloc(),
+    ),
+    BlocProvider<SupplierBloc>(
+      create: (BuildContext context) => SupplierBloc(),
+    ),
+    BlocProvider<EmployeeBloc>(
+      create: (BuildContext context) => EmployeeBloc(),
+    ),
+    BlocProvider<MesinBloc>(
+      create: (BuildContext context) => MesinBloc(),
+    ),
+    BlocProvider<MaterialBloc>(
+      create: (BuildContext context) => MaterialBloc(),
+    ),
+    BlocProvider<ProductBloc>(
+      create: (BuildContext context) => ProductBloc(),
+    ),
+    BlocProvider<CustomerBloc>(
+      create: (BuildContext context) => CustomerBloc(),
+    ),
+    BlocProvider<PurchaseOrderBloc>(
+      create: (BuildContext context) => PurchaseOrderBloc(),
+    ),
+    BlocProvider<PurchaseReturnBloc>(
+      create: (BuildContext context) => PurchaseReturnBloc(),
+    ),
+    BlocProvider<CustomerOrderBloc>(
+      create: (BuildContext context) => CustomerOrderBloc(),
+    ),
+    BlocProvider<DeliveryOrderBloc>(
+      create: (BuildContext context) => DeliveryOrderBloc(),
+    ),
+    BlocProvider<BillOfMaterialBloc>(
+      create: (BuildContext context) => BillOfMaterialBloc(),
+    ),
+    BlocProvider<ProductionOrderBloc>(
+      create: (BuildContext context) => ProductionOrderBloc(),
+    ),
+    BlocProvider<MaterialRequestBloc>(
+      create: (BuildContext context) => MaterialRequestBloc(),
+    ),
+    BlocProvider<MaterialUsageBloc>(
+      create: (BuildContext context) => MaterialUsageBloc(),
+    ),
+    BlocProvider<MaterialReturnBloc>(
+      create: (BuildContext context) => MaterialReturnBloc(),
+    ),
+    BlocProvider<DLOHBloc>(
+      create: (BuildContext context) => DLOHBloc(),
+    ),
+    BlocProvider<ProductionResultBloc>(
+      create: (BuildContext context) => ProductionResultBloc(),
+    ),
+    BlocProvider<ProductionConfirmationBloc>(
+      create: (BuildContext context) => ProductionConfirmationBloc(),
+    ),
+    BlocProvider<PurchaseRequestBloc>(
+      create: (BuildContext context) => PurchaseRequestBloc(),
+    ),
+    BlocProvider<MaterialReceiveBloc>(
+      create: (BuildContext context) => MaterialReceiveBloc(),
+    ),
+    BlocProvider<ShipmentBloc>(
+      create: (BuildContext context) => ShipmentBloc(),
+    ),
+    BlocProvider<CustomerOrderReturnBloc>(
+      create: (BuildContext context) => CustomerOrderReturnBloc(),
+    ),
+    BlocProvider<MaterialTransferBloc>(
+      create: (BuildContext context) => MaterialTransferBloc(),
+    ),
+    BlocProvider<ItemReceiveBloc>(
+      create: (BuildContext context) => ItemReceiveBloc(),
+    ),
+    BlocProvider<MaterialTransformsBloc>(
+      create: (BuildContext context) => MaterialTransformsBloc(),
+    ),
+    BlocProvider<InvoiceBloc>(
+      create: (BuildContext context) => InvoiceBloc(),
+    ),
+    BlocProvider<NotificationBloc>(
+      create: (BuildContext context) => NotificationBloc(),
+    ),
   ];
 }

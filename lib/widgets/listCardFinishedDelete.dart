@@ -35,7 +35,8 @@ class ListCardFinishedDelete extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align buttons to the start and end
+            mainAxisAlignment: MainAxisAlignment
+                .spaceBetween, // Align buttons to the start and end
             children: [
               Expanded(
                 child: Column(
@@ -62,46 +63,51 @@ class ListCardFinishedDelete extends StatelessWidget {
                   ],
                 ),
               ),
-              if(status!="Selesai")
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end, // Push elements to the end
-                children: [
-                  if (status != "Selesai")
+              if (status != "Selesai")
+                Column(
+                  mainAxisAlignment:
+                      MainAxisAlignment.end, // Push elements to the end
+                  children: [
+                    if (status != "Selesai")
+                      Container(
+                        width:
+                            35.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                        height: 35.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: Colors.green,
+                        ),
+                        child: IconButton(
+                          iconSize:
+                              21.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                          icon: const Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.white,
+                          ),
+                          onPressed: onFinished,
+                        ),
+                      ),
+                    const SizedBox(
+                      height: 8.0,
+                    ),
                     Container(
-                      width: 35.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                      width: 35.0,
                       height: 35.0,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),
-                        color: Colors.green,
+                        color: Colors.red,
                       ),
                       child: IconButton(
-                        iconSize: 21.0, // Sesuaikan dengan ukuran yang Anda inginkan
+                        iconSize: 21.0,
                         icon: const Icon(
-                          Icons.check_circle_rounded,
+                          Icons.delete,
                           color: Colors.white,
                         ),
-                        onPressed: onFinished,
+                        onPressed: onDeletePressed,
                       ),
                     ),
-                  const SizedBox(height: 8.0,),
-                  Container(
-                    width: 35.0,
-                    height: 35.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: Colors.red,
-                    ),
-                    child: IconButton(
-                      iconSize: 21.0,
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                      onPressed: onDeletePressed,
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         ),

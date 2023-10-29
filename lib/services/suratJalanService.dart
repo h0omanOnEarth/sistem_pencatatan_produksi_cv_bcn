@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class SuratJalanService{
+class SuratJalanService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future<String> generateNextShipmentId() async {
     final shipmentsRef = firestore.collection('shipments');
     final QuerySnapshot snapshot = await shipmentsRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int shipmentCount = 1;
 
     while (true) {
@@ -18,31 +19,31 @@ class SuratJalanService{
     }
   }
 
-    Future<Map<String, dynamic>?> getSuratJalanInfo(String shipmentId) async {
-  try {
-    final productQuery = await firestore
-        .collection('shipments')
-        .where('id', isEqualTo: shipmentId)
-        .get();
+  Future<Map<String, dynamic>?> getSuratJalanInfo(String shipmentId) async {
+    try {
+      final productQuery = await firestore
+          .collection('shipments')
+          .where('id', isEqualTo: shipmentId)
+          .get();
 
-    if (productQuery.docs.isNotEmpty) {
-      final productDoc = productQuery.docs.first;
-      return {
-        'id': shipmentId,
-        'deliveryOrderId': productDoc['delivery_order_id'] as String,
-        'alamatPenerima': productDoc['alamat_penerima'] as String
-      };
-    } else {
+      if (productQuery.docs.isNotEmpty) {
+        final productDoc = productQuery.docs.first;
+        return {
+          'id': shipmentId,
+          'deliveryOrderId': productDoc['delivery_order_id'] as String,
+          'alamatPenerima': productDoc['alamat_penerima'] as String
+        };
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting product info: $e');
       return null;
     }
-  } catch (e) {
-    print('Error getting product info: $e');
-    return null;
   }
-}
 
-
-Future<List<Map<String, dynamic>>?> getDetailShipments(String shipmentId) async {
+  Future<List<Map<String, dynamic>>?> getDetailShipments(
+      String shipmentId) async {
     try {
       final detailShipmentsQuery = await firestore
           .collection('shipments')
@@ -62,8 +63,10 @@ Future<List<Map<String, dynamic>>?> getDetailShipments(String shipmentId) async 
             detailShipments.add({
               'id': doc.id,
               'product_id': detailShipmentData['product_id'],
-              'jumlahPengiriman': detailShipmentData['jumlah_pengiriman'] as int,
-              'jumlahPengirimanDus': detailShipmentData['jumlah_pengiriman_dus'] as int,
+              'jumlahPengiriman':
+                  detailShipmentData['jumlah_pengiriman'] as int,
+              'jumlahPengirimanDus':
+                  detailShipmentData['jumlah_pengiriman_dus'] as int,
             });
           }
         }
@@ -77,5 +80,4 @@ Future<List<Map<String, dynamic>>?> getDetailShipments(String shipmentId) async 
       return null; // Kembalikan null jika terjadi kesalahan
     }
   }
-  
 }

@@ -14,7 +14,8 @@ class AddProductionResultEvent extends ProductionResultEvent {
 class UpdateProductionResultEvent extends ProductionResultEvent {
   final String productionResultId;
   final ProductionResult updatedProductionResult;
-  UpdateProductionResultEvent(this.productionResultId, this.updatedProductionResult);
+  UpdateProductionResultEvent(
+      this.productionResultId, this.updatedProductionResult);
 }
 
 class DeleteProductionResultEvent extends ProductionResultEvent {
@@ -40,25 +41,31 @@ class ErrorState extends ProductionResultBlocState {
 }
 
 // BLoC
-class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultBlocState> {
+class ProductionResultBloc
+    extends Bloc<ProductionResultEvent, ProductionResultBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference productionResultRef;
   final HttpsCallable resultValidateCallable;
 
-  ProductionResultBloc() : resultValidateCallable = FirebaseFunctions.instance.httpsCallable('productionResValidate'),  super(LoadingState()) {
+  ProductionResultBloc()
+      : resultValidateCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('productionResValidate'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     productionResultRef = _firestore.collection('production_results');
   }
 
   @override
-  Stream<ProductionResultBlocState> mapEventToState(ProductionResultEvent event) async* {
+  Stream<ProductionResultBlocState> mapEventToState(
+      ProductionResultEvent event) async* {
     if (event is AddProductionResultEvent) {
       yield LoadingState();
 
       final materialUsageId = event.productionResult.materialUsageId;
       final totalProduk = event.productionResult.totalProduk;
       final jumlahProdukBerhasil = event.productionResult.jumlahProdukBerhasil;
-      final jumlahProdukCacat =event.productionResult.jumlahProdukCacat;
+      final jumlahProdukCacat = event.productionResult.jumlahProdukCacat;
       final satuan = event.productionResult.satuan;
       final catatan = event.productionResult.catatan;
       final statusPRS = event.productionResult.statusPRS;
@@ -66,21 +73,25 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
       final tanggalPencatatan = event.productionResult.tanggalPencatatan;
       final waktuProduksi = event.productionResult.waktuProduksi;
 
-      if(materialUsageId.isNotEmpty){
+      if (materialUsageId.isNotEmpty) {
         try {
-          final HttpsCallableResult<dynamic> result = await resultValidateCallable.call(<String, dynamic>{
-           'total': totalProduk,
-           'jumlahBerhasil': jumlahProdukBerhasil,
-           'jumlahCacat': jumlahProdukCacat,
-           'waktu': waktuProduksi,
-           'materialUsageId': materialUsageId,
-           'satuan': satuan,
-           'mode': 'add'
+          final HttpsCallableResult<dynamic> result =
+              await resultValidateCallable.call(<String, dynamic>{
+            'total': totalProduk,
+            'jumlahBerhasil': jumlahProdukBerhasil,
+            'jumlahCacat': jumlahProdukCacat,
+            'waktu': waktuProduksi,
+            'materialUsageId': materialUsageId,
+            'satuan': satuan,
+            'mode': 'add'
           });
 
           if (result.data['success'] == true) {
-            final String nextProductionResultId = await _generateNextProductionResultId();
-            final productionResultRef = _firestore.collection('production_results').doc(nextProductionResultId);
+            final String nextProductionResultId =
+                await _generateNextProductionResultId();
+            final productionResultRef = _firestore
+                .collection('production_results')
+                .doc(nextProductionResultId);
 
             // Buat Map data Production Result
             final Map<String, dynamic> productionResultData = {
@@ -100,14 +111,13 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
             // Tambahkan data Production Result ke Firestore
             await productionResultRef.set(productionResultData);
             yield SuccessState();
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
-
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
     } else if (event is UpdateProductionResultEvent) {
@@ -115,8 +125,9 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
 
       final materialUsageId = event.updatedProductionResult.materialUsageId;
       final totalProduk = event.updatedProductionResult.totalProduk;
-      final jumlahProdukBerhasil = event.updatedProductionResult.jumlahProdukBerhasil;
-      final jumlahProdukCacat =event.updatedProductionResult.jumlahProdukCacat;
+      final jumlahProdukBerhasil =
+          event.updatedProductionResult.jumlahProdukBerhasil;
+      final jumlahProdukCacat = event.updatedProductionResult.jumlahProdukCacat;
       final satuan = event.updatedProductionResult.satuan;
       final catatan = event.updatedProductionResult.catatan;
       final statusPRS = event.updatedProductionResult.statusPRS;
@@ -124,20 +135,23 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
       final tanggalPencatatan = event.updatedProductionResult.tanggalPencatatan;
       final waktuProduksi = event.updatedProductionResult.waktuProduksi;
 
-      if(materialUsageId.isNotEmpty){
+      if (materialUsageId.isNotEmpty) {
         try {
-           final HttpsCallableResult<dynamic> result = await resultValidateCallable.call(<String, dynamic>{
-           'total': totalProduk,
-           'jumlahBerhasil': jumlahProdukBerhasil,
-           'jumlahCacat': jumlahProdukCacat,
-           'waktu': waktuProduksi,
-           'materialUsageId': materialUsageId,
-           'satuan': satuan,
-           'mode': 'edit'
+          final HttpsCallableResult<dynamic> result =
+              await resultValidateCallable.call(<String, dynamic>{
+            'total': totalProduk,
+            'jumlahBerhasil': jumlahProdukBerhasil,
+            'jumlahCacat': jumlahProdukCacat,
+            'waktu': waktuProduksi,
+            'materialUsageId': materialUsageId,
+            'satuan': satuan,
+            'mode': 'edit'
           });
 
           if (result.data['success'] == true) {
-            final productionResultSnapshot = await productionResultRef.where('id', isEqualTo: event.productionResultId).get();
+            final productionResultSnapshot = await productionResultRef
+                .where('id', isEqualTo: event.productionResultId)
+                .get();
             if (productionResultSnapshot.docs.isNotEmpty) {
               final productionResultDoc = productionResultSnapshot.docs.first;
               await productionResultDoc.reference.update({
@@ -154,22 +168,24 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
               });
               yield SuccessState();
             } else {
-              yield ErrorState('Data Hasil Produksi dengan ID ${event.productionResultId} tidak ditemukan.');
+              yield ErrorState(
+                  'Data Hasil Produksi dengan ID ${event.productionResultId} tidak ditemukan.');
             }
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("nomor penggunaan bahan tidak boleh kosong");
       }
-
     } else if (event is DeleteProductionResultEvent) {
       yield LoadingState();
       try {
-        final QuerySnapshot querySnapshot = await productionResultRef.where('id', isEqualTo: event.productionResultId).get();   
+        final QuerySnapshot querySnapshot = await productionResultRef
+            .where('id', isEqualTo: event.productionResultId)
+            .get();
         // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
           await documentSnapshot.reference.delete();
@@ -184,11 +200,13 @@ class ProductionResultBloc extends Bloc<ProductionResultEvent, ProductionResultB
 
   Future<String> _generateNextProductionResultId() async {
     final QuerySnapshot snapshot = await productionResultRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int productionResultCount = 1;
 
     while (true) {
-      final nextProductionResultId = 'PRS${productionResultCount.toString().padLeft(5, '0')}';
+      final nextProductionResultId =
+          'PRS${productionResultCount.toString().padLeft(5, '0')}';
       if (!existingIds.contains(nextProductionResultId)) {
         return nextProductionResultId;
       }

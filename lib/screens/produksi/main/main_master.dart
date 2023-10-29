@@ -11,11 +11,12 @@ class MainMasterProduksiScreen extends StatefulWidget {
   const MainMasterProduksiScreen({Key? key});
 
   @override
-  State<MainMasterProduksiScreen> createState() => _MainMasterProduksiScreenState();
+  State<MainMasterProduksiScreen> createState() =>
+      _MainMasterProduksiScreenState();
 }
 
 class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -79,10 +80,27 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=3'),
-                    const CardItem(icon: Icons.notes_rounded, textA: 'Master Bill of Material', textB: 'Memodifikasi dan melihat data BOM', pageRoute: ListBOMScreen.routeName),
-                    const CardItem(icon: Icons.factory_outlined, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: '${ListMasterMesinScreen.routeName}?mode=3'),
-                    const CardItem(icon: Icons.gif_box, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: '${ListMasterBarangScreen.routeName}?mode=3'),
+                    const CardItem(
+                        icon: Icons.warehouse,
+                        textA: 'Master Bahan',
+                        textB: 'Memodifikasi dan melihat data bahan',
+                        pageRoute: '${ListMasterBahanScreen.routeName}?mode=3'),
+                    const CardItem(
+                        icon: Icons.notes_rounded,
+                        textA: 'Master Bill of Material',
+                        textB: 'Memodifikasi dan melihat data BOM',
+                        pageRoute: ListBOMScreen.routeName),
+                    const CardItem(
+                        icon: Icons.factory_outlined,
+                        textA: 'Master Mesin',
+                        textB: 'Memodifikasi dan melihat data mesin',
+                        pageRoute: '${ListMasterMesinScreen.routeName}?mode=3'),
+                    const CardItem(
+                        icon: Icons.gif_box,
+                        textA: 'Master Barang',
+                        textB: 'Memodifikasi dan melihat data barang',
+                        pageRoute:
+                            '${ListMasterBarangScreen.routeName}?mode=3'),
                   ],
                 ),
               ),
@@ -93,4 +111,3 @@ class _MainMasterProduksiScreenState extends State<MainMasterProduksiScreen> {
     );
   }
 }
-

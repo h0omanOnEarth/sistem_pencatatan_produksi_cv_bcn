@@ -51,7 +51,11 @@ class ProductionOrderBloc
   final HttpsCallable productionOrderValidateCallable;
   final notificationService = NotificationService();
 
-  ProductionOrderBloc(): productionOrderValidateCallable = FirebaseFunctions.instance.httpsCallable('productionOrderValidate'),super(LoadingState()) {
+  ProductionOrderBloc()
+      : productionOrderValidateCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('productionOrderValidate'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -70,33 +74,38 @@ class ProductionOrderBloc
       final statusPro = event.productionOrder.statusPro;
       final tanggalProduksi = event.productionOrder.tanggalProduksi;
       final tanggalRencana = event.productionOrder.tanggalRencana;
-      final tanggalSelesai= event.productionOrder.tanggalSelesai;
+      final tanggalSelesai = event.productionOrder.tanggalSelesai;
       final materials = event.productionOrder.detailProductionOrderList;
       final machines = event.productionOrder.detailMesinProductionOrderList;
 
-      if(bomId.isNotEmpty){
-        if(productId.isNotEmpty){
+      if (bomId.isNotEmpty) {
+        if (productId.isNotEmpty) {
           try {
-            final HttpsCallableResult<dynamic> result = await productionOrderValidateCallable.call(<String, dynamic>{
-            'materials': materials?.map((material) => material.toJson()).toList(),
-            'machines': machines?.map((machine) => machine.toJson()).toList(),
-            'jumlahProduksiEst': jumlahProduksiEst,
-            'jumlahTenagaKerjaEst': jumlahTenagaKerjaEst,
-            'lamaWaktuEst': lamaWaktuEst,
-            'bomId': bomId,
-            'productId': productId
+            final HttpsCallableResult<dynamic> result =
+                await productionOrderValidateCallable.call(<String, dynamic>{
+              'materials':
+                  materials?.map((material) => material.toJson()).toList(),
+              'machines': machines?.map((machine) => machine.toJson()).toList(),
+              'jumlahProduksiEst': jumlahProduksiEst,
+              'jumlahTenagaKerjaEst': jumlahTenagaKerjaEst,
+              'lamaWaktuEst': lamaWaktuEst,
+              'bomId': bomId,
+              'productId': productId
             });
 
             if (result.data['success'] == true) {
-              final nextProductionOrderId = await _generateNextProductionOrderId();
+              final nextProductionOrderId =
+                  await _generateNextProductionOrderId();
 
-              final productionOrderRef =_firestore.collection('production_orders').doc(nextProductionOrderId);
+              final productionOrderRef = _firestore
+                  .collection('production_orders')
+                  .doc(nextProductionOrderId);
 
               final Map<String, dynamic> productionOrderData = {
                 'id': nextProductionOrderId,
                 'bom_id': bomId,
                 'jumlah_produksi_est': jumlahProduksiEst,
-                'jumlah_tenaga_kerja_est':jumlahTenagaKerjaEst,
+                'jumlah_tenaga_kerja_est': jumlahTenagaKerjaEst,
                 'lama_waktu_est': lamaWaktuEst,
                 'product_id': productId,
                 'status': status,
@@ -125,7 +134,7 @@ class ProductionOrderBloc
                     'jumlah_bom': detailProductionOrder.jumlahBOM,
                     'material_id': detailProductionOrder.materialId,
                     'production_order_id': nextProductionOrderId,
-                    'batch' : detailProductionOrder.batch,
+                    'batch': detailProductionOrder.batch,
                     'satuan': detailProductionOrder.satuan,
                     'status': 1
                   });
@@ -134,12 +143,16 @@ class ProductionOrderBloc
               }
 
               // Create 'detail_machines' subcollection
-              final detailMachinesRef = productionOrderRef.collection('detail_machines');
+              final detailMachinesRef =
+                  productionOrderRef.collection('detail_machines');
 
-              if (event.productionOrder.detailMesinProductionOrderList != null &&
-                  event.productionOrder.detailMesinProductionOrderList!.isNotEmpty) {
+              if (event.productionOrder.detailMesinProductionOrderList !=
+                      null &&
+                  event.productionOrder.detailMesinProductionOrderList!
+                      .isNotEmpty) {
                 int machineCount = 1;
-                for (var machineDetail in event.productionOrder.detailMesinProductionOrderList!) {
+                for (var machineDetail
+                    in event.productionOrder.detailMesinProductionOrderList!) {
                   final nextMachineDetailId =
                       '$nextProductionOrderId${'DM${machineCount.toString().padLeft(3, '0')}'}';
 
@@ -154,33 +167,34 @@ class ProductionOrderBloc
                 }
               }
 
-            final notificationsRef = _firestore.collection('notifications');
-            final nextNotifId = await notificationService.generateNextNotificationId();
-            final Map<String, dynamic> notificationData = {
-              'pesan': 'Production Order baru ditambahkan',
-              'status': 1,
-              'posisi': 'Produksi',
-              'created_at' : DateTime.now(),
-              'id': nextNotifId
-            };
+              final notificationsRef = _firestore.collection('notifications');
+              final nextNotifId =
+                  await notificationService.generateNextNotificationId();
+              final Map<String, dynamic> notificationData = {
+                'pesan': 'Production Order baru ditambahkan',
+                'status': 1,
+                'posisi': 'Produksi',
+                'created_at': DateTime.now(),
+                'id': nextNotifId
+              };
 
-            // Gunakan .doc() untuk membuat referensi dokumen baru dengan nextNotifId
-            final newNotificationDoc = notificationsRef.doc(nextNotifId);
+              // Gunakan .doc() untuk membuat referensi dokumen baru dengan nextNotifId
+              final newNotificationDoc = notificationsRef.doc(nextNotifId);
 
-            // Gunakan .set() untuk menambahkan data ke dokumen tersebut
-            await newNotificationDoc.set(notificationData);
+              // Gunakan .set() untuk menambahkan data ke dokumen tersebut
+              await newNotificationDoc.set(notificationData);
 
               yield SuccessState();
-            }else{
+            } else {
               yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState(e.toString());
           }
-        }else{
+        } else {
           yield ErrorState("kode produk tidak boleh kosong");
         }
-      }else{
+      } else {
         yield ErrorState("nomor bom tidak boleh kosong");
       }
     } else if (event is UpdateProductionOrderEvent) {
@@ -193,22 +207,25 @@ class ProductionOrderBloc
       final jumlahTenagaKerjaEst = event.productionOrder.jumlahTenagaKerjaEst;
       final lamaWaktuEst = event.productionOrder.lamaWaktuEst;
 
-      if(bomId.isNotEmpty){
-        if(productId.isNotEmpty){
+      if (bomId.isNotEmpty) {
+        if (productId.isNotEmpty) {
           try {
-             final HttpsCallableResult<dynamic> result = await productionOrderValidateCallable.call(<String, dynamic>{
-            'materials': materials?.map((material) => material.toJson()).toList(),
-            'machines': machines?.map((machine) => machine.toJson()).toList(),
-            'jumlahProduksiEst': jumlahProduksiEst,
-            'jumlahTenagaKerjaEst': jumlahTenagaKerjaEst,
-            'lamaWaktuEst': lamaWaktuEst,
-            'bomId': bomId,
-            'productId': productId
+            final HttpsCallableResult<dynamic> result =
+                await productionOrderValidateCallable.call(<String, dynamic>{
+              'materials':
+                  materials?.map((material) => material.toJson()).toList(),
+              'machines': machines?.map((machine) => machine.toJson()).toList(),
+              'jumlahProduksiEst': jumlahProduksiEst,
+              'jumlahTenagaKerjaEst': jumlahTenagaKerjaEst,
+              'lamaWaktuEst': lamaWaktuEst,
+              'bomId': bomId,
+              'productId': productId
             });
 
             if (result.data['success'] == true) {
-              final productionOrderToUpdateRef =
-              _firestore.collection('production_orders').doc(event.productionOrderId);
+              final productionOrderToUpdateRef = _firestore
+                  .collection('production_orders')
+                  .doc(event.productionOrderId);
               final Map<String, dynamic> productionOrderData = {
                 'id': event.productionOrderId,
                 'bom_id': event.productionOrder.bomId,
@@ -228,7 +245,8 @@ class ProductionOrderBloc
               await productionOrderToUpdateRef.set(productionOrderData);
 
               final detailProductionOrderCollectionRef =
-                  productionOrderToUpdateRef.collection('detail_production_orders');
+                  productionOrderToUpdateRef
+                      .collection('detail_production_orders');
 
               final detailProductionOrderDocs =
                   await detailProductionOrderCollectionRef.get();
@@ -243,14 +261,15 @@ class ProductionOrderBloc
                     in event.productionOrder.detailProductionOrderList!) {
                   final nextDetailProductionOrderId =
                       'D${detailCount.toString().padLeft(3, '0')}';
-                  final detailId = event.productionOrderId + nextDetailProductionOrderId;
+                  final detailId =
+                      event.productionOrderId + nextDetailProductionOrderId;
 
                   await detailProductionOrderCollectionRef.add({
                     'id': detailId,
                     'jumlah_bom': detailProductionOrder.jumlahBOM,
                     'material_id': detailProductionOrder.materialId,
                     'production_order_id': event.productionOrderId,
-                    'batch' : detailProductionOrder.batch,
+                    'batch': detailProductionOrder.batch,
                     'satuan': detailProductionOrder.satuan,
                     'status': 1,
                   });
@@ -259,19 +278,25 @@ class ProductionOrderBloc
               }
 
               // Update 'detail_machines' subcollection
-              final detailMachinesRef = productionOrderToUpdateRef.collection('detail_machines');
+              final detailMachinesRef =
+                  productionOrderToUpdateRef.collection('detail_machines');
 
               final detailMachinesDocs = await detailMachinesRef.get();
               for (var doc in detailMachinesDocs.docs) {
                 await doc.reference.delete();
               }
 
-              if (event.productionOrder.detailMesinProductionOrderList != null &&
-                  event.productionOrder.detailMesinProductionOrderList!.isNotEmpty) {
+              if (event.productionOrder.detailMesinProductionOrderList !=
+                      null &&
+                  event.productionOrder.detailMesinProductionOrderList!
+                      .isNotEmpty) {
                 int machineCount = 1;
-                for (var machineDetail in event.productionOrder.detailMesinProductionOrderList!) {
-                  final nextMachineDetailId ='DM${machineCount.toString().padLeft(3, '0')}';
-                  final detailMachineId = event.productionOrderId + nextMachineDetailId;
+                for (var machineDetail
+                    in event.productionOrder.detailMesinProductionOrderList!) {
+                  final nextMachineDetailId =
+                      'DM${machineCount.toString().padLeft(3, '0')}';
+                  final detailMachineId =
+                      event.productionOrderId + nextMachineDetailId;
 
                   await detailMachinesRef.add({
                     'id': detailMachineId,
@@ -285,24 +310,24 @@ class ProductionOrderBloc
               }
 
               yield SuccessState();
-            }else{
+            } else {
               yield ErrorState(result.data['message']);
             }
-      
           } catch (e) {
             yield ErrorState(e.toString());
           }
-        }else{
+        } else {
           yield ErrorState("kode produk tidak boleh kosong");
         }
-      }else{
+      } else {
         yield ErrorState("nomor bom tidak boleh kosong");
       }
     } else if (event is DeleteProductionOrderEvent) {
       yield LoadingState();
       try {
-        final productionOrderToDeleteRef =
-            _firestore.collection('production_orders').doc(event.productionOrderId);
+        final productionOrderToDeleteRef = _firestore
+            .collection('production_orders')
+            .doc(event.productionOrderId);
 
         final detailProductionOrderCollectionRef =
             productionOrderToDeleteRef.collection('detail_production_orders');
@@ -333,14 +358,15 @@ class ProductionOrderBloc
   }
 
   Future<String> _generateNextProductionOrderId() async {
-    final productionOrdersRef =
-        _firestore.collection('production_orders');
+    final productionOrdersRef = _firestore.collection('production_orders');
     final QuerySnapshot snapshot = await productionOrdersRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int productionCount = 1;
 
     while (true) {
-      final nextProductionOrderId = 'PRO${productionCount.toString().padLeft(5, '0')}';
+      final nextProductionOrderId =
+          'PRO${productionCount.toString().padLeft(5, '0')}';
       if (!existingIds.contains(nextProductionOrderId)) {
         return nextProductionOrderId;
       }

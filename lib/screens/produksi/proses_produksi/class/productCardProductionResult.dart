@@ -8,7 +8,8 @@ class ProductCardDataProductionResult {
   String satuan;
   String jumlahKonfirmasi;
   String selectedDropdownValue = '';
-  TextEditingController? jumlahController; // Ubah tipe data menjadi TextEditingController?
+  TextEditingController?
+      jumlahController; // Ubah tipe data menjadi TextEditingController?
 
   ProductCardDataProductionResult({
     required this.nomorHasilProduksi,
@@ -18,7 +19,7 @@ class ProductCardDataProductionResult {
     required this.satuan,
     required this.jumlahKonfirmasi,
     this.selectedDropdownValue = '',
-  }){
+  }) {
     // Initialize the controller with the current 'jumlah' value
     jumlahController = TextEditingController(text: jumlahKonfirmasi);
   }

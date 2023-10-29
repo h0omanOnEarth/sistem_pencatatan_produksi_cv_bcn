@@ -5,8 +5,10 @@ class ProductionOrderService {
 
   Future<String?> findProductionOrderId(String materialUsageId) async {
     try {
-      final materialUsageDoc =
-          await _firestore.collection('material_usages').doc(materialUsageId).get();
+      final materialUsageDoc = await _firestore
+          .collection('material_usages')
+          .doc(materialUsageId)
+          .get();
 
       return materialUsageDoc['production_order_id'] as String?;
     } catch (e) {
@@ -15,27 +17,27 @@ class ProductionOrderService {
     }
   }
 
-Future<Map<String, dynamic>?> getProductInfo(String productId) async {
-  try {
-    final productQuery = await _firestore
-        .collection('products')
-        .where('id', isEqualTo: productId)
-        .get();
+  Future<Map<String, dynamic>?> getProductInfo(String productId) async {
+    try {
+      final productQuery = await _firestore
+          .collection('products')
+          .where('id', isEqualTo: productId)
+          .get();
 
-    if (productQuery.docs.isNotEmpty) {
-      final productDoc = productQuery.docs.first;
-      return {
-        'product_id': productId,
-        'product_name': productDoc['nama'] as String,
-      };
-    } else {
+      if (productQuery.docs.isNotEmpty) {
+        final productDoc = productQuery.docs.first;
+        return {
+          'product_id': productId,
+          'product_name': productDoc['nama'] as String,
+        };
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('Error getting product info: $e');
       return null;
     }
-  } catch (e) {
-    print('Error getting product info: $e');
-    return null;
   }
-}
 
   Future<Map<String, dynamic>?> getProductInfoForProductionOrder(
       String productionOrderId) async {

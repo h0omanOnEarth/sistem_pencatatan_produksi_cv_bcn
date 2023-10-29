@@ -6,11 +6,12 @@ class MainLaporanGudangScreen extends StatefulWidget {
   const MainLaporanGudangScreen({Key? key});
 
   @override
-  State<MainLaporanGudangScreen> createState() => _MainMasterGudangScreenState();
+  State<MainLaporanGudangScreen> createState() =>
+      _MainMasterGudangScreenState();
 }
 
 class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -74,10 +75,26 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.warehouse, textA: 'Stok Bahan', textB: 'Melihat laporan stok bahan', pageRoute: '/page1'),
-                    const CardItem(icon: Icons.edit_note_outlined, textA: 'Stok Barang', textB: 'Melihat laporan stok barang', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.drive_file_move_rtl, textA: 'Pengiriman dan Penerimaan', textB: 'Melihat laporan pengiriman dan penerimaan', pageRoute: '/page2'),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Retur Barang', textB: 'Melihat laporan retur barang', pageRoute: '/page2'),
+                    const CardItem(
+                        icon: Icons.warehouse,
+                        textA: 'Stok Bahan',
+                        textB: 'Melihat laporan stok bahan',
+                        pageRoute: '/page1'),
+                    const CardItem(
+                        icon: Icons.edit_note_outlined,
+                        textA: 'Stok Barang',
+                        textB: 'Melihat laporan stok barang',
+                        pageRoute: '/page2'),
+                    const CardItem(
+                        icon: Icons.drive_file_move_rtl,
+                        textA: 'Pengiriman dan Penerimaan',
+                        textB: 'Melihat laporan pengiriman dan penerimaan',
+                        pageRoute: '/page2'),
+                    const CardItem(
+                        icon: Icons.shopping_cart_checkout,
+                        textA: 'Retur Barang',
+                        textB: 'Melihat laporan retur barang',
+                        pageRoute: '/page2'),
                   ],
                 ),
               ),
@@ -135,7 +152,8 @@ class CardItem extends StatelessWidget {
               SizedBox(width: 16.0),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center the text vertically
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

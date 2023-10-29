@@ -55,94 +55,94 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
   }
 
   Widget buildWideLayout() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      // Profile Card
-      Card(
-        elevation: 5,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'images/profile.jpg',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Profile Card
+        Card(
+          elevation: 5,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Welcome Back,",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                      padding: const EdgeInsets.all(4),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'images/profile.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Welcome Back,",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 24,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotifikasiScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.black,
-                      size: 24,
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 24,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.black,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      
-    const Row(
+
+        const Row(
           children: [
             Expanded(
               child: CombinedCard(
@@ -172,98 +172,97 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
             Expanded(child: MaterialsChart()),
           ],
         ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-
-Widget buildNarrowLayout() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Card(
-        elevation: 5,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'images/profile.jpg',
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
+  Widget buildNarrowLayout() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Card(
+          elevation: 5,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Welcome Back,",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                      padding: const EdgeInsets.all(4),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'images/profile.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Text(
-                        userName,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Welcome Back,",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
+                        Text(
+                          userName,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(4),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 24,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotifikasiScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.black,
-                      size: 24,
+                Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    radius: 24,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.notifications,
+                        color: Colors.black,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      const SizedBox(height: 16),
+        const SizedBox(height: 16),
         const CombinedCard(
           collectionName: 'shipments',
           statusField: 'status_shp',
@@ -283,10 +282,9 @@ Widget buildNarrowLayout() {
         const ProductsChart(),
         const SizedBox(height: 16),
         MaterialsChart(),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }
 
 class CombinedCard extends StatelessWidget {
@@ -296,7 +294,8 @@ class CombinedCard extends StatelessWidget {
   final String idField;
   final String title;
 
-  const CombinedCard({super.key, 
+  const CombinedCard({
+    super.key,
     required this.collectionName,
     required this.statusField,
     required this.statusValue,
@@ -307,7 +306,8 @@ class CombinedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
+      future:
+          fetchFirestoreData(collectionName, statusField, statusValue, idField),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -320,7 +320,7 @@ class CombinedCard extends StatelessWidget {
           final itemCount = data.length; // Hitung jumlah data
 
           return Card(
-             shape: RoundedRectangleBorder(
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0), // Border radius
               side: BorderSide(
                 color: Colors.grey[300]!, // Border tipis grey400
@@ -342,7 +342,8 @@ class CombinedCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.3, // Atur tinggi card sesuai kebutuhan Anda
+                  height: MediaQuery.of(context).size.height *
+                      0.3, // Atur tinggi card sesuai kebutuhan Anda
                   child: CardList(
                     collectionName: collectionName,
                     statusField: statusField,
@@ -358,7 +359,6 @@ class CombinedCard extends StatelessWidget {
     );
   }
 }
-
 
 class CardList extends StatelessWidget {
   final String collectionName;
@@ -377,7 +377,8 @@ class CardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: fetchFirestoreData(collectionName, statusField, statusValue, idField),
+      future:
+          fetchFirestoreData(collectionName, statusField, statusValue, idField),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -405,10 +406,12 @@ class CardList extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                     children: [
-                      Text('ID: ${itemData['id']}'), // Item yang cocok untuk semua koleksi
+                    children: [
+                      Text(
+                          'ID: ${itemData['id']}'), // Item yang cocok untuk semua koleksi
                       if (collectionName == 'shipments') ...[
-                        Text('ID Perintah Pengiriman: ${itemData['delivery_order_id']}'),
+                        Text(
+                            'ID Perintah Pengiriman: ${itemData['delivery_order_id']}'),
                         Text('Total Barang: ${itemData['total_produk']}'),
                       ] else if (collectionName == 'purchase_requests') ...[
                         Text('ID Bahan: ${itemData['material_id']}'),
@@ -427,18 +430,22 @@ class CardList extends StatelessWidget {
   }
 }
 
-Future<List<Map>> fetchFirestoreData(
-  String collectionName, String statusField, String statusValue, String idField) async {
+Future<List<Map>> fetchFirestoreData(String collectionName, String statusField,
+    String statusValue, String idField) async {
   final firestore = FirebaseFirestore.instance;
-  final querySnapshot = await firestore.collection(collectionName).where(statusField, isEqualTo: statusValue).get();
+  final querySnapshot = await firestore
+      .collection(collectionName)
+      .where(statusField, isEqualTo: statusValue)
+      .get();
   final data = querySnapshot.docs.map((doc) {
     if (collectionName == 'shipments') {
-     final tanggalPembuatan = doc['tanggal_pembuatan'] as Timestamp;
+      final tanggalPembuatan = doc['tanggal_pembuatan'] as Timestamp;
       final totalProducts = doc['total_pcs'] as int;
       final deliveryOrderId = doc['delivery_order_id'] as String;
       return {
         'id': doc[idField] as String,
-        'tanggal_pembuatan': DateFormat('dd/MM/yyyy').format(tanggalPembuatan.toDate()), // Format the date
+        'tanggal_pembuatan': DateFormat('dd/MM/yyyy')
+            .format(tanggalPembuatan.toDate()), // Format the date
         'total_produk': totalProducts.toString(),
         'delivery_order_id': deliveryOrderId,
       };
@@ -450,7 +457,8 @@ Future<List<Map>> fetchFirestoreData(
       return {
         'id': doc[idField] as String,
         'material_id': materialId,
-        'tanggal_permintaan': DateFormat('dd/MM/yyyy').format(tanggalPermintaan.toDate()), // Format the date
+        'tanggal_permintaan': DateFormat('dd/MM/yyyy')
+            .format(tanggalPermintaan.toDate()), // Format the date
         'jumlah': jumlah.toString(),
         'satuan': satuan
       };

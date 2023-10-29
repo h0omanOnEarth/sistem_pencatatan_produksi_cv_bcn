@@ -42,8 +42,9 @@ class MaterialRequest {
 
   Map<String, dynamic> toJson() {
     final List<Map<String, dynamic>> detailMaterialRequestData =
-        detailMaterialRequestList.map((DetailMaterialRequest detail) =>
-            detail.toJson()).toList();
+        detailMaterialRequestList
+            .map((DetailMaterialRequest detail) => detail.toJson())
+            .toList();
 
     return {
       'id': id,

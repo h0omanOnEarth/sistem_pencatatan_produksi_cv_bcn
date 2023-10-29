@@ -9,41 +9,50 @@ const {
 } = require("firebase-functions/logger");
 
 exports.materialReturnValidation = async (req) => {
-  const { materials, materialUsageId, mode} = req.data;
+  const { materials, materialUsageId, mode } = req.data;
 
   if (!materials || materials.length === 0) {
     return { success: false, message: "Minimal harus ada satu bahan/material" };
   }
 
   // Pemeriksaan jika setiap elemen memenuhi kriteria
-  if (!materials.every((material) => {
-    return material.material_id.trim() !== "";
-  })) {
+  if (
+    !materials.every((material) => {
+      return material.material_id.trim() !== "";
+    })
+  ) {
     return { success: false, message: "Material_id tidak boleh kosong" };
   }
 
-  if (!materials.every((material) => {
-    return material.jumlah > 0;
-  })) {
+  if (
+    !materials.every((material) => {
+      return material.jumlah > 0;
+    })
+  ) {
     return { success: false, message: "Jumlah pada detail harus di atas 0" };
   }
 
-  if (!materials.every((material) => {
-    return material.satuan.trim!=="";
-  })) {
+  if (
+    !materials.every((material) => {
+      return material.satuan.trim !== "";
+    })
+  ) {
     return { success: false, message: "Satuan tidak boleh kosong" };
   }
 
   try {
     // Dapatkan jumlah material yang sudah digunakan dari subkoleksi detail_material_usages pada material_usages
-    const materialUsageRef = admin.firestore().collection("material_usages").doc(materialUsageId);
+    const materialUsageRef = admin
+      .firestore()
+      .collection("material_usages")
+      .doc(materialUsageId);
 
     const materialUsageDoc = await materialUsageRef.get();
 
     // Periksa status_mu pada materialUsageId
     const statusMu = materialUsageDoc.data().status_mu;
 
-    if(mode=='add'){
+    if (mode == "add") {
       if (statusMu !== "Selesai") {
         return {
           success: false,
@@ -52,9 +61,11 @@ exports.materialReturnValidation = async (req) => {
       }
     }
 
-    const detailMaterialUsageQuery = await materialUsageRef.collection("detail_material_usages").get();
-    let materialUsageQuantities = {};
-    let materialUsageUnits = {};
+    const detailMaterialUsageQuery = await materialUsageRef
+      .collection("detail_material_usages")
+      .get();
+    const materialUsageQuantities = {};
+    const materialUsageUnits = {};
 
     detailMaterialUsageQuery.forEach((doc) => {
       const detailMaterialUsageData = doc.data();
@@ -102,14 +113,18 @@ exports.materialReturnValidation = async (req) => {
       const quantityInMaterials = material.jumlah;
 
       // Mencari dokumen dengan id yang cocok dengan materialId
-      const materialQuerySnapshot = await materialsRef.where("id", "==", materialId).get();
+      const materialQuerySnapshot = await materialsRef
+        .where("id", "==", materialId)
+        .get();
 
       if (!materialQuerySnapshot.empty) {
         const materialDocRef = materialQuerySnapshot.docs[0].ref;
         const currentStock = (await materialDocRef.get()).data().stok;
 
         // Perbarui stok material
-        batch.update(materialDocRef, { stok: currentStock + quantityInMaterials });
+        batch.update(materialDocRef, {
+          stok: currentStock + quantityInMaterials,
+        });
       }
     }
 
@@ -121,6 +136,9 @@ exports.materialReturnValidation = async (req) => {
     };
   } catch (error) {
     console.error("Error validating material return:", error);
-    return { success: false, message: "Terjadi kesalahan dalam validasi material return" };
+    return {
+      success: false,
+      message: "Terjadi kesalahan dalam validasi material return",
+    };
   }
 };

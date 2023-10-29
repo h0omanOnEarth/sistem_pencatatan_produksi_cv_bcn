@@ -29,7 +29,8 @@ class CustomCard extends StatelessWidget {
                   item.text,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: item.isBold ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        item.isBold ? FontWeight.bold : FontWeight.normal,
                   ),
                   strutStyle: StrutStyle.disabled,
                 ),

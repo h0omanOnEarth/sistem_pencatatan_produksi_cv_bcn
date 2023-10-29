@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_pesanan_pelanggan.dart';
+
 class CustomerOrder {
   final String id;
   final String customerId;
@@ -12,7 +13,8 @@ class CustomerOrder {
   final DateTime tanggalPesan;
   final int totalHarga;
   final int totalProduk;
-  List<DetailCustomerOrder>? detailCustomerOrderList; // List tidak perlu menjadi opsional
+  List<DetailCustomerOrder>?
+      detailCustomerOrderList; // List tidak perlu menjadi opsional
 
   CustomerOrder({
     required this.id,
@@ -51,7 +53,8 @@ class CustomerOrder {
         .where('customer_order_id', isEqualTo: id);
 
     final detailCustomerOrdersSnapshot = await detailCustomerOrdersQuery.get();
-    final detailCustomerOrdersData = detailCustomerOrdersSnapshot.docs.map((doc) {
+    final detailCustomerOrdersData =
+        detailCustomerOrdersSnapshot.docs.map((doc) {
       final data = doc.data();
       return DetailCustomerOrder.fromJson(data);
     }).toList();
@@ -62,8 +65,8 @@ class CustomerOrder {
   Map<String, dynamic> toJson() {
     final List<Map<String, dynamic>>? detailCustomerOrderJson =
         detailCustomerOrderList?.map((detail) {
-          return detail.toJson();
-        }).toList();
+      return detail.toJson();
+    }).toList();
 
     return {
       'id': id,

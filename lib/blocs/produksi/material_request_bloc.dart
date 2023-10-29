@@ -51,7 +51,10 @@ class MaterialRequestBloc
   final notificationService = NotificationService();
   final HttpsCallable materialReqValidationCallable;
 
-  MaterialRequestBloc() : materialReqValidationCallable = FirebaseFunctions.instance.httpsCallable('materialRequestValidation'), super(LoadingState()) {
+  MaterialRequestBloc()
+      : materialReqValidationCallable = FirebaseFunctions.instance
+            .httpsCallable('materialRequestValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -66,61 +69,68 @@ class MaterialRequestBloc
       final materials = event.materialRequest.detailMaterialRequestList;
       final catatan = event.materialRequest.catatan;
 
-      if(productionOrderId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
-          'materials': materials.map((material) => material.toJson()).toList(),
-          'productionOrderId': productionOrderId
-        });
+      if (productionOrderId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await materialReqValidationCallable.call(<String, dynamic>{
+            'materials':
+                materials.map((material) => material.toJson()).toList(),
+            'productionOrderId': productionOrderId
+          });
 
-        if (result.data['success'] == true) {
-          final nextMaterialRequestId = await _generateNextMaterialRequestId();
-          final materialRequestRef = _firestore.collection('material_requests').doc(nextMaterialRequestId);
+          if (result.data['success'] == true) {
+            final nextMaterialRequestId =
+                await _generateNextMaterialRequestId();
+            final materialRequestRef = _firestore
+                .collection('material_requests')
+                .doc(nextMaterialRequestId);
 
-          final Map<String, dynamic> materialRequestData = {
-            'id': nextMaterialRequestId,
-            'production_order_id': productionOrderId,
-            'status': event.materialRequest.status,
-            'status_mr': event.materialRequest.statusMr,
-            'catatan': catatan,
-            'tanggal_permintaan': tanggalPermintaan,
-          };
+            final Map<String, dynamic> materialRequestData = {
+              'id': nextMaterialRequestId,
+              'production_order_id': productionOrderId,
+              'status': event.materialRequest.status,
+              'status_mr': event.materialRequest.statusMr,
+              'catatan': catatan,
+              'tanggal_permintaan': tanggalPermintaan,
+            };
 
-          await materialRequestRef.set(materialRequestData);
+            await materialRequestRef.set(materialRequestData);
 
-          final detailMaterialRequestRef =
-              materialRequestRef.collection('detail_material_requests');
+            final detailMaterialRequestRef =
+                materialRequestRef.collection('detail_material_requests');
 
-          if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
-            int detailCount = 1;
-            for (var detailMaterialRequest
-                in event.materialRequest.detailMaterialRequestList) {
-              final nextDetailMaterialRequestId =
-                  '$nextMaterialRequestId${'D${detailCount.toString().padLeft(3, '0')}'}';
+            if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
+              int detailCount = 1;
+              for (var detailMaterialRequest
+                  in event.materialRequest.detailMaterialRequestList) {
+                final nextDetailMaterialRequestId =
+                    '$nextMaterialRequestId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
-            await detailMaterialRequestRef.add({
-                'id': nextDetailMaterialRequestId,
-                'material_request_id': nextMaterialRequestId,
-                'jumlah_bom': detailMaterialRequest.jumlahBom,
-                'material_id': detailMaterialRequest.materialId,
-                'satuan': detailMaterialRequest.satuan,
-                'batch': detailMaterialRequest.batch,
-                'status': detailMaterialRequest.status,
-              });
-              detailCount++;
+                await detailMaterialRequestRef.add({
+                  'id': nextDetailMaterialRequestId,
+                  'material_request_id': nextMaterialRequestId,
+                  'jumlah_bom': detailMaterialRequest.jumlahBom,
+                  'material_id': detailMaterialRequest.materialId,
+                  'satuan': detailMaterialRequest.satuan,
+                  'batch': detailMaterialRequest.batch,
+                  'status': detailMaterialRequest.status,
+                });
+                detailCount++;
+              }
             }
-          }
 
-          await notificationService.addNotification('Terdapat permintaan bahan baru $nextMaterialRequestId', 'Gudang');
-        
-          yield SuccessState();
-        }else{
-          yield ErrorState(result.data['message']);
+            await notificationService.addNotification(
+                'Terdapat permintaan bahan baru $nextMaterialRequestId',
+                'Gudang');
+
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ErrorState(e.toString());
         }
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
-      }else{
+      } else {
         yield ErrorState("kode perintah produksi tidak boleh kosong");
       }
     } else if (event is UpdateMaterialRequestEvent) {
@@ -131,78 +141,84 @@ class MaterialRequestBloc
       final materials = event.materialRequest.detailMaterialRequestList;
       final catatan = event.materialRequest.catatan;
 
-      if(productionOrderId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await materialReqValidationCallable.call(<String, dynamic>{
-        'materials': materials.map((material) => material.toJson()).toList(),
-        'productionOrderId': productionOrderId
-        });
+      if (productionOrderId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await materialReqValidationCallable.call(<String, dynamic>{
+            'materials':
+                materials.map((material) => material.toJson()).toList(),
+            'productionOrderId': productionOrderId
+          });
 
-        if (result.data['success'] == true) {
-           // Get a reference to the material request document to be updated
-        final materialRequestToUpdateRef =
-            _firestore.collection('material_requests').doc(event.materialRequestId);
+          if (result.data['success'] == true) {
+            // Get a reference to the material request document to be updated
+            final materialRequestToUpdateRef = _firestore
+                .collection('material_requests')
+                .doc(event.materialRequestId);
 
-        // Set the new material request data
-        final Map<String, dynamic> materialRequestData = {
-          'id': event.materialRequestId,
-          'production_order_id': productionOrderId,
-          'status': event.materialRequest.status,
-          'status_mr': event.materialRequest.statusMr,
-          'catatan': catatan,
-          'tanggal_permintaan': tanggalPermintaan,
-        };
+            // Set the new material request data
+            final Map<String, dynamic> materialRequestData = {
+              'id': event.materialRequestId,
+              'production_order_id': productionOrderId,
+              'status': event.materialRequest.status,
+              'status_mr': event.materialRequest.statusMr,
+              'catatan': catatan,
+              'tanggal_permintaan': tanggalPermintaan,
+            };
 
-        // Update the material request data within the existing document
-        await materialRequestToUpdateRef.set(materialRequestData);
+            // Update the material request data within the existing document
+            await materialRequestToUpdateRef.set(materialRequestData);
 
-        // Delete all documents within the 'detail_material_requests' subcollection first
-        final detailMaterialRequestCollectionRef =
-            materialRequestToUpdateRef.collection('detail_material_requests');
-        final detailMaterialRequestDocs =
-            await detailMaterialRequestCollectionRef.get();
-        for (var doc in detailMaterialRequestDocs.docs) {
-          await doc.reference.delete();
-        }
+            // Delete all documents within the 'detail_material_requests' subcollection first
+            final detailMaterialRequestCollectionRef =
+                materialRequestToUpdateRef
+                    .collection('detail_material_requests');
+            final detailMaterialRequestDocs =
+                await detailMaterialRequestCollectionRef.get();
+            for (var doc in detailMaterialRequestDocs.docs) {
+              await doc.reference.delete();
+            }
 
-        // Add the new detail material request documents to the 'detail_material_requests' subcollection
-        if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
-          int detailCount = 1;
-          for (var detailMaterialRequest
-              in event.materialRequest.detailMaterialRequestList) {
-            final nextDetailMaterialRequestId =
-                'D${detailCount.toString().padLeft(3, '0')}';
-            final detailId = event.materialRequestId + nextDetailMaterialRequestId;
+            // Add the new detail material request documents to the 'detail_material_requests' subcollection
+            if (event.materialRequest.detailMaterialRequestList.isNotEmpty) {
+              int detailCount = 1;
+              for (var detailMaterialRequest
+                  in event.materialRequest.detailMaterialRequestList) {
+                final nextDetailMaterialRequestId =
+                    'D${detailCount.toString().padLeft(3, '0')}';
+                final detailId =
+                    event.materialRequestId + nextDetailMaterialRequestId;
 
-            // Add the detail material request documents to the 'detail_material_requests' collection
-            await detailMaterialRequestCollectionRef.add({
-              'id': detailId,
-              'material_request_id': event.materialRequestId,
-              'jumlah_bom': detailMaterialRequest.jumlahBom,
-              'material_id': detailMaterialRequest.materialId,
-              'satuan': detailMaterialRequest.satuan,
-              'batch' : detailMaterialRequest.batch,
-              'status': detailMaterialRequest.status,
-            });
-            detailCount++;
+                // Add the detail material request documents to the 'detail_material_requests' collection
+                await detailMaterialRequestCollectionRef.add({
+                  'id': detailId,
+                  'material_request_id': event.materialRequestId,
+                  'jumlah_bom': detailMaterialRequest.jumlahBom,
+                  'material_id': detailMaterialRequest.materialId,
+                  'satuan': detailMaterialRequest.satuan,
+                  'batch': detailMaterialRequest.batch,
+                  'status': detailMaterialRequest.status,
+                });
+                detailCount++;
+              }
+            }
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
           }
+        } catch (e) {
+          yield ErrorState(e.toString());
         }
-        yield SuccessState();
-        }else{
-        yield ErrorState(result.data['message']);
-        }
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
-      }else{
+      } else {
         yield ErrorState("nomor perintah produksi tidak boleh kosong");
       }
     } else if (event is DeleteMaterialRequestEvent) {
       yield LoadingState();
       try {
         // Get a reference to the material request document to be deleted
-        final materialRequestToDeleteRef =
-            _firestore.collection('material_requests').doc(event.materialRequestId);
+        final materialRequestToDeleteRef = _firestore
+            .collection('material_requests')
+            .doc(event.materialRequestId);
 
         // Get a reference to the 'detail_material_requests' subcollection within the material request document
         final detailMaterialRequestCollectionRef =
@@ -226,8 +242,7 @@ class MaterialRequestBloc
   }
 
   Future<String> _generateNextMaterialRequestId() async {
-    final materialRequestsRef =
-        _firestore.collection('material_requests');
+    final materialRequestsRef = _firestore.collection('material_requests');
     final QuerySnapshot snapshot = await materialRequestsRef.get();
     final List<String> existingIds =
         snapshot.docs.map((doc) => doc['id'] as String).toList();

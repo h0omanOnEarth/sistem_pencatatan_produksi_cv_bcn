@@ -14,14 +14,14 @@ class DeliveryOrderDropDown extends StatefulWidget {
   final bool isEnabled;
 
   DeliveryOrderDropDown({
-    required this.selecteDO, 
-    required this.onChanged, 
+    required this.selecteDO,
+    required this.onChanged,
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
     this.alamatController,
     this.isEnabled = true,
-    });
+  });
 
   @override
   State<DeliveryOrderDropDown> createState() => _DeliveryOrderDropDownState();
@@ -29,14 +29,16 @@ class DeliveryOrderDropDown extends StatefulWidget {
 
 class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('delivery_orders').snapshots(),
+      stream:
+          FirebaseFirestore.instance.collection('delivery_orders').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -83,20 +85,28 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selecteDO,
                 items: DOItems,
-                onChanged: widget.isEnabled ? (newValue) async {
-                  widget.onChanged(newValue);
-                  _selectedDoc = snapshot.data!.docs.firstWhere(
-                    (document) => document['id'] == newValue,
-                  );
+                onChanged: widget.isEnabled
+                    ? (newValue) async {
+                        widget.onChanged(newValue);
+                        _selectedDoc = snapshot.data!.docs.firstWhere(
+                          (document) => document['id'] == newValue,
+                        );
 
-                  widget.alamatController?.text = _selectedDoc['alamat_pengiriman'];
+                        widget.alamatController?.text =
+                            _selectedDoc['alamat_pengiriman'];
 
-                  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(_selectedDoc['customer_order_id']);
-                  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
-                  widget.namaPelangganController?.text = customer?['nama'];
-                  widget.kodePelangganController?.text = customer?['id'];
-                  widget.nomorPesananPelanggan?.text = customerOrder?['id'];
-                }:null,
+                        Map<String, dynamic>? customerOrder =
+                            await customerOrderService.getCustomerOrderInfo(
+                                _selectedDoc['customer_order_id']);
+                        Map<String, dynamic>? customer = await customerService
+                            .getCustomerInfo(customerOrder?['customer_id']);
+                        widget.namaPelangganController?.text =
+                            customer?['nama'];
+                        widget.kodePelangganController?.text = customer?['id'];
+                        widget.nomorPesananPelanggan?.text =
+                            customerOrder?['id'];
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

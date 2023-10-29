@@ -7,13 +7,13 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_penjua
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 
-
 class BottomNavigationGudang extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
   static dynamic menu = const HomeScreenGudang();
 
-  BottomNavigationGudang({this.key, required this.onItemTapped}) : super(key: key);
+  BottomNavigationGudang({this.key, required this.onItemTapped})
+      : super(key: key);
 
   @override
   _BottomNavigationGudangState createState() => _BottomNavigationGudangState();
@@ -56,12 +56,16 @@ class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
         children: [
           Icon(
             iconData,
-            color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1) : Colors.grey,
+            color: _selectedIndex == index
+                ? const Color.fromRGBO(59, 51, 51, 1)
+                : Colors.grey,
           ),
           Text(
             label,
             style: TextStyle(
-              color: _selectedIndex == index ? const Color.fromRGBO(59, 51, 51, 1)  : Colors.grey,
+              color: _selectedIndex == index
+                  ? const Color.fromRGBO(59, 51, 51, 1)
+                  : Colors.grey,
             ),
           ),
         ],

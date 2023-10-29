@@ -40,7 +40,8 @@ class SidebarAdministrasiWidget extends StatefulWidget {
   }
 
   @override
-  State<SidebarAdministrasiWidget> createState() => _SidebarAdministrasiWidgetState();
+  State<SidebarAdministrasiWidget> createState() =>
+      _SidebarAdministrasiWidgetState();
 }
 
 class _SidebarAdministrasiWidgetState extends State<SidebarAdministrasiWidget> {
@@ -75,12 +76,18 @@ class _SidebarAdministrasiWidgetState extends State<SidebarAdministrasiWidget> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildSidebarItem(0, Icons.home, 'Home', iconSize: 24, isActive: widget.selectedIndex == 0),
-                _buildSidebarItem(1, Icons.list, 'Master', iconSize: 24, isActive: widget.selectedIndex == 1),
-                _buildSidebarItem(2, Icons.shopping_cart, 'Pembelian', iconSize: 24, isActive: widget.selectedIndex == 2),
-                _buildSidebarItem(3, Icons.shop, 'Penjualan', iconSize: 24, isActive: widget.selectedIndex == 3),
-                _buildSidebarItem(4, Icons.report, 'Laporan', iconSize: 24, isActive: widget.selectedIndex == 4),
-                _buildSidebarItem(5, Icons.person, 'Profile', iconSize: 24, isActive: widget.selectedIndex == 5),
+                _buildSidebarItem(0, Icons.home, 'Home',
+                    iconSize: 24, isActive: widget.selectedIndex == 0),
+                _buildSidebarItem(1, Icons.list, 'Master',
+                    iconSize: 24, isActive: widget.selectedIndex == 1),
+                _buildSidebarItem(2, Icons.shopping_cart, 'Pembelian',
+                    iconSize: 24, isActive: widget.selectedIndex == 2),
+                _buildSidebarItem(3, Icons.shop, 'Penjualan',
+                    iconSize: 24, isActive: widget.selectedIndex == 3),
+                _buildSidebarItem(4, Icons.report, 'Laporan',
+                    iconSize: 24, isActive: widget.selectedIndex == 4),
+                _buildSidebarItem(5, Icons.person, 'Profile',
+                    iconSize: 24, isActive: widget.selectedIndex == 5),
               ],
             ),
           ),
@@ -88,7 +95,8 @@ class _SidebarAdministrasiWidgetState extends State<SidebarAdministrasiWidget> {
     );
   }
 
-  Widget _buildSidebarItem(int index, IconData iconData, String label, {double iconSize = 24, required bool isActive}) {
+  Widget _buildSidebarItem(int index, IconData iconData, String label,
+      {double iconSize = 24, required bool isActive}) {
     return GestureDetector(
       onTap: () => widget.onItemTapped(index),
       child: Container(

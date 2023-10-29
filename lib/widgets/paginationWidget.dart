@@ -4,7 +4,8 @@ class PaginationButton extends StatelessWidget {
   final Function? onPressed;
   final String label;
 
-  const PaginationButton({super.key, 
+  const PaginationButton({
+    super.key,
     required this.onPressed,
     required this.label,
   });

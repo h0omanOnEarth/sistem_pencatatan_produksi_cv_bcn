@@ -1,4 +1,3 @@
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:routemaster/routemaster.dart';
@@ -15,7 +14,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseFunctions.instance.useFunctionsEmulator('localhost', 5001); // If you're using the emulator
+  // FirebaseFunctions.instanceFor(region: "asia-southeast2").useFunctionsEmulator('localhost', 5001); // If you're using the emulator
 
   configureApp();
   runApp(const MyApp());
@@ -30,12 +29,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-    providers: AppBlocProviders.providers,
-    child : MaterialApp.router(
+      providers: AppBlocProviders.providers,
+      child: MaterialApp.router(
         routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
         routeInformationParser: const RoutemasterParser(),
       ),
-      );
+    );
   }
 }
-

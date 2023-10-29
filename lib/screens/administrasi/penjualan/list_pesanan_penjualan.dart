@@ -23,121 +23,136 @@ class ListPesananPelanggan extends StatefulWidget {
 }
 
 class _ListPesananPelangganState extends State<ListPesananPelanggan> {
-  final CollectionReference customerOrderRef = FirebaseFirestore.instance.collection('customer_orders');
+  final CollectionReference customerOrderRef =
+      FirebaseFirestore.instance.collection('customer_orders');
   String searchTerm = '';
   String selectedStatus = '';
   DateTime? selectedStartDate;
   DateTime? selectedEndDate;
-  String startDateText = ''; // Tambahkan variabel untuk menampilkan tanggal filter
-  String endDateText = '';   // Tambahkan variabel untuk menampilkan tanggal filter
+  String startDateText =
+      ''; // Tambahkan variabel untuk menampilkan tanggal filter
+  String endDateText =
+      ''; // Tambahkan variabel untuk menampilkan tanggal filter
   int startIndex = 0; // Indeks awal data yang ditampilkan
   int itemsPerPage = 5; // Jumlah data per halaman
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
 
   int _selectedIndex = 3;
-  bool _isSidebarCollapsed = false; 
+  bool _isSidebarCollapsed = false;
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: SafeArea(
-      child: ResponsiveBuilder(
-        builder: (context, sizingInformation) {
-          if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-            return _buildDesktopContent();
-          } else {
-            return _buildMobileContent();
-          }
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: ResponsiveBuilder(
+          builder: (context, sizingInformation) {
+            if (sizingInformation.deviceScreenType ==
+                DeviceScreenType.desktop) {
+              return _buildDesktopContent();
+            } else {
+              return _buildMobileContent();
+            }
+          },
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-void _toggleSidebar() {
-  setState(() {
-    _isSidebarCollapsed = !_isSidebarCollapsed;
-  });
-}
+  void _toggleSidebar() {
+    setState(() {
+      _isSidebarCollapsed = !_isSidebarCollapsed;
+    });
+  }
 
-Widget _buildDesktopContent() {
-  return Row(
-    children: [
-      SidebarAdministrasiWidget(
-        selectedIndex: _selectedIndex,
-        onItemTapped: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-          // Implementasi navigasi berdasarkan index terpilih
-          _navigateToScreen(index, context);
-        },
-        isSidebarCollapsed: _isSidebarCollapsed,
-        onToggleSidebar:  _toggleSidebar
-      ),
-      Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
-                const SizedBox(height: 24.0),
-                _buildSearchBar(),
-                const SizedBox(height: 16.0),
-                buildDateRangeSelector(),
-                const SizedBox(height: 16.0),
-                _buildCustomerOrderList(),
-              ],
+  Widget _buildDesktopContent() {
+    return Row(
+      children: [
+        SidebarAdministrasiWidget(
+            selectedIndex: _selectedIndex,
+            onItemTapped: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+              // Implementasi navigasi berdasarkan index terpilih
+              _navigateToScreen(index, context);
+            },
+            isSidebarCollapsed: _isSidebarCollapsed,
+            onToggleSidebar: _toggleSidebar),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const CustomAppBar(
+                    title: 'Pesanan Pelanggan',
+                    formScreen: FormPesananPelangganScreen(),
+                    routes: '${MainAdministrasi.routeName}?selectedIndex=3',
+                  ),
+                  const SizedBox(height: 24.0),
+                  _buildSearchBar(),
+                  const SizedBox(height: 16.0),
+                  buildDateRangeSelector(),
+                  const SizedBox(height: 16.0),
+                  _buildCustomerOrderList(),
+                ],
+              ),
             ),
           ),
-        ),
-      )
-    ],
-  );
-}
+        )
+      ],
+    );
+  }
 
   // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
-  // final mainAdminsitrasiScreen = MainAdministrasi(selectedIndex: index);
-  // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainAdminsitrasiScreen));
-  Routemaster.of(context).push('${MainAdministrasi.routeName}?selectedIndex=$index');
-}
+    // final mainAdminsitrasiScreen = MainAdministrasi(selectedIndex: index);
+    // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => mainAdminsitrasiScreen));
+    Routemaster.of(context)
+        .push('${MainAdministrasi.routeName}?selectedIndex=$index');
+  }
 
-
-Widget _buildMobileContent() {
-  return SingleChildScrollView(
-    child: Container(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const CustomAppBar(title: 'Pesanan Pelanggan', formScreen: FormPesananPelangganScreen(), routes: '${MainAdministrasi.routeName}?selectedIndex=3',),
-          const SizedBox(height: 24.0),
-          _buildSearchBar(),
-          const SizedBox(height: 16.0,),
-          buildDateRangeSelector(),
-          const SizedBox(height: 16.0),
-          _buildCustomerOrderList(),
-        ],
+  Widget _buildMobileContent() {
+    return SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CustomAppBar(
+              title: 'Pesanan Pelanggan',
+              formScreen: FormPesananPelangganScreen(),
+              routes: '${MainAdministrasi.routeName}?selectedIndex=3',
+            ),
+            const SizedBox(height: 24.0),
+            _buildSearchBar(),
+            const SizedBox(
+              height: 16.0,
+            ),
+            buildDateRangeSelector(),
+            const SizedBox(height: 16.0),
+            _buildCustomerOrderList(),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildSearchBar() {
     return Row(
       children: [
         Expanded(
-          child: SearchBarWidget(searchTerm: searchTerm, onChanged: (value) {
-            setState(() {
-              searchTerm = value;
-            });
-          }),
+          child: SearchBarWidget(
+              searchTerm: searchTerm,
+              onChanged: (value) {
+                setState(() {
+                  searchTerm = value;
+                });
+              }),
         ),
-        const SizedBox(width: 16.0), 
+        const SizedBox(width: 16.0),
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -160,33 +175,34 @@ Widget _buildMobileContent() {
     return Row(
       children: [
         Expanded(
-        child:  DatePickerButton(
-        label: 'Tanggal Mulai',
-        selectedDate: selectedStartDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedStartDate = newDate;
-          });
-        },
-        ),),
+          child: DatePickerButton(
+            label: 'Tanggal Mulai',
+            selectedDate: selectedStartDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedStartDate = newDate;
+              });
+            },
+          ),
+        ),
         const SizedBox(width: 16.0),
         Expanded(
-        child: DatePickerButton(
-        label: 'Tanggal Selesai',
-        selectedDate: selectedEndDate,
-        onDateSelected: (newDate) {
-          setState(() {
-            selectedEndDate = newDate;
-          });
-        },
-          ), 
+          child: DatePickerButton(
+            label: 'Tanggal Selesai',
+            selectedDate: selectedEndDate,
+            onDateSelected: (newDate) {
+              setState(() {
+                selectedEndDate = newDate;
+              });
+            },
+          ),
         )
       ],
     );
   }
 
   Widget _buildCustomerOrderList() {
-    return  StreamBuilder<QuerySnapshot>(
+    return StreamBuilder<QuerySnapshot>(
       stream: customerOrderRef.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -206,13 +222,18 @@ Widget _buildMobileContent() {
           final filteredDocs = itemDocs.where((doc) {
             final id = doc['id'] as String;
             final status = doc['status_pesanan'] as String;
-            final tanggalPesan = doc['tanggal_pesan'] as Timestamp; // Tanggal Pesan
-            final tanggalKirim = doc['tanggal_kirim'] as Timestamp; // Tanggal Kirim
+            final tanggalPesan =
+                doc['tanggal_pesan'] as Timestamp; // Tanggal Pesan
+            final tanggalKirim =
+                doc['tanggal_kirim'] as Timestamp; // Tanggal Kirim
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
-              isWithinDateRange = (tanggalPesan.toDate().isAfter(selectedStartDate!) && tanggalPesan.toDate().isBefore(selectedEndDate!)) ||
-                  (tanggalKirim.toDate().isAfter(selectedStartDate!) && tanggalKirim.toDate().isBefore(selectedEndDate!));
+              isWithinDateRange =
+                  (tanggalPesan.toDate().isAfter(selectedStartDate!) &&
+                          tanggalPesan.toDate().isBefore(selectedEndDate!)) ||
+                      (tanggalKirim.toDate().isAfter(selectedStartDate!) &&
+                          tanggalKirim.toDate().isBefore(selectedEndDate!));
             }
 
             return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
@@ -234,16 +255,21 @@ Widget _buildMobileContent() {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-                ListView.builder(
+              ListView.builder(
                 shrinkWrap: true,
                 itemCount: paginatedDocs.length,
                 itemBuilder: (context, index) {
-                  final data = paginatedDocs[index].data() as Map<String, dynamic>;
+                  final data =
+                      paginatedDocs[index].data() as Map<String, dynamic>;
                   final id = data['id'] as String;
                   final info = {
                     'Customer ID': data['customer_id'],
-                    'Tanggal Pesan': DateFormat('dd/MM/yyyy').format((data['tanggal_pesan'] as Timestamp).toDate()), // Format tanggal
-                    'Tanggal Kirim': DateFormat('dd/MM/yyyy').format((data['tanggal_kirim'] as Timestamp).toDate()), // Format tanggal
+                    'Tanggal Pesan': DateFormat('dd/MM/yyyy').format(
+                        (data['tanggal_pesan'] as Timestamp)
+                            .toDate()), // Format tanggal
+                    'Tanggal Kirim': DateFormat('dd/MM/yyyy').format(
+                        (data['tanggal_kirim'] as Timestamp)
+                            .toDate()), // Format tanggal
                     'Total Harga': data['total_harga'],
                     'Total Produk': '${data['total_produk']} ${data['satuan']}',
                     'Catatan': data['catatan'],
@@ -251,13 +277,16 @@ Widget _buildMobileContent() {
                   };
                   return ListCard(
                     title: id,
-                    description: info.entries.map((e) => '${e.key}: ${e.value}').join('\n'),
+                    description: info.entries
+                        .map((e) => '${e.key}: ${e.value}')
+                        .join('\n'),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => FormPesananPelangganScreen(
-                            customerOrderId: data['id'], // Mengirimkan ID customer order
+                            customerOrderId:
+                                data['id'], // Mengirimkan ID customer order
                             customerId: data['customer_id'],
                             statusCO: data['status_pesanan'],
                           ),
@@ -270,7 +299,8 @@ Widget _buildMobileContent() {
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Konfirmasi Hapus"),
-                            content: const Text("Anda yakin ingin menghapus pesanan penjualan ini?"),
+                            content: const Text(
+                                "Anda yakin ingin menghapus pesanan penjualan ini?"),
                             actions: <Widget>[
                               TextButton(
                                 child: const Text("Batal"),
@@ -281,8 +311,12 @@ Widget _buildMobileContent() {
                               TextButton(
                                 child: const Text("Hapus"),
                                 onPressed: () async {
-                                  final customerOrderBloc = BlocProvider.of<CustomerOrderBloc>(context);
-                                  customerOrderBloc.add(DeleteCustomerOrderEvent(paginatedDocs[index].id));
+                                  final customerOrderBloc =
+                                      BlocProvider.of<CustomerOrderBloc>(
+                                          context);
+                                  customerOrderBloc.add(
+                                      DeleteCustomerOrderEvent(
+                                          paginatedDocs[index].id));
                                   Navigator.of(context).pop(true);
                                 },
                               ),
@@ -299,7 +333,9 @@ Widget _buildMobileContent() {
                   );
                 },
               ),
-              const SizedBox(height: 16.0,),
+              const SizedBox(
+                height: 16.0,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -307,15 +343,16 @@ Widget _buildMobileContent() {
                     onPressed: isPrevButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex -= itemsPerPage;
-                        if (startIndex < 0) {
-                          startIndex = 0;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex -= itemsPerPage;
+                              if (startIndex < 0) {
+                                startIndex = 0;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Prev"),
                   ),
@@ -324,15 +361,16 @@ Widget _buildMobileContent() {
                     onPressed: isNextButtonDisabled
                         ? null
                         : () {
-                      setState(() {
-                        startIndex += itemsPerPage;
-                        if (startIndex >= filteredDocs.length) {
-                          startIndex = filteredDocs.length - itemsPerPage;
-                        }
-                      });
-                    },
+                            setState(() {
+                              startIndex += itemsPerPage;
+                              if (startIndex >= filteredDocs.length) {
+                                startIndex = filteredDocs.length - itemsPerPage;
+                              }
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.brown, // Mengubah warna latar belakang menjadi cokelat
+                      backgroundColor: Colors
+                          .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Next"),
                   ),
@@ -345,7 +383,7 @@ Widget _buildMobileContent() {
     );
   }
 
-   Future<void> _showFilterDialog(BuildContext context) async {
+  Future<void> _showFilterDialog(BuildContext context) async {
     await showDialog<String>(
       context: context,
       builder: (BuildContext context) {

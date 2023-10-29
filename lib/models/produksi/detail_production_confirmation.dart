@@ -35,8 +35,8 @@ class DetailProductionConfirmation {
       'jumlah_konfirmasi': jumlahKonfirmasi,
       'production_confirmation_id': productionConfirmationId,
       'production_result_id': productionResultId,
-      'satuan' : satuan,
-      'product_id' : productId,
+      'satuan': satuan,
+      'product_id': productId,
       'status': status,
     };
   }

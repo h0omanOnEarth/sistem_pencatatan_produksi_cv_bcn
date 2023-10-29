@@ -35,7 +35,7 @@ class DetailProductionOrder {
       'jumlah_bom': jumlahBOM,
       'material_id': materialId,
       'production_order_id': productionOrderId,
-      'batch' : batch,
+      'batch': batch,
       'satuan': satuan,
       'status': status,
     };

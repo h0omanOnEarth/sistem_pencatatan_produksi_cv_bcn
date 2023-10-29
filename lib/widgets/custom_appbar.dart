@@ -31,9 +31,9 @@ class CustomAppBar extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: InkWell(
                     onTap: () {
-                      if(routes==null){
+                      if (routes == null) {
                         Navigator.pop(context);
-                      }else{
+                      } else {
                         Routemaster.of(context).push(routes!);
                       }
                     },
@@ -80,14 +80,14 @@ class CustomAppBar extends StatelessWidget {
                     icon: const Icon(Icons.add),
                     color: Colors.white,
                     onPressed: () {
-                      if(routeName==null){
+                      if (routeName == null) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => formScreen,
                           ),
                         );
-                      }else{
+                      } else {
                         Routemaster.of(context).push(routeName!);
                       }
                     },

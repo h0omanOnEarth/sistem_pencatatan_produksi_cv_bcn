@@ -17,7 +17,7 @@ class DLOH {
     required this.id,
     required this.materialUsageId,
     required this.catatan,
-    this.status="",
+    this.status = "",
     this.jumlahTenagaKerja = 0,
     this.jumlahJamTenagaKerja = 0,
     this.biayaTenagaKerja = 0,

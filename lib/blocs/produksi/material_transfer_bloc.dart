@@ -33,7 +33,7 @@ abstract class MaterialTransferBlocState {}
 
 class MaterialTransferLoadingState extends MaterialTransferBlocState {}
 
-class SuccessState extends MaterialTransferBlocState{}
+class SuccessState extends MaterialTransferBlocState {}
 
 class MaterialTransferLoadedState extends MaterialTransferBlocState {
   final MaterialTransfer materialTransfer;
@@ -56,7 +56,10 @@ class MaterialTransferBloc
   final notificationService = NotificationService();
   final HttpsCallable materialTransferCallable;
 
-  MaterialTransferBloc() : materialTransferCallable = FirebaseFunctions.instance.httpsCallable('materialTransferValidation'), super(MaterialTransferLoadingState()) {
+  MaterialTransferBloc()
+      : materialTransferCallable = FirebaseFunctions.instance
+            .httpsCallable('materialTransferValidation'),
+        super(MaterialTransferLoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -69,150 +72,161 @@ class MaterialTransferBloc
       final materialRequestId = event.materialTransfer.materialRequestId;
       final materials = event.materialTransfer.detailList;
 
-      if(materialRequestId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await materialTransferCallable.call(<String, dynamic>{
-        'materials': materials.map((material) => material.toJson()).toList(),
-        'materialRequestId': materialRequestId,
-      });
+      if (materialRequestId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await materialTransferCallable.call(<String, dynamic>{
+            'materials':
+                materials.map((material) => material.toJson()).toList(),
+            'materialRequestId': materialRequestId,
+          });
 
-      if (result.data['success'] == true) {
-         final nextMaterialTransferId = await _generateNextMaterialTransferId();
+          if (result.data['success'] == true) {
+            final nextMaterialTransferId =
+                await _generateNextMaterialTransferId();
 
-        // Create a reference to the material transfer document using the appropriate ID
-        final materialTransferRef =
-            _firestore.collection('material_transfers').doc(nextMaterialTransferId);
+            // Create a reference to the material transfer document using the appropriate ID
+            final materialTransferRef = _firestore
+                .collection('material_transfers')
+                .doc(nextMaterialTransferId);
 
-        // Set the material transfer data
-        final Map<String, dynamic> materialTransferData = {
-          'id': nextMaterialTransferId,
-          'material_request_id': materialRequestId,
-          'status_mtr': event.materialTransfer.statusMtr,
-          'tanggal_pemindahan': event.materialTransfer.tanggalPemindahan,
-          'catatan': event.materialTransfer.catatan,
-          'status': event.materialTransfer.status,
-        };
+            // Set the material transfer data
+            final Map<String, dynamic> materialTransferData = {
+              'id': nextMaterialTransferId,
+              'material_request_id': materialRequestId,
+              'status_mtr': event.materialTransfer.statusMtr,
+              'tanggal_pemindahan': event.materialTransfer.tanggalPemindahan,
+              'catatan': event.materialTransfer.catatan,
+              'status': event.materialTransfer.status,
+            };
 
-        // Add the material transfer data to Firestore
-        await materialTransferRef.set(materialTransferData);
+            // Add the material transfer data to Firestore
+            await materialTransferRef.set(materialTransferData);
 
-        // Create a reference to the 'detail_material_transfers' subcollection within the material transfer document
-        final detailMaterialTransferRef =
-            materialTransferRef.collection('detail_material_transfers');
+            // Create a reference to the 'detail_material_transfers' subcollection within the material transfer document
+            final detailMaterialTransferRef =
+                materialTransferRef.collection('detail_material_transfers');
 
-        if (event.materialTransfer.detailList.isNotEmpty) {
-          int detailCount = 1;
-          for (var detailMaterialTransfer
-              in event.materialTransfer.detailList) {
-            final nextDetailMaterialTransferId =
-                '$nextMaterialTransferId${'D${detailCount.toString().padLeft(3, '0')}'}';
+            if (event.materialTransfer.detailList.isNotEmpty) {
+              int detailCount = 1;
+              for (var detailMaterialTransfer
+                  in event.materialTransfer.detailList) {
+                final nextDetailMaterialTransferId =
+                    '$nextMaterialTransferId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
-            // Add the detail material transfer document to the 'detail_material_transfers' collection
-            await detailMaterialTransferRef.add({
-              'id': nextDetailMaterialTransferId,
-              'material_transfer_id': nextMaterialTransferId,
-              'jumlah_bom': detailMaterialTransfer.jumlahBom,
-              'material_id': detailMaterialTransfer.materialId,
-              'satuan': detailMaterialTransfer.satuan,
-              'status': detailMaterialTransfer.status,
-              'stok': detailMaterialTransfer.stok,
-            });
-            detailCount++;
+                // Add the detail material transfer document to the 'detail_material_transfers' collection
+                await detailMaterialTransferRef.add({
+                  'id': nextDetailMaterialTransferId,
+                  'material_transfer_id': nextMaterialTransferId,
+                  'jumlah_bom': detailMaterialTransfer.jumlahBom,
+                  'material_id': detailMaterialTransfer.materialId,
+                  'satuan': detailMaterialTransfer.satuan,
+                  'status': detailMaterialTransfer.status,
+                  'stok': detailMaterialTransfer.stok,
+                });
+                detailCount++;
+              }
+            }
+
+            await notificationService.addNotification(
+                'Terdapat pemindahan bahan baru $nextMaterialTransferId untuk ${event.materialTransfer.materialRequestId}',
+                'Produksi');
+
+            yield SuccessState();
+          } else {
+            yield MaterialTransferErrorState(result.data['message']);
           }
+        } catch (e) {
+          yield MaterialTransferErrorState(e.toString());
         }
-
-        await notificationService.addNotification('Terdapat pemindahan bahan baru $nextMaterialTransferId untuk ${event.materialTransfer.materialRequestId}', 'Produksi');
-
-        yield SuccessState();
-      }else{
-        yield MaterialTransferErrorState(result.data['message']);
-      }
-
-      } catch (e) {
-        yield MaterialTransferErrorState(e.toString());
-      }
-      }else{
-        yield MaterialTransferErrorState('nomor permintaan bahan tidak boleh kosong');
+      } else {
+        yield MaterialTransferErrorState(
+            'nomor permintaan bahan tidak boleh kosong');
       }
     } else if (event is UpdateMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
       final materialRequestId = event.materialTransfer.materialRequestId;
       final materials = event.materialTransfer.detailList;
 
-      if(materialRequestId.isNotEmpty){
-      try {
-      final HttpsCallableResult<dynamic> result = await materialTransferCallable.call(<String, dynamic>{
-      'materials': materials.map((material) => material.toJson()).toList(),
-      'materialRequestId': materialRequestId,
-      });
+      if (materialRequestId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await materialTransferCallable.call(<String, dynamic>{
+            'materials':
+                materials.map((material) => material.toJson()).toList(),
+            'materialRequestId': materialRequestId,
+          });
 
-      if (result.data['success'] == true) {
-        // Get a reference to the material transfer document to be updated
-        final materialTransferToUpdateRef =
-            _firestore.collection('material_transfers').doc(event.materialTransferId);
+          if (result.data['success'] == true) {
+            // Get a reference to the material transfer document to be updated
+            final materialTransferToUpdateRef = _firestore
+                .collection('material_transfers')
+                .doc(event.materialTransferId);
 
-        // Set the new material transfer data
-        final Map<String, dynamic> materialTransferData = {
-          'id': event.materialTransferId,
-          'material_request_id': event.materialTransfer.materialRequestId,
-          'status_mtr': event.materialTransfer.statusMtr,
-          'tanggal_pemindahan': event.materialTransfer.tanggalPemindahan,
-          'catatan': event.materialTransfer.catatan,
-          'status': event.materialTransfer.status,
-        };
+            // Set the new material transfer data
+            final Map<String, dynamic> materialTransferData = {
+              'id': event.materialTransferId,
+              'material_request_id': event.materialTransfer.materialRequestId,
+              'status_mtr': event.materialTransfer.statusMtr,
+              'tanggal_pemindahan': event.materialTransfer.tanggalPemindahan,
+              'catatan': event.materialTransfer.catatan,
+              'status': event.materialTransfer.status,
+            };
 
-        // Update the material transfer data within the existing document
-        await materialTransferToUpdateRef.set(materialTransferData);
+            // Update the material transfer data within the existing document
+            await materialTransferToUpdateRef.set(materialTransferData);
 
-        // Delete all documents within the 'detail_material_transfers' subcollection first
-        final detailMaterialTransferCollectionRef =
-            materialTransferToUpdateRef.collection('detail_material_transfers');
-        final detailMaterialTransferDocs =
-            await detailMaterialTransferCollectionRef.get();
-        for (var doc in detailMaterialTransferDocs.docs) {
-          await doc.reference.delete();
-        }
+            // Delete all documents within the 'detail_material_transfers' subcollection first
+            final detailMaterialTransferCollectionRef =
+                materialTransferToUpdateRef
+                    .collection('detail_material_transfers');
+            final detailMaterialTransferDocs =
+                await detailMaterialTransferCollectionRef.get();
+            for (var doc in detailMaterialTransferDocs.docs) {
+              await doc.reference.delete();
+            }
 
-        // Add the new detail material transfer documents to the 'detail_material_transfers' subcollection
-        if (event.materialTransfer.detailList.isNotEmpty) {
-          int detailCount = 1;
-          for (var detailMaterialTransfer
-              in event.materialTransfer.detailList) {
-            final nextDetailMaterialTransferId =
-                'D${detailCount.toString().padLeft(3, '0')}';
-            final detailId = event.materialTransferId + nextDetailMaterialTransferId;
+            // Add the new detail material transfer documents to the 'detail_material_transfers' subcollection
+            if (event.materialTransfer.detailList.isNotEmpty) {
+              int detailCount = 1;
+              for (var detailMaterialTransfer
+                  in event.materialTransfer.detailList) {
+                final nextDetailMaterialTransferId =
+                    'D${detailCount.toString().padLeft(3, '0')}';
+                final detailId =
+                    event.materialTransferId + nextDetailMaterialTransferId;
 
-            // Add the detail material transfer documents to the 'detail_material_transfers' collection
-            await detailMaterialTransferCollectionRef.add({
-              'id': detailId,
-              'material_transfer_id': event.materialTransferId,
-              'jumlah_bom': detailMaterialTransfer.jumlahBom,
-              'material_id': detailMaterialTransfer.materialId,
-              'satuan': detailMaterialTransfer.satuan,
-              'status': detailMaterialTransfer.status,
-              'stok': detailMaterialTransfer.stok,
-            });
-            detailCount++;
+                // Add the detail material transfer documents to the 'detail_material_transfers' collection
+                await detailMaterialTransferCollectionRef.add({
+                  'id': detailId,
+                  'material_transfer_id': event.materialTransferId,
+                  'jumlah_bom': detailMaterialTransfer.jumlahBom,
+                  'material_id': detailMaterialTransfer.materialId,
+                  'satuan': detailMaterialTransfer.satuan,
+                  'status': detailMaterialTransfer.status,
+                  'stok': detailMaterialTransfer.stok,
+                });
+                detailCount++;
+              }
+            }
+            yield SuccessState();
+          } else {
+            yield MaterialTransferErrorState(result.data['message']);
           }
+        } catch (e) {
+          yield MaterialTransferErrorState(e.toString());
         }
-        yield SuccessState();
-      }else{
-        yield MaterialTransferErrorState(result.data['message']);
+      } else {
+        yield MaterialTransferErrorState(
+            "nomor permintaan bahan tidak boleh kosong");
       }
-      
-      } catch (e) {
-        yield MaterialTransferErrorState(e.toString());
-      }
-      }else{
-        yield MaterialTransferErrorState("nomor permintaan bahan tidak boleh kosong");
-      }
-
     } else if (event is DeleteMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
       try {
         // Get a reference to the material transfer document to be deleted
-        final materialTransferToDeleteRef =
-            _firestore.collection('material_transfers').doc(event.materialTransferId);
+        final materialTransferToDeleteRef = _firestore
+            .collection('material_transfers')
+            .doc(event.materialTransferId);
 
         // Get a reference to the 'detail_material_transfers' subcollection within the material transfer document
         final detailMaterialTransferCollectionRef =
@@ -232,11 +246,12 @@ class MaterialTransferBloc
       } catch (e) {
         yield MaterialTransferErrorState("Failed to delete Material Transfer.");
       }
-    }else if(event is FinishedMaterialTransferEvent){
+    } else if (event is FinishedMaterialTransferEvent) {
       yield MaterialTransferLoadingState();
       try {
-       
-        final materialTransferRef = _firestore.collection('material_transfers').doc(event.materialTransferId);
+        final materialTransferRef = _firestore
+            .collection('material_transfers')
+            .doc(event.materialTransferId);
 
         await materialTransferRef.update({
           'status_mtr': 'Selesai',

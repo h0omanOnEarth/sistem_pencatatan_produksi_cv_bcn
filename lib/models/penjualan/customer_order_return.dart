@@ -22,7 +22,8 @@ class CustomerOrderReturn {
   });
 
   factory CustomerOrderReturn.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> detailJsonList = json['detailCustomerOrderReturnList'] ?? [];
+    final List<dynamic> detailJsonList =
+        json['detailCustomerOrderReturnList'] ?? [];
     final List<DetailCustomerOrderReturn> detailList = detailJsonList
         .map((detailJson) => DetailCustomerOrderReturn.fromJson(detailJson))
         .toList();
@@ -33,16 +34,15 @@ class CustomerOrderReturn {
       id: json['id'] ?? '',
       invoiceId: json['invoice_id'] ?? '',
       status: json['status'] ?? 0,
-      statusCor: json['status_cor']?? '',
+      statusCor: json['status_cor'] ?? '',
       tanggalPengembalian: DateTime.parse(json['tanggal_pengembalian'] ?? ''),
       detailCustomerOrderReturnList: detailList,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final List<Map<String, dynamic>> detailJsonList = detailCustomerOrderReturnList
-        .map((detail) => detail.toJson())
-        .toList();
+    final List<Map<String, dynamic>> detailJsonList =
+        detailCustomerOrderReturnList.map((detail) => detail.toJson()).toList();
 
     return {
       'alasan_pengembalian': alasanPengembalian,

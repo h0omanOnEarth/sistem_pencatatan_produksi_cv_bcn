@@ -61,21 +61,23 @@ class ListCard extends StatelessWidget {
                         textAlign: TextAlign.start,
                       ),
                       const SizedBox(height: 8.0),
-                      if (progressBarValue != null) 
-                      ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0), 
-                      child: LinearProgressIndicator(
-                        value: progressBarValue,
-                        minHeight: 20,
-                        backgroundColor: Colors.grey,
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                    ),
-                    if (progressBarValue != null)
+                      if (progressBarValue != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: LinearProgressIndicator(
+                            value: progressBarValue,
+                            minHeight: 20,
+                            backgroundColor: Colors.grey,
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.blue),
+                          ),
+                        ),
+                      if (progressBarValue != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
-                          child: Text('${(progressBarValue! * 100).toStringAsFixed(0)}% Complete'),
-                    ),
+                          child: Text(
+                              '${(progressBarValue! * 100).toStringAsFixed(0)}% Complete'),
+                        ),
                     ],
                   ),
                 ),

@@ -16,7 +16,8 @@ class UpdateMaterialReceiveEvent extends MaterialReceiveEvent {
   final String materialReceiveId;
   final MaterialReceive updatedMaterialReceive;
   final int stokLama;
-  UpdateMaterialReceiveEvent(this.materialReceiveId, this.updatedMaterialReceive, this.stokLama);
+  UpdateMaterialReceiveEvent(
+      this.materialReceiveId, this.updatedMaterialReceive, this.stokLama);
 }
 
 class DeleteMaterialReceiveEvent extends MaterialReceiveEvent {
@@ -42,77 +43,87 @@ class ErrorState extends MaterialReceiveBlocState {
 }
 
 // BLoC
-class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBlocState> {
+class MaterialReceiveBloc
+    extends Bloc<MaterialReceiveEvent, MaterialReceiveBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference materialReceiveRef;
   final HttpsCallable purchaseReqCallable;
   final notificationService = NotificationService();
 
-  MaterialReceiveBloc() : purchaseReqCallable = FirebaseFunctions.instance.httpsCallable('materialRecValidation'), super(LoadingState()) {
+  MaterialReceiveBloc()
+      : purchaseReqCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('materialRecValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     materialReceiveRef = _firestore.collection('material_receives');
   }
 
   @override
-  Stream<MaterialReceiveBlocState> mapEventToState(MaterialReceiveEvent event) async* {
+  Stream<MaterialReceiveBlocState> mapEventToState(
+      MaterialReceiveEvent event) async* {
     if (event is AddMaterialReceiveEvent) {
       yield LoadingState();
 
       final purchaseRequestId = event.materialReceive.purchaseRequestId;
       final materialId = event.materialReceive.materialId;
       final supplierId = event.materialReceive.supplierId;
-      final jumlahPermintaan =event.materialReceive.jumlahPermintaan;
+      final jumlahPermintaan = event.materialReceive.jumlahPermintaan;
       final jumlahDiterima = event.materialReceive.jumlahDiterima;
 
-      if(purchaseRequestId.isNotEmpty){
-        if(materialId.isNotEmpty){
-          if(supplierId.isNotEmpty){
-          try {
-            final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
-              'jumlahPermintaan': jumlahPermintaan,
-              'jumlahDiterima': jumlahDiterima,
-              'materialId': materialId,
-              'purchaseReqId': purchaseRequestId,
-              'supplierId':supplierId,
-              'mode': 'add',
-              'stokLama':0
-            });
+      if (purchaseRequestId.isNotEmpty) {
+        if (materialId.isNotEmpty) {
+          if (supplierId.isNotEmpty) {
+            try {
+              final HttpsCallableResult<dynamic> result =
+                  await purchaseReqCallable.call(<String, dynamic>{
+                'jumlahPermintaan': jumlahPermintaan,
+                'jumlahDiterima': jumlahDiterima,
+                'materialId': materialId,
+                'purchaseReqId': purchaseRequestId,
+                'supplierId': supplierId,
+                'mode': 'add',
+                'stokLama': 0
+              });
 
-            if(result.data['success'] == true){
-              final String nextMaterialReceiveId = await _generateNextMaterialReceiveId();
-              final materialReceiveRef = _firestore.collection('material_receives').doc(nextMaterialReceiveId);
+              if (result.data['success'] == true) {
+                final String nextMaterialReceiveId =
+                    await _generateNextMaterialReceiveId();
+                final materialReceiveRef = _firestore
+                    .collection('material_receives')
+                    .doc(nextMaterialReceiveId);
 
-              final Map<String, dynamic> materialReceiveData = {
-                'id': nextMaterialReceiveId,
-                'purchase_request_id': purchaseRequestId,
-                'material_id': materialId,
-                'supplier_id': supplierId,
-                'satuan': event.materialReceive.satuan,
-                'jumlah_permintaan': jumlahPermintaan,
-                'jumlah_diterima': jumlahDiterima,
-                'status': event.materialReceive.status,
-                'catatan': event.materialReceive.catatan,
-                'tanggal_penerimaan': event.materialReceive.tanggalPenerimaan,
-              };
+                final Map<String, dynamic> materialReceiveData = {
+                  'id': nextMaterialReceiveId,
+                  'purchase_request_id': purchaseRequestId,
+                  'material_id': materialId,
+                  'supplier_id': supplierId,
+                  'satuan': event.materialReceive.satuan,
+                  'jumlah_permintaan': jumlahPermintaan,
+                  'jumlah_diterima': jumlahDiterima,
+                  'status': event.materialReceive.status,
+                  'catatan': event.materialReceive.catatan,
+                  'tanggal_penerimaan': event.materialReceive.tanggalPenerimaan,
+                };
 
-              await materialReceiveRef.set(materialReceiveData);
+                await materialReceiveRef.set(materialReceiveData);
 
-              yield SuccessState();
-            }else{
-              yield ErrorState(result.data['message']);
+                yield SuccessState();
+              } else {
+                yield ErrorState(result.data['message']);
+              }
+            } catch (e) {
+              yield ErrorState(e.toString());
             }
-           
-          } catch (e) {
-            yield ErrorState(e.toString());
-          }
-          }else{
+          } else {
             ErrorState("kode supplier tidak boleh kosong");
           }
-        }else{
+        } else {
           yield ErrorState("kode bahan tidak boleh kosong");
         }
-      }else{
-        yield ErrorState("nomor permintaan pembelian tidak boleh kosong\n harus melakukan permintaan pembelian terlebih dahulu");
+      } else {
+        yield ErrorState(
+            "nomor permintaan pembelian tidak boleh kosong\n harus melakukan permintaan pembelian terlebih dahulu");
       }
     } else if (event is UpdateMaterialReceiveEvent) {
       yield LoadingState();
@@ -120,62 +131,69 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
       final purchaseRequestId = event.updatedMaterialReceive.purchaseRequestId;
       final materialId = event.updatedMaterialReceive.materialId;
       final supplierId = event.updatedMaterialReceive.supplierId;
-      final jumlahPermintaan =event.updatedMaterialReceive.jumlahPermintaan;
+      final jumlahPermintaan = event.updatedMaterialReceive.jumlahPermintaan;
       final jumlahDiterima = event.updatedMaterialReceive.jumlahDiterima;
 
-      if(purchaseRequestId.isNotEmpty){
-        if(materialId.isNotEmpty){
-          if(supplierId.isNotEmpty){
-          try {
-            final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
-              'jumlahPermintaan': jumlahPermintaan,
-              'jumlahDiterima': jumlahDiterima,
-              'materialId': materialId,
-              'purchaseReqId': purchaseRequestId,
-              'supplierId':supplierId,
-              'mode': 'edit',
-              'stokLama': event.stokLama
-            });
-
-            if(result.data['success'] == true){
-            final materialReceiveSnapshot = await materialReceiveRef.where('id', isEqualTo: event.materialReceiveId).get();
-            if (materialReceiveSnapshot.docs.isNotEmpty) {
-              final materialReceiveDoc = materialReceiveSnapshot.docs.first;
-              await materialReceiveDoc.reference.update({
-                'purchase_request_id':purchaseRequestId,
-                'material_id': materialId,
-                'supplier_id': supplierId,
-                'satuan': event.updatedMaterialReceive.satuan,
-                'jumlah_permintaan': jumlahPermintaan,
-                'jumlah_diterima': jumlahDiterima,
-                'status': event.updatedMaterialReceive.status,
-                'catatan': event.updatedMaterialReceive.catatan,
-                'tanggal_penerimaan': event.updatedMaterialReceive.tanggalPenerimaan,
+      if (purchaseRequestId.isNotEmpty) {
+        if (materialId.isNotEmpty) {
+          if (supplierId.isNotEmpty) {
+            try {
+              final HttpsCallableResult<dynamic> result =
+                  await purchaseReqCallable.call(<String, dynamic>{
+                'jumlahPermintaan': jumlahPermintaan,
+                'jumlahDiterima': jumlahDiterima,
+                'materialId': materialId,
+                'purchaseReqId': purchaseRequestId,
+                'supplierId': supplierId,
+                'mode': 'edit',
+                'stokLama': event.stokLama
               });
-              yield SuccessState();
-            } else {
-              yield ErrorState('Data Material Receive dengan ID ${event.materialReceiveId} tidak ditemukan.');
+
+              if (result.data['success'] == true) {
+                final materialReceiveSnapshot = await materialReceiveRef
+                    .where('id', isEqualTo: event.materialReceiveId)
+                    .get();
+                if (materialReceiveSnapshot.docs.isNotEmpty) {
+                  final materialReceiveDoc = materialReceiveSnapshot.docs.first;
+                  await materialReceiveDoc.reference.update({
+                    'purchase_request_id': purchaseRequestId,
+                    'material_id': materialId,
+                    'supplier_id': supplierId,
+                    'satuan': event.updatedMaterialReceive.satuan,
+                    'jumlah_permintaan': jumlahPermintaan,
+                    'jumlah_diterima': jumlahDiterima,
+                    'status': event.updatedMaterialReceive.status,
+                    'catatan': event.updatedMaterialReceive.catatan,
+                    'tanggal_penerimaan':
+                        event.updatedMaterialReceive.tanggalPenerimaan,
+                  });
+                  yield SuccessState();
+                } else {
+                  yield ErrorState(
+                      'Data Material Receive dengan ID ${event.materialReceiveId} tidak ditemukan.');
+                }
+              } else {
+                yield ErrorState(result.data['message']);
+              }
+            } catch (e) {
+              yield ErrorState(e.toString());
             }
-            }else{
-              yield ErrorState(result.data['message']);
-            }
-          } catch (e) {
-            yield ErrorState(e.toString());
-          }
-          }else{
+          } else {
             yield ErrorState("kode supplier tidak boleh kosong");
           }
-        }else{
+        } else {
           yield ErrorState("kode bahan tidak boleh kosong");
         }
-      }else{
+      } else {
         yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
       }
     } else if (event is DeleteMaterialReceiveEvent) {
       yield LoadingState();
       try {
-        final QuerySnapshot querySnapshot = await materialReceiveRef.where('id', isEqualTo: event.materialReceiveId).get();
-          
+        final QuerySnapshot querySnapshot = await materialReceiveRef
+            .where('id', isEqualTo: event.materialReceiveId)
+            .get();
+
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
           await documentSnapshot.reference.delete();
         }
@@ -189,11 +207,13 @@ class MaterialReceiveBloc extends Bloc<MaterialReceiveEvent, MaterialReceiveBloc
 
   Future<String> _generateNextMaterialReceiveId() async {
     final QuerySnapshot snapshot = await materialReceiveRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int materialReceiveCount = 1;
 
     while (true) {
-      final nextMaterialReceiveId = 'MRV${materialReceiveCount.toString().padLeft(6, '0')}';
+      final nextMaterialReceiveId =
+          'MRV${materialReceiveCount.toString().padLeft(6, '0')}';
       if (!existingIds.contains(nextMaterialReceiveId)) {
         return nextMaterialReceiveId;
       }

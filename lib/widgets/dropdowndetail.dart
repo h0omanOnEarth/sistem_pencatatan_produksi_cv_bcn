@@ -54,9 +54,12 @@ class DropdownDetailWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-            onChanged: isEnabled ? (String? newValue) {
-              onChanged(newValue ?? ''); // Make sure to pass an empty string if newValue is null
-            }:null,
+            onChanged: isEnabled
+                ? (String? newValue) {
+                    onChanged(newValue ??
+                        ''); // Make sure to pass an empty string if newValue is null
+                  }
+                : null,
           ),
         ),
       ],

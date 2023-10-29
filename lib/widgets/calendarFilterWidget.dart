@@ -5,7 +5,8 @@ class DateSelector extends StatelessWidget {
   final Function onPressed;
   final String dateText;
 
-  const DateSelector({super.key, 
+  const DateSelector({
+    super.key,
     required this.labelText,
     required this.onPressed,
     required this.dateText,
@@ -47,5 +48,3 @@ class CircleFilterIconButton extends StatelessWidget {
     );
   }
 }
-
-

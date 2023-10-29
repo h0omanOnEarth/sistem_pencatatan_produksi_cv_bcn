@@ -9,46 +9,53 @@ class ProductionOrderDropDown extends StatefulWidget {
   late final TextEditingController? namaProdukController;
   final bool isEnabled;
 
-  ProductionOrderDropDown({super.key, 
-    required this.selectedPRO, 
-    required this.onChanged, 
+  ProductionOrderDropDown({
+    super.key,
+    required this.selectedPRO,
+    required this.onChanged,
     this.tanggalProduksiController,
     this.kodeProdukController,
     this.namaProdukController,
     this.isEnabled = true,
-    });
+  });
 
   @override
-  State<ProductionOrderDropDown> createState() => _ProductionOrderDropDownState();
+  State<ProductionOrderDropDown> createState() =>
+      _ProductionOrderDropDownState();
 }
 
 class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
 
-Future<String?> getProductName(String productId) async {
-  try {
-    final productQuery = await firestore
-        .collection('products')
-        .where('id', isEqualTo: productId) // Ganti 'product_id' dengan nama field yang sesuai
-        .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
-        .get();
+  Future<String?> getProductName(String productId) async {
+    try {
+      final productQuery = await firestore
+          .collection('products')
+          .where('id',
+              isEqualTo:
+                  productId) // Ganti 'product_id' dengan nama field yang sesuai
+          .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
+          .get();
 
-    if (productQuery.docs.isNotEmpty) {
-      final productName = productQuery.docs.first['nama'] as String?;
-      return productName;
+      if (productQuery.docs.isNotEmpty) {
+        final productName = productQuery.docs.first['nama'] as String?;
+        return productName;
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching product name: $e');
+      return null;
     }
-    return null;
-  } catch (e) {
-    print('Error fetching product name: $e');
-    return null;
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('production_orders').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('production_orders')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -96,32 +103,50 @@ Future<String?> getProductName(String productId) async {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedPRO,
                 items: proItems,
-                onChanged: widget.isEnabled ?  (newValue) async {
-                  widget.onChanged(newValue);
-                  _selectedDoc = snapshot.data!.docs.firstWhere(
-                    (document) => document['id'] == newValue,
-                  );
+                onChanged: widget.isEnabled
+                    ? (newValue) async {
+                        widget.onChanged(newValue);
+                        _selectedDoc = snapshot.data!.docs.firstWhere(
+                          (document) => document['id'] == newValue,
+                        );
 
-                  final tanggalProduksiFirestore = _selectedDoc['tanggal_produksi'];
-                  if (tanggalProduksiFirestore != null) {
-                    final timestamp = tanggalProduksiFirestore as Timestamp;
-                    final dateTime = timestamp.toDate();
+                        final tanggalProduksiFirestore =
+                            _selectedDoc['tanggal_produksi'];
+                        if (tanggalProduksiFirestore != null) {
+                          final timestamp =
+                              tanggalProduksiFirestore as Timestamp;
+                          final dateTime = timestamp.toDate();
 
-                    final List<String> monthNames = [
-                      "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                    ];
+                          final List<String> monthNames = [
+                            "Januari",
+                            "Februari",
+                            "Maret",
+                            "April",
+                            "Mei",
+                            "Juni",
+                            "Juli",
+                            "Agustus",
+                            "September",
+                            "Oktober",
+                            "November",
+                            "Desember"
+                          ];
 
-                    final day = dateTime.day.toString();
-                    final month = monthNames[dateTime.month - 1];
-                    final year = dateTime.year.toString();
+                          final day = dateTime.day.toString();
+                          final month = monthNames[dateTime.month - 1];
+                          final year = dateTime.year.toString();
 
-                    final formattedDate = '$month $day, $year';
-                    widget.tanggalProduksiController?.text = formattedDate;
-                  }
-                  widget.kodeProdukController?.text = _selectedDoc['product_id'];
-                  final productName = await getProductName(_selectedDoc['product_id']);
-                  widget.namaProdukController?.text = productName!;
-                }:null,
+                          final formattedDate = '$month $day, $year';
+                          widget.tanggalProduksiController?.text =
+                              formattedDate;
+                        }
+                        widget.kodeProdukController?.text =
+                            _selectedDoc['product_id'];
+                        final productName =
+                            await getProductName(_selectedDoc['product_id']);
+                        widget.namaProdukController?.text = productName!;
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

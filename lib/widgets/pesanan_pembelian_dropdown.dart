@@ -20,10 +20,11 @@ class PesananPembelianDropdown extends StatefulWidget {
     required this.namaSupplierController,
     this.purchaseOrderId,
     this.isEnabled = true,
-  }): super();
+  }) : super();
 
   @override
-  _PesananPembelianDropdownState createState() => _PesananPembelianDropdownState();
+  _PesananPembelianDropdownState createState() =>
+      _PesananPembelianDropdownState();
 }
 
 class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
@@ -32,7 +33,7 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
   @override
   void initState() {
     super.initState();
-     if (widget.purchaseOrderId != null) {
+    if (widget.purchaseOrderId != null) {
       selectedKodeNotifier.value = widget.purchaseOrderId;
     }
   }
@@ -54,7 +55,9 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('purchase_orders').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('purchase_orders')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
@@ -83,44 +86,55 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
                   child: DropdownButtonFormField<String>(
                     value: selectedPesanan,
                     items: purchaseOrderItems,
-                    onChanged: widget.isEnabled ? (newValue) {
-                      selectedKodeNotifier.value = newValue;
-                      final selectedPurchaseOrder = snapshot.data!.docs.firstWhere(
-                        (document) => document['id'] == newValue,
-                      );
-                      Timestamp timestamp = selectedPurchaseOrder['tanggal_pesan'] as Timestamp;
-                      DateTime date = timestamp.toDate();
-                      String formattedDate = DateFormat('dd/MM/yyyy').format(date);
-                      widget.tanggalPemesananController.text = formattedDate;
-                      widget.kodeBahanController.text = selectedPurchaseOrder['material_id'];
-                      String materialId = selectedPurchaseOrder['material_id'];
-                      // Ambil data nama bahan dari koleksi 'materials' berdasarkan material_id
-                      FirebaseFirestore.instance
-                        .collection('materials')
-                        .where('id', isEqualTo: materialId)
-                        .get()
-                        .then((QuerySnapshot querySnapshot) {
-                      if (querySnapshot.docs.isNotEmpty) {
-                        var materialDoc = querySnapshot.docs[0];
-                        String namaBahan = materialDoc['nama'] ?? '';
-                        widget.namaBahanController.text = namaBahan;
-                      }
-                    });
+                    onChanged: widget.isEnabled
+                        ? (newValue) {
+                            selectedKodeNotifier.value = newValue;
+                            final selectedPurchaseOrder =
+                                snapshot.data!.docs.firstWhere(
+                              (document) => document['id'] == newValue,
+                            );
+                            Timestamp timestamp =
+                                selectedPurchaseOrder['tanggal_pesan']
+                                    as Timestamp;
+                            DateTime date = timestamp.toDate();
+                            String formattedDate =
+                                DateFormat('dd/MM/yyyy').format(date);
+                            widget.tanggalPemesananController.text =
+                                formattedDate;
+                            widget.kodeBahanController.text =
+                                selectedPurchaseOrder['material_id'];
+                            String materialId =
+                                selectedPurchaseOrder['material_id'];
+                            // Ambil data nama bahan dari koleksi 'materials' berdasarkan material_id
+                            FirebaseFirestore.instance
+                                .collection('materials')
+                                .where('id', isEqualTo: materialId)
+                                .get()
+                                .then((QuerySnapshot querySnapshot) {
+                              if (querySnapshot.docs.isNotEmpty) {
+                                var materialDoc = querySnapshot.docs[0];
+                                String namaBahan = materialDoc['nama'] ?? '';
+                                widget.namaBahanController.text = namaBahan;
+                              }
+                            });
 
-                     String supplierId = selectedPurchaseOrder['supplier_id'];
-                      // Ambil data nama supplier dari koleksi 'suppliers' berdasarkan supplier_id
-                      FirebaseFirestore.instance
-                          .collection('suppliers')
-                          .where('id', isEqualTo: supplierId)
-                          .get()
-                          .then((QuerySnapshot querySnapshot) {
-                        if (querySnapshot.docs.isNotEmpty) {
-                          var supplierDoc = querySnapshot.docs[0];
-                          String namaSupplier = supplierDoc['nama'] ?? '';
-                          widget.namaSupplierController.text = namaSupplier;
-                        }
-                      });
-                    }:null,
+                            String supplierId =
+                                selectedPurchaseOrder['supplier_id'];
+                            // Ambil data nama supplier dari koleksi 'suppliers' berdasarkan supplier_id
+                            FirebaseFirestore.instance
+                                .collection('suppliers')
+                                .where('id', isEqualTo: supplierId)
+                                .get()
+                                .then((QuerySnapshot querySnapshot) {
+                              if (querySnapshot.docs.isNotEmpty) {
+                                var supplierDoc = querySnapshot.docs[0];
+                                String namaSupplier = supplierDoc['nama'] ?? '';
+                                widget.namaSupplierController.text =
+                                    namaSupplier;
+                              }
+                            });
+                          }
+                        : null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

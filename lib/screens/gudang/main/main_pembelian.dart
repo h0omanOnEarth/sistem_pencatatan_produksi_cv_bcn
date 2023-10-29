@@ -9,11 +9,12 @@ class MainPembelianGudangScreen extends StatefulWidget {
   const MainPembelianGudangScreen({Key? key});
 
   @override
-  State<MainPembelianGudangScreen> createState() => _MainPembelianGudangScreenState();
+  State<MainPembelianGudangScreen> createState() =>
+      _MainPembelianGudangScreenState();
 }
 
 class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -77,8 +78,16 @@ class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.shopping_cart, textA: 'Permintaan Pembelian', textB: 'Memodifikasi dan melihat permintaan pembelian', pageRoute: ListPurchaseRequest.routeName),
-                    const CardItem(icon: Icons.note_add_sharp, textA: 'Penerimaan Bahan', textB: 'Memodifikasi dan melihat penerimaan bahan', pageRoute: ListMaterialReceive.routeName),
+                    const CardItem(
+                        icon: Icons.shopping_cart,
+                        textA: 'Permintaan Pembelian',
+                        textB: 'Memodifikasi dan melihat permintaan pembelian',
+                        pageRoute: ListPurchaseRequest.routeName),
+                    const CardItem(
+                        icon: Icons.note_add_sharp,
+                        textA: 'Penerimaan Bahan',
+                        textB: 'Memodifikasi dan melihat penerimaan bahan',
+                        pageRoute: ListMaterialReceive.routeName),
                   ],
                 ),
               ),

@@ -8,14 +8,14 @@ class BahanDropdown extends StatefulWidget {
   final TextEditingController namaBahanController;
   final TextEditingController? satuanBahanController;
   final String? bahanId;
-  final bool isEnabled; 
+  final bool isEnabled;
 
   const BahanDropdown({
     super.key,
     required this.namaBahanController,
     this.bahanId,
     this.satuanBahanController,
-    this.isEnabled = true, 
+    this.isEnabled = true,
   });
 
   @override
@@ -50,7 +50,9 @@ class _BahanDropdownState extends State<BahanDropdown> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance.collection('materials').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('materials')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
@@ -81,15 +83,20 @@ class _BahanDropdownState extends State<BahanDropdown> {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: materialItems,
-                    onChanged: widget.isEnabled ? (newValue) { // Periksa isEnabled
-                      selectedBahanNotifier.value = newValue;
-                      final selectedMaterial = snapshot.data!.docs.firstWhere(
-                        (document) => document['id'] == newValue,
-                      );
-                      widget.namaBahanController.text =
-                          selectedMaterial['nama'] ?? '';
-                      widget.satuanBahanController?.text = selectedMaterial['satuan'] ?? '';
-                    } : null, // Nonaktifkan dropdown jika isEnabled adalah false
+                    onChanged: widget.isEnabled
+                        ? (newValue) {
+                            // Periksa isEnabled
+                            selectedBahanNotifier.value = newValue;
+                            final selectedMaterial =
+                                snapshot.data!.docs.firstWhere(
+                              (document) => document['id'] == newValue,
+                            );
+                            widget.namaBahanController.text =
+                                selectedMaterial['nama'] ?? '';
+                            widget.satuanBahanController?.text =
+                                selectedMaterial['satuan'] ?? '';
+                          }
+                        : null, // Nonaktifkan dropdown jika isEnabled adalah false
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

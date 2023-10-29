@@ -15,7 +15,7 @@ exports.dlohValidation = async (req) => {
     biayaTenagaKerja,
     upahTenagaKerjaPerjam,
     subtotal,
-    materialUsageId
+    materialUsageId,
   } = req.data;
 
   if (!jumlahTenagaKerja || jumlahTenagaKerja <= 0) {
@@ -55,7 +55,10 @@ exports.dlohValidation = async (req) => {
 
   try {
     // Dapatkan status_mu dari dokumen materialUsageId di koleksi material_usages
-    const materialUsageRef = admin.firestore().collection("material_usages").doc(materialUsageId);
+    const materialUsageRef = admin
+      .firestore()
+      .collection("material_usages")
+      .doc(materialUsageId);
     const materialUsageDoc = await materialUsageRef.get();
 
     // Periksa status_mu pada materialUsageId

@@ -55,27 +55,82 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
       yield LoadingState();
 
       final nama = event.customer.nama;
-      final alamat =  event.customer.alamat;
+      final alamat = event.customer.alamat;
       final noTelepon = event.customer.nomorTelepon;
       final noTeleponKantor = event.customer.nomorTeleponKantor;
       final email = event.customer.email;
       final status = event.customer.status;
 
-      if(nama.isNotEmpty && alamat.isNotEmpty && noTelepon.isNotEmpty && noTeleponKantor.isNotEmpty && email.isNotEmpty){
+      if (nama.isNotEmpty &&
+          alamat.isNotEmpty &&
+          noTelepon.isNotEmpty &&
+          noTeleponKantor.isNotEmpty &&
+          email.isNotEmpty) {
+        try {
+          final HttpsCallable callable =
+              FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                  .httpsCallable('supplierAdd');
+          final HttpsCallableResult<dynamic> result = await callable
+              .call(<String, dynamic>{
+            'telp': noTelepon,
+            'telpKantor': noTeleponKantor,
+            'email': email
+          });
+
+          if (result.data['success'] == true) {
+            final String nextCustomerId = await _generateNextCustomerId();
+
+            await FirebaseFirestore.instance.collection('customers').add({
+              'id': nextCustomerId,
+              'nama': nama,
+              'alamat': alamat,
+              'nomor_telepon': noTelepon,
+              'nomor_telepon_kantor': noTeleponKantor,
+              'email': email,
+              'status': status,
+            });
+
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ErrorState("Gagal menambahkan customer.");
+        }
+      } else {
+        yield ErrorState("Harap isi semua field!");
+      }
+    } else if (event is UpdateCustomerEvent) {
+      yield LoadingState();
+      final customerSnapshot =
+          await customersRef.where('id', isEqualTo: event.customerId).get();
+      if (customerSnapshot.docs.isNotEmpty) {
+        final nama = event.updatedCustomer.nama;
+        final alamat = event.updatedCustomer.alamat;
+        final noTelepon = event.updatedCustomer.nomorTelepon;
+        final noTeleponKantor = event.updatedCustomer.nomorTeleponKantor;
+        final email = event.updatedCustomer.email;
+        final status = event.updatedCustomer.status;
+
+        if (nama.isNotEmpty &&
+            alamat.isNotEmpty &&
+            noTelepon.isNotEmpty &&
+            noTeleponKantor.isNotEmpty &&
+            email.isNotEmpty) {
           try {
-            final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
-            final HttpsCallableResult<dynamic> result =
-            await callable.call(<String, dynamic>{
+            final HttpsCallable callable =
+                FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                    .httpsCallable('supplierAdd');
+            final HttpsCallableResult<dynamic> result = await callable
+                .call(<String, dynamic>{
               'telp': noTelepon,
               'telpKantor': noTeleponKantor,
               'email': email
             });
 
             if (result.data['success'] == true) {
-              final String nextCustomerId = await _generateNextCustomerId();
-
-              await FirebaseFirestore.instance.collection('customers').add({
-                'id': nextCustomerId,
+              final customerDoc = customerSnapshot.docs.first;
+              await customerDoc.reference.update({
                 'nama': nama,
                 'alamat': alamat,
                 'nomor_telepon': noTelepon,
@@ -85,73 +140,31 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
               });
 
               yield SuccessState();
-            }else{
+            } else {
               yield ErrorState(result.data['message']);
             }
-           
           } catch (e) {
-            yield ErrorState("Gagal menambahkan customer.");
+            yield ErrorState(e.toString());
           }
-      }else{
-        yield ErrorState("Harap isi semua field!");
-      }
-   
-    } else if (event is UpdateCustomerEvent) {
-      yield LoadingState();
-      final customerSnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
-        if (customerSnapshot.docs.isNotEmpty) {
-          final nama = event.updatedCustomer.nama;
-          final alamat =  event.updatedCustomer.alamat;
-          final noTelepon = event.updatedCustomer.nomorTelepon;
-          final noTeleponKantor = event.updatedCustomer.nomorTeleponKantor;
-          final email = event.updatedCustomer.email;
-          final status = event.updatedCustomer.status;
-
-          if(nama.isNotEmpty && alamat.isNotEmpty && noTelepon.isNotEmpty && noTeleponKantor.isNotEmpty && email.isNotEmpty){
-            try {
-               final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
-                final HttpsCallableResult<dynamic> result =
-                await callable.call(<String, dynamic>{
-                  'telp': noTelepon,
-                  'telpKantor': noTeleponKantor,
-                  'email': email
-                });
-
-                if (result.data['success'] == true) {
-                  final customerDoc = customerSnapshot.docs.first;
-                  await customerDoc.reference.update({
-                    'nama': nama,
-                    'alamat': alamat,
-                    'nomor_telepon': noTelepon,
-                    'nomor_telepon_kantor': noTeleponKantor,
-                    'email': email,
-                    'status': status,
-                  });
-                
-                  yield SuccessState();
-                }else{
-                  yield ErrorState(result.data['message']);
-                }
-            } catch (e) {
-              yield ErrorState(e.toString());
-            }
-           }else{
-            yield ErrorState("Harap isi semua field!");
-           }
-        }else {
-          // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
-          yield ErrorState('Data pelanggan dengan ID ${event.customerId} tidak ditemukan.');
+        } else {
+          yield ErrorState("Harap isi semua field!");
         }
+      } else {
+        // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
+        yield ErrorState(
+            'Data pelanggan dengan ID ${event.customerId} tidak ditemukan.');
+      }
     } else if (event is DeleteCustomerEvent) {
       yield LoadingState();
       try {
         // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
-          QuerySnapshot querySnapshot = await customersRef.where('id', isEqualTo: event.customerId).get();
-          
-          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
-          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-            await documentSnapshot.reference.delete();
-          }
+        QuerySnapshot querySnapshot =
+            await customersRef.where('id', isEqualTo: event.customerId).get();
+
+        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+          await documentSnapshot.reference.delete();
+        }
         yield LoadedState(await _getCustomers());
       } catch (e) {
         yield ErrorState("Gagal menghapus customer.");
@@ -159,19 +172,21 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerBlocState> {
     }
   }
 
-Future<String> _generateNextCustomerId() async {
-  final QuerySnapshot snapshot = await customersRef.get();
-  final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
-  int customerCount = 1;
+  Future<String> _generateNextCustomerId() async {
+    final QuerySnapshot snapshot = await customersRef.get();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
+    int customerCount = 1;
 
-  while (true) {
-    final nextCustomerId = 'customer${customerCount.toString().padLeft(3, '0')}';
-    if (!existingIds.contains(nextCustomerId)) {
-      return nextCustomerId;
+    while (true) {
+      final nextCustomerId =
+          'customer${customerCount.toString().padLeft(3, '0')}';
+      if (!existingIds.contains(nextCustomerId)) {
+        return nextCustomerId;
+      }
+      customerCount++;
     }
-    customerCount++;
   }
-}
 
   Future<List<Customer>> _getCustomers() async {
     final QuerySnapshot snapshot = await customersRef.get();
@@ -183,14 +198,15 @@ Future<String> _generateNextCustomerId() async {
     return customers;
   }
 
-  Future<void> deleteDocumentsInCollection(CollectionReference collectionRef, String fieldName, String fieldValue) async {
-  // Cari dokumen dengan fieldName yang sesuai dengan fieldValue
-  QuerySnapshot querySnapshot = await collectionRef.where(fieldName, isEqualTo: fieldValue).get();
+  Future<void> deleteDocumentsInCollection(CollectionReference collectionRef,
+      String fieldName, String fieldValue) async {
+    // Cari dokumen dengan fieldName yang sesuai dengan fieldValue
+    QuerySnapshot querySnapshot =
+        await collectionRef.where(fieldName, isEqualTo: fieldValue).get();
 
-  // Hapus semua dokumen yang sesuai dengan pencarian
-  for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-    await documentSnapshot.reference.delete();
+    // Hapus semua dokumen yang sesuai dengan pencarian
+    for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+      await documentSnapshot.reference.delete();
+    }
   }
-}
-  
 }

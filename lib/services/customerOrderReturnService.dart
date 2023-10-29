@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CustomerOrderReturnService{
-final FirebaseFirestore firestore = FirebaseFirestore.instance;
+class CustomerOrderReturnService {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<List<Map<String, dynamic>>?> getDetailCustOrderReturn(String custOrderReturnId) async {
+  Future<List<Map<String, dynamic>>?> getDetailCustOrderReturn(
+      String custOrderReturnId) async {
     try {
       final detailCorQuery = await firestore
           .collection('customer_order_returns')
@@ -23,8 +24,10 @@ final FirebaseFirestore firestore = FirebaseFirestore.instance;
             detailCustOrderReturns.add({
               'id': doc.id,
               'product_id': detailCustOrderReturnData['product_id'],
-              'jumlahPengembalian': detailCustOrderReturnData['jumlah_pengembalian'] as int,
-              'jumlahPesanan': detailCustOrderReturnData['jumlah_pesanan'] as int,
+              'jumlahPengembalian':
+                  detailCustOrderReturnData['jumlah_pengembalian'] as int,
+              'jumlahPesanan':
+                  detailCustOrderReturnData['jumlah_pesanan'] as int,
             });
           }
         }

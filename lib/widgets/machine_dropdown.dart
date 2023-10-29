@@ -6,21 +6,24 @@ class MachineDropdown extends StatelessWidget {
   final TextEditingController? namaMesinController;
   final Function(String?) onChanged;
   final String title;
-  final bool isEnabled; 
+  final bool isEnabled;
 
   const MachineDropdown({
-    super.key, 
+    super.key,
     required this.selectedMachine,
     required this.onChanged,
     required this.title,
     this.namaMesinController,
-    this.isEnabled = true, 
+    this.isEnabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('machines').where('tipe', isEqualTo: title).snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('machines')
+          .where('tipe', isEqualTo: title)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -50,22 +53,22 @@ class MachineDropdown extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if(title!='Penggiling')
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+            if (title != 'Penggiling')
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
               ),
-            ),
-            if(title=='Penggiling')
-             Text(
-              'Mesin',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+            if (title == 'Penggiling')
+              Text(
+                'Mesin',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
               ),
-            ),
             const SizedBox(height: 8.0),
             Container(
               decoration: BoxDecoration(
@@ -75,16 +78,21 @@ class MachineDropdown extends StatelessWidget {
               child: DropdownButtonFormField<String>(
                 value: selectedMachine,
                 items: machineItems,
-                onChanged: isEnabled ?(newValue) {
-                  onChanged(newValue);
-                  if (namaMesinController != null) {
-                    final selectedMachineName = machineItems.firstWhere(
-                      (item) => item.value == newValue,
-                      orElse: () => const DropdownMenuItem<String>(value: '', child: Text('')),
-                    ).child as Text;
-                    namaMesinController?.text = selectedMachineName.data!;
-                  }
-                }:null,
+                onChanged: isEnabled
+                    ? (newValue) {
+                        onChanged(newValue);
+                        if (namaMesinController != null) {
+                          final selectedMachineName = machineItems
+                              .firstWhere(
+                                (item) => item.value == newValue,
+                                orElse: () => const DropdownMenuItem<String>(
+                                    value: '', child: Text('')),
+                              )
+                              .child as Text;
+                          namaMesinController?.text = selectedMachineName.data!;
+                        }
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

@@ -10,11 +10,12 @@ class ProductCardBahanWidget extends StatefulWidget {
   final List<ProductCardDataBahan> productCards;
   final bool isEnabled;
 
-  const ProductCardBahanWidget({super.key, 
-  required this.productCardData,  
-  required this.productData,
-  required this.productCards,
-  this.isEnabled = true,
+  const ProductCardBahanWidget({
+    super.key,
+    required this.productCardData,
+    required this.productData,
+    required this.productCards,
+    this.isEnabled = true,
   });
 
   @override
@@ -22,7 +23,6 @@ class ProductCardBahanWidget extends StatefulWidget {
 }
 
 class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -30,46 +30,53 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
     widget.productCardData.jumlahController =
         TextEditingController(text: widget.productCardData.jumlah);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         DropdownProdukDetailWidget(
-              label: 'Kode Bahan',
-              selectedValue: widget.productCardData.kodeBahan,
-              onChanged: (newValue) {
-                setState(() {
-                  // Check if the product_id is already in productCards
-                  if (!widget.productCards.any((card) => card.kodeBahan == newValue)) {
-                    widget.productCardData.kodeBahan = newValue;
-                    final selectedProduct = widget.productData.firstWhere(
-                        (product) => product['id'] == newValue,
-                        orElse: () => {'nama': 'Nama Bahan Tidak Ditemukan'},
-                      );
-                  widget.productCardData.namaBahan = selectedProduct['nama'];
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Bahan sudah dipilih'),
-                        duration: Duration(seconds: 2), // Duration to display the Snackbar
-                      ),
-                    );
-                  }
-                });
-              },
-              products: widget.productData, // productData adalah daftar produk dari Firestore
-              isEnabled: widget.isEnabled,
-            ),
+          label: 'Kode Bahan',
+          selectedValue: widget.productCardData.kodeBahan,
+          onChanged: (newValue) {
+            setState(() {
+              // Check if the product_id is already in productCards
+              if (!widget.productCards
+                  .any((card) => card.kodeBahan == newValue)) {
+                widget.productCardData.kodeBahan = newValue;
+                final selectedProduct = widget.productData.firstWhere(
+                  (product) => product['id'] == newValue,
+                  orElse: () => {'nama': 'Nama Bahan Tidak Ditemukan'},
+                );
+                widget.productCardData.namaBahan = selectedProduct['nama'];
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Bahan sudah dipilih'),
+                    duration: Duration(
+                        seconds: 2), // Duration to display the Snackbar
+                  ),
+                );
+              }
+            });
+          },
+          products: widget
+              .productData, // productData adalah daftar produk dari Firestore
+          isEnabled: widget.isEnabled,
+        ),
         const SizedBox(height: 8.0),
         TextFieldWidget(
-              label: 'Nama Bahan',
-              placeholder: 'Nama Bahan',
-              controller: TextEditingController(text: widget.productCardData.namaBahan),
-              isEnabled: false,
-       ),
-       const SizedBox(height: 16.0,),
-       if (widget.productCardData.namaBatch != null) // Periksa apakah namaBatch tidak null
+          label: 'Nama Bahan',
+          placeholder: 'Nama Bahan',
+          controller:
+              TextEditingController(text: widget.productCardData.namaBahan),
+          isEnabled: false,
+        ),
+        const SizedBox(
+          height: 16.0,
+        ),
+        if (widget.productCardData.namaBatch !=
+            null) // Periksa apakah namaBatch tidak null
           DropdownDetailWidget(
             label: 'Batch',
             items: const ['Penggilingan', 'Pencampuran', 'Sheet', 'Pencetakan'],
@@ -80,41 +87,42 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
               });
             },
             isEnabled: widget.isEnabled,
-      ),
-      if (widget.productCardData.namaBatch != null)
-      const SizedBox(height: 16.0,),    
-      Row(
-        children: [
-          Expanded(child:
-            TextFieldWidget(
+          ),
+        if (widget.productCardData.namaBatch != null)
+          const SizedBox(
+            height: 16.0,
+          ),
+        Row(
+          children: [
+            Expanded(
+              child: TextFieldWidget(
                 label: 'Jumlah',
                 placeholder: '0',
                 controller: widget.productCardData.jumlahController,
-                 onChanged: (newValue) {
+                onChanged: (newValue) {
                   setState(() {
                     widget.productCardData.jumlah = newValue;
                   });
                 },
                 isEnabled: widget.isEnabled,
-              ), 
-          ),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child:   
-            DropdownDetailWidget(
-              label: 'Satuan',
-              items: const ['Pcs', 'Kg', 'Ons'],
-              selectedValue: widget.productCardData.satuan,
-              onChanged: (newValue) {
-                    setState(() {
-                      widget.productCardData.satuan = newValue;
-                    });
-              },
-            isEnabled: widget.isEnabled,
+              ),
             ),
-          ),
-        ],
-      ),    
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: DropdownDetailWidget(
+                label: 'Satuan',
+                items: const ['Pcs', 'Kg', 'Ons'],
+                selectedValue: widget.productCardData.satuan,
+                onChanged: (newValue) {
+                  setState(() {
+                    widget.productCardData.satuan = newValue;
+                  });
+                },
+                isEnabled: widget.isEnabled,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

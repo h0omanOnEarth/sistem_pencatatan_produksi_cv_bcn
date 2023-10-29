@@ -27,7 +27,8 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('material_usages').snapshots(),
+      stream:
+          FirebaseFirestore.instance.collection('material_usages').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -65,44 +66,50 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-              value: widget.selectedMaterialUsage,
-              items: materialUsageItems,
-              onChanged: widget.isEnabled ? (newValue) async {
-                widget.onChanged(newValue);
+                value: widget.selectedMaterialUsage,
+                items: materialUsageItems,
+                onChanged: widget.isEnabled
+                    ? (newValue) async {
+                        widget.onChanged(newValue);
 
-                final batchData = await FirebaseFirestore.instance
-                    .collection('material_usages')
-                    .doc(newValue)
-                    .get();
+                        final batchData = await FirebaseFirestore.instance
+                            .collection('material_usages')
+                            .doc(newValue)
+                            .get();
 
-                if (batchData.exists) {
-                  final batchValue = batchData['batch'] as String?;
-                  if (widget.namaBatchController != null) {
-                    widget.namaBatchController!.text = batchValue ?? '';
-                  }
-                  selectedBatch = batchValue;
+                        if (batchData.exists) {
+                          final batchValue = batchData['batch'] as String?;
+                          if (widget.namaBatchController != null) {
+                            widget.namaBatchController!.text = batchValue ?? '';
+                          }
+                          selectedBatch = batchValue;
 
-                  if (widget.nomorPerintahProduksiController != null) {
-                    widget.nomorPerintahProduksiController!.text = batchData['production_order_id'];
-                  }
-                } else {
-                  if (widget.namaBatchController != null) {
-                    widget.namaBatchController!.text = '';
-                  }
-                  selectedBatch = null;
-                }
-              } : null, // Menonaktifkan dropdown jika isEnabled false
-              isExpanded: true,
-              autovalidateMode: widget.isEnabled ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled, // Mengatur validasi sesuai isEnabled
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
+                          if (widget.nomorPerintahProduksiController != null) {
+                            widget.nomorPerintahProduksiController!.text =
+                                batchData['production_order_id'];
+                          }
+                        } else {
+                          if (widget.namaBatchController != null) {
+                            widget.namaBatchController!.text = '';
+                          }
+                          selectedBatch = null;
+                        }
+                      }
+                    : null, // Menonaktifkan dropdown jika isEnabled false
+                isExpanded: true,
+                autovalidateMode: widget.isEnabled
+                    ? AutovalidateMode.onUserInteraction
+                    : AutovalidateMode
+                        .disabled, // Mengatur validasi sesuai isEnabled
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16.0,
+                  ),
                 ),
+                style: const TextStyle(color: Colors.black),
               ),
-              style: const TextStyle(color: Colors.black),
-            ),
             ),
           ],
         );

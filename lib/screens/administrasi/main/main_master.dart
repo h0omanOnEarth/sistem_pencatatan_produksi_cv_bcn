@@ -8,18 +8,18 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_suppli
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
-
 class MainMasterAdministrasiScreen extends StatefulWidget {
   static const routeName = '/administrasi/master';
   const MainMasterAdministrasiScreen({Key? key});
-  
 
   @override
-  State<MainMasterAdministrasiScreen> createState() => _MainMasterAdministrasiScreenState();
+  State<MainMasterAdministrasiScreen> createState() =>
+      _MainMasterAdministrasiScreenState();
 }
 
-class _MainMasterAdministrasiScreenState extends State<MainMasterAdministrasiScreen> {
-   @override
+class _MainMasterAdministrasiScreenState
+    extends State<MainMasterAdministrasiScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -83,12 +83,37 @@ class _MainMasterAdministrasiScreenState extends State<MainMasterAdministrasiScr
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.people, textA: 'Master Pelanggan', textB: 'Memodifikasi dan melihat data pelanggan', pageRoute: ListMasterPelangganScreen.routeName),
-                    const CardItem(icon: Icons.emoji_people_sharp, textA: 'Master Supplier', textB: 'Memodifikasi dan melihat data supplier', pageRoute: ListMasterSupplierScreen.routeName),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=1'),
-                    const CardItem(icon: Icons.precision_manufacturing, textA: 'Master Mesin', textB: 'Memodifikasi dan melihat data mesin', pageRoute: '${ListMasterMesinScreen.routeName}?mode=1'),
-                    const CardItem(icon: Icons.emoji_people_outlined, textA: 'Master Pegawai', textB: 'Memodifikasi dan melihat data pegawai', pageRoute: ListMasterPegawaiScreen.routeName),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang', textB: 'Memodifikasi dan melihat data barang', pageRoute: '${ListMasterBarangScreen.routeName}?mode=1'),
+                    const CardItem(
+                        icon: Icons.people,
+                        textA: 'Master Pelanggan',
+                        textB: 'Memodifikasi dan melihat data pelanggan',
+                        pageRoute: ListMasterPelangganScreen.routeName),
+                    const CardItem(
+                        icon: Icons.emoji_people_sharp,
+                        textA: 'Master Supplier',
+                        textB: 'Memodifikasi dan melihat data supplier',
+                        pageRoute: ListMasterSupplierScreen.routeName),
+                    const CardItem(
+                        icon: Icons.shopping_cart_checkout,
+                        textA: 'Master Bahan',
+                        textB: 'Memodifikasi dan melihat data bahan',
+                        pageRoute: '${ListMasterBahanScreen.routeName}?mode=1'),
+                    const CardItem(
+                        icon: Icons.precision_manufacturing,
+                        textA: 'Master Mesin',
+                        textB: 'Memodifikasi dan melihat data mesin',
+                        pageRoute: '${ListMasterMesinScreen.routeName}?mode=1'),
+                    const CardItem(
+                        icon: Icons.emoji_people_outlined,
+                        textA: 'Master Pegawai',
+                        textB: 'Memodifikasi dan melihat data pegawai',
+                        pageRoute: ListMasterPegawaiScreen.routeName),
+                    const CardItem(
+                        icon: Icons.warehouse,
+                        textA: 'Master Barang',
+                        textB: 'Memodifikasi dan melihat data barang',
+                        pageRoute:
+                            '${ListMasterBarangScreen.routeName}?mode=1'),
                   ],
                 ),
               ),
@@ -99,4 +124,3 @@ class _MainMasterAdministrasiScreenState extends State<MainMasterAdministrasiScr
     );
   }
 }
-

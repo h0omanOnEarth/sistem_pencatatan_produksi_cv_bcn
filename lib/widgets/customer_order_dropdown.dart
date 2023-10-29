@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-ValueNotifier<String?> selectedCustomerOrderNotifier = ValueNotifier<String?>(null);
+ValueNotifier<String?> selectedCustomerOrderNotifier =
+    ValueNotifier<String?>(null);
 
 class CustomerOrderDropDownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
@@ -19,13 +20,16 @@ class CustomerOrderDropDownWidget extends StatefulWidget {
   }) : super();
 
   @override
-  _CustomerOrderDropDownWidgetState createState() => _CustomerOrderDropDownWidgetState();
+  _CustomerOrderDropDownWidgetState createState() =>
+      _CustomerOrderDropDownWidgetState();
 }
 
-class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidget> {
+class _CustomerOrderDropDownWidgetState
+    extends State<CustomerOrderDropDownWidget> {
   late String? dropdownValue;
   String? selectedCustomerName;
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
 
   @override
   void initState() {
@@ -47,8 +51,7 @@ class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidge
         selectedCustomerName = customerDocument['nama'] ?? '';
       });
     }
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,21 +101,27 @@ class _CustomerOrderDropDownWidgetState extends State<CustomerOrderDropDownWidge
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: customerOrderItems,
-                    onChanged: widget.isEnabled ? (newValue) async {
-                      widget.onChanged(newValue);
-                      selectedCustomerOrderNotifier.value = newValue;
-                      final selectedCustomerOrder = snapshot.data!.docs.firstWhere(
-                        (document) => document['id'] == newValue,
-                      );
-                      widget.alamatPengirimanController.text =
-                          selectedCustomerOrder['alamat_pengiriman'] ?? '';
+                    onChanged: widget.isEnabled
+                        ? (newValue) async {
+                            widget.onChanged(newValue);
+                            selectedCustomerOrderNotifier.value = newValue;
+                            final selectedCustomerOrder =
+                                snapshot.data!.docs.firstWhere(
+                              (document) => document['id'] == newValue,
+                            );
+                            widget.alamatPengirimanController.text =
+                                selectedCustomerOrder['alamat_pengiriman'] ??
+                                    '';
 
-                      // Ambil nama pelanggan berdasarkan 'customer_id'
-                      await fetchCustomerName(selectedCustomerOrder['customer_id'] ?? '');
-                      if (selectedCustomerName != null) {
-                        widget.namaPelangganController.text = selectedCustomerName!;
-                      }
-                    }:null,
+                            // Ambil nama pelanggan berdasarkan 'customer_id'
+                            await fetchCustomerName(
+                                selectedCustomerOrder['customer_id'] ?? '');
+                            if (selectedCustomerName != null) {
+                              widget.namaPelangganController.text =
+                                  selectedCustomerName!;
+                            }
+                          }
+                        : null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

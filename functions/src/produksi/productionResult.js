@@ -9,7 +9,15 @@ const {
 } = require("firebase-functions/logger");
 
 exports.productionResValidate = async (req) => {
-  const {total, jumlahBerhasil, jumlahCacat, waktu, materialUsageId, satuan, mode} = req.data;
+  const {
+    total,
+    jumlahBerhasil,
+    jumlahCacat,
+    waktu,
+    materialUsageId,
+    satuan,
+    mode,
+  } = req.data;
 
   if (!total || total <= 0) {
     return {
@@ -41,7 +49,10 @@ exports.productionResValidate = async (req) => {
 
   try {
     // Dapatkan material usage yang sesuai dengan materialUsageId
-    const materialUsageRef = admin.firestore().collection("material_usages").doc(materialUsageId);
+    const materialUsageRef = admin
+      .firestore()
+      .collection("material_usages")
+      .doc(materialUsageId);
     const materialUsageDoc = await materialUsageRef.get();
 
     // Periksa status_mu pada materialUsage
@@ -71,27 +82,31 @@ exports.productionResValidate = async (req) => {
       .where("material_usage_id", "==", materialUsageId)
       .get();
 
-    if(mode=='add'){
+    if (mode == "add") {
       if (!productionResultsQuery.empty) {
         return {
           success: false,
-          message: "Sudah ada pencatatan hasil produksi untuk nomor penggunaan bahan ini",
+          message:
+            "Sudah ada pencatatan hasil produksi untuk nomor penggunaan bahan ini",
         };
       }
     }
 
     // Periksa status produksi pada materialUsage
     const productionOrderId = materialUsageDoc.data().production_order_id;
-    const productionOrderRef = admin.firestore().collection("production_orders").doc(productionOrderId);
+    const productionOrderRef = admin
+      .firestore()
+      .collection("production_orders")
+      .doc(productionOrderId);
     const productionOrderDoc = await productionOrderRef.get();
     const productionOrderStatus = productionOrderDoc.data().status_pro;
 
-    
-    if(mode=='add'){
+    if (mode == "add") {
       if (productionOrderStatus === "Selesai") {
         return {
           success: false,
-          message: "Status perintah produksi dalam nomor penggunana bahan ini sudah 'Selesai'",
+          message:
+            "Status perintah produksi dalam nomor penggunana bahan ini sudah 'Selesai'",
         };
       }
     }
@@ -101,7 +116,9 @@ exports.productionResValidate = async (req) => {
 
     // Tambahkan stok pada koleksi products
     const productsRef = admin.firestore().collection("products");
-    const productQuerySnapshot = await productsRef.where("id", "==", productId).get();
+    const productQuerySnapshot = await productsRef
+      .where("id", "==", productId)
+      .get();
 
     if (!productQuerySnapshot.empty) {
       const productDocRef = productQuerySnapshot.docs[0].ref;
@@ -116,26 +133,29 @@ exports.productionResValidate = async (req) => {
         };
       }
 
-      // Perbarui stok produk gagal 
-      // // Perbarui stok produk 
+      // Perbarui stok produk gagal
+      // // Perbarui stok produk
       // await productDocRef.update({stok: currentStock + total});
       // Perbarui stok produk cacat
       // Dapatkan stok produk dengan id 'productXXX'
-      const productXXXRef = productsRef.doc('productXXX');
+      const productXXXRef = productsRef.doc("productXXX");
       const productXXXDoc = await productXXXRef.get();
       const stokProductXXX = productXXXDoc.data().stok;
       // Perbarui stok produk gagal
-      await productXXXRef.update({stok: stokProductXXX + jumlahCacat});
+      await productXXXRef.update({ stok: stokProductXXX + jumlahCacat });
     }
-    
+
     // Jika semua pemeriksaan berhasil, ubah status produksi menjadi 'Selesai'
-    await productionOrderRef.update({status: "Selesai"});
+    await productionOrderRef.update({ status: "Selesai" });
 
     return {
       success: true,
     };
   } catch (error) {
     console.error("Error validating production result:", error);
-    return {success: false, message: "Terjadi kesalahan dalam validasi hasil produksi"};
+    return {
+      success: false,
+      message: "Terjadi kesalahan dalam validasi hasil produksi",
+    };
   }
 };

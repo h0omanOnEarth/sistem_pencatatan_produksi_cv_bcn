@@ -53,9 +53,8 @@ class _ProductCardProductionResultWidgetState
 
               final productionOrderId = await productionOrderService
                   .findProductionOrderId(selectedProduct['materialUsageId']);
-              Map<String, dynamic>? product =
-                  await productionOrderService
-                      .getProductInfoForProductionOrder(productionOrderId!);
+              Map<String, dynamic>? product = await productionOrderService
+                  .getProductInfoForProductionOrder(productionOrderId!);
 
               setState(() {
                 widget.productCardData.nomorHasilProduksi = newValue;
@@ -76,7 +75,8 @@ class _ProductCardProductionResultWidgetState
             }
           },
           products: widget.productData,
-          isEnabled: widget.isEnabled, // Terapkan isEnabled ke DropdownProdukDetailWidget
+          isEnabled: widget
+              .isEnabled, // Terapkan isEnabled ke DropdownProdukDetailWidget
         ),
         const SizedBox(
           height: 16.0,
@@ -87,7 +87,8 @@ class _ProductCardProductionResultWidgetState
               child: TextFieldWidget(
                 label: 'Kode Barang',
                 placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.kodeBarang),
+                controller: TextEditingController(
+                    text: widget.productCardData.kodeBarang),
                 isEnabled: false, // Terapkan isEnabled ke TextFieldWidget
               ),
             ),
@@ -96,7 +97,8 @@ class _ProductCardProductionResultWidgetState
               child: TextFieldWidget(
                 label: 'Nama Barang',
                 placeholder: 'Nama Barang',
-                controller: TextEditingController(text: widget.productCardData.namaBarang),
+                controller: TextEditingController(
+                    text: widget.productCardData.namaBarang),
                 isEnabled: false, // Terapkan isEnabled ke TextFieldWidget
               ),
             ),
@@ -111,7 +113,8 @@ class _ProductCardProductionResultWidgetState
               child: TextFieldWidget(
                 label: 'Jumlah Hasil',
                 placeholder: '0',
-                controller: TextEditingController(text: widget.productCardData.jumlahHasil),
+                controller: TextEditingController(
+                    text: widget.productCardData.jumlahHasil),
                 isEnabled: false, // Terapkan isEnabled ke TextFieldWidget
               ),
             ),
@@ -120,7 +123,8 @@ class _ProductCardProductionResultWidgetState
               child: TextFieldWidget(
                 label: 'Satuan',
                 placeholder: 'Satuan',
-                controller: TextEditingController(text: widget.productCardData.satuan),
+                controller:
+                    TextEditingController(text: widget.productCardData.satuan),
                 isEnabled: false, // Terapkan isEnabled ke TextFieldWidget
               ),
             ),

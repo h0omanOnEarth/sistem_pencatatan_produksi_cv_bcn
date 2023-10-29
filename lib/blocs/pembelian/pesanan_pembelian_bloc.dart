@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_order.dart';
+
 // Events
 abstract class PurchaseOrderEvent {}
 
@@ -14,7 +15,8 @@ class UpdatePurchaseOrderEvent extends PurchaseOrderEvent {
   final String purchaseOrderId;
   final PurchaseOrder updatedPurchaseOrder;
   final String oldPurchaseRequestId;
-  UpdatePurchaseOrderEvent(this.purchaseOrderId, this.updatedPurchaseOrder, this.oldPurchaseRequestId);
+  UpdatePurchaseOrderEvent(this.purchaseOrderId, this.updatedPurchaseOrder,
+      this.oldPurchaseRequestId);
 }
 
 class DeletePurchaseOrderEvent extends PurchaseOrderEvent {
@@ -40,18 +42,24 @@ class ErrorState extends PurchaseOrderBlocState {
 }
 
 // BLoC
-class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState> {
+class PurchaseOrderBloc
+    extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference purchaseOrdersRef;
   final HttpsCallable purchaseOrderCallable;
 
-  PurchaseOrderBloc() : purchaseOrderCallable = FirebaseFunctions.instance.httpsCallable('purchaseOrderValidation'), super(LoadingState()) {
+  PurchaseOrderBloc()
+      : purchaseOrderCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('purchaseOrderValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     purchaseOrdersRef = _firestore.collection('purchase_orders');
   }
 
   @override
-  Stream<PurchaseOrderBlocState> mapEventToState(PurchaseOrderEvent event) async* {
+  Stream<PurchaseOrderBlocState> mapEventToState(
+      PurchaseOrderEvent event) async* {
     if (event is AddPurchaseOrderEvent) {
       yield LoadingState();
 
@@ -62,65 +70,68 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
       final total = event.purchaseOrder.total;
       final purchaseRequestId = event.purchaseOrder.purchaseRequestId;
 
-    if(materialId.isNotEmpty){
-      if(supplierId.isNotEmpty){
-       if(purchaseRequestId.isNotEmpty){
-         try {
-          final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
-            'hargaSatuan': hargaSatuan,
-            'jumlah': jumlah,
-            'total' : total,
-            'materialId': materialId,
-            'purchaseRequestId': purchaseRequestId,
-            'mode': 'add',
-            'oldPurchaseRequestId': ''
-          });
+      if (materialId.isNotEmpty) {
+        if (supplierId.isNotEmpty) {
+          if (purchaseRequestId.isNotEmpty) {
+            try {
+              final HttpsCallableResult<dynamic> result =
+                  await purchaseOrderCallable.call(<String, dynamic>{
+                'hargaSatuan': hargaSatuan,
+                'jumlah': jumlah,
+                'total': total,
+                'materialId': materialId,
+                'purchaseRequestId': purchaseRequestId,
+                'mode': 'add',
+                'oldPurchaseRequestId': ''
+              });
 
-          if(result.data['success'] == true){
-            final String nextPurchaseOrderId = await _generateNextPurchaseOrderId();
+              if (result.data['success'] == true) {
+                final String nextPurchaseOrderId =
+                    await _generateNextPurchaseOrderId();
 
-            await FirebaseFirestore.instance.collection('purchase_orders').add({
-              'id': nextPurchaseOrderId,
-              'harga_satuan': hargaSatuan,
-              'jumlah': jumlah,
-              'keterangan':  event.purchaseOrder.keterangan,
-              'purchase_request_id': purchaseRequestId,
-              'material_id': materialId,
-              'satuan': event.purchaseOrder.satuan,
-              'status': event.purchaseOrder.status,
-              'status_pembayaran': event.purchaseOrder.statusPembayaran,
-              'status_pengiriman': event.purchaseOrder.statusPengiriman,
-              'supplier_id': supplierId,
-              'tanggal_kirim': event.purchaseOrder.tanggalKirim,
-              'tanggal_pesan': event.purchaseOrder.tanggalPesan,
-              'total': total,
-            });
+                await FirebaseFirestore.instance
+                    .collection('purchase_orders')
+                    .add({
+                  'id': nextPurchaseOrderId,
+                  'harga_satuan': hargaSatuan,
+                  'jumlah': jumlah,
+                  'keterangan': event.purchaseOrder.keterangan,
+                  'purchase_request_id': purchaseRequestId,
+                  'material_id': materialId,
+                  'satuan': event.purchaseOrder.satuan,
+                  'status': event.purchaseOrder.status,
+                  'status_pembayaran': event.purchaseOrder.statusPembayaran,
+                  'status_pengiriman': event.purchaseOrder.statusPengiriman,
+                  'supplier_id': supplierId,
+                  'tanggal_kirim': event.purchaseOrder.tanggalKirim,
+                  'tanggal_pesan': event.purchaseOrder.tanggalPesan,
+                  'total': total,
+                });
 
-            yield SuccessState();
-          }else{
-            yield ErrorState(result.data['message']);
+                yield SuccessState();
+              } else {
+                yield ErrorState(result.data['message']);
+              }
+            } catch (e) {
+              yield ErrorState(e.toString());
+            }
+          } else {
+            yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
           }
-
-        } catch (e) {
-          yield ErrorState(e.toString());
+        } else {
+          yield ErrorState("kode supplier tidak boleh kosong");
         }
-       }else{
-        yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
-       }
-      }else{
-        yield ErrorState("kode supplier tidak boleh kosong");
+      } else {
+        yield ErrorState("kode bahan tidak boleh kosong");
       }
-    }else{
-      yield ErrorState("kode bahan tidak boleh kosong");
-    }
-
     } else if (event is UpdatePurchaseOrderEvent) {
       yield LoadingState();
-      
-      final purchaseOrderSnapshot = await purchaseOrdersRef.where('id', isEqualTo: event.purchaseOrderId).get();
+
+      final purchaseOrderSnapshot = await purchaseOrdersRef
+          .where('id', isEqualTo: event.purchaseOrderId)
+          .get();
 
       if (purchaseOrderSnapshot.docs.isNotEmpty) {
-
         final hargaSatuan = event.updatedPurchaseOrder.hargaSatuan;
         final jumlah = event.updatedPurchaseOrder.jumlah;
         final materialId = event.updatedPurchaseOrder.materialId;
@@ -128,24 +139,24 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
         final total = event.updatedPurchaseOrder.total;
         final purchaseRequestId = event.updatedPurchaseOrder.purchaseRequestId;
 
-        if(materialId.isNotEmpty){
-         if(supplierId.isNotEmpty){
-          if(purchaseRequestId.isNotEmpty){
-             try {
-              final HttpsCallableResult<dynamic> result = await purchaseOrderCallable.call(<String, dynamic>{
+        if (materialId.isNotEmpty) {
+          if (supplierId.isNotEmpty) {
+            if (purchaseRequestId.isNotEmpty) {
+              try {
+                final HttpsCallableResult<dynamic> result =
+                    await purchaseOrderCallable.call(<String, dynamic>{
                   'hargaSatuan': hargaSatuan,
                   'jumlah': jumlah,
-                  'total' : total,
+                  'total': total,
                   'materialId': materialId,
                   'purchaseRequestId': purchaseRequestId,
                   'mode': 'edit',
                   'oldPurchaseRequestId': event.oldPurchaseRequestId
-              });
+                });
 
-              if(result.data['success']==true){
-                final purchaseOrderDoc = purchaseOrderSnapshot.docs.first;
-                await purchaseOrderDoc.reference.update(
-                  {
+                if (result.data['success'] == true) {
+                  final purchaseOrderDoc = purchaseOrderSnapshot.docs.first;
+                  await purchaseOrderDoc.reference.update({
                     'id': event.purchaseOrderId,
                     'harga_satuan': hargaSatuan,
                     'jumlah': jumlah,
@@ -154,41 +165,43 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
                     'material_id': materialId,
                     'satuan': event.updatedPurchaseOrder.satuan,
                     'status': event.updatedPurchaseOrder.status,
-                    'status_pembayaran': event.updatedPurchaseOrder.statusPembayaran,
-                    'status_pengiriman': event.updatedPurchaseOrder.statusPengiriman,
+                    'status_pembayaran':
+                        event.updatedPurchaseOrder.statusPembayaran,
+                    'status_pengiriman':
+                        event.updatedPurchaseOrder.statusPengiriman,
                     'supplier_id': supplierId,
                     'tanggal_kirim': event.updatedPurchaseOrder.tanggalKirim,
                     'tanggal_pesan': event.updatedPurchaseOrder.tanggalPesan,
                     'total': total,
-                  }
-                );
-                yield SuccessState();
-              }else{
-                yield ErrorState(result.data['message']);
+                  });
+                  yield SuccessState();
+                } else {
+                  yield ErrorState(result.data['message']);
+                }
+              } catch (e) {
+                yield ErrorState(e.toString());
               }
-
-            } catch (e) {
-              yield ErrorState(e.toString());
+            } else {
+              yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
             }
-          }else{
-            yield ErrorState("nomor permintaan pembelian tidak boleh kosong");
+          } else {
+            yield ErrorState('kode supplier tidak boleh kosong');
           }
-         }else{
-          yield ErrorState('kode supplier tidak boleh kosong');
-         }
-        }else{
+        } else {
           yield ErrorState('kode bahan tidak boleh kosong');
         }
-
-      }else {
-          yield ErrorState('Purchase Order dengan ID ${event.purchaseOrderId} tidak ditemukan.');
+      } else {
+        yield ErrorState(
+            'Purchase Order dengan ID ${event.purchaseOrderId} tidak ditemukan.');
       }
-     
     } else if (event is DeletePurchaseOrderEvent) {
       yield LoadingState();
       try {
-        final purchaseOrderSnapshot = await purchaseOrdersRef.where('id', isEqualTo: event.purchaseOrderId).get();
-        for (QueryDocumentSnapshot documentSnapshot in purchaseOrderSnapshot.docs) {
+        final purchaseOrderSnapshot = await purchaseOrdersRef
+            .where('id', isEqualTo: event.purchaseOrderId)
+            .get();
+        for (QueryDocumentSnapshot documentSnapshot
+            in purchaseOrderSnapshot.docs) {
           await documentSnapshot.reference.delete();
         }
         yield LoadedState(await _getPurchaseOrders());
@@ -200,11 +213,13 @@ class PurchaseOrderBloc extends Bloc<PurchaseOrderEvent, PurchaseOrderBlocState>
 
   Future<String> _generateNextPurchaseOrderId() async {
     final QuerySnapshot snapshot = await purchaseOrdersRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int purchaseOrderCount = 1;
 
     while (true) {
-      final nextPurchaseOrderId = 'PO${purchaseOrderCount.toString().padLeft(3, '0')}';
+      final nextPurchaseOrderId =
+          'PO${purchaseOrderCount.toString().padLeft(3, '0')}';
       if (!existingIds.contains(nextPurchaseOrderId)) {
         return nextPurchaseOrderId;
       }

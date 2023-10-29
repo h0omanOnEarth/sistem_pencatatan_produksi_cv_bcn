@@ -14,7 +14,8 @@ class AddCustomerOrderReturnEvent extends CustomerOrderReturnEvent {
 class UpdateCustomerOrderReturnEvent extends CustomerOrderReturnEvent {
   final String customerOrderReturnId;
   final CustomerOrderReturn customerOrderReturn;
-  UpdateCustomerOrderReturnEvent(this.customerOrderReturnId, this.customerOrderReturn);
+  UpdateCustomerOrderReturnEvent(
+      this.customerOrderReturnId, this.customerOrderReturn);
 }
 
 class DeleteCustomerOrderReturnEvent extends CustomerOrderReturnEvent {
@@ -49,52 +50,70 @@ class CustomerOrderReturnErrorState extends CustomerOrderReturnBlocState {
 }
 
 // BLoC
-class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrderReturnBlocState> {
+class CustomerOrderReturnBloc
+    extends Bloc<CustomerOrderReturnEvent, CustomerOrderReturnBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable customerOrderReturnCallable;
 
-  CustomerOrderReturnBloc() : customerOrderReturnCallable = FirebaseFunctions.instance.httpsCallable('customerOrderReturnValidation'), super(CustomerOrderReturnLoadingState()) {
+  CustomerOrderReturnBloc()
+      : customerOrderReturnCallable = FirebaseFunctions.instance
+            .httpsCallable('customerOrderReturnValidation'),
+        super(CustomerOrderReturnLoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
   @override
-  Stream<CustomerOrderReturnBlocState> mapEventToState(CustomerOrderReturnEvent event) async* {
+  Stream<CustomerOrderReturnBlocState> mapEventToState(
+      CustomerOrderReturnEvent event) async* {
     if (event is AddCustomerOrderReturnEvent) {
       yield CustomerOrderReturnLoadingState();
 
       final invoiceId = event.customerOrderReturn.invoiceId;
       final products = event.customerOrderReturn.detailCustomerOrderReturnList;
 
-      if(invoiceId.isNotEmpty){
-      try {
-        final HttpsCallableResult<dynamic> result = await customerOrderReturnCallable.call(<String, dynamic>{
-          'products': products.map((product) => product.toJson()).toList(),
-          'invoiceId': invoiceId,
-          'mode': 'add'
-        });
+      if (invoiceId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await customerOrderReturnCallable.call(<String, dynamic>{
+            'products': products.map((product) => product.toJson()).toList(),
+            'invoiceId': invoiceId,
+            'mode': 'add'
+          });
 
-        if (result.data['success'] == true) {
-          final nextCustomerOrderReturnId = await _generateNextCustomerOrderReturnId();
-          final customerOrderReturnRef = _firestore.collection('customer_order_returns').doc(nextCustomerOrderReturnId);
-          final Map<String, dynamic> customerOrderReturnData = {
-              'alasan_pengembalian': event.customerOrderReturn.alasanPengembalian,
+          if (result.data['success'] == true) {
+            final nextCustomerOrderReturnId =
+                await _generateNextCustomerOrderReturnId();
+            final customerOrderReturnRef = _firestore
+                .collection('customer_order_returns')
+                .doc(nextCustomerOrderReturnId);
+            final Map<String, dynamic> customerOrderReturnData = {
+              'alasan_pengembalian':
+                  event.customerOrderReturn.alasanPengembalian,
               'catatan': event.customerOrderReturn.catatan,
               'id': nextCustomerOrderReturnId,
               'invoice_id': invoiceId,
               'status_cor': event.customerOrderReturn.statusCor,
               'status': event.customerOrderReturn.status,
-              'tanggal_pengembalian': event.customerOrderReturn.tanggalPengembalian,
+              'tanggal_pengembalian':
+                  event.customerOrderReturn.tanggalPengembalian,
             };
             await customerOrderReturnRef.set(customerOrderReturnData);
-            final detailCustomerOrderReturnRef = customerOrderReturnRef.collection('detail_customer_order_returns');
-            if (event.customerOrderReturn.detailCustomerOrderReturnList.isNotEmpty) {
+            final detailCustomerOrderReturnRef = customerOrderReturnRef
+                .collection('detail_customer_order_returns');
+            if (event
+                .customerOrderReturn.detailCustomerOrderReturnList.isNotEmpty) {
               int detailCount = 1;
-              for (var detailCustomerOrderReturn in event.customerOrderReturn.detailCustomerOrderReturnList) {
-                final nextDetailCustomerOrderReturnId = '$nextCustomerOrderReturnId${'D${detailCount.toString().padLeft(3, '0')}'}';
-                await detailCustomerOrderReturnRef.doc(nextDetailCustomerOrderReturnId).set({
+              for (var detailCustomerOrderReturn
+                  in event.customerOrderReturn.detailCustomerOrderReturnList) {
+                final nextDetailCustomerOrderReturnId =
+                    '$nextCustomerOrderReturnId${'D${detailCount.toString().padLeft(3, '0')}'}';
+                await detailCustomerOrderReturnRef
+                    .doc(nextDetailCustomerOrderReturnId)
+                    .set({
                   'id': nextDetailCustomerOrderReturnId,
                   'customer_order_return_id': nextCustomerOrderReturnId,
-                  'jumlah_pengembalian': detailCustomerOrderReturn.jumlahPengembalian,
+                  'jumlah_pengembalian':
+                      detailCustomerOrderReturn.jumlahPengembalian,
                   'jumlah_pesanan': detailCustomerOrderReturn.jumlahPesanan,
                   'product_id': detailCustomerOrderReturn.productId,
                   'status': detailCustomerOrderReturn.status,
@@ -102,14 +121,14 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
                 detailCount++;
               }
             }
-          yield SuccessState();
-        }else{
-          yield CustomerOrderReturnErrorState(result.data['message']);
-        }
+            yield SuccessState();
+          } else {
+            yield CustomerOrderReturnErrorState(result.data['message']);
+          }
         } catch (e) {
           yield CustomerOrderReturnErrorState(e.toString());
         }
-      }else{
+      } else {
         yield CustomerOrderReturnErrorState("nomor faktur tidak boleh kosong");
       }
     } else if (event is UpdateCustomerOrderReturnEvent) {
@@ -118,41 +137,54 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
       final invoiceId = event.customerOrderReturn.invoiceId;
       final products = event.customerOrderReturn.detailCustomerOrderReturnList;
 
-      if(invoiceId.isNotEmpty){
-         try {
-          final HttpsCallableResult<dynamic> result = await customerOrderReturnCallable.call(<String, dynamic>{
-          'products': products.map((product) => product.toJson()).toList(),
-          'invoiceId': invoiceId,
-          'mode': 'edit'
-        });
+      if (invoiceId.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await customerOrderReturnCallable.call(<String, dynamic>{
+            'products': products.map((product) => product.toJson()).toList(),
+            'invoiceId': invoiceId,
+            'mode': 'edit'
+          });
 
           if (result.data['success'] == true) {
-            final customerOrderReturnToUpdateRef = _firestore.collection('customer_order_returns').doc(event.customerOrderReturnId);
+            final customerOrderReturnToUpdateRef = _firestore
+                .collection('customer_order_returns')
+                .doc(event.customerOrderReturnId);
             final Map<String, dynamic> customerOrderReturnData = {
-              'alasan_pengembalian': event.customerOrderReturn.alasanPengembalian,
+              'alasan_pengembalian':
+                  event.customerOrderReturn.alasanPengembalian,
               'catatan': event.customerOrderReturn.catatan,
               'id': event.customerOrderReturnId,
               'invoice_id': event.customerOrderReturn.invoiceId,
               'status_cor': event.customerOrderReturn.statusCor,
               'status': event.customerOrderReturn.status,
-              'tanggal_pengembalian': event.customerOrderReturn.tanggalPengembalian,
+              'tanggal_pengembalian':
+                  event.customerOrderReturn.tanggalPengembalian,
             };
             await customerOrderReturnToUpdateRef.set(customerOrderReturnData);
             final detailCustomerOrderReturnCollectionRef =
-                customerOrderReturnToUpdateRef.collection('detail_customer_order_returns');
-            final detailCustomerOrderReturnDocs = await detailCustomerOrderReturnCollectionRef.get();
+                customerOrderReturnToUpdateRef
+                    .collection('detail_customer_order_returns');
+            final detailCustomerOrderReturnDocs =
+                await detailCustomerOrderReturnCollectionRef.get();
             for (var doc in detailCustomerOrderReturnDocs.docs) {
               await doc.reference.delete();
             }
-            if (event.customerOrderReturn.detailCustomerOrderReturnList.isNotEmpty) {
+            if (event
+                .customerOrderReturn.detailCustomerOrderReturnList.isNotEmpty) {
               int detailCount = 1;
-              for (var detailCustomerOrderReturn in event.customerOrderReturn.detailCustomerOrderReturnList) {
-                final nextDetailCustomerOrderReturnId = 'D${detailCount.toString().padLeft(3, '0')}';
-                final detailId = event.customerOrderReturnId + nextDetailCustomerOrderReturnId;
+              for (var detailCustomerOrderReturn
+                  in event.customerOrderReturn.detailCustomerOrderReturnList) {
+                final nextDetailCustomerOrderReturnId =
+                    'D${detailCount.toString().padLeft(3, '0')}';
+                final detailId = event.customerOrderReturnId +
+                    nextDetailCustomerOrderReturnId;
                 await detailCustomerOrderReturnCollectionRef.doc(detailId).set({
                   'id': detailId,
-                  'customer_order_return_id': detailCustomerOrderReturn.customerOrderReturnId,
-                  'jumlah_pengembalian': detailCustomerOrderReturn.jumlahPengembalian,
+                  'customer_order_return_id':
+                      detailCustomerOrderReturn.customerOrderReturnId,
+                  'jumlah_pengembalian':
+                      detailCustomerOrderReturn.jumlahPengembalian,
                   'jumlah_pesanan': detailCustomerOrderReturn.jumlahPesanan,
                   'product_id': detailCustomerOrderReturn.productId,
                   'status': detailCustomerOrderReturn.status,
@@ -160,29 +192,32 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
                 detailCount++;
               }
             }
-          yield SuccessState();
-          }else{
+            yield SuccessState();
+          } else {
             yield CustomerOrderReturnErrorState(result.data['message']);
           }
         } catch (e) {
           yield CustomerOrderReturnErrorState(e.toString());
         }
-      }else{
+      } else {
         yield CustomerOrderReturnErrorState("nomor faktur tidak boleh kosong");
       }
     } else if (event is DeleteCustomerOrderReturnEvent) {
       yield CustomerOrderReturnLoadingState();
       try {
         // Get a reference to the customer order return document to be deleted
-        final customerOrderReturnToDeleteRef =
-            _firestore.collection('customer_order_returns').doc(event.customerOrderReturnId);
+        final customerOrderReturnToDeleteRef = _firestore
+            .collection('customer_order_returns')
+            .doc(event.customerOrderReturnId);
 
         // Get a reference to the 'detail_customer_order_returns' subcollection within the customer order return document
         final detailCustomerOrderReturnCollectionRef =
-            customerOrderReturnToDeleteRef.collection('detail_customer_order_returns');
+            customerOrderReturnToDeleteRef
+                .collection('detail_customer_order_returns');
 
         // Delete all documents in the 'detail_customer_order_returns' subcollection
-        final detailCustomerOrderReturnDocs = await detailCustomerOrderReturnCollectionRef.get();
+        final detailCustomerOrderReturnDocs =
+            await detailCustomerOrderReturnCollectionRef.get();
         for (var doc in detailCustomerOrderReturnDocs.docs) {
           await doc.reference.delete();
         }
@@ -192,13 +227,15 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
 
         yield CustomerOrderReturnDeletedState();
       } catch (e) {
-        yield CustomerOrderReturnErrorState("Failed to delete Customer Order Return.");
+        yield CustomerOrderReturnErrorState(
+            "Failed to delete Customer Order Return.");
       }
-    }else if(event is FinishedCustomerOrderReturnEvent){
+    } else if (event is FinishedCustomerOrderReturnEvent) {
       yield CustomerOrderReturnLoadingState();
       try {
-       
-        final customerOrderReturnRef = _firestore.collection('customer_order_returns').doc(event.customerOrderReturnId);
+        final customerOrderReturnRef = _firestore
+            .collection('customer_order_returns')
+            .doc(event.customerOrderReturnId);
 
         await customerOrderReturnRef.update({
           'status_cor': 'Selesai',
@@ -206,19 +243,23 @@ class CustomerOrderReturnBloc extends Bloc<CustomerOrderReturnEvent, CustomerOrd
 
         yield SuccessState();
       } catch (e) {
-        yield CustomerOrderReturnErrorState("Failed to finsihed customer order return");
+        yield CustomerOrderReturnErrorState(
+            "Failed to finsihed customer order return");
       }
     }
   }
 
   Future<String> _generateNextCustomerOrderReturnId() async {
-    final customerOrderReturnsRef = _firestore.collection('customer_order_returns');
+    final customerOrderReturnsRef =
+        _firestore.collection('customer_order_returns');
     final QuerySnapshot snapshot = await customerOrderReturnsRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int customerOrderReturnCount = 1;
 
     while (true) {
-      final nextCustomerOrderReturnId = 'COR${customerOrderReturnCount.toString().padLeft(5, '0')}';
+      final nextCustomerOrderReturnId =
+          'COR${customerOrderReturnCount.toString().padLeft(5, '0')}';
       if (!existingIds.contains(nextCustomerOrderReturnId)) {
         return nextCustomerOrderReturnId;
       }

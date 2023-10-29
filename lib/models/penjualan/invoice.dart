@@ -32,8 +32,7 @@ class Invoice {
   factory Invoice.fromJson(Map<String, dynamic> json) {
     final List<dynamic> detailInvoiceListJson = json['detail_invoices'];
     final List<DetailInvoice> detailInvoices = detailInvoiceListJson
-        .map((detailInvoiceJson) =>
-            DetailInvoice.fromJson(detailInvoiceJson))
+        .map((detailInvoiceJson) => DetailInvoice.fromJson(detailInvoiceJson))
         .toList();
 
     return Invoice(

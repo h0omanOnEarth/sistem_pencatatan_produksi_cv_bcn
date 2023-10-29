@@ -15,7 +15,8 @@ class DeliveryOrder {
   int totalBarang;
   int totalHarga;
   int estimasiWaktu;
-  List<DetailDeliveryOrder>? detailDeliveryOrderList; // List tidak perlu menjadi opsional
+  List<DetailDeliveryOrder>?
+      detailDeliveryOrderList; // List tidak perlu menjadi opsional
 
   DeliveryOrder({
     required this.id,
@@ -44,21 +45,24 @@ class DeliveryOrder {
       alamatPengiriman: json['alamat_pengiriman'] as String,
       status: json['status'] as int,
       statusPesananPengiriman: json['status_pesanan_pengiriman'] as String,
-      tanggalPesananPengiriman: DateTime.parse(json['tanggal_pesanan_pengiriman'] as String),
-      tanggalRequestPengiriman: DateTime.parse(json['tanggal_request_pengiriman'] as String),
+      tanggalPesananPengiriman:
+          DateTime.parse(json['tanggal_pesanan_pengiriman'] as String),
+      tanggalRequestPengiriman:
+          DateTime.parse(json['tanggal_request_pengiriman'] as String),
       totalBarang: json['total_barang'] as int,
       totalHarga: json['total_harga'] as int,
       estimasiWaktu: json['estimasi_waktu'] as int,
     );
   }
 
-   Future<void> fetchDetailDeliveryOrders() async {
+  Future<void> fetchDetailDeliveryOrders() async {
     final detailDeliveryOrdersQuery = FirebaseFirestore.instance
         .collection('detail_delivery_orders')
         .where('delivery_order_id', isEqualTo: id);
 
     final detailDeliveryOrdersSnapshot = await detailDeliveryOrdersQuery.get();
-    final detailDeliveryOrdersData = detailDeliveryOrdersSnapshot.docs.map((doc) {
+    final detailDeliveryOrdersData =
+        detailDeliveryOrdersSnapshot.docs.map((doc) {
       final data = doc.data();
       return DetailDeliveryOrder.fromJson(data);
     }).toList();
@@ -69,14 +73,14 @@ class DeliveryOrder {
   Map<String, dynamic> toJson() {
     final List<Map<String, dynamic>>? detailDeliveryOrderJson =
         detailDeliveryOrderList?.map((detail) {
-          return detail.toJson();
-        }).toList();
+      return detail.toJson();
+    }).toList();
 
     return {
       'id': id,
       'customer_order_id': customerOrderId,
       'metode_pengiriman': metodePengiriman,
-      'alamat_pengiriman' : alamatPengiriman,
+      'alamat_pengiriman': alamatPengiriman,
       'satuan': satuan,
       'status': status,
       'catatan': catatan,

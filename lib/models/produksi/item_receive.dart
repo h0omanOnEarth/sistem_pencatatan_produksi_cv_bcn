@@ -31,7 +31,7 @@ class ItemReceive {
       id: document.id,
       productionConfirmationId: data['production_confirmation_id'] ?? '',
       status: data['status'] ?? 0,
-      statusIrc: data['status_irc'] ??'',
+      statusIrc: data['status_irc'] ?? '',
       tanggalPenerimaan: (data['tanggal_penerimaan'] as Timestamp).toDate(),
       catatan: data['catatan'] ?? '',
       detailItemReceiveList: detailItemReceives,

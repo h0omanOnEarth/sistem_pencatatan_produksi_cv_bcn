@@ -6,11 +6,12 @@ class MainLaporanProduksiScreen extends StatefulWidget {
   const MainLaporanProduksiScreen({Key? key});
 
   @override
-  State<MainLaporanProduksiScreen> createState() => _MainLaporanProduksiScreenState();
+  State<MainLaporanProduksiScreen> createState() =>
+      _MainLaporanProduksiScreenState();
 }
 
 class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -36,7 +37,7 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                         Container(
                           margin: const EdgeInsets.only(left: 20.0),
                           child: const Text(
-                            'Master',
+                            'Laporan',
                             style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -74,8 +75,16 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.warehouse, textA: 'Laporan Produksi Harian', textB: 'Melihat laporan produksi harian', pageRoute: '/page1'),
-                    const CardItem(icon: Icons.notes_rounded, textA: 'Laporan Kualitas Produk', textB: 'Melihat laporan kualitas produk', pageRoute: '/page2'),
+                    const CardItem(
+                        icon: Icons.warehouse,
+                        textA: 'Laporan Produksi Harian',
+                        textB: 'Melihat laporan produksi harian',
+                        pageRoute: '/page1'),
+                    const CardItem(
+                        icon: Icons.notes_rounded,
+                        textA: 'Laporan Kualitas Produk',
+                        textB: 'Melihat laporan kualitas produk',
+                        pageRoute: '/page2'),
                   ],
                 ),
               ),
@@ -133,7 +142,8 @@ class CardItem extends StatelessWidget {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center the text vertically
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

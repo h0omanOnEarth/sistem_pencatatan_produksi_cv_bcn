@@ -13,7 +13,10 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 class SuratJalanReport extends StatefulWidget {
   final String idShipment;
 
-  const SuratJalanReport({Key? key, required this.idShipment,}) : super(key: key);
+  const SuratJalanReport({
+    Key? key,
+    required this.idShipment,
+  }) : super(key: key);
 
   @override
   State<SuratJalanReport> createState() => _SuratJalanReportState();
@@ -50,7 +53,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
         alamatPenerima = shipmentSnapshot.get('alamat_penerima');
         deliveryOrderId = shipmentSnapshot.get('delivery_order_id');
 
-        final DateTime date = shipmentSnapshot.get('tanggal_pembuatan').toDate();
+        final DateTime date =
+            shipmentSnapshot.get('tanggal_pembuatan').toDate();
         final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
         tanggalPembuatan = dateFormat.format(date);
 
@@ -58,9 +62,12 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
         totalPcs = shipmentSnapshot.get('total_pcs');
       });
 
-      Map<String, dynamic>? doInfo = await deliveryOrderService.getDeliveryOrderInfo(deliveryOrderId);
-      Map<String, dynamic>? coInfo = await customerOrderService.getCustomerOrderInfo(doInfo?['customerOrderId']);
-      Map<String, dynamic>? custInfo = await customerService.getCustomerInfo(coInfo?['customer_id']);
+      Map<String, dynamic>? doInfo =
+          await deliveryOrderService.getDeliveryOrderInfo(deliveryOrderId);
+      Map<String, dynamic>? coInfo = await customerOrderService
+          .getCustomerOrderInfo(doInfo?['customerOrderId']);
+      Map<String, dynamic>? custInfo =
+          await customerService.getCustomerInfo(coInfo?['customer_id']);
       namaPelanggan = custInfo?['nama'];
 
       final detailSnapshot = await FirebaseFirestore.instance
@@ -75,9 +82,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
           String productId = detail['product_id'];
           Map<String, dynamic> productInfo =
               await productService.fetchProductInfo(productId);
-          String productName = productInfo.containsKey('nama')
-              ? productInfo['nama']
-              : 'N/A';
+          String productName =
+              productInfo.containsKey('nama') ? productInfo['nama'] : 'N/A';
           detail['product_name'] = productName;
           detailShipments.add(detail);
         }
@@ -111,9 +117,9 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
         pageTheme: pw.PageTheme(
           pageFormat: format.copyWith(
             marginBottom: 20.0, // Margin bawah
-            marginLeft: 20.0,  // Margin kiri
+            marginLeft: 20.0, // Margin kiri
             marginRight: 20.0, // Margin kanan
-            marginTop: 20.0,   // Margin atas
+            marginTop: 20.0, // Margin atas
           ),
           orientation: pw.PageOrientation.landscape,
           theme: pw.ThemeData.withFont(
@@ -129,7 +135,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   pw.Container(
-                    child: pw.Image(pw.MemoryImage(logoImage), width: 100, height: 100),
+                    child: pw.Image(pw.MemoryImage(logoImage),
+                        width: 100, height: 100),
                   ),
                   pw.SizedBox(width: 20), // Tambahkan padding horizontal
                   pw.Column(
@@ -137,10 +144,11 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                     children: [
                       pw.Text('CV. Berlian Cangkir Nusantara',
                           style: const pw.TextStyle(fontSize: 20)),
-                      pw.Text('Jl. Panglima Sudirman No.9, Sidoarjo, Jawa Timur',
+                      pw.Text(
+                          'Jl. Panglima Sudirman No.9, Sidoarjo, Jawa Timur',
                           style: const pw.TextStyle(fontSize: 20)),
                       pw.Text('031 - 7881911',
-                        style: const pw.TextStyle(fontSize: 20)),
+                          style: const pw.TextStyle(fontSize: 20)),
                     ],
                   ),
                 ],
@@ -150,8 +158,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                 children: [
                   pw.Text('Nomor Surat Jalan: ',
                       style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text(id ?? 'N/A',
-                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(id ?? 'N/A', style: const pw.TextStyle(fontSize: 20)),
                 ],
               ),
               // Alamat penerima
@@ -165,8 +172,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
               ),
               pw.Row(
                 children: [
-                  pw.Text('Tanggal: ',
-                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Tanggal: ', style: const pw.TextStyle(fontSize: 20)),
                   pw.Text(tanggalPembuatan ?? 'N/A',
                       style: const pw.TextStyle(fontSize: 20)),
                 ],
@@ -185,7 +191,12 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
               pw.Table.fromTextArray(
                 context: context,
                 data: <List<String>>[
-                  <String>['ID', 'Nama Produk', 'Jumlah Pengiriman', 'Jumlah Pengiriman Dus'],
+                  <String>[
+                    'ID',
+                    'Nama Produk',
+                    'Jumlah Pengiriman',
+                    'Jumlah Pengiriman Dus'
+                  ],
                   for (var detail in detailShipments)
                     <String>[
                       detail['product_id'] ?? 'N/A',
@@ -201,9 +212,11 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
                   pw.Text('Total: ',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
                   pw.Text('${totalPcs?.toString()} Pcs',
-                      style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                      style: pw.TextStyle(
+                          fontSize: 16, fontWeight: pw.FontWeight.bold)),
                 ],
               ),
               pw.SizedBox(height: 16.0),

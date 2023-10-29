@@ -17,14 +17,18 @@ class ProductionConfirmationDropDown extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ProductionConfirmationDropDown> createState() => _ProductionConfirmationDropDownState();
+  State<ProductionConfirmationDropDown> createState() =>
+      _ProductionConfirmationDropDownState();
 }
 
-class _ProductionConfirmationDropDownState extends State<ProductionConfirmationDropDown> {
+class _ProductionConfirmationDropDownState
+    extends State<ProductionConfirmationDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('production_confirmations').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('production_confirmations')
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -64,33 +68,53 @@ class _ProductionConfirmationDropDownState extends State<ProductionConfirmationD
               child: DropdownButtonFormField<String>(
                 value: widget.selectedProductionConfirmationDropdown,
                 items: productionConfirmationItems,
-                onChanged: widget.isEnabled ? (newValue) {
-                  widget.onChanged(newValue);
-                  if (widget.tanggalKonfirmasiController != null) {
-                    final selectedDoc = snapshot.data!.docs.firstWhere((doc) => doc['id'] == newValue);
-                    var tanggalKonfirmasiFirestore = selectedDoc['tanggal_konfirmasi'];
-                    String tanggalPermintaan = '';
+                onChanged: widget.isEnabled
+                    ? (newValue) {
+                        widget.onChanged(newValue);
+                        if (widget.tanggalKonfirmasiController != null) {
+                          final selectedDoc = snapshot.data!.docs
+                              .firstWhere((doc) => doc['id'] == newValue);
+                          var tanggalKonfirmasiFirestore =
+                              selectedDoc['tanggal_konfirmasi'];
+                          String tanggalPermintaan = '';
 
-                    if (tanggalKonfirmasiFirestore != null) {
-                      final timestamp = tanggalKonfirmasiFirestore as Timestamp;
-                      final dateTime = timestamp.toDate();
+                          if (tanggalKonfirmasiFirestore != null) {
+                            final timestamp =
+                                tanggalKonfirmasiFirestore as Timestamp;
+                            final dateTime = timestamp.toDate();
 
-                      final List<String> monthNames = [
-                        "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-                      ];
+                            final List<String> monthNames = [
+                              "Januari",
+                              "Februari",
+                              "Maret",
+                              "April",
+                              "Mei",
+                              "Juni",
+                              "Juli",
+                              "Agustus",
+                              "September",
+                              "Oktober",
+                              "November",
+                              "Desember"
+                            ];
 
-                      final day = dateTime.day.toString();
-                      final month = monthNames[dateTime.month - 1];
-                      final year = dateTime.year.toString();
+                            final day = dateTime.day.toString();
+                            final month = monthNames[dateTime.month - 1];
+                            final year = dateTime.year.toString();
 
-                      tanggalPermintaan = '$day $month $year';
-                    }
+                            tanggalPermintaan = '$day $month $year';
+                          }
 
-                    widget.tanggalKonfirmasiController!.text = tanggalPermintaan;
-                  }
-                }:null,
+                          widget.tanggalKonfirmasiController!.text =
+                              tanggalPermintaan;
+                        }
+                      }
+                    : null,
                 isExpanded: true,
-                autovalidateMode: widget.isEnabled ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled, // Mengatur validasi sesuai isEnabled
+                autovalidateMode: widget.isEnabled
+                    ? AutovalidateMode.onUserInteraction
+                    : AutovalidateMode
+                        .disabled, // Mengatur validasi sesuai isEnabled
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(

@@ -123,7 +123,8 @@ class LoginForm extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           // Navigator.pop(context);
-                          Routemaster.of(context).push(MainMenuScreen.routeName);
+                          Routemaster.of(context)
+                              .push(MainMenuScreen.routeName);
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -241,38 +242,42 @@ class LoginForm extends StatelessWidget {
                           // final password = passwordController.text;
                           // loginBloc.add(LoginButtonPressed(email: email, password: password));
 
-                           // final email = _emailController.text;
-                            // final password = _passwordController.text;
+                          // final email = _emailController.text;
+                          // final password = _passwordController.text;
 
-                            // if (email.isNotEmpty && password.isNotEmpty) {
-                            //     final email = _emailController.text;
-                            //     final password = _passwordController.text;
+                          // if (email.isNotEmpty && password.isNotEmpty) {
+                          //     final email = _emailController.text;
+                          //     final password = _passwordController.text;
 
-                            //     loginBloc.add(LoginButtonPressed(email: email, password: password));
-                            // } else {
-                            //   final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
-                            //   ScaffoldMessenger.of(context).showSnackBar(snackbar);
-                            // }
+                          //     loginBloc.add(LoginButtonPressed(email: email, password: password));
+                          // } else {
+                          //   final snackbar = SnackBar(content: Text('Harap isi kolom email dan password.'));
+                          //   ScaffoldMessenger.of(context).showSnackBar(snackbar);
+                          // }
 
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => const MainProduksi(),
-                            //   ),
-                            // );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => const MainProduksi(),
+                          //   ),
+                          // );
 
-                            Routemaster.of(context).push(MainProduksi.routeName);
+                          Routemaster.of(context).push(MainProduksi.routeName);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
                               const Color.fromRGBO(59, 51, 51, 1)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                         ),
-                        child: const Text('Sign In',style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],

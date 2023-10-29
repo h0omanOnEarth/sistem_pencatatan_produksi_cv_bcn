@@ -8,11 +8,11 @@ class CustomWithTextFieldCard extends StatefulWidget {
   });
 
   @override
-  State<CustomWithTextFieldCard> createState() => _CustomWithTextFieldCardState();
+  State<CustomWithTextFieldCard> createState() =>
+      _CustomWithTextFieldCardState();
 }
 
 class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
-  
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -33,7 +33,8 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: item.isTextField
                     ? TextField(
-                        controller: item.controller, // Gunakan controller yang diberikan
+                        controller: item
+                            .controller, // Gunakan controller yang diberikan
                         onChanged: (newValue) {
                           // Memperbarui nilai controller saat input berubah
                           item.controller?.text = newValue;
@@ -41,13 +42,16 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                         decoration: InputDecoration(
                           hintText: item.text,
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8), // Set the desired corner radius here
+                            borderRadius: BorderRadius.circular(
+                                8), // Set the desired corner radius here
                             borderSide: BorderSide(
-                              color: Colors.grey[400]!, // Set the desired border color here
+                              color: Colors.grey[
+                                  400]!, // Set the desired border color here
                             ),
                           ),
                           filled: true,
-                          fillColor: item.isEnabled ? Colors.white : Colors.grey[300],
+                          fillColor:
+                              item.isEnabled ? Colors.white : Colors.grey[300],
                           enabled: item.isEnabled,
                         ),
                       )
@@ -56,12 +60,14 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                             children: [
                               Expanded(
                                 child: TextField(
-                                  controller: item.leftController ?? item.controller, // Gunakan controller kiri yang diberikan atau controller utama
+                                  controller: item.leftController ??
+                                      item.controller, // Gunakan controller kiri yang diberikan atau controller utama
                                   onChanged: (newValue) {
                                     // Memperbarui nilai controller saat input berubah
                                     item.leftController?.text = newValue;
                                   },
-                                  enabled: item.leftEnabled, // Menggunakan nilai leftEnabled
+                                  enabled: item
+                                      .leftEnabled, // Menggunakan nilai leftEnabled
                                   decoration: InputDecoration(
                                     hintText: item.leftHintText,
                                     border: OutlineInputBorder(
@@ -71,7 +77,9 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                                       ),
                                     ),
                                     filled: true,
-                                    fillColor: item.leftEnabled ? Colors.white : Colors.grey[300],
+                                    fillColor: item.leftEnabled
+                                        ? Colors.white
+                                        : Colors.grey[300],
                                     enabled: item.leftEnabled,
                                   ),
                                 ),
@@ -79,12 +87,14 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                               const SizedBox(width: 16),
                               Expanded(
                                 child: TextField(
-                                  controller: item.rightController ?? item.controller, // Gunakan controller kanan yang diberikan atau controller utama
+                                  controller: item.rightController ??
+                                      item.controller, // Gunakan controller kanan yang diberikan atau controller utama
                                   onChanged: (newValue) {
                                     // Memperbarui nilai controller saat input berubah
                                     item.rightController?.text = newValue;
                                   },
-                                  enabled: item.rightEnabled, // Menggunakan nilai rightEnabled
+                                  enabled: item
+                                      .rightEnabled, // Menggunakan nilai rightEnabled
                                   decoration: InputDecoration(
                                     hintText: item.rightHintText,
                                     border: OutlineInputBorder(
@@ -94,7 +104,9 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                                       ),
                                     ),
                                     filled: true,
-                                    fillColor: item.rightEnabled ? Colors.white : Colors.grey[300],
+                                    fillColor: item.rightEnabled
+                                        ? Colors.white
+                                        : Colors.grey[300],
                                     enabled: item.rightEnabled,
                                   ),
                                 ),
@@ -105,7 +117,9 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
                             item.text,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: item.isBold ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: item.isBold
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                             strutStyle: StrutStyle.disabled,
                           )),
@@ -116,7 +130,6 @@ class _CustomWithTextFieldCardState extends State<CustomWithTextFieldCard> {
     );
   }
 }
-
 
 class CustomWithTextFieldCardContent {
   final String text;
@@ -130,8 +143,10 @@ class CustomWithTextFieldCardContent {
   final bool isEnabled; // Kontrol enable/disable TextField
 
   final TextEditingController? controller; // Controller untuk text field
-  final TextEditingController? leftController; // Controller untuk text field kiri
-  final TextEditingController? rightController; // Controller untuk text field kanan
+  final TextEditingController?
+      leftController; // Controller untuk text field kiri
+  final TextEditingController?
+      rightController; // Controller untuk text field kanan
 
   CustomWithTextFieldCardContent({
     required this.text,

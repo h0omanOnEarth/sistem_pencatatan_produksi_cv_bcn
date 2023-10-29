@@ -35,9 +35,11 @@ class LoadedState extends ProductionConfirmationBlocState {
   LoadedState(this.productionConfirmation);
 }
 
-class ProductionConfirmationUpdatedState extends ProductionConfirmationBlocState {}
+class ProductionConfirmationUpdatedState
+    extends ProductionConfirmationBlocState {}
 
-class ProductionConfirmationDeletedState extends ProductionConfirmationBlocState {}
+class ProductionConfirmationDeletedState
+    extends ProductionConfirmationBlocState {}
 
 class ErrorState extends ProductionConfirmationBlocState {
   final String errorMessage;
@@ -50,7 +52,10 @@ class ProductionConfirmationBloc
   late FirebaseFirestore _firestore;
   final HttpsCallable proConfCallable;
 
-  ProductionConfirmationBloc() : proConfCallable = FirebaseFunctions.instance.httpsCallable('productionConfirmationValidation'), super(LoadingState()) {
+  ProductionConfirmationBloc()
+      : proConfCallable = FirebaseFunctions.instance
+            .httpsCallable('productionConfirmationValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -60,15 +65,19 @@ class ProductionConfirmationBloc
     if (event is AddProductionConfirmationEvent) {
       yield LoadingState();
 
-      final confirmations = event.productionConfirmation.detailProductionConfirmations;
-      if(confirmations.isNotEmpty){
-         try {
-          final HttpsCallableResult<dynamic> result = await proConfCallable.call(<String, dynamic>{
-              'confirmations': confirmations.map((confirmation) => confirmation.toJson()).toList(),
-            });
+      final confirmations =
+          event.productionConfirmation.detailProductionConfirmations;
+      if (confirmations.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await proConfCallable.call(<String, dynamic>{
+            'confirmations': confirmations
+                .map((confirmation) => confirmation.toJson())
+                .toList(),
+          });
 
-           if (result.data['success'] == true) {
-             // Generate a new production confirmation ID (or use an existing one if you have it)
+          if (result.data['success'] == true) {
+            // Generate a new production confirmation ID (or use an existing one if you have it)
             final nextProductionConfirmationId =
                 await _generateNextProductionConfirmationId();
 
@@ -83,7 +92,8 @@ class ProductionConfirmationBloc
               'catatan': event.productionConfirmation.catatan,
               'status': event.productionConfirmation.status,
               'status_prc': event.productionConfirmation.statusPrc,
-              'tanggal_konfirmasi': event.productionConfirmation.tanggalKonfirmasi,
+              'tanggal_konfirmasi':
+                  event.productionConfirmation.tanggalKonfirmasi,
               'total': event.productionConfirmation.total
             };
 
@@ -91,13 +101,14 @@ class ProductionConfirmationBloc
             await productionConfirmationRef.set(productionConfirmationData);
 
             // Create a reference to the 'details' subcollection within the production confirmation document
-            final detailsRef =
-                productionConfirmationRef.collection('detail_production_confirmations');
+            final detailsRef = productionConfirmationRef
+                .collection('detail_production_confirmations');
 
-            if (event.productionConfirmation.detailProductionConfirmations.isNotEmpty) {
+            if (event.productionConfirmation.detailProductionConfirmations
+                .isNotEmpty) {
               int detailCount = 1;
-              for (var detail
-                  in event.productionConfirmation.detailProductionConfirmations) {
+              for (var detail in event
+                  .productionConfirmation.detailProductionConfirmations) {
                 final nextDetailId =
                     '$nextProductionConfirmationId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
@@ -107,33 +118,36 @@ class ProductionConfirmationBloc
                   'production_confirmation_id': nextProductionConfirmationId,
                   'jumlah_konfirmasi': detail.jumlahKonfirmasi,
                   'production_result_id': detail.productionResultId,
-                  'satuan' : detail.satuan,
-                  'product_id' : detail.productId
+                  'satuan': detail.satuan,
+                  'product_id': detail.productId
                 });
                 detailCount++;
               }
             }
             yield SuccessState();
-           }else{
+          } else {
             yield ErrorState(result.data['message']);
-           }
+          }
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("detail konfirmasi tidak boleh kosong");
       }
     } else if (event is UpdateProductionConfirmationEvent) {
       yield LoadingState();
-      final confirmations = event.productionConfirmation.detailProductionConfirmations;
-      if(confirmations.isNotEmpty){
-         try {
-           final HttpsCallableResult<dynamic> result = await proConfCallable.call(<String, dynamic>{
-              'confirmations': confirmations.map((material) => material.toJson()).toList(),
-            });
+      final confirmations =
+          event.productionConfirmation.detailProductionConfirmations;
+      if (confirmations.isNotEmpty) {
+        try {
+          final HttpsCallableResult<dynamic> result =
+              await proConfCallable.call(<String, dynamic>{
+            'confirmations':
+                confirmations.map((material) => material.toJson()).toList(),
+          });
 
-           if (result.data['success'] == true) {
-             // Get a reference to the production confirmation document to be updated
+          if (result.data['success'] == true) {
+            // Get a reference to the production confirmation document to be updated
             final productionConfirmationToUpdateRef = _firestore
                 .collection('production_confirmations')
                 .doc(event.productionConfirmationId);
@@ -144,7 +158,8 @@ class ProductionConfirmationBloc
               'catatan': event.productionConfirmation.catatan,
               'status': event.productionConfirmation.status,
               'status_prc': event.productionConfirmation.statusPrc,
-              'tanggal_konfirmasi': event.productionConfirmation.tanggalKonfirmasi,
+              'tanggal_konfirmasi':
+                  event.productionConfirmation.tanggalKonfirmasi,
               'total': event.productionConfirmation.total
             };
 
@@ -181,14 +196,13 @@ class ProductionConfirmationBloc
             // }
 
             yield SuccessState();
-           }else{
+          } else {
             result.data['message'];
-           }
-  
-          } catch (e) {
-            yield ErrorState(e.toString());
           }
-      }else{
+        } catch (e) {
+          yield ErrorState(e.toString());
+        }
+      } else {
         yield ErrorState("detail konfirmasi tidak boleh kosong");
       }
     } else if (event is DeleteProductionConfirmationEvent) {
@@ -200,8 +214,8 @@ class ProductionConfirmationBloc
             .doc(event.productionConfirmationId);
 
         // Get a reference to the 'details' subcollection within the production confirmation document
-        final detailsCollectionRef =
-            productionConfirmationToDeleteRef.collection('detail_production_confirmations');
+        final detailsCollectionRef = productionConfirmationToDeleteRef
+            .collection('detail_production_confirmations');
 
         // Delete all documents within the 'details' subcollection
         final detailsDocs = await detailsCollectionRef.get();

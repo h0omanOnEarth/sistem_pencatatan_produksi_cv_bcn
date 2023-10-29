@@ -38,13 +38,15 @@ class ProductsChart extends StatelessWidget {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   final chartData = snapshot.data as List<DataPoint>;
-                  const maxSectorsToShow = 4; // Jumlah maksimal sektor yang akan ditampilkan
+                  const maxSectorsToShow =
+                      4; // Jumlah maksimal sektor yang akan ditampilkan
                   final otherData = chartData.sublist(maxSectorsToShow);
                   final totalValue = calculateTotalValue(otherData);
                   final dataToShow = chartData.sublist(0, maxSectorsToShow);
 
                   // Hitung nilai "Lainnya" sebagai persentase total
-                  final otherValue = totalValue * 0.1; // Misalnya, "Lainnya" adalah 10% dari total
+                  final otherValue = totalValue *
+                      0.1; // Misalnya, "Lainnya" adalah 10% dari total
 
                   if (totalValue > 0) {
                     dataToShow.add(DataPoint("Lainnya", otherValue));
@@ -60,7 +62,8 @@ class ProductsChart extends StatelessWidget {
                               color: getColor(entry.key),
                               value: entry.value.value,
                               titlePositionPercentageOffset: 0.7,
-                              title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
+                              title:
+                                  '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
                               radius: 60,
                             ),
                           )
@@ -80,15 +83,18 @@ class ProductsChart extends StatelessWidget {
 }
 
 Future<List<DataPoint>> fetchProductChartData() async {
-  final productService = ProductService(); // Ganti dengan service produk yang sesuai
+  final productService =
+      ProductService(); // Ganti dengan service produk yang sesuai
   final firestore = FirebaseFirestore.instance;
-  final querySnapshot = await firestore.collection('products').get(); // Ubah menjadi 'products'
+  final querySnapshot =
+      await firestore.collection('products').get(); // Ubah menjadi 'products'
   final data = querySnapshot.docs;
 
   final chartData = <DataPoint>[];
   for (final doc in data) {
     final id = doc['id'] as String;
-    final productInfo = await productService.fetchProductInfo(id); // Ganti dengan fetchProductInfo yang sesuai
+    final productInfo = await productService
+        .fetchProductInfo(id); // Ganti dengan fetchProductInfo yang sesuai
 
     final productName = productInfo['nama'] as String;
     final stok = productInfo['stok'] as int;

@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 
-class SidebarProduksiWidget extends StatelessWidget {
+class SidebarProduksiWidget extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
   final bool isSidebarCollapsed;
   final Function() onToggleSidebar;
+  static dynamic menu = const HomeScreenProduksi();
 
   const SidebarProduksiWidget({
     Key? key,
@@ -14,15 +20,35 @@ class SidebarProduksiWidget extends StatelessWidget {
     required this.onToggleSidebar,
   }) : super(key: key);
 
+  static dynamic getMenuByIndex(int index) {
+    if (index == 0) {
+      return const HomeScreenProduksi();
+    } else if (index == 1) {
+      return const MainMasterProduksiScreen();
+    } else if (index == 2) {
+      return const MainProsesProduksiScreen();
+    } else if (index == 3) {
+      return const MainLaporanProduksiScreen();
+    } else if (index == 4) {
+      return const ProfileScreen();
+    }
+    return const HomeScreenProduksi(); // Default menu
+  }
+
+  @override
+  State<SidebarProduksiWidget> createState() => _SidebarProduksiWidgetState();
+}
+
+class _SidebarProduksiWidgetState extends State<SidebarProduksiWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         IconButton(
-          icon: Icon(isSidebarCollapsed ? Icons.menu : Icons.close),
-          onPressed: onToggleSidebar,
+          icon: Icon(widget.isSidebarCollapsed ? Icons.menu : Icons.close),
+          onPressed: widget.onToggleSidebar,
         ),
-        if (!isSidebarCollapsed)
+        if (!widget.isSidebarCollapsed)
           Container(
             width: 250,
             decoration: const BoxDecoration(
@@ -45,11 +71,16 @@ class SidebarProduksiWidget extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildSidebarItem(0, Icons.home, 'Home', iconSize: 24, isActive: selectedIndex == 0),
-                _buildSidebarItem(1, Icons.list, 'Master', iconSize: 24, isActive: selectedIndex == 1),
-                _buildSidebarItem(2, Icons.factory, 'Produksi', iconSize: 24, isActive: selectedIndex == 2),
-                _buildSidebarItem(3, Icons.report, 'Laporan', iconSize: 24, isActive: selectedIndex == 3),
-                _buildSidebarItem(4, Icons.person, 'Profile', iconSize: 24, isActive: selectedIndex == 4),
+                _buildSidebarItem(0, Icons.home, 'Home',
+                    iconSize: 24, isActive: widget.selectedIndex == 0),
+                _buildSidebarItem(1, Icons.list, 'Master',
+                    iconSize: 24, isActive: widget.selectedIndex == 1),
+                _buildSidebarItem(2, Icons.factory, 'Produksi',
+                    iconSize: 24, isActive: widget.selectedIndex == 2),
+                _buildSidebarItem(3, Icons.report, 'Laporan',
+                    iconSize: 24, isActive: widget.selectedIndex == 3),
+                _buildSidebarItem(4, Icons.person, 'Profile',
+                    iconSize: 24, isActive: widget.selectedIndex == 4),
               ],
             ),
           ),
@@ -57,9 +88,10 @@ class SidebarProduksiWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSidebarItem(int index, IconData iconData, String label, {double iconSize = 24, required bool isActive}) {
+  Widget _buildSidebarItem(int index, IconData iconData, String label,
+      {double iconSize = 24, required bool isActive}) {
     return GestureDetector(
-      onTap: () => onItemTapped(index),
+      onTap: () => widget.onItemTapped(index),
       child: Container(
         color: isActive ? const Color.fromRGBO(59, 51, 51, 1) : Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),

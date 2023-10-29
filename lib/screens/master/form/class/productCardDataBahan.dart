@@ -7,10 +7,11 @@ class ProductCardDataBahan {
   String jumlah;
   String satuan;
   String selectedDropdownValue = '';
-  TextEditingController? jumlahController; // Ubah tipe data menjadi TextEditingController?
+  TextEditingController?
+      jumlahController; // Ubah tipe data menjadi TextEditingController?
 
   ProductCardDataBahan({
-   required this.kodeBahan,
+    required this.kodeBahan,
     required this.namaBahan,
     this.namaBatch,
     required this.jumlah,
@@ -20,5 +21,4 @@ class ProductCardDataBahan {
     // Initialize the controller with the current 'jumlah' value
     jumlahController = TextEditingController(text: jumlah);
   }
-  
 }

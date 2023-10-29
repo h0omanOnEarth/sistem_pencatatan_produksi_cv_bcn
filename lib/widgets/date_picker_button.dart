@@ -34,20 +34,24 @@ class DatePickerButton extends StatelessWidget {
         ),
         const SizedBox(height: 8.0),
         ElevatedButton(
-          onPressed: isEnabled ? () async { // Periksa isEnabled
-            final DateTime? pickedDate = await showDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2101),
-            );
+          onPressed: isEnabled
+              ? () async {
+                  // Periksa isEnabled
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
 
-            if (pickedDate != null && pickedDate != selectedDate) {
-              onDateSelected(pickedDate);
-            }
-          } : null, // Nonaktifkan tombol jika isEnabled adalah false
+                  if (pickedDate != null && pickedDate != selectedDate) {
+                    onDateSelected(pickedDate);
+                  }
+                }
+              : null, // Nonaktifkan tombol jika isEnabled adalah false
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             backgroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(

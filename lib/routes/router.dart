@@ -57,66 +57,113 @@ import '/screens/gudang/main/main_produksi.dart';
 
 final routes = RouteMap(
   onUnknownRoute: (path) {
-    return const MaterialPage(child: SplashScreen()); // Rute default jika rute tidak ditemukan
+    return const MaterialPage(
+        child: SplashScreen()); // Rute default jika rute tidak ditemukan
   },
   routes: {
     SplashScreen.routeName: (_) => const MaterialPage(child: SplashScreen()),
-    MainMenuScreen.routeName: (_) => const MaterialPage(child: MainMenuScreen()),
-    LoginPageScreen.routeName: (_) => const MaterialPage(child: LoginPageScreen()),
+    MainMenuScreen.routeName: (_) =>
+        const MaterialPage(child: MainMenuScreen()),
+    LoginPageScreen.routeName: (_) =>
+        const MaterialPage(child: LoginPageScreen()),
     MainAdministrasi.routeName: (data) {
       final selectedIndex = data?.queryParameters['selectedIndex'];
-      final selectedIndexValue = selectedIndex != null ? int.tryParse(selectedIndex) : null;
+      final selectedIndexValue =
+          selectedIndex != null ? int.tryParse(selectedIndex) : null;
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
-      return MaterialPage(child: MainAdministrasi(selectedIndex: selectedIndexValue));
+      return MaterialPage(
+          child: MainAdministrasi(selectedIndex: selectedIndexValue));
     },
-    MainMasterAdministrasiScreen.routeName: (_)=> const MaterialPage(child: MainMasterAdministrasiScreen()),
-    ListMasterBarangScreen.routeName: (data)=> MaterialPage(child: ListMasterBarangScreen(mode: int.tryParse(data.queryParameters['mode']!))),
-    ListMasterBahanScreen.routeName:(data)=> MaterialPage(child: ListMasterBahanScreen(mode: int.tryParse(data.queryParameters['mode']!),)),
-    ListMasterMesinScreen.routeName : (data)=>  MaterialPage(child: ListMasterMesinScreen(mode: int.tryParse(data.queryParameters['mode']!),)),
-    ListMasterPegawaiScreen.routeName : (_)=>  const MaterialPage(child: ListMasterPegawaiScreen()),
-    ListMasterSupplierScreen.routeName: (_)=>  const MaterialPage(child: ListMasterSupplierScreen()),
-    ListMasterPelangganScreen.routeName: (_)=>  const MaterialPage(child: ListMasterPelangganScreen()),
-    ListPesananPelanggan.routeName : (_)=>  const MaterialPage(child: ListPesananPelanggan()),
-    ListPesananPengiriman.routeName: (_)=> const MaterialPage(child: ListPesananPengiriman()),
-    ListFakturPenjualan.routeName:(_)=> const MaterialPage(child: ListFakturPenjualan()),
-    ListPesananPengembalianPembelian.routeName: (_)=> const MaterialPage(child: ListPesananPengembalianPembelian()),
-    ListPesananPembelian.routeName:(_)=> const MaterialPage(child: ListPesananPembelian()),
-    ListBOMScreen.routeName:(_)=> const MaterialPage(child: ListBOMScreen()),
+    MainMasterAdministrasiScreen.routeName: (_) =>
+        const MaterialPage(child: MainMasterAdministrasiScreen()),
+    MainLaporanAdministrasiScreen.routeName: (_) =>
+        const MaterialPage(child: MainLaporanAdministrasiScreen()),
+    MainPembelianAdministrasiScreen.routeName: (_) =>
+        const MaterialPage(child: MainPembelianAdministrasiScreen()),
+    MainPenjulanAdministrasiScreen.routeName: (_) =>
+        const MaterialPage(child: MainPenjulanAdministrasiScreen()),
+    ListMasterBarangScreen.routeName: (data) => MaterialPage(
+        child: ListMasterBarangScreen(
+            mode: int.tryParse(data.queryParameters['mode']!))),
+    ListMasterBahanScreen.routeName: (data) => MaterialPage(
+            child: ListMasterBahanScreen(
+          mode: int.tryParse(data.queryParameters['mode']!),
+        )),
+    ListMasterMesinScreen.routeName: (data) => MaterialPage(
+            child: ListMasterMesinScreen(
+          mode: int.tryParse(data.queryParameters['mode']!),
+        )),
+    ListMasterPegawaiScreen.routeName: (_) =>
+        const MaterialPage(child: ListMasterPegawaiScreen()),
+    ListMasterSupplierScreen.routeName: (_) =>
+        const MaterialPage(child: ListMasterSupplierScreen()),
+    ListMasterPelangganScreen.routeName: (_) =>
+        const MaterialPage(child: ListMasterPelangganScreen()),
+    ListPesananPelanggan.routeName: (_) =>
+        const MaterialPage(child: ListPesananPelanggan()),
+    ListPesananPengiriman.routeName: (_) =>
+        const MaterialPage(child: ListPesananPengiriman()),
+    ListFakturPenjualan.routeName: (_) =>
+        const MaterialPage(child: ListFakturPenjualan()),
+    ListPesananPengembalianPembelian.routeName: (_) =>
+        const MaterialPage(child: ListPesananPengembalianPembelian()),
+    ListPesananPembelian.routeName: (_) =>
+        const MaterialPage(child: ListPesananPembelian()),
+    ListBOMScreen.routeName: (_) => const MaterialPage(child: ListBOMScreen()),
     MainProduksi.routeName: (data) {
       final selectedIndex = data?.queryParameters['selectedIndex'];
-      final selectedIndexValue = selectedIndex != null ? int.tryParse(selectedIndex) : null;
+      final selectedIndexValue =
+          selectedIndex != null ? int.tryParse(selectedIndex) : null;
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
-      return MaterialPage(child: MainProduksi(selectedIndex: selectedIndexValue));
+      return MaterialPage(
+          child: MainProduksi(selectedIndex: selectedIndexValue));
     },
-    ListProductionOrder.routeName: (_)=> const MaterialPage(child: ListProductionOrder()),
-    ListMaterialRequest.routeName: (_)=> const MaterialPage(child: ListMaterialRequest()),
-    ListMaterialUsage.routeName: (_)=> const MaterialPage(child: ListMaterialUsage()),
-    ListPengembalianBahan.routeName: (_)=> const MaterialPage(child: ListPengembalianBahan()),
-    ListDLOHC.routeName: (_)=> const MaterialPage(child: ListDLOHC()),
-    ListHasilProduksi.routeName: (_)=> const MaterialPage(child: ListHasilProduksi()),
-    ListKonfirmasiProduksi.routeName: (_)=> const MaterialPage(child: ListKonfirmasiProduksi()),
-
-
+    MainProsesProduksiScreen.routeName: (_) =>
+        const MaterialPage(child: MainProsesProduksiScreen()),
+    MainLaporanProduksiScreen.routeName: (_) =>
+        const MaterialPage(child: MainLaporanProduksiScreen()),
+    ListProductionOrder.routeName: (_) =>
+        const MaterialPage(child: ListProductionOrder()),
+    ListMaterialRequest.routeName: (_) =>
+        const MaterialPage(child: ListMaterialRequest()),
+    ListMaterialUsage.routeName: (_) =>
+        const MaterialPage(child: ListMaterialUsage()),
+    ListPengembalianBahan.routeName: (_) =>
+        const MaterialPage(child: ListPengembalianBahan()),
+    ListDLOHC.routeName: (_) => const MaterialPage(child: ListDLOHC()),
+    ListHasilProduksi.routeName: (_) =>
+        const MaterialPage(child: ListHasilProduksi()),
+    ListKonfirmasiProduksi.routeName: (_) =>
+        const MaterialPage(child: ListKonfirmasiProduksi()),
     MainGudang.routeName: (data) {
       final selectedIndex = data.queryParameters['selectedIndex'];
-      final selectedIndexValue = selectedIndex != null ? int.tryParse(selectedIndex) : null;
+      final selectedIndexValue =
+          selectedIndex != null ? int.tryParse(selectedIndex) : null;
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
       return MaterialPage(child: MainGudang(selectedIndex: selectedIndexValue));
     },
-    ListPurchaseRequest.routeName: (_)=> const MaterialPage(child: ListPurchaseRequest()),
-    ListMaterialReceive.routeName: (_)=> const MaterialPage(child: ListMaterialReceive()),
-    ListSuratJalan.routeName: (_)=> const MaterialPage(child: ListSuratJalan()),
-    ListCustomerOrderReturn.routeName: (_)=> const MaterialPage(child: ListCustomerOrderReturn()),
-    ListItemReceive.routeName: (_)=> const MaterialPage(child: ListItemReceive()),
-    ListPemindahanBahan.routeName: (_)=> const MaterialPage(child: ListPemindahanBahan()),
-    ListPengubahanBahan.routeName: (_)=> const MaterialPage(child: ListPengubahanBahan()),
-
+    ListPurchaseRequest.routeName: (_) =>
+        const MaterialPage(child: ListPurchaseRequest()),
+    ListMaterialReceive.routeName: (_) =>
+        const MaterialPage(child: ListMaterialReceive()),
+    ListSuratJalan.routeName: (_) =>
+        const MaterialPage(child: ListSuratJalan()),
+    ListCustomerOrderReturn.routeName: (_) =>
+        const MaterialPage(child: ListCustomerOrderReturn()),
+    ListItemReceive.routeName: (_) =>
+        const MaterialPage(child: ListItemReceive()),
+    ListPemindahanBahan.routeName: (_) =>
+        const MaterialPage(child: ListPemindahanBahan()),
+    ListPengubahanBahan.routeName: (_) =>
+        const MaterialPage(child: ListPengubahanBahan()),
     FormMasterSupplierScreen.routeName: (data) {
       final supplierId = data.queryParameters['supplierId'];
-      final supplierIdValue = supplierId ??'';
+      final supplierIdValue = supplierId ?? '';
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
-      return MaterialPage(child: FormMasterSupplierScreen(supplierId: supplierIdValue));
+      return MaterialPage(
+          child: FormMasterSupplierScreen(supplierId: supplierIdValue));
     },
-    LaporanPesananPelanggan.routeName: (_)=> const MaterialPage(child: LaporanPesananPelanggan()),
+    LaporanPesananPelanggan.routeName: (_) =>
+        const MaterialPage(child: LaporanPesananPelanggan()),
   },
 );

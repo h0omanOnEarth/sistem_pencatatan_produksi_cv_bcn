@@ -17,15 +17,15 @@ class FakturDropdown extends StatefulWidget {
   final bool isEnabled;
 
   FakturDropdown({
-    required this.selectedFaktur, 
-    required this.onChanged, 
+    required this.selectedFaktur,
+    required this.onChanged,
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
     this.nomorSuratJalanController,
     this.alamatController,
     this.isEnabled = true,
-    });
+  });
 
   @override
   State<FakturDropdown> createState() => _FakturDropdownState();
@@ -33,7 +33,8 @@ class FakturDropdown extends StatefulWidget {
 
 class _FakturDropdownState extends State<FakturDropdown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
   final deliveryOrderService = DeliveryOrderService();
@@ -88,23 +89,36 @@ class _FakturDropdownState extends State<FakturDropdown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedFaktur,
                 items: invoiceItems,
-                onChanged: widget.isEnabled ? (newValue) async {
-                  widget.onChanged(newValue);
-                  _selectedDoc = snapshot.data!.docs.firstWhere(
-                    (document) => document['id'] == newValue,
-                  );
+                onChanged: widget.isEnabled
+                    ? (newValue) async {
+                        widget.onChanged(newValue);
+                        _selectedDoc = snapshot.data!.docs.firstWhere(
+                          (document) => document['id'] == newValue,
+                        );
 
-                  Map<String, dynamic>? shipment = await suratJalanService.getSuratJalanInfo(_selectedDoc['shipment_id']);
-                  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(shipment?['deliveryOrderId'] as String);
-                  final customerOrderId = deliveryOrder?['customerOrderId'] as String;
-                  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
-                  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
-                  widget.alamatController?.text = shipment?['alamatPenerima'];
-                  widget.namaPelangganController?.text = customer?['nama'];
-                  widget.kodePelangganController?.text = customer?['id'];
-                  widget.nomorPesananPelanggan?.text = customerOrder?['id'];
-                  widget.nomorSuratJalanController?.text = shipment?['id'];
-                }:null,
+                        Map<String, dynamic>? shipment = await suratJalanService
+                            .getSuratJalanInfo(_selectedDoc['shipment_id']);
+                        Map<String, dynamic>? deliveryOrder =
+                            await deliveryOrderService.getDeliveryOrderInfo(
+                                shipment?['deliveryOrderId'] as String);
+                        final customerOrderId =
+                            deliveryOrder?['customerOrderId'] as String;
+                        Map<String, dynamic>? customerOrder =
+                            await customerOrderService
+                                .getCustomerOrderInfo(customerOrderId);
+                        Map<String, dynamic>? customer = await customerService
+                            .getCustomerInfo(customerOrder?['customer_id']);
+                        widget.alamatController?.text =
+                            shipment?['alamatPenerima'];
+                        widget.namaPelangganController?.text =
+                            customer?['nama'];
+                        widget.kodePelangganController?.text = customer?['id'];
+                        widget.nomorPesananPelanggan?.text =
+                            customerOrder?['id'];
+                        widget.nomorSuratJalanController?.text =
+                            shipment?['id'];
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

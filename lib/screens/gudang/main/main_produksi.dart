@@ -10,11 +10,12 @@ class MainProduksiGudangScreen extends StatefulWidget {
   const MainProduksiGudangScreen({Key? key});
 
   @override
-  State<MainProduksiGudangScreen> createState() => _MainMasterGudangScreenState();
+  State<MainProduksiGudangScreen> createState() =>
+      _MainMasterGudangScreenState();
 }
 
 class _MainMasterGudangScreenState extends State<MainProduksiGudangScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -78,9 +79,21 @@ class _MainMasterGudangScreenState extends State<MainProduksiGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.note_add, textA: 'Penerimaan Barang', textB: 'Memodifikasi dan melihat penerimaan barang', pageRoute: ListItemReceive.routeName),
-                    const CardItem(icon: Icons.move_up_sharp, textA: 'Pemindahan Bahan', textB: 'Memodifikasi dan melihat pemindahan bahan', pageRoute: ListPemindahanBahan.routeName),
-                    const CardItem(icon: Icons.transform, textA: 'Pengubahan Bahan', textB: 'Memodifikasi dan melihat pengubahan bahan', pageRoute: ListPengubahanBahan.routeName),
+                    const CardItem(
+                        icon: Icons.note_add,
+                        textA: 'Penerimaan Barang',
+                        textB: 'Memodifikasi dan melihat penerimaan barang',
+                        pageRoute: ListItemReceive.routeName),
+                    const CardItem(
+                        icon: Icons.move_up_sharp,
+                        textA: 'Pemindahan Bahan',
+                        textB: 'Memodifikasi dan melihat pemindahan bahan',
+                        pageRoute: ListPemindahanBahan.routeName),
+                    const CardItem(
+                        icon: Icons.transform,
+                        textA: 'Pengubahan Bahan',
+                        textB: 'Memodifikasi dan melihat pengubahan bahan',
+                        pageRoute: ListPengubahanBahan.routeName),
                   ],
                 ),
               ),

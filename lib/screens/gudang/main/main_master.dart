@@ -13,7 +13,7 @@ class MainMasterGudangScreen extends StatefulWidget {
 }
 
 class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -77,8 +77,17 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.shopping_cart_checkout, textA: 'Master Bahan', textB: 'Memodifikasi dan melihat data bahan', pageRoute: '${ListMasterBahanScreen.routeName}?mode=2'),
-                    const CardItem(icon: Icons.warehouse, textA: 'Master Barang Jadi', textB: 'Memodifikasi dan melihat data barang jadi', pageRoute: '${ListMasterBarangScreen.routeName}?mode=2'),
+                    const CardItem(
+                        icon: Icons.shopping_cart_checkout,
+                        textA: 'Master Bahan',
+                        textB: 'Memodifikasi dan melihat data bahan',
+                        pageRoute: '${ListMasterBahanScreen.routeName}?mode=2'),
+                    const CardItem(
+                        icon: Icons.warehouse,
+                        textA: 'Master Barang Jadi',
+                        textB: 'Memodifikasi dan melihat data barang jadi',
+                        pageRoute:
+                            '${ListMasterBarangScreen.routeName}?mode=2'),
                   ],
                 ),
               ),
@@ -89,4 +98,3 @@ class _MainMasterGudangScreenState extends State<MainMasterGudangScreen> {
     );
   }
 }
-

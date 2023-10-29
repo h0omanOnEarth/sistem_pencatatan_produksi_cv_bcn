@@ -9,41 +9,51 @@ const {
 } = require("firebase-functions/logger");
 
 exports.bomValidation = async (req) => {
-  const {materials} = req.data;
+  const { materials } = req.data;
 
   if (!materials || materials.length === 0) {
-    return {success: false, message: "Minimal harus ada satu bahan"};
+    return { success: false, message: "Minimal harus ada satu bahan" };
   }
 
   // Pemeriksaan jika setiap elemen memenuhi kriteria
-  if (!materials.every((material) => {
-    return material.material_id.trim() !== "";
-  })) {
-    return {success: false, message: "Material_id tidak boleh kosong"};
+  if (
+    !materials.every((material) => {
+      return material.material_id.trim() !== "";
+    })
+  ) {
+    return { success: false, message: "Material_id tidak boleh kosong" };
   }
 
-  if (!materials.every((material) => {
-    return material.jumlah > 0;
-  })) {
-    return {success: false, message: "Jumlah pada detail harus di atas 0"};
+  if (
+    !materials.every((material) => {
+      return material.jumlah > 0;
+    })
+  ) {
+    return { success: false, message: "Jumlah pada detail harus di atas 0" };
   }
 
-  if (!materials.every((material) => {
-    return material.batch.trim!=="";
-  })) {
-    return {success: false, message: "Batch tidak boleh kosong"};
+  if (
+    !materials.every((material) => {
+      return material.batch.trim !== "";
+    })
+  ) {
+    return { success: false, message: "Batch tidak boleh kosong" };
   }
 
-  if (!materials.every((material) => {
-    return material.satuan.trim!=="";
-  })) {
-    return {success: false, message: "Satuan tidak boleh kosong"};
+  if (
+    !materials.every((material) => {
+      return material.satuan.trim !== "";
+    })
+  ) {
+    return { success: false, message: "Satuan tidak boleh kosong" };
   }
 
   // Pemeriksaan batch
-  if (!materials.every((material) => {
-    return ["Pencampuran", "Sheet", "Pencetakan"].includes(material.batch);
-  })) {
+  if (
+    !materials.every((material) => {
+      return ["Pencampuran", "Sheet", "Pencetakan"].includes(material.batch);
+    })
+  ) {
     return {
       success: false,
       message: "Batch harus 'Pencampuran', 'Sheet', atau 'Pencetakan'",
@@ -51,23 +61,22 @@ exports.bomValidation = async (req) => {
   }
 
   // Modifikasi berhasil
-  return {success: true};
+  return { success: true };
 };
 
-
 exports.detailBOMValidation = async (req) => {
-  const {material_id, bom_id, jumlah} = req.data;
+  const { material_id, bom_id, jumlah } = req.data;
 
   // Periksa apakah material_id sudah ada dalam subkoleksi detail_bill_of_materials
   const bomDetailsRef = admin
-      .firestore()
-      .collection("bill_of_materials")
-      .doc(bom_id)
-      .collection("detail_bill_of_materials");
+    .firestore()
+    .collection("bill_of_materials")
+    .doc(bom_id)
+    .collection("detail_bill_of_materials");
 
   const snapshot = await bomDetailsRef
-      .where("material_id", "==", material_id)
-      .get();
+    .where("material_id", "==", material_id)
+    .get();
 
   if (!snapshot.empty) {
     // Jika sudah ada data dengan material_id tersebut, edit jumlahnya
@@ -80,8 +89,8 @@ exports.detailBOMValidation = async (req) => {
       jumlah: newJumlah, // Perbarui jumlah dengan jumlah yang baru dihitung
     });
 
-    return {add: false};
+    return { add: false };
   }
 
-  return {add: true};
+  return { add: true };
 };

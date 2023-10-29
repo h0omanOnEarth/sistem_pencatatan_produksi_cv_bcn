@@ -14,11 +14,12 @@ class MainProsesProduksiScreen extends StatefulWidget {
   const MainProsesProduksiScreen({Key? key});
 
   @override
-  State<MainProsesProduksiScreen> createState() => _MainProsesProduksiScreenState();
+  State<MainProsesProduksiScreen> createState() =>
+      _MainProsesProduksiScreenState();
 }
 
 class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -82,13 +83,42 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.online_prediction_rounded, textA: 'Perintah Produksi', textB: 'Memodifikasi dan melihat perintah produksi', pageRoute: ListProductionOrder.routeName),
-                    const CardItem(icon: Icons.note_add, textA: 'Permintaan Bahan', textB: 'Memodifikasi dan melihat permintaan bahan', pageRoute: ListMaterialRequest.routeName),
-                    const CardItem(icon: Icons.wifi_protected_setup_sharp, textA: 'Penggunaan Bahan', textB: 'Memodifikasi dan melihat pengguaan bahan', pageRoute: ListMaterialUsage.routeName),
-                    const CardItem(icon: Icons.move_down, textA: 'Pengembalian Bahan', textB: 'Memodifikasi dan melihat pengembalian bahan', pageRoute: ListPengembalianBahan.routeName),
-                    const CardItem(icon: Icons.note_alt_rounded, textA: 'Pencatatan Direct Labor & Overhead Cost', textB: 'Memodifikasi dan melihat direct labor & overhead cost', pageRoute: ListDLOHC.routeName),
-                    const CardItem(icon: Icons.sticky_note_2, textA: 'Hasil Produksi', textB: 'Memodifikasi dan melihat hasil produksi', pageRoute: ListHasilProduksi.routeName),
-                    const CardItem(icon: Icons.check_circle, textA: 'Konfirmasi Produksi', textB: 'Memodifikasi dan melihat Konfirmasi Produksi', pageRoute: ListKonfirmasiProduksi.routeName),
+                    const CardItem(
+                        icon: Icons.online_prediction_rounded,
+                        textA: 'Perintah Produksi',
+                        textB: 'Memodifikasi dan melihat perintah produksi',
+                        pageRoute: ListProductionOrder.routeName),
+                    const CardItem(
+                        icon: Icons.note_add,
+                        textA: 'Permintaan Bahan',
+                        textB: 'Memodifikasi dan melihat permintaan bahan',
+                        pageRoute: ListMaterialRequest.routeName),
+                    const CardItem(
+                        icon: Icons.wifi_protected_setup_sharp,
+                        textA: 'Penggunaan Bahan',
+                        textB: 'Memodifikasi dan melihat pengguaan bahan',
+                        pageRoute: ListMaterialUsage.routeName),
+                    const CardItem(
+                        icon: Icons.move_down,
+                        textA: 'Pengembalian Bahan',
+                        textB: 'Memodifikasi dan melihat pengembalian bahan',
+                        pageRoute: ListPengembalianBahan.routeName),
+                    const CardItem(
+                        icon: Icons.note_alt_rounded,
+                        textA: 'Pencatatan Direct Labor & Overhead Cost',
+                        textB:
+                            'Memodifikasi dan melihat direct labor & overhead cost',
+                        pageRoute: ListDLOHC.routeName),
+                    const CardItem(
+                        icon: Icons.sticky_note_2,
+                        textA: 'Hasil Produksi',
+                        textB: 'Memodifikasi dan melihat hasil produksi',
+                        pageRoute: ListHasilProduksi.routeName),
+                    const CardItem(
+                        icon: Icons.check_circle,
+                        textA: 'Konfirmasi Produksi',
+                        textB: 'Memodifikasi dan melihat Konfirmasi Produksi',
+                        pageRoute: ListKonfirmasiProduksi.routeName),
                     const SizedBox(height: 16),
                   ],
                 ),
@@ -100,5 +130,3 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
     );
   }
 }
-
-

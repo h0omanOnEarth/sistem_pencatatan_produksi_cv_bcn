@@ -54,7 +54,11 @@ class MaterialUsageBloc
   late FirebaseFirestore _firestore;
   final HttpsCallable materialUsageValidationCallable;
 
-  MaterialUsageBloc() : materialUsageValidationCallable = FirebaseFunctions.instance.httpsCallable('materialUsageValidation'), super(LoadingState()) {
+  MaterialUsageBloc()
+      : materialUsageValidationCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('materialUsageValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
 
@@ -73,11 +77,13 @@ class MaterialUsageBloc
       final tanggalPenggunaan = event.materialUsage.tanggalPenggunaan;
       final materials = event.materialUsage.detailMaterialUsageList;
 
-      if(productionOrderId.isNotEmpty){
-        if(materialRequestId.isNotEmpty){
-           try {
-             final HttpsCallableResult<dynamic> result = await materialUsageValidationCallable.call(<String, dynamic>{
-              'materials': materials.map((material) => material.toJson()).toList(),
+      if (productionOrderId.isNotEmpty) {
+        if (materialRequestId.isNotEmpty) {
+          try {
+            final HttpsCallableResult<dynamic> result =
+                await materialUsageValidationCallable.call(<String, dynamic>{
+              'materials':
+                  materials.map((material) => material.toJson()).toList(),
               'materialRequestId': materialRequestId,
               'productionOrderId': productionOrderId,
               'batch': batch,
@@ -85,62 +91,64 @@ class MaterialUsageBloc
             });
 
             if (result.data['success'] == true) {
-               // Generate a new material usage ID (or use an existing one if you have it)
-            final nextMaterialUsageId = await _generateNextMaterialUsageId();
+              // Generate a new material usage ID (or use an existing one if you have it)
+              final nextMaterialUsageId = await _generateNextMaterialUsageId();
 
-            // Create a reference to the material usage document using the appropriate ID
-            final materialUsageRef =
-                _firestore.collection('material_usages').doc(nextMaterialUsageId);
+              // Create a reference to the material usage document using the appropriate ID
+              final materialUsageRef = _firestore
+                  .collection('material_usages')
+                  .doc(nextMaterialUsageId);
 
-            // Set the material usage data
-            final Map<String, dynamic> materialUsageData = {
-              'id': nextMaterialUsageId,
-              'batch': batch,
-              'catatan': catatan,
-              'production_order_id': productionOrderId,
-              'material_request_id' :materialRequestId,
-              'status': status,
-              'status_mu': statusMu,
-              'tanggal_penggunaan': tanggalPenggunaan,
-            };
+              // Set the material usage data
+              final Map<String, dynamic> materialUsageData = {
+                'id': nextMaterialUsageId,
+                'batch': batch,
+                'catatan': catatan,
+                'production_order_id': productionOrderId,
+                'material_request_id': materialRequestId,
+                'status': status,
+                'status_mu': statusMu,
+                'tanggal_penggunaan': tanggalPenggunaan,
+              };
 
-            // Add the material usage data to Firestore
-            await materialUsageRef.set(materialUsageData);
+              // Add the material usage data to Firestore
+              await materialUsageRef.set(materialUsageData);
 
-            // Create a reference to the 'detail_material_usages' subcollection within the material usage document
-            final detailMaterialUsageRef =
-                materialUsageRef.collection('detail_material_usages');
+              // Create a reference to the 'detail_material_usages' subcollection within the material usage document
+              final detailMaterialUsageRef =
+                  materialUsageRef.collection('detail_material_usages');
 
-            if (event.materialUsage.detailMaterialUsageList.isNotEmpty) {
-              int detailCount = 1;
-              for (var detailMaterialUsage
-                  in event.materialUsage.detailMaterialUsageList) {
-                final nextDetailMaterialUsageId =
-                    '$nextMaterialUsageId${'D${detailCount.toString().padLeft(3, '0')}'}';
+              if (event.materialUsage.detailMaterialUsageList.isNotEmpty) {
+                int detailCount = 1;
+                for (var detailMaterialUsage
+                    in event.materialUsage.detailMaterialUsageList) {
+                  final nextDetailMaterialUsageId =
+                      '$nextMaterialUsageId${'D${detailCount.toString().padLeft(3, '0')}'}';
 
-                // Add the detail material usage document to the 'detail_material_usages' collection
-                await detailMaterialUsageRef.add({
-                  'id': nextDetailMaterialUsageId,
-                  'material_usage_id': nextMaterialUsageId,
-                  'jumlah': detailMaterialUsage.jumlah,
-                  'material_id': detailMaterialUsage.materialId,
-                  'satuan': detailMaterialUsage.satuan,
-                  'status': detailMaterialUsage.status,
-                });
-                detailCount++;
+                  // Add the detail material usage document to the 'detail_material_usages' collection
+                  await detailMaterialUsageRef.add({
+                    'id': nextDetailMaterialUsageId,
+                    'material_usage_id': nextMaterialUsageId,
+                    'jumlah': detailMaterialUsage.jumlah,
+                    'material_id': detailMaterialUsage.materialId,
+                    'satuan': detailMaterialUsage.satuan,
+                    'status': detailMaterialUsage.status,
+                  });
+                  detailCount++;
+                }
               }
-            }
-            yield SuccessState();
-            }else{
-            yield ErrorState(result.data['message']);
+              yield SuccessState();
+            } else {
+              yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState(e.toString());
           }
-        }else{
-          yield ErrorState("nomor permintaan bahan tidak boleh kosong,\n permintaan bahan harus dilakukan terlebih dahulu");
+        } else {
+          yield ErrorState(
+              "nomor permintaan bahan tidak boleh kosong,\n permintaan bahan harus dilakukan terlebih dahulu");
         }
-      }else{
+      } else {
         yield ErrorState("nomor perintah produksi tidak boleh kosong");
       }
     } else if (event is UpdateMaterialUsageEvent) {
@@ -155,81 +163,84 @@ class MaterialUsageBloc
       final tanggalPenggunaan = event.materialUsage.tanggalPenggunaan;
       final materials = event.materialUsage.detailMaterialUsageList;
 
-      if(productionOrderId.isNotEmpty){
-        if(materialRequestId.isNotEmpty){
+      if (productionOrderId.isNotEmpty) {
+        if (materialRequestId.isNotEmpty) {
           try {
-            final HttpsCallableResult<dynamic> result = await materialUsageValidationCallable.call(<String, dynamic>{
-            'materials': materials.map((material) => material.toJson()).toList(),
-            'materialRequestId': materialRequestId,
-            'productionOrderId': productionOrderId,
-            'batch': batch,
-            'mode': 'edit'
+            final HttpsCallableResult<dynamic> result =
+                await materialUsageValidationCallable.call(<String, dynamic>{
+              'materials':
+                  materials.map((material) => material.toJson()).toList(),
+              'materialRequestId': materialRequestId,
+              'productionOrderId': productionOrderId,
+              'batch': batch,
+              'mode': 'edit'
             });
 
             if (result.data['success'] == true) {
-                    // Get a reference to the material usage document to be updated
-            final materialUsageToUpdateRef =
-                _firestore.collection('material_usages').doc(event.materialUsageId);
+              // Get a reference to the material usage document to be updated
+              final materialUsageToUpdateRef = _firestore
+                  .collection('material_usages')
+                  .doc(event.materialUsageId);
 
-            // Set the new material usage data
-            final Map<String, dynamic> materialUsageData = {
-              'id': event.materialUsageId,
-              'batch':batch,
-              'catatan':catatan,
-              'production_order_id': productionOrderId,
-              'material_request_id' :materialRequestId,
-              'status': status,
-              'status_mu': statusMu,
-              'tanggal_penggunaan': tanggalPenggunaan,
-            };
+              // Set the new material usage data
+              final Map<String, dynamic> materialUsageData = {
+                'id': event.materialUsageId,
+                'batch': batch,
+                'catatan': catatan,
+                'production_order_id': productionOrderId,
+                'material_request_id': materialRequestId,
+                'status': status,
+                'status_mu': statusMu,
+                'tanggal_penggunaan': tanggalPenggunaan,
+              };
 
-            // Update the material usage data within the existing document
-            await materialUsageToUpdateRef.set(materialUsageData);
+              // Update the material usage data within the existing document
+              await materialUsageToUpdateRef.set(materialUsageData);
 
-            // Delete all documents within the 'detail_material_usages' subcollection first
-            final detailMaterialUsageCollectionRef =
-                materialUsageToUpdateRef.collection('detail_material_usages');
-            final detailMaterialUsageDocs =
-                await detailMaterialUsageCollectionRef.get();
-            for (var doc in detailMaterialUsageDocs.docs) {
-              await doc.reference.delete();
-            }
-
-            // Add the new detail material usage documents to the 'detail_material_usages' subcollection
-            if (event.materialUsage.detailMaterialUsageList.isNotEmpty) {
-              int detailCount = 1;
-              for (var detailMaterialUsage
-                  in event.materialUsage.detailMaterialUsageList) {
-                final nextDetailMaterialUsageId =
-                    'D${detailCount.toString().padLeft(3, '0')}';
-                final detailId = event.materialUsageId + nextDetailMaterialUsageId;
-
-                // Add the detail material usage documents to the 'detail_material_usages' collection
-                await detailMaterialUsageCollectionRef.add({
-                  'id': detailId,
-                  'material_usage_id': event.materialUsageId,
-                  'jumlah': detailMaterialUsage.jumlah,
-                  'material_id': detailMaterialUsage.materialId,
-                  'satuan': detailMaterialUsage.satuan,
-                  'status': detailMaterialUsage.status,
-                });
-                detailCount++;
+              // Delete all documents within the 'detail_material_usages' subcollection first
+              final detailMaterialUsageCollectionRef =
+                  materialUsageToUpdateRef.collection('detail_material_usages');
+              final detailMaterialUsageDocs =
+                  await detailMaterialUsageCollectionRef.get();
+              for (var doc in detailMaterialUsageDocs.docs) {
+                await doc.reference.delete();
               }
-            }
-            yield SuccessState();
-            }else{
+
+              // Add the new detail material usage documents to the 'detail_material_usages' subcollection
+              if (event.materialUsage.detailMaterialUsageList.isNotEmpty) {
+                int detailCount = 1;
+                for (var detailMaterialUsage
+                    in event.materialUsage.detailMaterialUsageList) {
+                  final nextDetailMaterialUsageId =
+                      'D${detailCount.toString().padLeft(3, '0')}';
+                  final detailId =
+                      event.materialUsageId + nextDetailMaterialUsageId;
+
+                  // Add the detail material usage documents to the 'detail_material_usages' collection
+                  await detailMaterialUsageCollectionRef.add({
+                    'id': detailId,
+                    'material_usage_id': event.materialUsageId,
+                    'jumlah': detailMaterialUsage.jumlah,
+                    'material_id': detailMaterialUsage.materialId,
+                    'satuan': detailMaterialUsage.satuan,
+                    'status': detailMaterialUsage.status,
+                  });
+                  detailCount++;
+                }
+              }
+              yield SuccessState();
+            } else {
               yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState(e.toString());
           }
-        }else{
+        } else {
           yield ErrorState("nomor permintaan bahan tidak boleh kosong");
         }
-      }else{
+      } else {
         yield ErrorState("nomor perintah produksi tidak boleh kosong");
       }
-
     } else if (event is DeleteMaterialUsageEvent) {
       yield LoadingState();
       try {
@@ -255,11 +266,11 @@ class MaterialUsageBloc
       } catch (e) {
         yield ErrorState("Failed to delete Material Usage.");
       }
-    }else if(event is FinishedMaterialUsageEvent){
+    } else if (event is FinishedMaterialUsageEvent) {
       yield LoadingState();
       try {
-       
-        final materialUsageRef = _firestore.collection('material_usages').doc(event.materialUsageId);
+        final materialUsageRef =
+            _firestore.collection('material_usages').doc(event.materialUsageId);
 
         await materialUsageRef.update({
           'status_mu': 'Selesai',

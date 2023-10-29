@@ -46,7 +46,7 @@ class Mesin {
 
   Map<String, dynamic> toJson() {
     return {
-      'id' : id,
+      'id': id,
       'kapasitas_produksi': kapasitasProduksi,
       'keterangan': keterangan,
       'kondisi': kondisi,

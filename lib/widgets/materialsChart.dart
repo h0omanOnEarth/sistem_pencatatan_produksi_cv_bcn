@@ -36,13 +36,15 @@ class MaterialsChart extends StatelessWidget {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   final chartData = snapshot.data as List<DataPoint>;
-                  const maxSectorsToShow = 4; // Jumlah maksimal sektor yang akan ditampilkan
+                  const maxSectorsToShow =
+                      4; // Jumlah maksimal sektor yang akan ditampilkan
                   final otherData = chartData.sublist(maxSectorsToShow);
                   final totalValue = calculateTotalValue(otherData);
                   final dataToShow = chartData.sublist(0, maxSectorsToShow);
 
                   // Hitung nilai "Lainnya" sebagai persentase total
-                  final otherValue = totalValue * 0.1; // Misalnya, "Lainnya" adalah 10% dari total
+                  final otherValue = totalValue *
+                      0.1; // Misalnya, "Lainnya" adalah 10% dari total
 
                   if (totalValue > 0) {
                     dataToShow.add(DataPoint("Lainnya", otherValue));
@@ -58,7 +60,8 @@ class MaterialsChart extends StatelessWidget {
                               color: getColor(entry.key),
                               value: entry.value.value,
                               titlePositionPercentageOffset: 0.7,
-                              title: '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
+                              title:
+                                  '${entry.value.label}\n${entry.value.value.toStringAsFixed(2)}',
                               radius: 60,
                             ),
                           )
@@ -86,7 +89,8 @@ Future<List<DataPoint>> fetchMaterialChartData() async {
   final chartData = <DataPoint>[];
   for (final doc in data) {
     final id = doc['id'] as String;
-    final materialInfo = await materialService.fetchMaterialInfo(id); // Mengambil informasi bahan
+    final materialInfo = await materialService
+        .fetchMaterialInfo(id); // Mengambil informasi bahan
 
     final materialName = materialInfo['nama'] as String;
     final stok = materialInfo['stok'] as int;

@@ -14,16 +14,16 @@ class ProdukDropDown extends StatefulWidget {
   final String? productId; // Tambahkan parameter customerId
   final bool isEnabled;
 
-  ProdukDropDown({
-    required this.namaProdukController,
-    this.versionController,
-    this.dimensiControler,
-    this.beratController,
-    this.ketebalanController,
-    this.satuanController,
-    this.productId,
-    this.isEnabled = true
-  }): super();
+  ProdukDropDown(
+      {required this.namaProdukController,
+      this.versionController,
+      this.dimensiControler,
+      this.beratController,
+      this.ketebalanController,
+      this.satuanController,
+      this.productId,
+      this.isEnabled = true})
+      : super();
 
   @override
   _ProdukDropDownState createState() => _ProdukDropDownState();
@@ -31,7 +31,8 @@ class ProdukDropDown extends StatefulWidget {
 
 class _ProdukDropDownState extends State<ProdukDropDown> {
   late String? dropdownValue;
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
 
   @override
   void initState() {
@@ -41,30 +42,29 @@ class _ProdukDropDownState extends State<ProdukDropDown> {
     }
   }
 
-Future<int> _generateNextVersion(String productId) async {
-  final bomsRef = firestore.collection('bill_of_materials');
-  final QuerySnapshot snapshot = await bomsRef.where('product_id', isEqualTo: productId).get();
-  final List<int> existingVersions = [];
-  
+  Future<int> _generateNextVersion(String productId) async {
+    final bomsRef = firestore.collection('bill_of_materials');
+    final QuerySnapshot snapshot =
+        await bomsRef.where('product_id', isEqualTo: productId).get();
+    final List<int> existingVersions = [];
 
-  // Iterasi melalui dokumen yang sesuai dengan kriteria
-  for (QueryDocumentSnapshot doc in snapshot.docs) {
-    final versiBom = doc['versi_bom'] as int;
-    existingVersions.add(versiBom);
+    // Iterasi melalui dokumen yang sesuai dengan kriteria
+    for (QueryDocumentSnapshot doc in snapshot.docs) {
+      final versiBom = doc['versi_bom'] as int;
+      existingVersions.add(versiBom);
+    }
+
+    int nextVersion = 1;
+
+    if (existingVersions.isNotEmpty) {
+      // Temukan versi terbaru
+      final latestVersion = existingVersions
+          .reduce((value, element) => value > element ? value : element);
+      nextVersion = latestVersion + 1;
+    }
+
+    return nextVersion;
   }
-
-  int nextVersion = 1;
-
-  if (existingVersions.isNotEmpty) {
-    // Temukan versi terbaru
-    final latestVersion = existingVersions.reduce((value, element) => value > element ? value : element);
-    nextVersion = latestVersion + 1;
-  }
-
-  return nextVersion;
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -115,23 +115,32 @@ Future<int> _generateNextVersion(String productId) async {
                   child: DropdownButtonFormField<String>(
                     value: initialValue,
                     items: productItems,
-                    onChanged: widget.isEnabled ? (newValue) async {
-                      selectedProdukNotifier.value = newValue; // Gunakan selectedBahanNotifier
-                      final selectedProduk = snapshot.data!.docs.firstWhere(
-                        (document) => document['id'] == newValue,
-                      );
-                      widget.namaProdukController.text =
-                          selectedProduk['nama'] ?? '';
+                    onChanged: widget.isEnabled
+                        ? (newValue) async {
+                            selectedProdukNotifier.value =
+                                newValue; // Gunakan selectedBahanNotifier
+                            final selectedProduk =
+                                snapshot.data!.docs.firstWhere(
+                              (document) => document['id'] == newValue,
+                            );
+                            widget.namaProdukController.text =
+                                selectedProduk['nama'] ?? '';
 
-                      widget.dimensiControler?.text = selectedProduk['dimensi'].toString();
-                      widget.beratController?.text = selectedProduk['berat'].toString();
-                      widget.ketebalanController?.text = selectedProduk['ketebalan'].toString();
-                      widget.satuanController?.text = selectedProduk['satuan'].toString();
+                            widget.dimensiControler?.text =
+                                selectedProduk['dimensi'].toString();
+                            widget.beratController?.text =
+                                selectedProduk['berat'].toString();
+                            widget.ketebalanController?.text =
+                                selectedProduk['ketebalan'].toString();
+                            widget.satuanController?.text =
+                                selectedProduk['satuan'].toString();
 
-                      final nextVersion = await _generateNextVersion(selectedProduk['id']);
-                      widget.versionController?.text = nextVersion.toString();
-
-                    }:null,
+                            final nextVersion = await _generateNextVersion(
+                                selectedProduk['id']);
+                            widget.versionController?.text =
+                                nextVersion.toString();
+                          }
+                        : null,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: InputBorder.none,

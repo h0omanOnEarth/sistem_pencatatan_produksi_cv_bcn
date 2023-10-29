@@ -46,7 +46,8 @@ class Shipment {
   }
 
   Map<String, dynamic> toJson() {
-    final List<Map<String, dynamic>> detailShipmentJson = detailListShipment.map((detail) => detail.toJson()).toList();
+    final List<Map<String, dynamic>> detailShipmentJson =
+        detailListShipment.map((detail) => detail.toJson()).toList();
 
     return {
       'id': id,

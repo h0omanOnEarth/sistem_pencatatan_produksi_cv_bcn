@@ -18,9 +18,9 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-      //   Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
-      // );
-      Routemaster.of(context).push(pageRoute);
+        //   Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
+        // );
+        Routemaster.of(context).push(pageRoute);
       },
       child: Card(
         color: Colors.white,
@@ -49,7 +49,8 @@ class CardItem extends StatelessWidget {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the text vertically
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Center the text vertically
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

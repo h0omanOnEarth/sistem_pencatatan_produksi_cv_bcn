@@ -99,11 +99,18 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
       final noTelpKantor = event.supplier.noTeleponKantor;
       final status = event.supplier.status;
 
-      if(alamat.isNotEmpty && email.isNotEmpty && jenisSupplier.isNotEmpty && nama.isNotEmpty && noTelp.isNotEmpty && noTelpKantor.isNotEmpty){
-         try {
-          final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
-          final HttpsCallableResult<dynamic> result =
-          await callable.call(<String, dynamic>{
+      if (alamat.isNotEmpty &&
+          email.isNotEmpty &&
+          jenisSupplier.isNotEmpty &&
+          nama.isNotEmpty &&
+          noTelp.isNotEmpty &&
+          noTelpKantor.isNotEmpty) {
+        try {
+          final HttpsCallable callable =
+              FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                  .httpsCallable('supplierAdd');
+          final HttpsCallableResult<dynamic> result = await callable
+              .call(<String, dynamic>{
             'telp': noTelp,
             'telpKantor': noTelpKantor,
             'email': email
@@ -124,24 +131,21 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
             });
 
             yield SuccessState();
-            
-          }else{
+          } else {
             yield ErrorState(result.data['message']);
           }
-
         } catch (e) {
           yield ErrorState(e.toString());
         }
-      }else{
+      } else {
         yield ErrorState("Harap isi semua field!");
       }
-
     } else if (event is UpdateSupplierEvent) {
       yield LoadingState();
 
-       final supplierSnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
-       if (supplierSnapshot.docs.isNotEmpty) {
-
+      final supplierSnapshot =
+          await suppliersRef.where('id', isEqualTo: event.supplierId).get();
+      if (supplierSnapshot.docs.isNotEmpty) {
         final alamat = event.updatedSupplier.alamat;
         final email = event.updatedSupplier.email;
         final jenisSupplier = event.updatedSupplier.jenisSupplier;
@@ -150,15 +154,22 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         final noTelpKantor = event.updatedSupplier.noTeleponKantor;
         final status = event.updatedSupplier.status;
 
-        if(alamat.isNotEmpty && email.isNotEmpty && jenisSupplier.isNotEmpty && nama.isNotEmpty && noTelp.isNotEmpty && noTelpKantor.isNotEmpty){
-            try {
-              final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('supplierAdd');
-              final HttpsCallableResult<dynamic> result =
-              await callable.call(<String, dynamic>{
-                'telp': noTelp,
-                'telpKantor': noTelpKantor,
-                'email': email
-              });
+        if (alamat.isNotEmpty &&
+            email.isNotEmpty &&
+            jenisSupplier.isNotEmpty &&
+            nama.isNotEmpty &&
+            noTelp.isNotEmpty &&
+            noTelpKantor.isNotEmpty) {
+          try {
+            final HttpsCallable callable =
+                FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                    .httpsCallable('supplierAdd');
+            final HttpsCallableResult<dynamic> result = await callable
+                .call(<String, dynamic>{
+              'telp': noTelp,
+              'telpKantor': noTelpKantor,
+              'email': email
+            });
 
             if (result.data['success'] == true) {
               final supplierDoc = supplierSnapshot.docs.first;
@@ -169,33 +180,34 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
                 'nama': nama,
                 'no_telepon': noTelp,
                 'no_telepon_kantor': noTelpKantor,
-                'status' : status
+                'status': status
               });
-              
+
               yield SuccessState();
-            }else{
-               yield ErrorState(result.data['message']);
+            } else {
+              yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState("Gagal mengupdate supplier.");
           }
-       }else{
-         yield ErrorState("Harap isi semua field");
-       }
-      }else {
+        } else {
+          yield ErrorState("Harap isi semua field");
+        }
+      } else {
         // Handle jika data pelanggan dengan ID tersebut tidak ditemukan
-        yield ErrorState('Data produk dengan ID ${event.supplierId} tidak ditemukan.');
+        yield ErrorState(
+            'Data produk dengan ID ${event.supplierId} tidak ditemukan.');
       }
-
     } else if (event is DeleteSupplierEvent) {
       yield LoadingState();
       try {
-          QuerySnapshot querySnapshot = await suppliersRef.where('id', isEqualTo: event.supplierId).get();
-          
-          // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
-          for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-            await documentSnapshot.reference.delete();
-          }
+        QuerySnapshot querySnapshot =
+            await suppliersRef.where('id', isEqualTo: event.supplierId).get();
+
+        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+          await documentSnapshot.reference.delete();
+        }
         yield LoadedState(await _getSuppliers());
       } catch (e) {
         yield ErrorState("Gagal menghapus supplier.");

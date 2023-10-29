@@ -24,8 +24,10 @@ class MaterialUsage {
   });
 
   factory MaterialUsage.fromJson(Map<String, dynamic> json) {
-    final List<dynamic> detailMaterialUsageData = json['detail_material_usage_list'] ?? [];
-    final List<DetailMaterialUsage> detailMaterialUsageList = detailMaterialUsageData.map((data) {
+    final List<dynamic> detailMaterialUsageData =
+        json['detail_material_usage_list'] ?? [];
+    final List<DetailMaterialUsage> detailMaterialUsageList =
+        detailMaterialUsageData.map((data) {
       return DetailMaterialUsage.fromJson(data);
     }).toList();
 
@@ -44,14 +46,16 @@ class MaterialUsage {
 
   Map<String, dynamic> toJson() {
     final List<Map<String, dynamic>> detailMaterialUsageData =
-        detailMaterialUsageList.map((detailMaterialUsage) => detailMaterialUsage.toJson()).toList();
+        detailMaterialUsageList
+            .map((detailMaterialUsage) => detailMaterialUsage.toJson())
+            .toList();
 
     return {
       'batch': batch,
       'catatan': catatan,
       'id': id,
       'production_order_id': productionOrderId,
-      'material_requeset_id' : materialRequestId,
+      'material_requeset_id': materialRequestId,
       'status': status,
       'status_mu': statusMu,
       'tanggal_penggunaan': tanggalPenggunaan.toUtc().toIso8601String(),

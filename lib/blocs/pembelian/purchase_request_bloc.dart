@@ -15,7 +15,8 @@ class AddPurchaseRequestEvent extends PurchaseRequestEvent {
 class UpdatePurchaseRequestEvent extends PurchaseRequestEvent {
   final String purchaseRequestId;
   final PurchaseRequest updatedPurchaseRequest;
-  UpdatePurchaseRequestEvent(this.purchaseRequestId, this.updatedPurchaseRequest);
+  UpdatePurchaseRequestEvent(
+      this.purchaseRequestId, this.updatedPurchaseRequest);
 }
 
 class DeletePurchaseRequestEvent extends PurchaseRequestEvent {
@@ -41,77 +42,90 @@ class ErrorState extends PurchaseRequestBlocState {
 }
 
 // BLoC
-class PurchaseRequestBloc extends Bloc<PurchaseRequestEvent, PurchaseRequestBlocState> {
+class PurchaseRequestBloc
+    extends Bloc<PurchaseRequestEvent, PurchaseRequestBlocState> {
   late FirebaseFirestore _firestore;
   late CollectionReference purchaseRequestRef;
   final HttpsCallable purchaseReqCallable;
   final notificationService = NotificationService();
 
-  PurchaseRequestBloc() : purchaseReqCallable = FirebaseFunctions.instance.httpsCallable('purchaseReqValidation'), super(LoadingState()) {
+  PurchaseRequestBloc()
+      : purchaseReqCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('purchaseReqValidation'),
+        super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     purchaseRequestRef = _firestore.collection('purchase_requests');
   }
 
   @override
-  Stream<PurchaseRequestBlocState> mapEventToState(PurchaseRequestEvent event) async* {
+  Stream<PurchaseRequestBlocState> mapEventToState(
+      PurchaseRequestEvent event) async* {
     if (event is AddPurchaseRequestEvent) {
       yield LoadingState();
 
       final materialId = event.purchaseRequest.materialId;
       final jumlah = event.purchaseRequest.jumlah;
 
-      if(materialId.isNotEmpty){
+      if (materialId.isNotEmpty) {
         try {
-        final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
-          'jumlah': jumlah,
-        });
-
-        if(result.data['success'] == true){
-          final String nextPurchaseRequestId = await _generateNextPurchaseRequestId();
-          final purchaseRequestRef = _firestore.collection('purchase_requests').doc(nextPurchaseRequestId);
-
-          final Map<String, dynamic> purchaseRequestData = {
-            'id': nextPurchaseRequestId,
-            'catatan': event.purchaseRequest.catatan,
+          final HttpsCallableResult<dynamic> result =
+              await purchaseReqCallable.call(<String, dynamic>{
             'jumlah': jumlah,
-            'material_id': materialId,
-            'satuan': event.purchaseRequest.satuan,
-            'status': event.purchaseRequest.status,
-            'status_prq': event.purchaseRequest.statusPrq,
-            'tanggal_permintaan': event.purchaseRequest.tanggalPermintaan,
-          };
+          });
 
-          await purchaseRequestRef.set(purchaseRequestData);
+          if (result.data['success'] == true) {
+            final String nextPurchaseRequestId =
+                await _generateNextPurchaseRequestId();
+            final purchaseRequestRef = _firestore
+                .collection('purchase_requests')
+                .doc(nextPurchaseRequestId);
 
-          await notificationService.addNotification('Terdapat permintaan pembelian bahan baru $nextPurchaseRequestId untuk $materialId', 'Administrasi');
+            final Map<String, dynamic> purchaseRequestData = {
+              'id': nextPurchaseRequestId,
+              'catatan': event.purchaseRequest.catatan,
+              'jumlah': jumlah,
+              'material_id': materialId,
+              'satuan': event.purchaseRequest.satuan,
+              'status': event.purchaseRequest.status,
+              'status_prq': event.purchaseRequest.statusPrq,
+              'tanggal_permintaan': event.purchaseRequest.tanggalPermintaan,
+            };
 
-          yield SuccessState();
-        }else{
-          yield ErrorState(result.data['message']);
+            await purchaseRequestRef.set(purchaseRequestData);
+
+            await notificationService.addNotification(
+                'Terdapat permintaan pembelian bahan baru $nextPurchaseRequestId untuk $materialId',
+                'Administrasi');
+
+            yield SuccessState();
+          } else {
+            yield ErrorState(result.data['message']);
+          }
+        } catch (e) {
+          yield ErrorState(e.toString());
         }
-        
-      } catch (e) {
-        yield ErrorState(e.toString());
-      }
-      }else{
+      } else {
         yield ErrorState("kode bahan tidak boleh kosong");
       }
-
     } else if (event is UpdatePurchaseRequestEvent) {
       yield LoadingState();
       final materialId = event.updatedPurchaseRequest.materialId;
       final jumlah = event.updatedPurchaseRequest.jumlah;
       final statusPrq = event.updatedPurchaseRequest.statusPrq;
 
-      if(materialId.isNotEmpty){
-        if(statusPrq.isNotEmpty && statusPrq!="Selesai"){
+      if (materialId.isNotEmpty) {
+        if (statusPrq.isNotEmpty && statusPrq != "Selesai") {
           try {
-            final HttpsCallableResult<dynamic> result = await purchaseReqCallable.call(<String, dynamic>{
+            final HttpsCallableResult<dynamic> result =
+                await purchaseReqCallable.call(<String, dynamic>{
               'jumlah': jumlah,
             });
 
-            if(result.data['success'] == true){
-              final purchaseRequestSnapshot = await purchaseRequestRef.where('id', isEqualTo: event.purchaseRequestId).get();
+            if (result.data['success'] == true) {
+              final purchaseRequestSnapshot = await purchaseRequestRef
+                  .where('id', isEqualTo: event.purchaseRequestId)
+                  .get();
               if (purchaseRequestSnapshot.docs.isNotEmpty) {
                 final purchaseRequestDoc = purchaseRequestSnapshot.docs.first;
                 await purchaseRequestDoc.reference.update({
@@ -121,30 +135,34 @@ class PurchaseRequestBloc extends Bloc<PurchaseRequestEvent, PurchaseRequestBloc
                   'satuan': event.updatedPurchaseRequest.satuan,
                   'status': event.updatedPurchaseRequest.status,
                   'status_prq': event.updatedPurchaseRequest.statusPrq,
-                  'tanggal_permintaan': event.updatedPurchaseRequest.tanggalPermintaan,
+                  'tanggal_permintaan':
+                      event.updatedPurchaseRequest.tanggalPermintaan,
                 });
                 yield SuccessState();
               } else {
-                yield ErrorState('Data Purchase Request dengan ID ${event.purchaseRequestId} tidak ditemukan.');
+                yield ErrorState(
+                    'Data Purchase Request dengan ID ${event.purchaseRequestId} tidak ditemukan.');
               }
-            }else{
+            } else {
               yield ErrorState(result.data['message']);
             }
           } catch (e) {
             yield ErrorState(e.toString());
           }
-        }else{
-          yield ErrorState("permintaan pembelian yang telah selesai\ntidak dapat diubah");
+        } else {
+          yield ErrorState(
+              "permintaan pembelian yang telah selesai\ntidak dapat diubah");
         }
-      }else{
+      } else {
         yield ErrorState("kode bahan tidak boleh kosong");
       }
-
     } else if (event is DeletePurchaseRequestEvent) {
       yield LoadingState();
       try {
-        final QuerySnapshot querySnapshot = await purchaseRequestRef.where('id', isEqualTo: event.purchaseRequestId).get();
-          
+        final QuerySnapshot querySnapshot = await purchaseRequestRef
+            .where('id', isEqualTo: event.purchaseRequestId)
+            .get();
+
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
           await documentSnapshot.reference.delete();
         }
@@ -158,11 +176,13 @@ class PurchaseRequestBloc extends Bloc<PurchaseRequestEvent, PurchaseRequestBloc
 
   Future<String> _generateNextPurchaseRequestId() async {
     final QuerySnapshot snapshot = await purchaseRequestRef.get();
-    final List<String> existingIds = snapshot.docs.map((doc) => doc['id'] as String).toList();
+    final List<String> existingIds =
+        snapshot.docs.map((doc) => doc['id'] as String).toList();
     int purchaseRequestCount = 1;
 
     while (true) {
-      final nextPurchaseRequestId = 'PRQ${purchaseRequestCount.toString().padLeft(5, '0')}';
+      final nextPurchaseRequestId =
+          'PRQ${purchaseRequestCount.toString().padLeft(5, '0')}';
       if (!existingIds.contains(nextPurchaseRequestId)) {
         return nextPurchaseRequestId;
       }

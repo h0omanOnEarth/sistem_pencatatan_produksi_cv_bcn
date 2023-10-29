@@ -4,15 +4,14 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/bottom_navigaton
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/sidebar_gudang.dart';
 
-
 class MainGudang extends StatefulWidget {
   static const routeName = '/gudang';
   final int? selectedIndex;
 
-  const MainGudang({Key? key,this.selectedIndex}) : super(key: key);
+  const MainGudang({Key? key, this.selectedIndex}) : super(key: key);
 
   @override
-   State<MainGudang> createState() => _MainGudangState(selectedIndex ?? 0);
+  State<MainGudang> createState() => _MainGudangState(selectedIndex ?? 0);
 }
 
 class _MainGudangState extends State<MainGudang> {
@@ -31,13 +30,13 @@ class _MainGudangState extends State<MainGudang> {
 
   void _onItemTapped(int index) {
     setState(() {
-      BottomNavigationGudang.menu = BottomNavigationGudang.getMenuByIndex(index);
+      BottomNavigationGudang.menu =
+          BottomNavigationGudang.getMenuByIndex(index);
       menu = BottomNavigationGudang.menu;
       _selectedIndex = index;
     });
   }
 
-  
   void _toggleSidebar() {
     setState(() {
       _isSidebarCollapsed = !_isSidebarCollapsed;
@@ -47,43 +46,43 @@ class _MainGudangState extends State<MainGudang> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveBuilder(
-            builder: (context, sizingInformation) {
-              if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
-                return Scaffold(
-                  body: Row(
-                    children: [
-                      SidebarGudangWidget(
-                        selectedIndex: _selectedIndex,
-                        onItemTapped: _onItemTapped,
-                        isSidebarCollapsed: _isSidebarCollapsed, // Add this line
-                        onToggleSidebar: _toggleSidebar, // Add this line
-                      ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() {
-                            menu = BottomNavigationGudang.menu;
-                          }),
-                          child: menu,
-                        ),
-                      ),
-                    ],
-                  ),
-                  bottomNavigationBar: null,
-                );
-              } else {
-                return Scaffold(
-                  body: GestureDetector(
+      builder: (context, sizingInformation) {
+        if (sizingInformation.deviceScreenType == DeviceScreenType.desktop) {
+          return Scaffold(
+            body: Row(
+              children: [
+                SidebarGudangWidget(
+                  selectedIndex: _selectedIndex,
+                  onItemTapped: _onItemTapped,
+                  isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                  onToggleSidebar: _toggleSidebar, // Add this line
+                ),
+                Expanded(
+                  child: GestureDetector(
                     onTap: () => setState(() {
                       menu = BottomNavigationGudang.menu;
                     }),
                     child: menu,
                   ),
-                  bottomNavigationBar: BottomNavigationGudang(
-                    onItemTapped: _onItemTapped,
-                  ),
-                );
-              }
-            },
+                ),
+              ],
+            ),
+            bottomNavigationBar: null,
           );
+        } else {
+          return Scaffold(
+            body: GestureDetector(
+              onTap: () => setState(() {
+                menu = BottomNavigationGudang.menu;
+              }),
+              child: menu,
+            ),
+            bottomNavigationBar: BottomNavigationGudang(
+              onItemTapped: _onItemTapped,
+            ),
+          );
+        }
+      },
+    );
   }
 }

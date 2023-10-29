@@ -14,15 +14,16 @@ class SuratJalanDropDown extends StatefulWidget {
   late final TextEditingController? nomorDeliveryOrderController;
   final bool isEnabled;
 
-  SuratJalanDropDown({super.key, 
-    required this.selectedSuratJalan, 
-    required this.onChanged, 
+  SuratJalanDropDown({
+    super.key,
+    required this.selectedSuratJalan,
+    required this.onChanged,
     this.namaPelangganController,
     this.nomorPesananPelanggan,
     this.kodePelangganController,
     this.nomorDeliveryOrderController,
     this.isEnabled = true,
-    });
+  });
 
   @override
   State<SuratJalanDropDown> createState() => _SuratJalanDropDownState();
@@ -30,7 +31,8 @@ class SuratJalanDropDown extends StatefulWidget {
 
 class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
   late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
-  final FirebaseFirestore firestore = FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore =
+      FirebaseFirestore.instance; // Instance Firestore
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
   final deliveryOrderService = DeliveryOrderService();
@@ -84,20 +86,31 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
               child: DropdownButtonFormField<String>(
                 value: widget.selectedSuratJalan,
                 items: shipmentItems,
-                onChanged:  widget.isEnabled ? (newValue) async {
-                  widget.onChanged(newValue);
-                  _selectedDoc = snapshot.data!.docs.firstWhere(
-                    (document) => document['id'] == newValue,
-                  );
-                  Map<String, dynamic>? deliveryOrder = await deliveryOrderService.getDeliveryOrderInfo(_selectedDoc['delivery_order_id'] as String);
-                  final customerOrderId = deliveryOrder?['customerOrderId'] as String;
-                  Map<String, dynamic>? customerOrder = await customerOrderService.getCustomerOrderInfo(customerOrderId);
-                  Map<String, dynamic>? customer = await customerService.getCustomerInfo(customerOrder?['customer_id']);
-                  widget.namaPelangganController?.text = customer?['nama'];
-                  widget.kodePelangganController?.text = customer?['id'];
-                  widget.nomorPesananPelanggan?.text = customerOrder?['id'];
-                  widget.nomorDeliveryOrderController?.text = _selectedDoc['delivery_order_id'];
-                }:null,
+                onChanged: widget.isEnabled
+                    ? (newValue) async {
+                        widget.onChanged(newValue);
+                        _selectedDoc = snapshot.data!.docs.firstWhere(
+                          (document) => document['id'] == newValue,
+                        );
+                        Map<String, dynamic>? deliveryOrder =
+                            await deliveryOrderService.getDeliveryOrderInfo(
+                                _selectedDoc['delivery_order_id'] as String);
+                        final customerOrderId =
+                            deliveryOrder?['customerOrderId'] as String;
+                        Map<String, dynamic>? customerOrder =
+                            await customerOrderService
+                                .getCustomerOrderInfo(customerOrderId);
+                        Map<String, dynamic>? customer = await customerService
+                            .getCustomerInfo(customerOrder?['customer_id']);
+                        widget.namaPelangganController?.text =
+                            customer?['nama'];
+                        widget.kodePelangganController?.text = customer?['id'];
+                        widget.nomorPesananPelanggan?.text =
+                            customerOrder?['id'];
+                        widget.nomorDeliveryOrderController?.text =
+                            _selectedDoc['delivery_order_id'];
+                      }
+                    : null,
                 isExpanded: true,
                 decoration: const InputDecoration(
                   border: InputBorder.none,

@@ -10,10 +10,12 @@ class MainPenjulanAdministrasiScreen extends StatefulWidget {
   const MainPenjulanAdministrasiScreen({Key? key});
 
   @override
-  State<MainPenjulanAdministrasiScreen> createState() => _MainMasterAdministrasiScreenState();
+  State<MainPenjulanAdministrasiScreen> createState() =>
+      _MainMasterAdministrasiScreenState();
 }
 
-class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiScreen> {
+class _MainMasterAdministrasiScreenState
+    extends State<MainPenjulanAdministrasiScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,9 +80,22 @@ class _MainMasterAdministrasiScreenState extends State<MainPenjulanAdministrasiS
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const CardItem(icon: Icons.point_of_sale, textA: 'Pesanan Pelanggan', textB: 'Memodifikasi dan melihat pesanan pelanggan', pageRoute: ListPesananPelanggan.routeName),
-                    const CardItem(icon: Icons.local_shipping, textA: 'Pesanan Pengiriman', textB: 'Memodifikasi dan melihat data pesanan pengiriman', pageRoute: ListPesananPengiriman.routeName),
-                    const CardItem(icon: Icons.file_present_rounded, textA: 'Faktur', textB: 'Memodifikasi dan melihat data faktur', pageRoute: ListFakturPenjualan.routeName),
+                    const CardItem(
+                        icon: Icons.point_of_sale,
+                        textA: 'Pesanan Pelanggan',
+                        textB: 'Memodifikasi dan melihat pesanan pelanggan',
+                        pageRoute: ListPesananPelanggan.routeName),
+                    const CardItem(
+                        icon: Icons.local_shipping,
+                        textA: 'Pesanan Pengiriman',
+                        textB:
+                            'Memodifikasi dan melihat data pesanan pengiriman',
+                        pageRoute: ListPesananPengiriman.routeName),
+                    const CardItem(
+                        icon: Icons.file_present_rounded,
+                        textA: 'Faktur',
+                        textB: 'Memodifikasi dan melihat data faktur',
+                        pageRoute: ListFakturPenjualan.routeName),
                   ],
                 ),
               ),

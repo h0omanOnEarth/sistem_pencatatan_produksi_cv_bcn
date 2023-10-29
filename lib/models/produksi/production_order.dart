@@ -15,25 +15,25 @@ class ProductionOrder {
   DateTime tanggalRencana;
   DateTime tanggalSelesai;
   String catatan;
-  List<DetailProductionOrder>? detailProductionOrderList; // List tidak perlu menjadi opsional,
+  List<DetailProductionOrder>?
+      detailProductionOrderList; // List tidak perlu menjadi opsional,
   List<MachineDetail>? detailMesinProductionOrderList;
 
-  ProductionOrder({
-    required this.id,
-    required this.bomId,
-    required this.jumlahProduksiEst,
-    required this.jumlahTenagaKerjaEst,
-    required this.lamaWaktuEst,
-    required this.productId,
-    required this.status,
-    required this.statusPro,
-    required this.tanggalProduksi,
-    required this.tanggalRencana,
-    required this.tanggalSelesai,
-    required this.catatan,
-    this.detailProductionOrderList = const [], // Initialize the list
-    this.detailMesinProductionOrderList = const[]
-  });
+  ProductionOrder(
+      {required this.id,
+      required this.bomId,
+      required this.jumlahProduksiEst,
+      required this.jumlahTenagaKerjaEst,
+      required this.lamaWaktuEst,
+      required this.productId,
+      required this.status,
+      required this.statusPro,
+      required this.tanggalProduksi,
+      required this.tanggalRencana,
+      required this.tanggalSelesai,
+      required this.catatan,
+      this.detailProductionOrderList = const [], // Initialize the list
+      this.detailMesinProductionOrderList = const []});
 
   factory ProductionOrder.fromJson(Map<String, dynamic> json) {
     return ProductionOrder(
@@ -52,13 +52,15 @@ class ProductionOrder {
     );
   }
 
-    Future<void> fetchDetaiProductionOrders() async {
+  Future<void> fetchDetaiProductionOrders() async {
     final detailProductionOrdersQuery = FirebaseFirestore.instance
         .collection('detail_production_orders')
         .where('production_order_id', isEqualTo: id);
 
-    final detailProductionOrdersSnapshot = await detailProductionOrdersQuery.get();
-    final detailProductionOrdersData = detailProductionOrdersSnapshot.docs.map((doc) {
+    final detailProductionOrdersSnapshot =
+        await detailProductionOrdersQuery.get();
+    final detailProductionOrdersData =
+        detailProductionOrdersSnapshot.docs.map((doc) {
       final data = doc.data();
       return DetailProductionOrder.fromJson(data);
     }).toList();

@@ -8,7 +8,8 @@ class ListCardPrint extends StatelessWidget {
   final VoidCallback? onPrintPressed;
   final String? status;
 
-  const ListCardPrint({super.key, 
+  const ListCardPrint({
+    super.key,
     required this.title,
     required this.description,
     required this.onDeletePressed,
@@ -16,7 +17,7 @@ class ListCardPrint extends StatelessWidget {
     this.onPrintPressed,
     this.status,
   });
- @override
+  @override
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,
@@ -32,7 +33,8 @@ class ListCardPrint extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align buttons to the start and end
+            mainAxisAlignment: MainAxisAlignment
+                .spaceBetween, // Align buttons to the start and end
             children: [
               Expanded(
                 child: Column(
@@ -77,24 +79,26 @@ class ListCardPrint extends StatelessWidget {
                       onPressed: onPrintPressed,
                     ),
                   ),
-                  const SizedBox(height: 8.0,),
-                  if (status != "Selesai")
-                  Container(
-                    width: 35.0,
-                    height: 35.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: Colors.red,
-                    ),
-                    child: IconButton(
-                      iconSize: 21.0,
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                      ),
-                      onPressed: onDeletePressed,
-                    ),
+                  const SizedBox(
+                    height: 8.0,
                   ),
+                  if (status != "Selesai")
+                    Container(
+                      width: 35.0,
+                      height: 35.0,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.red,
+                      ),
+                      child: IconButton(
+                        iconSize: 21.0,
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                        onPressed: onDeletePressed,
+                      ),
+                    ),
                 ],
               ),
             ],

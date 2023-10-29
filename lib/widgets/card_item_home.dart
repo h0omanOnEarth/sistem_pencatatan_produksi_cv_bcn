@@ -22,7 +22,8 @@ class CardItemHome extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             Column(
@@ -32,10 +33,12 @@ class CardItemHome extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
                               item,
-                              style: const TextStyle(fontSize: 16), // Ubah ukuran teks
+                              style: const TextStyle(
+                                  fontSize: 16), // Ubah ukuran teks
                             ),
                           ),
                           const Divider(),
@@ -48,4 +51,4 @@ class CardItemHome extends StatelessWidget {
       ),
     );
   }
-  }
+}

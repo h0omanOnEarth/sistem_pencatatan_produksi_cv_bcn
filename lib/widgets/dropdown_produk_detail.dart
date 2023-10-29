@@ -12,7 +12,8 @@ class DropdownProdukDetailWidget extends StatelessWidget {
     required this.selectedValue,
     required this.onChanged,
     required this.products,
-    this.isEnabled = true, // Tambahkan properti isEnabled dengan nilai default true
+    this.isEnabled =
+        true, // Tambahkan properti isEnabled dengan nilai default true
   });
 
   @override
@@ -49,15 +50,20 @@ class DropdownProdukDetailWidget extends StatelessWidget {
                   child: Text(
                     productId,
                     style: TextStyle(
-                      color: isEnabled ? Colors.black : Colors.grey, // Gunakan isEnabled untuk mengatur warna teks
+                      color: isEnabled
+                          ? Colors.black
+                          : Colors
+                              .grey, // Gunakan isEnabled untuk mengatur warna teks
                     ),
                   ),
                 ),
               );
             }).toList(),
-            onChanged: isEnabled ? (String? newValue) {
-              onChanged(newValue ?? '');
-            } : null, // Nonaktifkan onChanged jika isEnabled adalah false
+            onChanged: isEnabled
+                ? (String? newValue) {
+                    onChanged(newValue ?? '');
+                  }
+                : null, // Nonaktifkan onChanged jika isEnabled adalah false
           ),
         ),
       ],
