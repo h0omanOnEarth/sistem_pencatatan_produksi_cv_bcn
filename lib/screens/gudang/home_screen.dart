@@ -14,13 +14,14 @@ class HomeScreenGudang extends StatefulWidget {
 }
 
 class _HomeScreenGudangState extends State<HomeScreenGudang> {
- final String userName = "John Doe";
+  final String userName = "John Doe";
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
+          // Background Image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -35,119 +36,16 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
           ),
           SafeArea(
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    height: 250,
-                    decoration: const BoxDecoration(
-                      color: Color.fromRGBO(59, 51, 51, 1),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 70,
-                        right: 10,
-                        left: 10,
-                        bottom: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'images/profile.jpg',
-                                width: MediaQuery.of(context).size.width * 0.05,
-                                height: MediaQuery.of(context).size.width * 0.05,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Welcome Back,",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Text(
-                                userName,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const NotifikasiScreen(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.notifications,
-                                color: Colors.black,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16), // Tambahkan jarak antara card dan konten di bawahnya
-                  const Row(children: [
-                    Expanded(child: CombinedCard(
-                    collectionName: 'shipments',
-                    statusField: 'status_shp',
-                    statusValue: 'Dalam Proses',
-                    idField: 'id',
-                    title: 'Surat Jalan',
-                  ),),
-                  SizedBox(height: 16), // Tambahkan jarak antara card
-                  Expanded(child: CombinedCard(
-                    collectionName: 'purchase_requests',
-                    statusField: 'status_prq',
-                    statusValue: 'Dalam Proses',
-                    idField: 'id',
-                    title: 'Permintaan Pembelian',
-                  ),)
-                  ],
-                  ),
-                  Row(
-                    children: [
-                      const Expanded(child: ProductsChart()),
-                      const SizedBox(width: 8.0,),
-                      Expanded(child: MaterialsChart())
-                    ],
-                  )
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth >= 600) {
+                    // Wide Layout (Desktop/Tablet)
+                    return buildWideLayout();
+                  } else {
+                    // Narrow Layout (Mobile)
+                    return buildNarrowLayout();
+                  }
+                },
               ),
             ),
           ),
@@ -155,6 +53,240 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
       ),
     );
   }
+
+  Widget buildWideLayout() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Profile Card
+      Card(
+        elevation: 5,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'images/profile.jpg',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Welcome Back,",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 24,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotifikasiScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      
+    const Row(
+          children: [
+            Expanded(
+              child: CombinedCard(
+                collectionName: 'shipments',
+                statusField: 'status_shp',
+                statusValue: 'Dalam Proses',
+                idField: 'id',
+                title: 'Surat Jalan',
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: CombinedCard(
+                collectionName: 'purchase_requests',
+                statusField: 'status_prq',
+                statusValue: 'Dalam Proses',
+                idField: 'id',
+                title: 'Permintaan Pembelian',
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const Expanded(child: ProductsChart()),
+            const SizedBox(width: 8.0),
+            Expanded(child: MaterialsChart()),
+          ],
+        ),
+    ],
+  );
+}
+
+
+Widget buildNarrowLayout() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Card(
+        elevation: 5,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'images/profile.jpg',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Welcome Back,",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 24,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotifikasiScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+        const CombinedCard(
+          collectionName: 'shipments',
+          statusField: 'status_shp',
+          statusValue: 'Dalam Proses',
+          idField: 'id',
+          title: 'Surat Jalan',
+        ),
+        const SizedBox(height: 16),
+        const CombinedCard(
+          collectionName: 'purchase_requests',
+          statusField: 'status_prq',
+          statusValue: 'Dalam Proses',
+          idField: 'id',
+          title: 'Permintaan Pembelian',
+        ),
+        const SizedBox(height: 16),
+        const ProductsChart(),
+        const SizedBox(height: 16),
+        MaterialsChart(),
+    ],
+  );
+}
+
 }
 
 class CombinedCard extends StatelessWidget {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/homeService.dart';
 
 class HomeScreenProduksi extends StatefulWidget {
@@ -34,72 +35,75 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    height: 250,
-                    decoration: const BoxDecoration(
-                      color: Color.fromRGBO(59, 51, 51, 1),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 70,
-                        right: 10,
-                        left: 10,
-                        bottom: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'images/profile.jpg',
-                                width: MediaQuery.of(context).size.width * 0.05,
-                                height: MediaQuery.of(context).size.width * 0.05,
-                                fit: BoxFit.cover,
+                  Card(
+                  elevation: 5,
+                  margin: const EdgeInsets.all(16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
                               ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Welcome Back,",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
+                              padding: const EdgeInsets.all(4),
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'images/profile.jpg',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              Text(
-                                "$userName",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
                             ),
-                            padding: const EdgeInsets.all(4),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Welcome Back,",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                Text(
+                                  userName,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: CircleAvatar(
+                            backgroundColor: Colors.white,
+                            radius: 24,
                             child: IconButton(
                               onPressed: () {
-                                // Aksi untuk tombol notifikasi
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const NotifikasiScreen(),
+                                  ),
+                                );
                               },
                               icon: const Icon(
                                 Icons.notifications,
@@ -108,10 +112,11 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
+                ),
                   const CardList(),
                 ],
               ),

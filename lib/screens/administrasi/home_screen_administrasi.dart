@@ -36,119 +36,16 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
           ),
           SafeArea(
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    height: 250,
-                    decoration: const BoxDecoration(
-                      color: Color.fromRGBO(59, 51, 51, 1),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 70,
-                        right: 10,
-                        left: 10,
-                        bottom: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'images/profile.jpg',
-                                width: MediaQuery.of(context).size.width * 0.05,
-                                height: MediaQuery.of(context).size.width * 0.05,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Welcome Back,",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                              Text(
-                                "$userName",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(width: 16),
-                          Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(4),
-                            child: IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const NotifikasiScreen(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.notifications,
-                                color: Colors.black,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16), // Tambahkan jarak antara card dan konten di bawahnya
-                  const Row(children: [
-                    Expanded(child: CombinedCard(
-                    collectionName: 'customer_orders',
-                    statusField: 'status_pesanan',
-                    statusValue: 'Dalam Proses',
-                    idField: 'id',
-                    title: 'Pesanan Pelanggan',
-                  ),),
-                  SizedBox(height: 16), // Tambahkan jarak antara card
-                  Expanded(child: CombinedCard(
-                    collectionName: 'delivery_orders',
-                    statusField: 'status_pesanan_pengiriman',
-                    statusValue: 'Dalam Proses',
-                    idField: 'id',
-                    title: 'Perintah Pengiriman',
-                  ),)
-                  ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(child: CustomerOrderChart()),
-                      const SizedBox(width: 8.0,),
-                      Expanded(child: MaterialUsageChartCard())
-                    ],
-                  )
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth >= 600) {
+                    // Wide Layout (Desktop/Tablet)
+                    return buildWideLayout();
+                  } else {
+                    // Narrow Layout (Mobile)
+                    return buildNarrowLayout();
+                  }
+                },
               ),
             ),
           ),
@@ -156,6 +53,238 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
       ),
     );
   }
+
+Widget buildWideLayout() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      // Profile Card
+      Card(
+        elevation: 5,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'images/profile.jpg',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Welcome Back,",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 24,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotifikasiScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      
+      // First Section Card
+     const Row(
+          children: [
+            Expanded(child: CombinedCard(
+              collectionName: 'customer_orders',
+              statusField: 'status_pesanan',
+              statusValue: 'Dalam Proses',
+              idField: 'id',
+              title: 'Pesanan Pelanggan',
+            ),),
+            SizedBox(height: 16),
+            Expanded(child:  CombinedCard(
+              collectionName: 'delivery_orders',
+              statusField: 'status_pesanan_pengiriman',
+              statusValue: 'Dalam Proses',
+              idField: 'id',
+              title: 'Perintah Pengiriman',
+            ),)
+          ],
+        ),
+
+      // Second Section Card
+     const Row(
+          children: [
+            Expanded(child: CustomerOrderChart()),
+            SizedBox(width: 16),
+            Expanded(child: MaterialUsageChartCard()),
+          ],
+        ),
+    ],
+  );
+}
+
+
+Widget buildNarrowLayout() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Card(
+        elevation: 5,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'images/profile.jpg',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Welcome Back,",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                padding: const EdgeInsets.all(4),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 24,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotifikasiScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      const CombinedCard(
+        collectionName: 'customer_orders',
+        statusField: 'status_pesanan',
+        statusValue: 'Dalam Proses',
+        idField: 'id',
+        title: 'Pesanan Pelanggan',
+      ),
+      const SizedBox(height: 16),
+      const CombinedCard(
+        collectionName: 'delivery_orders',
+        statusField: 'status_pesanan_pengiriman',
+        statusValue: 'Dalam Proses',
+        idField: 'id',
+        title: 'Perintah Pengiriman',
+      ),
+      const CustomerOrderChart(),
+      const SizedBox(height: 16),
+      const MaterialUsageChartCard(),
+      // Additional content goes here
+    ],
+  );
+}
 }
 
 class CombinedCard extends StatelessWidget {
