@@ -83,7 +83,15 @@ class _ProdukDropDownState extends State<ProdukDropDown> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: firestore.collection('products').snapshots(),
+              stream: firestore
+                  .collection('products')
+                  .where(
+                    'status',
+                    isEqualTo: widget.isEnabled
+                        ? 1
+                        : null, // Filter status hanya saat isEnabled true
+                  )
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();

@@ -251,16 +251,30 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
 
   void fetchDataBahan() {
     // Ambil data produk dari Firestore di initState
-    firestore.collection('materials').get().then((querySnapshot) {
+    Query collectionQuery = firestore.collection('materials');
+
+    // Jika widget.materialUsageId == null atau ID material adalah "materialXXX", tambahkan klausa where status = 1
+    if (widget.materialUsageId == null) {
+      // collectionQuery = collectionQuery.where('status', isEqualTo: 1);
+      collectionQuery =
+          collectionQuery; //logikanya kalau sudah terlanjur terdaftar di bom gimana lagi, berlaku juga untuk pengembalian bahan
+    }
+
+    collectionQuery.get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
-        Map<String, dynamic> bahan = {
-          'id': doc['id'], // Gunakan ID dokumen sebagai ID produk
-          'nama': doc['nama']
-              as String, // Ganti 'nama' dengan field yang sesuai di Firestore
-        };
-        setState(() {
-          productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
-        });
+        String materialId = doc['id'];
+
+        // Tambahkan pemeriksaan untuk mengabaikan material dengan ID "materialXXX"
+        if (materialId != 'materialXXX') {
+          Map<String, dynamic> bahan = {
+            'id': materialId, // Gunakan ID dokumen sebagai ID produk
+            'nama': doc['nama']
+                as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+          };
+          setState(() {
+            productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
+          });
+        }
       }
     });
   }

@@ -178,9 +178,9 @@ class MesinBloc extends Bloc<MesinEvent, MesinState> {
         QuerySnapshot querySnapshot =
             await mesinsRef.where('id', isEqualTo: event.mesinId).get();
 
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        // Ubah status mesin menjadi 0 alih daripada menghapusnya
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          await documentSnapshot.reference.update({'status': 0});
         }
         yield LoadedState(await _getMesins());
       } catch (e) {

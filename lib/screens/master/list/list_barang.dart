@@ -302,6 +302,7 @@ class _ListMasterBarangScreenState extends State<ListMasterBarangScreen> {
                         // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                       }
                     },
+                    status: data['status'].toString(),
                   );
                 },
               ),
@@ -342,7 +343,7 @@ class _ListMasterBarangScreenState extends State<ListMasterBarangScreen> {
                             });
                           },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors
+                      backgroundColor: Colors
                           .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Next"),

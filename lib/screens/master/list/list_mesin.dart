@@ -226,8 +226,10 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
           final filteredTipeDocs = mesinDocs.where((doc) {
             final nama = doc['nama'] as String;
             final tipe = doc['tipe'] as String;
+            final statusDoc = doc['status'] as int;
             return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                (selectedTipe.isEmpty || tipe == selectedTipe));
+                (selectedTipe.isEmpty || tipe == selectedTipe) &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

@@ -81,7 +81,7 @@ class ListCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (status == null || status != "Selesai")
+                if (status != "0" && status != "Selesai")
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

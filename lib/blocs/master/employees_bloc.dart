@@ -206,10 +206,10 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
         QuerySnapshot querySnapshot =
             await employeesRef.where('id', isEqualTo: event.employeeId).get();
 
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        // Hapus semua dokumen yang sesuai dengan pencarian
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          // Hapus dokumen Firestore
-          await documentSnapshot.reference.delete();
+          // Perbarui status menjadi 0
+          await documentSnapshot.reference.update({'status': 0});
         }
 
         yield LoadedState(await _getEmployees());

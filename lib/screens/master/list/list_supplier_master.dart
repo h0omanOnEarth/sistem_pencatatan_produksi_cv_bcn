@@ -181,8 +181,10 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
           final filterJenisDocs = supplierDocs.where((doc) {
             final nama = doc['nama'] as String;
             final jenis = doc['jenis_supplier'] as String;
+            final statusDoc = doc['status'] as int;
             return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                (selectedJenis.isEmpty || jenis == selectedJenis));
+                (selectedJenis.isEmpty || jenis == selectedJenis) &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

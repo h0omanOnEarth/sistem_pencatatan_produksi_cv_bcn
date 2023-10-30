@@ -182,7 +182,14 @@ class _FormPesananPelangganScreenState
 
   void fetchData() {
     // Ambil data produk dari Firestore di initState
-    firestore.collection('products').get().then((querySnapshot) {
+    Query collectionQuery = firestore.collection('products');
+
+    if (widget.customerOrderId == null) {
+      // Jika widget.customerOrderId == null, tambahkan klausa where status = 1
+      collectionQuery = collectionQuery.where('status', isEqualTo: 1);
+    }
+
+    collectionQuery.get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> product = {
           'id': doc['id'], // Gunakan ID dokumen sebagai ID produk

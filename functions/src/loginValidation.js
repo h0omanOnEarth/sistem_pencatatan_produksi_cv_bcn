@@ -24,6 +24,14 @@ exports.loginValidation = async (req) => {
     const userDoc = qSnap.docs[0];
     const userData = userDoc.data();
 
+    // Periksa status karyawan
+    if (userData.status !== 1) {
+      return {
+        success: false,
+        message: "Anda tidak aktif bekerja sekarang",
+      };
+    }
+
     // Bandingkan kata sandi yang diberikan dengan kata sandi yang tersimpan
     if (userData.password !== password) {
       return {

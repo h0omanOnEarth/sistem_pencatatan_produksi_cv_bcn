@@ -49,9 +49,14 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('customers')
-                  .snapshots(),
+              stream: widget.isEnabled
+                  ? FirebaseFirestore.instance
+                      .collection('customers')
+                      .where('status', isEqualTo: 1)
+                      .snapshots()
+                  : FirebaseFirestore.instance
+                      .collection('customers')
+                      .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();

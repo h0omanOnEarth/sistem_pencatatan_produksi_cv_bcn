@@ -23,6 +23,11 @@ class MachineDropdown extends StatelessWidget {
       stream: FirebaseFirestore.instance
           .collection('machines')
           .where('tipe', isEqualTo: title)
+          .where(
+            'status',
+            isEqualTo:
+                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
+          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

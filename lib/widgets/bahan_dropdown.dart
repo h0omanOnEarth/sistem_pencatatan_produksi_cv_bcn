@@ -50,9 +50,14 @@ class _BahanDropdownState extends State<BahanDropdown> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('materials')
-                  .snapshots(),
+              stream: widget.isEnabled
+                  ? FirebaseFirestore.instance
+                      .collection('materials')
+                      .where('status', isEqualTo: 1)
+                      .snapshots()
+                  : FirebaseFirestore.instance
+                      .collection('materials')
+                      .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
@@ -62,15 +67,18 @@ class _BahanDropdownState extends State<BahanDropdown> {
 
                 for (QueryDocumentSnapshot document in snapshot.data!.docs) {
                   String materialId = document['id'];
-                  materialItems.add(
-                    DropdownMenuItem<String>(
-                      value: materialId,
-                      child: Text(
-                        materialId,
-                        style: const TextStyle(color: Colors.black),
+                  // Filter nama tertentu (misalnya, 'materialXXX')
+                  if (materialId != 'materialXXX') {
+                    materialItems.add(
+                      DropdownMenuItem<String>(
+                        value: materialId,
+                        child: Text(
+                          materialId,
+                          style: const TextStyle(color: Colors.black),
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 }
 
                 String? initialValue = selectedBahan;

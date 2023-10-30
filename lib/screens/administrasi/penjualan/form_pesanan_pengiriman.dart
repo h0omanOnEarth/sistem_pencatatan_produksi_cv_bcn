@@ -163,7 +163,14 @@ class _FormPesananPengirimanScreenState
   }
 
   void fetchDataProduct() {
-    firestore.collection('products').get().then((querySnapshot) {
+    Query collectionQuery = firestore.collection('products');
+
+    if (widget.deliveryOrderId == null) {
+      // Jika widget.deliveryOrderId == null, tambahkan klausa where status = 1
+      collectionQuery = collectionQuery.where('status', isEqualTo: 1);
+    }
+
+    collectionQuery.get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> product = {
           'id': doc['id'], // Gunakan ID dokumen sebagai ID produk

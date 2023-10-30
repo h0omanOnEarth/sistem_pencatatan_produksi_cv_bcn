@@ -254,6 +254,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                         // Data telah dihapus, tidak perlu melakukan apa-apa lagi
                       }
                     },
+                    status: data['status'].toString(),
                   );
                 },
               ),

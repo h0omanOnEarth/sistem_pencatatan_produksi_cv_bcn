@@ -204,10 +204,11 @@ class SupplierBloc extends Bloc<SupplierEvent, SupplierState> {
         QuerySnapshot querySnapshot =
             await suppliersRef.where('id', isEqualTo: event.supplierId).get();
 
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        // Perbarui status dokumen menjadi 0 daripada menghapus
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          await documentSnapshot.reference.update({'status': 0});
         }
+
         yield LoadedState(await _getSuppliers());
       } catch (e) {
         yield ErrorState("Gagal menghapus supplier.");

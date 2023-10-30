@@ -18,7 +18,14 @@ class SupplierDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('suppliers')
+          .where(
+            'status',
+            isEqualTo:
+                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
+          )
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

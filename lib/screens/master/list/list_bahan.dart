@@ -226,8 +226,10 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
           final filterJenisDocs = materialDocs.where((doc) {
             final nama = doc['nama'] as String;
             final jenis = doc['jenis_bahan'] as String;
+            final status = doc['status'] as int;
             return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                (selectedJenis.isEmpty || jenis == selectedJenis));
+                (selectedJenis.isEmpty || jenis == selectedJenis) &&
+                status == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

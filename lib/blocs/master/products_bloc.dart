@@ -169,17 +169,17 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
     } else if (event is DeleteProductEvent) {
       yield LoadingState();
       try {
-        // Cari dokumen dengan 'id' yang sesuai dengan event.mesinId
+        // Cari dokumen dengan 'id' yang sesuai dengan event.productId
         QuerySnapshot querySnapshot =
             await productsRef.where('id', isEqualTo: event.productId).get();
 
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        // Ubah status produk menjadi 0 daripada menghapusnya
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          await documentSnapshot.reference.update({'status': 0});
         }
         yield LoadedState(await _getProducts());
       } catch (e) {
-        yield ErrorState("Gagal menghapus produk.");
+        yield ErrorState("Gagal mengubah status produk.");
       }
     }
   }
