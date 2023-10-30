@@ -109,13 +109,13 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     final _bomBloc = BlocProvider.of<BillOfMaterialBloc>(context);
 
     final billOfMaterial = BillOfMaterial(
-      id: '',
-      productId: selectedKodeProduk ?? '',
-      statusBOM: selectedStatus == 'Aktif' ? 1 : 0,
-      tanggalPembuatan: selectedDate ?? DateTime.now(),
-      versiBOM: 0,
-      detailBOMList: [],
-    );
+        id: '',
+        productId: selectedKodeProduk ?? '',
+        statusBOM: selectedStatus == 'Aktif' ? 1 : 0,
+        tanggalPembuatan: selectedDate ?? DateTime.now(),
+        versiBOM: 0,
+        detailBOMList: [],
+        status: 1);
 
     // Loop melalui productCards untuk menambahkan detail customer order
     for (var productCardData in productCards) {
@@ -164,14 +164,14 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
   }
 
 // Fungsi untuk mengambil data detail_customer_orders
-  void fetchDataDetail() {
+  void fetchDataDetail() async {
     firestore
         .collection('bill_of_materials')
         .doc(widget.bomId!) // Menggunakan widget.bomId
         .collection('detail_bill_of_materials')
         .get()
         .then((querySnapshot) {
-      final newProductCards = <ProductCardDataBahan>[];
+      List<ProductCardDataBahan> newProductCards = <ProductCardDataBahan>[];
       querySnapshot.docs.forEach((doc) async {
         final detailData = doc.data();
 
@@ -215,6 +215,10 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
             querySnapshot.docs.first.data() as Map<String, dynamic>;
         final namaProduk = productData['nama'];
         namaProdukController.text = namaProduk ?? '';
+        ketebalanController.text = productData['ketebalan'].toString();
+        dimensiControler.text = productData['dimensi'].toString();
+        beratController.text = productData['berat'].toString();
+        satuanController.text = productData['satuan'].toString();
       } else {
         print('Document does not exist on Firestore');
       }
@@ -228,6 +232,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     super.initState();
     addProductCard();
     fetchDataBahan();
+
     // Panggil _generateNextBomId() dan isi kodeBOMController dengan hasilnya
     _generateNextBomId().then((nextBomId) {
       kodeBOMController.text = nextBomId;
@@ -240,26 +245,38 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
           .doc(widget.bomId) // Menggunakan widget.customerOrderId
           .get()
           .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          final data = documentSnapshot.data() as Map<String, dynamic>;
-          setState(() {
-            catatanController.text = data['catatan'] ?? '';
-            kodeBOMController.text = data['id'];
-            versiBOMController.text = data['versi_bom'].toString();
-            selectedStatus = data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';
-            final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
-            if (tanggalPembuatanFirestore != null) {
-              selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
-            }
-          });
-        } else {
-          print('Document does not exist on Firestore');
+        try {
+          if (documentSnapshot.exists) {
+            final data = documentSnapshot.data() as Map<String, dynamic>;
+            setState(() {
+              catatanController.text = data['catatan'] ?? '';
+              kodeBOMController.text = data['id'];
+              versiBOMController.text = data['versi_bom'].toString();
+              selectedStatus =
+                  data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';
+              final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
+              if (tanggalPembuatanFirestore != null) {
+                selectedDate =
+                    (tanggalPembuatanFirestore as Timestamp).toDate();
+              }
+            });
+          } else {
+            print('Document does not exist on Firestore');
+          }
+        } catch (error) {
+          print('Error while processing document: $error');
+          // Handle error as needed, e.g., show an error message to the user.
         }
       }).catchError((error) {
         print('Error getting document: $error');
       });
 
-      fetchDataDetail(); // Ambil data detail_customer_orders
+      try {
+        fetchDataDetail(); // Ambil data detail_customer_orders
+      } catch (error) {
+        print('Error while fetching data detail: $error');
+        // Handle error as needed, e.g., show an error message to the user.
+      }
     }
 
     if (widget.productId != null) {

@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
-
-import 'main/main_proses.dart';
 
 class BottomNavigationProduksi extends StatefulWidget {
   final Key? key; // Named 'key' parameter

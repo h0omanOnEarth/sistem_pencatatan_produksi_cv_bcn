@@ -4,6 +4,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/master/detail_billofmate
 class BillOfMaterial {
   String id;
   String productId;
+  int status;
   int statusBOM;
   DateTime tanggalPembuatan;
   int versiBOM;
@@ -15,17 +16,18 @@ class BillOfMaterial {
     required this.statusBOM,
     required this.tanggalPembuatan,
     required this.versiBOM,
+    required this.status,
     this.detailBOMList = const [], // Initialize the list
   });
 
   factory BillOfMaterial.fromJson(Map<String, dynamic> json) {
     return BillOfMaterial(
-      id: json['id'] as String,
-      productId: json['product_id'] as String,
-      statusBOM: json['status_bom'] as int,
-      tanggalPembuatan: DateTime.parse(json['tanggal_pembuatan'] as String),
-      versiBOM: json['versi_bom'] as int,
-    );
+        id: json['id'] as String,
+        productId: json['product_id'] as String,
+        statusBOM: json['status_bom'] as int,
+        tanggalPembuatan: DateTime.parse(json['tanggal_pembuatan'] as String),
+        versiBOM: json['versi_bom'] as int,
+        status: json['status'] as int);
   }
 
   Future<void> fetchBomDetails() async {
@@ -55,6 +57,7 @@ class BillOfMaterial {
       'tanggal_pembuatan': tanggalPembuatan,
       'versi_bom': versiBOM,
       'bom_details': bomDetailsJson,
+      'status': status
     };
   }
 }

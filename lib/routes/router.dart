@@ -67,7 +67,7 @@ final routes = RouteMap(
     LoginPageScreen.routeName: (_) =>
         const MaterialPage(child: LoginPageScreen()),
     MainAdministrasi.routeName: (data) {
-      final selectedIndex = data?.queryParameters['selectedIndex'];
+      final selectedIndex = data.queryParameters['selectedIndex'];
       final selectedIndexValue =
           selectedIndex != null ? int.tryParse(selectedIndex) : null;
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
@@ -111,10 +111,9 @@ final routes = RouteMap(
         const MaterialPage(child: ListPesananPembelian()),
     ListBOMScreen.routeName: (_) => const MaterialPage(child: ListBOMScreen()),
     MainProduksi.routeName: (data) {
-      final selectedIndex = data?.queryParameters['selectedIndex'];
+      final selectedIndex = data.queryParameters['selectedIndex'];
       final selectedIndexValue =
           selectedIndex != null ? int.tryParse(selectedIndex) : null;
-      // Kemudian gunakan selectedIndexValue sesuai kebutuhan
       return MaterialPage(
           child: MainProduksi(selectedIndex: selectedIndexValue));
     },

@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.da
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/sidebar_produksi.dart';
 
 class MainProduksi extends StatefulWidget {
-  static const routeName = '/produksi';
+  static const routeName = '/mainproduksi';
   final int? selectedIndex;
 
   const MainProduksi({Key? key, this.selectedIndex}) : super(key: key);
@@ -18,14 +18,14 @@ class _MainProduksiState extends State<MainProduksi> {
   late dynamic menu = const HomeScreenProduksi();
   int _selectedIndex;
 
-  bool _isSidebarCollapsed = false;
+  bool _isSidebarCollapsed = false; // Add this line
 
   _MainProduksiState(this._selectedIndex);
 
   @override
   void initState() {
     super.initState();
-    _onItemTapped(_selectedIndex);
+    _onItemTapped(_selectedIndex); // Pindahkan _onItemTapped ke initState
   }
 
   void _toggleSidebar() {
@@ -39,7 +39,7 @@ class _MainProduksiState extends State<MainProduksi> {
       BottomNavigationProduksi.menu =
           BottomNavigationProduksi.getMenuByIndex(index);
       menu = BottomNavigationProduksi.menu;
-      _selectedIndex = index;
+      _selectedIndex = index; // Add this line
     });
   }
 
@@ -54,8 +54,8 @@ class _MainProduksiState extends State<MainProduksi> {
                 SidebarProduksiWidget(
                   selectedIndex: _selectedIndex,
                   onItemTapped: _onItemTapped,
-                  isSidebarCollapsed: _isSidebarCollapsed,
-                  onToggleSidebar: _toggleSidebar,
+                  isSidebarCollapsed: _isSidebarCollapsed, // Add this line
+                  onToggleSidebar: _toggleSidebar, // Add this line
                 ),
                 Expanded(
                   child: GestureDetector(

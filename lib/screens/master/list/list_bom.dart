@@ -177,8 +177,10 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
           final filteredProductDocs = productDocs.where((doc) {
             final nama = doc['id'] as String;
             final status = doc['status_bom'] as int;
+            final statusDoc = doc['status'] as int;
             return (nama.toLowerCase().contains(searchTerm.toLowerCase()) &&
-                (selectedStatus.toInt() == -1 || status == selectedStatus));
+                (selectedStatus.toInt() == -1 || status == selectedStatus) &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

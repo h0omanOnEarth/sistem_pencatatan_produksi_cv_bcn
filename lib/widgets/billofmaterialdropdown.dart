@@ -6,17 +6,24 @@ class BillOfMaterialDropDown extends StatelessWidget {
   final Function(String?) onChanged;
   final bool isEnabled;
 
-  BillOfMaterialDropDown(
-      {required this.selectedBOM,
-      required this.onChanged,
-      this.isEnabled = true});
+  BillOfMaterialDropDown({
+    required this.selectedBOM,
+    required this.onChanged,
+    this.isEnabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
+    Query<Map<String, dynamic>> query =
+        FirebaseFirestore.instance.collection('bill_of_materials');
+
+    if (isEnabled) {
+      query =
+          query.where('status', isEqualTo: 1).where('status_bom', isEqualTo: 1);
+    }
+
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('bill_of_materials')
-          .snapshots(),
+      stream: query.snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

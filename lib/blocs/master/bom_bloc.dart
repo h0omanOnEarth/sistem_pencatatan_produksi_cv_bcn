@@ -93,6 +93,7 @@ class BillOfMaterialBloc
               'status_bom': statusBom,
               'tanggal_pembuatan': tanggalPembuatan,
               'versi_bom': nextVersion,
+              'status': event.billOfMaterial.status
             };
 
             // Add BOM data to Firestore
@@ -159,7 +160,8 @@ class BillOfMaterialBloc
               'product_id': productId,
               'status_bom': statusBom,
               'tanggal_pembuatan': tanggalPembuatan,
-              'versi_bom': nextVersion
+              'versi_bom': nextVersion,
+              'status': event.billOfMaterial.status
             };
 
             // Update the BOM data in the existing document
@@ -226,7 +228,7 @@ class BillOfMaterialBloc
           yield ErrorState("Bill Of Material not found.");
         }
       } catch (e) {
-        yield ErrorState("Failed to update Bill Of Material status.");
+        yield ErrorState("Failed to update Bill Of Material status: $e");
       }
     }
   }

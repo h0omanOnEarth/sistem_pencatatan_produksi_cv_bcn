@@ -30,7 +30,8 @@ class _MainPembelianGudangScreenState extends State<MainPembelianGudangScreen> {
           SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(top: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 16)
+                    .add(const EdgeInsets.only(top: 30)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

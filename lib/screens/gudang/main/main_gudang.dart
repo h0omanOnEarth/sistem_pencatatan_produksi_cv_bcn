@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/sidebar_gudang.dart';
 
 class MainGudang extends StatefulWidget {
-  static const routeName = '/gudang';
+  static const routeName = '/maingudang';
   final int? selectedIndex;
 
   const MainGudang({Key? key, this.selectedIndex}) : super(key: key);

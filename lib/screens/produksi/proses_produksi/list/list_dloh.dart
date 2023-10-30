@@ -35,7 +35,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
   int itemsPerPage = 5;
   bool isPrevButtonDisabled = true;
   bool isNextButtonDisabled = false;
-  int _selectedIndex = 2;
+  int _selectedIndex = 1;
   bool _isSidebarCollapsed = false;
 
   @override
@@ -71,6 +71,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
               setState(() {
                 _selectedIndex = index;
               });
+              // Implementasi navigasi berdasarkan index terpilih
               _navigateToScreen(index, context);
             },
             isSidebarCollapsed: _isSidebarCollapsed,
@@ -83,14 +84,12 @@ class _ListDLOHCState extends State<ListDLOHC> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const CustomAppBar(
-                    title: 'Direct Labor and\nOverhead Costs',
+                    title: 'Direct Labor\nAnd Overhead Cost',
                     formScreen: FormPencatatanDirectLaborScreen(),
                     routes: '${MainProduksi.routeName}?selectedIndex=2',
                   ),
                   const SizedBox(height: 24.0),
                   _buildSearchBar(),
-                  const SizedBox(height: 16.0),
-                  buildDateRangeSelector(),
                   const SizedBox(height: 16.0),
                   _buildDlohList(),
                 ],
@@ -102,7 +101,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
     );
   }
 
-// Fungsi navigasi berdasarkan index terpilih
+  // Fungsi navigasi berdasarkan index terpilih
   void _navigateToScreen(int index, BuildContext context) {
     Routemaster.of(context)
         .push('${MainProduksi.routeName}?selectedIndex=$index');
@@ -116,16 +115,12 @@ class _ListDLOHCState extends State<ListDLOHC> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const CustomAppBar(
-              title: 'Direct Labor and\nOverhead Costs',
+              title: 'Direct Labor\nAnd Overhead Cost',
               formScreen: FormPencatatanDirectLaborScreen(),
               routes: '${MainProduksi.routeName}?selectedIndex=2',
             ),
             const SizedBox(height: 24.0),
             _buildSearchBar(),
-            const SizedBox(
-              height: 16.0,
-            ),
-            buildDateRangeSelector(),
             const SizedBox(height: 16.0),
             _buildDlohList(),
           ],
