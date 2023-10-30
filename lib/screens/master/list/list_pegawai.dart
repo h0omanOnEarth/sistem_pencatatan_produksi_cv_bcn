@@ -160,7 +160,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
 
   Widget buildPegawaiList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: employeesRef.snapshots(),
+      stream: employeesRef.orderBy('nama').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

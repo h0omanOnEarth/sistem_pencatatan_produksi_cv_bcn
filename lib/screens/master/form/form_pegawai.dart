@@ -129,6 +129,11 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
             isLoading = true; // Aktifkan isLoading saat LoadingState
           });
         }
+        if (state is! LoadingState) {
+          setState(() {
+            isLoading = false;
+          });
+        }
       },
       child: Scaffold(
         body: SafeArea(

@@ -157,7 +157,7 @@ final routes = RouteMap(
         const MaterialPage(child: ListPengubahanBahan()),
     FormMasterSupplierScreen.routeName: (data) {
       final supplierId = data.queryParameters['supplierId'];
-      final supplierIdValue = supplierId ?? '';
+      final supplierIdValue = supplierId;
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
       return MaterialPage(
           child: FormMasterSupplierScreen(supplierId: supplierIdValue));

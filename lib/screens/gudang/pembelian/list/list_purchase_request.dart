@@ -220,12 +220,14 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
             final status = doc['status_prq'] as String;
             final tanggalRencana =
                 doc['tanggal_permintaan'] as Timestamp; // Tanggal Pesan
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
               isWithinDateRange =
                   (tanggalRencana.toDate().isAfter(selectedStartDate!) &&
-                      tanggalRencana.toDate().isBefore(selectedEndDate!));
+                      tanggalRencana.toDate().isBefore(selectedEndDate!) &&
+                      statusDoc == 1);
             }
 
             return (keterangan
@@ -350,7 +352,7 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
                             });
                           },
                     style: ElevatedButton.styleFrom(
-                      primary: Colors
+                      backgroundColor: Colors
                           .brown, // Mengubah warna latar belakang menjadi cokelat
                     ),
                     child: const Text("Next"),

@@ -162,7 +162,7 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
 
   Widget buildSupplierList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: supplierRef.snapshots(),
+      stream: supplierRef.orderBy('nama').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

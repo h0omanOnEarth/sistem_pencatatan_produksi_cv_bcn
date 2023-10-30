@@ -99,7 +99,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
           if (result.data['success'] == true) {
             final String nextEmployeeId = await _generateNextEmployeeId();
 
-            //Langkah 2: Add data to Firestore employees
+            // Langkah 2: Add data to Firestore employees
             await employeesRef.add({
               'id': nextEmployeeId,
               'alamat': alamat,
@@ -122,12 +122,15 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
 
             yield SuccessState();
           } else {
+            // Jika request ke cloud function gagal, maka return ErrorState
             yield ErrorState(result.data['message']);
           }
         } catch (e) {
+          // Jika terjadi error saat berkomunikasi dengan server atau operasi Firebase, maka return ErrorState
           yield ErrorState(e.toString());
         }
       } else {
+        // Jika validasi tidak terpenuhi, maka return ErrorState
         yield ErrorState("Harap isi semua field!");
       }
     } else if (event is UpdateEmployeeEvent) {

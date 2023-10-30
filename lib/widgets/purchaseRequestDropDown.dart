@@ -28,6 +28,12 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('purchase_requests')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled
+                ? 1
+                : null, // Filter status hanya saat isEnabled true
+          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

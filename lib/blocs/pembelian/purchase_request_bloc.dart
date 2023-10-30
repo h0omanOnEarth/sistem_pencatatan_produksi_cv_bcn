@@ -164,7 +164,8 @@ class PurchaseRequestBloc
             .get();
 
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          // Perbarui status menjadi 0
+          await documentSnapshot.reference.update({'status': 0});
         }
         final purchaseRequestList = await _getPurchaseRequestList();
         yield LoadedState(purchaseRequestList);
