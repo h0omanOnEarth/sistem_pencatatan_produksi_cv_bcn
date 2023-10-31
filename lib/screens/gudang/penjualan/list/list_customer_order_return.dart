@@ -10,6 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/form/f
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/sidebar_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
@@ -40,23 +41,68 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 3;
   bool _isSidebarCollapsed = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType ==
-                DeviceScreenType.desktop) {
-              return _buildDesktopContent();
-            } else {
-              return _buildMobileContent();
-            }
-          },
-        ),
-      ),
-    );
+    return BlocListener<CustomerOrderReturnBloc, CustomerOrderReturnBlocState>(
+        listener: (context, state) async {
+          if (state is SuccessState) {
+            setState(() {
+              isLoading = false; // Matikan isLoading saat successState
+            });
+          } else if (state is CustomerOrderReturnErrorState) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
+          } else if (state is CustomerOrderReturnLoadingState) {
+            setState(() {
+              isLoading = true;
+            });
+          }
+          if (state is! CustomerOrderReturnLoadingState) {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+              child: Stack(
+            children: [
+              Center(
+                child: ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    if (sizingInformation.deviceScreenType ==
+                        DeviceScreenType.desktop) {
+                      return _buildDesktopContent();
+                    } else {
+                      return _buildMobileContent();
+                    }
+                  },
+                ),
+              ),
+              if (isLoading)
+                Positioned(
+                  // Menambahkan Positioned untuk indikator loading
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.3), // Latar belakang semi-transparan
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          )),
+        ));
   }
 
   void _toggleSidebar() {

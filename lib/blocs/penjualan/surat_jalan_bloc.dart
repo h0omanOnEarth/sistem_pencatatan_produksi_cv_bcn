@@ -189,18 +189,54 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
     } else if (event is DeleteShipmentEvent) {
       yield LoadingState();
       try {
-        final shipmentToDeleteRef =
-            _firestore.collection('shipments').doc(event.shipmentId);
+        final shipmentId = event.shipmentId;
+        final firestore = FirebaseFirestore.instance;
+
+        // Mengupdate status menjadi 0 pada dokumen Shipment
+        final shipmentRef = firestore.collection('shipments').doc(shipmentId);
+        await shipmentRef.update({'status': 0});
+
+        // Mengambil koleksi "detail_shipments"
         final detailShipmentCollectionRef =
-            shipmentToDeleteRef.collection('detail_shipments');
+            shipmentRef.collection('detail_shipments');
+
+        // Mengambil semua dokumen dalam subkoleksi
         final detailShipmentDocs = await detailShipmentCollectionRef.get();
-        for (var doc in detailShipmentDocs.docs) {
-          await doc.reference.delete();
+
+        for (final doc in detailShipmentDocs.docs) {
+          final detailShipmentData = doc.data() as Map<String, dynamic>;
+          final productId = detailShipmentData['product_id'] as String;
+          final jumlahPengiriman =
+              detailShipmentData['jumlah_pengiriman'] as int;
+
+          // Mengambil referensi ke produk yang sesuai
+          final productRef = firestore
+              .collection('products')
+              .where('id', isEqualTo: productId);
+
+          // Mengambil data produk
+          final productDoc = (await productRef.get()).docs.first;
+          final productData = productDoc.data();
+          final currentStock = productData['stok'] as int;
+
+          // Mengupdate stok produk
+          await productDoc.reference
+              .update({'stok': currentStock + jumlahPengiriman});
+
+          // Mengupdate status menjadi 0 pada dokumen detail_shipments
+          await doc.reference.update({'status': 0});
         }
-        await shipmentToDeleteRef.delete();
-        yield ShipmentDeletedState();
+
+        // Mengubah status pada delivery_orders dengan id = delivery_order_id menjadi 'Dalam Proses'
+        final shipmentData = await shipmentRef.get();
+        final deliveryOrderId = shipmentData['delivery_order_id'];
+        if (deliveryOrderId != null) {
+          await updateDeliveryOrderStatus(deliveryOrderId);
+        }
+
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Shipment.");
+        yield ErrorState("Gagal menghapus Shipment: $e");
       }
     }
   }
@@ -219,5 +255,13 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
       }
       shipmentCount++;
     }
+  }
+
+  // Helper function to update the status of delivery_order
+  Future<void> updateDeliveryOrderStatus(String deliveryOrderId) async {
+    final deliveryOrderRef = _firestore.collection('delivery_orders');
+    await deliveryOrderRef
+        .doc(deliveryOrderId)
+        .update({'status_pesanan_pengiriman': 'Dalam Proses'});
   }
 }

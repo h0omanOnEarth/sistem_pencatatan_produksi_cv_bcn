@@ -70,7 +70,15 @@ class _CustomerOrderDropDownWidgetState
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: firestore.collection('customer_orders').snapshots(),
+              stream: firestore
+                  .collection('customer_orders')
+                  .where(
+                    'status',
+                    isEqualTo: widget.isEnabled
+                        ? 1
+                        : null, // Filter status hanya saat isEnabled true
+                  )
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();

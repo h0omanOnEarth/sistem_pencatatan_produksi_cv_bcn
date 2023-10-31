@@ -43,7 +43,13 @@ class _FakturDropdownState extends State<FakturDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('invoices').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('invoices')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled ? 1 : null,
+          )
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

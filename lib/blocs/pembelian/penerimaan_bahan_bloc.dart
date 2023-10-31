@@ -200,23 +200,16 @@ class MaterialReceiveBloc
           final materialId = materialReceiveData['material_id'] as String;
           final receivedQuantity =
               materialReceiveData['jumlah_diterima'] as int;
+          final purchaseRequestId =
+              materialReceiveData['purchase_request_id'] as String;
+
+          // Update the status of the purchase order
+          await updatePurchaseOrderStatus(purchaseRequestId);
 
           await documentSnapshot.reference.update({'status': 0});
 
-          // Dapatkan data material
-          final materialSnapshot = await FirebaseFirestore.instance
-              .collection('materials')
-              .where('id', isEqualTo: materialId)
-              .get();
-          final materialData = materialSnapshot.docs.first.data();
-          final currentStock = materialData['stok'] as int;
-
-          // Pastikan currentStock tidak null
-          final newStock = currentStock - receivedQuantity;
-
-          // Perbarui stok material
-          await materialSnapshot.docs.first.reference
-              .update({'stok': newStock});
+          // Update the material stock
+          await updateMaterialStock(materialId, receivedQuantity);
         }
 
         yield SuccessState();
@@ -239,6 +232,33 @@ class MaterialReceiveBloc
         return nextMaterialReceiveId;
       }
       materialReceiveCount++;
+    }
+  }
+
+  // Helper function to update the status of the purchase order
+  Future<void> updatePurchaseOrderStatus(String purchaseRequestId) async {
+    final purchaseOrderRef = _firestore.collection('purchase_orders');
+    final purchaseOrderQuery = await purchaseOrderRef
+        .where('purchase_request_id', isEqualTo: purchaseRequestId)
+        .get();
+
+    for (final doc in purchaseOrderQuery.docs) {
+      await doc.reference.update({'status_pengiriman': 'Dalam Proses'});
+    }
+  }
+
+// Helper function to update the material stock
+  Future<void> updateMaterialStock(
+      String materialId, int receivedQuantity) async {
+    final materialRef = _firestore.collection('materials');
+    final materialQuery =
+        await materialRef.where('id', isEqualTo: materialId).get();
+
+    for (final doc in materialQuery.docs) {
+      final materialData = doc.data();
+      final currentStock = materialData['stok'] as int;
+      final newStock = currentStock - receivedQuantity;
+      await doc.reference.update({'stok': newStock});
     }
   }
 

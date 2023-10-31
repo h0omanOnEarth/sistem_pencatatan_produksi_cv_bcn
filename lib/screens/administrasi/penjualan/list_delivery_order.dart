@@ -10,6 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/filter_dialog.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/paginationWidget.dart';
@@ -38,23 +39,67 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 3;
   bool _isSidebarCollapsed = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType ==
-                DeviceScreenType.desktop) {
-              return _buildDesktopContent();
-            } else {
-              return _buildMobileContent();
-            }
-          },
-        ),
-      ),
-    );
+    return BlocListener<DeliveryOrderBloc, DeliveryOrderBlocState>(
+        listener: (context, state) async {
+          if (state is SuccessState) {
+            setState(() {
+              isLoading = false; // Matikan isLoading saat successState
+            });
+          } else if (state is ErrorState) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
+          } else if (state is LoadingState) {
+            setState(() {
+              isLoading = true;
+            });
+          }
+          if (state is! LoadingState) {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+              child: Stack(
+            children: [
+              Center(
+                child: ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    if (sizingInformation.deviceScreenType ==
+                        DeviceScreenType.desktop) {
+                      return _buildDesktopContent();
+                    } else {
+                      return _buildMobileContent();
+                    }
+                  },
+                ),
+              ),
+              if (isLoading)
+                Positioned(
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.3), // Latar belakang semi-transparan
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          )),
+        ));
   }
 
   void _toggleSidebar() {
@@ -220,6 +265,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
             final status = doc['status_pesanan_pengiriman'] as String;
             final tanggalPesan = doc['tanggal_pesanan_pengiriman'] as Timestamp;
             final tanggalKirim = doc['tanggal_request_pengiriman'] as Timestamp;
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -232,7 +278,8 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
 
             return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Implementasi Pagination

@@ -40,7 +40,13 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('shipments').snapshots(),
+      stream: firestore
+          .collection('shipments')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled ? 1 : null,
+          )
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

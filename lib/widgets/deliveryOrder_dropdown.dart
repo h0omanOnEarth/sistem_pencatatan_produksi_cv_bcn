@@ -37,26 +37,31 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream:
-          FirebaseFirestore.instance.collection('delivery_orders').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('delivery_orders')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled ? 1 : null,
+          )
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
-        List<DropdownMenuItem<String>> DOItems = [];
+        List<DropdownMenuItem<String>> doItems = [];
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String DOID = document['id'];
-          String COID = document['customer_order_id'];
-          DOItems.add(
+          String doID = document['id'];
+          String coId = document['customer_order_id'];
+          doItems.add(
             DropdownMenuItem<String>(
-              value: DOID,
+              value: doID,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: $DOID, Customer Order ID: $COID',
+                    'ID: $doID, Customer Order ID: $coId',
                     style: const TextStyle(
                       color: Colors.black,
                     ),
@@ -84,7 +89,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
               ),
               child: DropdownButtonFormField<String>(
                 value: widget.selecteDO,
-                items: DOItems,
+                items: doItems,
                 onChanged: widget.isEnabled
                     ? (newValue) async {
                         widget.onChanged(newValue);

@@ -205,30 +205,53 @@ class CustomerOrderReturnBloc
     } else if (event is DeleteCustomerOrderReturnEvent) {
       yield CustomerOrderReturnLoadingState();
       try {
-        // Get a reference to the customer order return document to be deleted
-        final customerOrderReturnToDeleteRef = _firestore
+        final customerOrderReturnId = event.customerOrderReturnId;
+
+        // Mengupdate status menjadi 0 pada dokumen Customer Order Return
+        final customerOrderReturnRef = _firestore
             .collection('customer_order_returns')
-            .doc(event.customerOrderReturnId);
+            .doc(customerOrderReturnId);
+        await customerOrderReturnRef.update({'status': 0});
 
-        // Get a reference to the 'detail_customer_order_returns' subcollection within the customer order return document
+        // Mengambil koleksi "detail_customer_order_returns"
         final detailCustomerOrderReturnCollectionRef =
-            customerOrderReturnToDeleteRef
-                .collection('detail_customer_order_returns');
+            customerOrderReturnRef.collection('detail_customer_order_returns');
 
-        // Delete all documents in the 'detail_customer_order_returns' subcollection
+        // Mengambil semua dokumen dalam subkoleksi
         final detailCustomerOrderReturnDocs =
             await detailCustomerOrderReturnCollectionRef.get();
-        for (var doc in detailCustomerOrderReturnDocs.docs) {
-          await doc.reference.delete();
+
+        for (final doc in detailCustomerOrderReturnDocs.docs) {
+          final detailCustomerOrderReturnData = doc.data();
+          final jumlahPengembalian =
+              detailCustomerOrderReturnData['jumlah_pengembalian'] as int;
+
+          // Mengambil referensi ke produk yang sesuai
+          final productRef = _firestore
+              .collection('products')
+              .where('id', isEqualTo: 'productXXX');
+
+          // Mengambil data produk
+          final productDocs = await productRef.get();
+          if (productDocs.docs.isNotEmpty) {
+            final productDoc = productDocs.docs.first;
+            final productData = productDoc.data();
+            final currentStock = productData['stok'] as int;
+
+            // Mengupdate stok produk
+            await productDoc.reference.update({
+              'stok': currentStock - jumlahPengembalian,
+            });
+
+            // Mengupdate status menjadi 0 pada dokumen detail_customer_order_returns
+            await doc.reference.update({'status': 0});
+          }
         }
 
-        // After deleting all documents in the subcollection, delete the customer order return document itself
-        await customerOrderReturnToDeleteRef.delete();
-
-        yield CustomerOrderReturnDeletedState();
+        yield SuccessState();
       } catch (e) {
         yield CustomerOrderReturnErrorState(
-            "Failed to delete Customer Order Return.");
+            "Gagal menghapus Customer Order Return: $e");
       }
     } else if (event is FinishedCustomerOrderReturnEvent) {
       yield CustomerOrderReturnLoadingState();

@@ -197,17 +197,36 @@ class PurchaseOrderBloc
     } else if (event is DeletePurchaseOrderEvent) {
       yield LoadingState();
       try {
-        final purchaseOrderSnapshot = await purchaseOrdersRef
-            .where('id', isEqualTo: event.purchaseOrderId)
-            .get();
-        for (QueryDocumentSnapshot documentSnapshot
-            in purchaseOrderSnapshot.docs) {
-          // Perbarui status menjadi 0
-          await documentSnapshot.reference.update({'status': 0});
-        }
-        yield LoadedState(await _getPurchaseOrders());
+        final purchaseOrderId = event.purchaseOrderId;
+
+        // Mengambil referensi ke dokumen purchase order yang sesuai
+        final purchaseOrderRef =
+            purchaseOrdersRef.where('id', isEqualTo: purchaseOrderId);
+
+        // Mengambil data purchase order
+        final purchaseOrderDoc = (await purchaseOrderRef.get()).docs.first;
+        final purchaseOrderData =
+            purchaseOrderDoc.data() as Map<String, dynamic>;
+        final purchaseRequestId =
+            purchaseOrderData['purchase_request_id'] as String;
+
+        // Mengambil referensi ke dokumen purchase request yang sesuai
+        final purchaseRequestRef = _firestore
+            .collection('purchase_requests')
+            .where('id', isEqualTo: purchaseRequestId);
+
+        final purchaseRequestDoc = (await purchaseRequestRef.get()).docs.first;
+
+        // Mengupdate status purchase request menjadi "Dalam Proses"
+        await purchaseRequestDoc.reference
+            .update({'status_prq': 'Dalam Proses'});
+
+        // Mengupdate status purchase order menjadi 0
+        await purchaseOrderDoc.reference.update({'status': 0});
+
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Purchase Order.");
+        yield ErrorState("Gagal menghapus Purchase Order: $e");
       }
     }
   }
@@ -228,13 +247,13 @@ class PurchaseOrderBloc
     }
   }
 
-  Future<List<PurchaseOrder>> _getPurchaseOrders() async {
-    final QuerySnapshot snapshot = await purchaseOrdersRef.get();
-    final List<PurchaseOrder> purchaseOrders = [];
-    for (final doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      purchaseOrders.add(PurchaseOrder.fromJson(data));
-    }
-    return purchaseOrders;
-  }
+  // Future<List<PurchaseOrder>> _getPurchaseOrders() async {
+  //   final QuerySnapshot snapshot = await purchaseOrdersRef.get();
+  //   final List<PurchaseOrder> purchaseOrders = [];
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data() as Map<String, dynamic>;
+  //     purchaseOrders.add(PurchaseOrder.fromJson(data));
+  //   }
+  //   return purchaseOrders;
+  // }
 }

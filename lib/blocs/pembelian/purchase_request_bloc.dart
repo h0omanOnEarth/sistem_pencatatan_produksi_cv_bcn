@@ -167,8 +167,7 @@ class PurchaseRequestBloc
           // Perbarui status menjadi 0
           await documentSnapshot.reference.update({'status': 0});
         }
-        final purchaseRequestList = await _getPurchaseRequestList();
-        yield LoadedState(purchaseRequestList);
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Gagal menghapus Purchase Request.");
       }

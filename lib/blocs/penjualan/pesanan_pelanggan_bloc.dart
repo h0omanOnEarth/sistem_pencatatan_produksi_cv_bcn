@@ -249,27 +249,30 @@ class CustomerOrderBloc
     } else if (event is DeleteCustomerOrderEvent) {
       yield LoadingState();
       try {
-        // Mendapatkan referensi dokumen customer order yang akan dihapus
-        final customerOrderToDeleteRef =
-            _firestore.collection('customer_orders').doc(event.customerOrderId);
+        final customerOrderId = event.customerOrderId;
 
-        // Mendapatkan referensi koleksi 'detail_customer_orders' di dalam dokumen customer order
+        // Update status menjadi 0 pada dokumen customer order
+        final customerOrderRef =
+            _firestore.collection('customer_orders').doc(customerOrderId);
+        await customerOrderRef.update({'status': 0});
+
+        // Mendapatkan koleksi detail_customer_orders
         final detailCustomerOrderCollectionRef =
-            customerOrderToDeleteRef.collection('detail_customer_orders');
+            customerOrderRef.collection('detail_customer_orders');
 
-        // Hapus semua dokumen di dalam sub koleksi 'detail_customer_orders'
+        // Mendapatkan semua dokumen dalam subkoleksi
         final detailCustomerOrderDocs =
             await detailCustomerOrderCollectionRef.get();
-        for (var doc in detailCustomerOrderDocs.docs) {
-          await doc.reference.delete();
+
+        // Perbarui status menjadi 0 pada setiap dokumen dalam subkoleksi
+        for (final doc in detailCustomerOrderDocs.docs) {
+          await doc.reference.update({'status': 0});
         }
 
-        // Setelah menghapus semua dokumen dalam sub koleksi, hapus dokumen customer order itu sendiri
-        await customerOrderToDeleteRef.delete();
-
+        // Mengembalikan status CustomerOrderDeletedState()
         yield CustomerOrderDeletedState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Customer Order.");
+        yield ErrorState("Gagal menghapus Customer Order: $e");
       }
     }
   }

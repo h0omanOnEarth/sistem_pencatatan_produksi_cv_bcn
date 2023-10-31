@@ -229,26 +229,34 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
     } else if (event is DeleteInvoiceEvent) {
       yield LoadingState();
       try {
-        // Get a reference to the invoice document to be deleted
-        final invoiceToDeleteRef =
-            _firestore.collection('invoices').doc(event.invoiceId);
+        final invoiceId = event.invoiceId;
 
-        // Get a reference to the 'detail_invoices' subcollection within the invoice document
+        // Mengupdate status menjadi 0 pada dokumen Invoice
+        final invoiceRef = _firestore.collection('invoices').doc(invoiceId);
+        await invoiceRef.update({'status': 0});
+
+        // Mengambil koleksi "detail_invoices"
         final detailInvoiceCollectionRef =
-            invoiceToDeleteRef.collection('detail_invoices');
+            invoiceRef.collection('detail_invoices');
 
-        // Delete all documents in the 'detail_invoices' subcollection first
+        // Mengambil semua dokumen dalam subkoleksi
         final detailInvoiceDocs = await detailInvoiceCollectionRef.get();
-        for (var doc in detailInvoiceDocs.docs) {
-          await doc.reference.delete();
+
+        // Mengupdate status menjadi 0 pada setiap dokumen dalam subkoleksi
+        for (final doc in detailInvoiceDocs.docs) {
+          await doc.reference.update({'status': 0});
         }
 
-        // After deleting all documents in the subcollection, delete the invoice document itself
-        await invoiceToDeleteRef.delete();
+        // Mengubah status pada shipments dengan id = shipment_id menjadi 'Dalam Proses'
+        final invoiceData = await invoiceRef.get();
+        final shipmentId = invoiceData['shipment_id'];
+        if (shipmentId != null) {
+          await updateShipmentStatus(shipmentId);
+        }
 
-        yield InvoiceDeletedState();
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Invoice.");
+        yield ErrorState("Gagal menghapus Invoice: $e");
       }
     } else if (event is FinishedInvoiceEvent) {
       yield LoadingState();
@@ -281,5 +289,11 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
       }
       invoiceCount++;
     }
+  }
+
+  // Helper function to update the status of shipment
+  Future<void> updateShipmentStatus(String shipmentId) async {
+    final shipmentRef = _firestore.collection('shipments');
+    await shipmentRef.doc(shipmentId).update({'status_shp': 'Dalam Proses'});
   }
 }

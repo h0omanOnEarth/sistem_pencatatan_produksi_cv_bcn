@@ -249,21 +249,36 @@ class DeliveryOrderBloc
     } else if (event is DeleteDeliveryOrderEvent) {
       yield LoadingState();
       try {
-        final deliveryOrderToDeleteRef =
-            _firestore.collection('delivery_orders').doc(event.deliveryOrderId);
-        final detailDeliveryOrderCollectionRef =
-            deliveryOrderToDeleteRef.collection('detail_delivery_orders');
+        final deliveryOrderId = event.deliveryOrderId;
 
+        // Mengupdate status menjadi 0 pada dokumen Delivery Order
+        final deliveryOrderRef =
+            _firestore.collection('delivery_orders').doc(deliveryOrderId);
+        await deliveryOrderRef.update({'status': 0});
+
+        // Mengambil koleksi "detail_delivery_orders"
+        final detailDeliveryOrderCollectionRef =
+            deliveryOrderRef.collection('detail_delivery_orders');
+
+        // Mengambil semua dokumen dalam subkoleksi
         final detailDeliveryOrderDocs =
             await detailDeliveryOrderCollectionRef.get();
-        for (var doc in detailDeliveryOrderDocs.docs) {
-          await doc.reference.delete();
+
+        // Mengupdate status menjadi 0 pada setiap dokumen dalam subkoleksi
+        for (final doc in detailDeliveryOrderDocs.docs) {
+          await doc.reference.update({'status': 0});
         }
 
-        await deliveryOrderToDeleteRef.delete();
-        yield DeliveryOrderDeletedState();
+        // Update the status of the corresponding customer_order
+        final deliveryOrderData = await deliveryOrderRef.get();
+        final customerOrderId = deliveryOrderData['customer_order_id'];
+        if (customerOrderId != null) {
+          await updateCustomerOrderStatus(customerOrderId);
+        }
+
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Delivery Order.");
+        yield ErrorState("Gagal menghapus Delivery Order: $e");
       }
     }
   }
@@ -283,5 +298,13 @@ class DeliveryOrderBloc
       }
       deliveryCount++;
     }
+  }
+
+  // Helper function to update the status of customer_order
+  Future<void> updateCustomerOrderStatus(String customerOrderId) async {
+    final customerOrderRef = _firestore.collection('customer_orders');
+    await customerOrderRef
+        .doc(customerOrderId)
+        .update({'status_pesanan': 'Dalam Proses'});
   }
 }

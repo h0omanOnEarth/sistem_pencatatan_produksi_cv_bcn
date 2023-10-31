@@ -226,6 +226,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                 doc['tanggal_pesan'] as Timestamp; // Tanggal Pesan
             final tanggalKirim =
                 doc['tanggal_kirim'] as Timestamp; // Tanggal Kirim
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -238,7 +239,8 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
 
             return (id.toLowerCase().contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Implementasi Pagination
