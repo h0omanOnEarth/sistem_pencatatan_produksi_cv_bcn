@@ -202,7 +202,8 @@ class PurchaseOrderBloc
             .get();
         for (QueryDocumentSnapshot documentSnapshot
             in purchaseOrderSnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          // Perbarui status menjadi 0
+          await documentSnapshot.reference.update({'status': 0});
         }
         yield LoadedState(await _getPurchaseOrders());
       } catch (e) {

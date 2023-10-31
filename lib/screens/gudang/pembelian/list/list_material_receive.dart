@@ -10,6 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/form/f
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/sidebar_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/list_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -40,23 +41,68 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 2;
   bool _isSidebarCollapsed = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType ==
-                DeviceScreenType.desktop) {
-              return _buildDesktopContent();
-            } else {
-              return _buildMobileContent();
-            }
-          },
-        ),
-      ),
-    );
+    return BlocListener<MaterialReceiveBloc, MaterialReceiveBlocState>(
+        listener: (context, state) async {
+          if (state is SuccessState) {
+            setState(() {
+              isLoading = false; // Matikan isLoading saat successState
+            });
+          } else if (state is ErrorState) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
+          } else if (state is LoadingState) {
+            setState(() {
+              isLoading = true;
+            });
+          }
+          if (state is! LoadingState) {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+              child: Stack(
+            children: [
+              Center(
+                child: ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    if (sizingInformation.deviceScreenType ==
+                        DeviceScreenType.desktop) {
+                      return _buildDesktopContent();
+                    } else {
+                      return _buildMobileContent();
+                    }
+                  },
+                ),
+              ),
+              if (isLoading)
+                Positioned(
+                  // Menambahkan Positioned untuk indikator loading
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.3), // Latar belakang semi-transparan
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          )),
+        ));
   }
 
   void _toggleSidebar() {
@@ -239,6 +285,7 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                   final tanggalRencana = doc['tanggal_penerimaan'] as Timestamp;
                   final status =
                       _getMaterialStatus(materialDocs, doc['material_id']);
+                  final statusDoc = doc['status'] as int;
 
                   bool isWithinDateRange = true;
                   if (selectedStartDate != null && selectedEndDate != null) {
@@ -252,7 +299,8 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                           .contains(searchTerm.toLowerCase()) &&
                       (selectedStatus.isEmpty ||
                           status.contains(selectedStatus)) &&
-                      isWithinDateRange);
+                      isWithinDateRange &&
+                      statusDoc == 1);
                 }).toList();
 
                 isPrevButtonDisabled = startIndex == 0;
@@ -278,8 +326,9 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
                           'Catatan': data['catatan'],
                           'Jenis Bahan': _getMaterialStatus(
                               materialDocs, data['material_id']),
-                          'Jumlah Permintaan': data['jumlah_permintaan'],
-                          'Jumlah Diterima': data['jumlah_diterima'],
+                          'Jumlah Permintaan':
+                              data['jumlah_permintaan'].toString(),
+                          'Jumlah Diterima': data['jumlah_diterima'].toString(),
                         };
                         return ListCard(
                           title: id,

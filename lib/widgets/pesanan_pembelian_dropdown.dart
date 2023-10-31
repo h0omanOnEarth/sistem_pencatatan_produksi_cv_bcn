@@ -57,6 +57,12 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('purchase_orders')
+                  .where(
+                    'status',
+                    isEqualTo: widget.isEnabled
+                        ? 1
+                        : null, // Filter status hanya saat isEnabled true
+                  )
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {

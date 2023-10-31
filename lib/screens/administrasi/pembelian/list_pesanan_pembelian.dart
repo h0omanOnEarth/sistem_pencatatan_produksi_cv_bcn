@@ -220,6 +220,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
             final status = doc['status_pembayaran'] as String;
             final tanggalPesan = doc['tanggal_pesan'] as Timestamp;
             final tanggalKirim = doc['tanggal_kirim'] as Timestamp;
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -234,7 +235,8 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Urutkan data berdasarkan tanggal pesan

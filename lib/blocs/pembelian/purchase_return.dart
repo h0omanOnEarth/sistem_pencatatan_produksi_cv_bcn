@@ -189,11 +189,39 @@ class PurchaseReturnBloc
             .get();
         for (QueryDocumentSnapshot documentSnapshot
             in purchaseReturnSnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          final purchaseReturnData =
+              documentSnapshot.data() as Map<String, dynamic>;
+          final purchaseOrderId =
+              purchaseReturnData['purchase_order_id'] as String;
+          final materialId =
+              await _getMaterialIdByPurchaseOrderId(purchaseOrderId);
+
+          // Perbarui status menjadi 0
+          await documentSnapshot.reference.update({'status': 0});
+
+          // Tambahkan stok ke materials
+          if (materialId.isNotEmpty) {
+            final materialSnapshot = await FirebaseFirestore.instance
+                .collection('materials')
+                .where('id', isEqualTo: materialId)
+                .get();
+            if (materialSnapshot.docs.isNotEmpty) {
+              final materialData = materialSnapshot.docs.first.data();
+              final currentStock = materialData['stok'] as int;
+              final returnedQuantity = purchaseReturnData['jumlah'] as int;
+
+              // Pastikan currentStock tidak null
+              final newStock = currentStock + returnedQuantity;
+
+              // Perbarui stok material
+              await materialSnapshot.docs.first.reference
+                  .update({'stok': newStock});
+            }
+          }
         }
-        yield LoadedState(await _getPurchaseReturns());
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Purchase Return.");
+        yield ErrorState("Gagal menghapus Purchase Return: $e");
       }
     }
   }

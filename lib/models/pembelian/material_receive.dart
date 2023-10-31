@@ -32,7 +32,7 @@ class MaterialReceive {
       satuan: json['satuan'] as String,
       jumlahPermintaan: json['jumlah_permintaan'] as int,
       jumlahDiterima: json['jumlah_diterima'] as int,
-      status: json['status'] as int,
+      status: json['status'] as int, // Provide a default value of 0
       catatan: json['catatan'] as String,
       tanggalPenerimaan: DateTime.parse(json['tanggal_penerimaan'] as String),
     );

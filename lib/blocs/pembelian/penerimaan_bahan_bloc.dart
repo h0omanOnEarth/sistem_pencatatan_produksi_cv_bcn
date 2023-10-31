@@ -195,12 +195,33 @@ class MaterialReceiveBloc
             .get();
 
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          final materialReceiveData =
+              documentSnapshot.data() as Map<String, dynamic>;
+          final materialId = materialReceiveData['material_id'] as String;
+          final receivedQuantity =
+              materialReceiveData['jumlah_diterima'] as int;
+
+          await documentSnapshot.reference.update({'status': 0});
+
+          // Dapatkan data material
+          final materialSnapshot = await FirebaseFirestore.instance
+              .collection('materials')
+              .where('id', isEqualTo: materialId)
+              .get();
+          final materialData = materialSnapshot.docs.first.data();
+          final currentStock = materialData['stok'] as int;
+
+          // Pastikan currentStock tidak null
+          final newStock = currentStock - receivedQuantity;
+
+          // Perbarui stok material
+          await materialSnapshot.docs.first.reference
+              .update({'stok': newStock});
         }
-        final materialReceiveList = await _getMaterialReceiveList();
-        yield LoadedState(materialReceiveList);
+
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Material Receive.");
+        yield ErrorState(e.toString());
       }
     }
   }
@@ -221,13 +242,13 @@ class MaterialReceiveBloc
     }
   }
 
-  Future<List<MaterialReceive>> _getMaterialReceiveList() async {
-    final QuerySnapshot snapshot = await materialReceiveRef.get();
-    final List<MaterialReceive> materialReceiveList = [];
-    for (final doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      materialReceiveList.add(MaterialReceive.fromJson(data));
-    }
-    return materialReceiveList;
-  }
+  // Future<List<MaterialReceive>> _getMaterialReceiveList() async {
+  //   final QuerySnapshot snapshot = await materialReceiveRef.get();
+  //   final List<MaterialReceive> materialReceiveList = [];
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data() as Map<String, dynamic>;
+  //     materialReceiveList.add(MaterialReceive.fromJson(data));
+  //   }
+  //   return materialReceiveList;
+  // }
 }
