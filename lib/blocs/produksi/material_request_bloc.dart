@@ -215,26 +215,25 @@ class MaterialRequestBloc
     } else if (event is DeleteMaterialRequestEvent) {
       yield LoadingState();
       try {
-        // Get a reference to the material request document to be deleted
         final materialRequestToDeleteRef = _firestore
             .collection('material_requests')
             .doc(event.materialRequestId);
 
-        // Get a reference to the 'detail_material_requests' subcollection within the material request document
         final detailMaterialRequestCollectionRef =
             materialRequestToDeleteRef.collection('detail_material_requests');
 
-        // Delete all documents within the 'detail_material_requests' subcollection
         final detailMaterialRequestDocs =
             await detailMaterialRequestCollectionRef.get();
+
+        // Mengubah status menjadi 0 pada dokumen detail_material_requests
         for (var doc in detailMaterialRequestDocs.docs) {
-          await doc.reference.delete();
+          await doc.reference.update({'status': 0});
         }
 
-        // After deleting all documents within the subcollection, delete the material request document itself
-        await materialRequestToDeleteRef.delete();
+        // Mengubah status menjadi 0 pada dokumen material request utama
+        await materialRequestToDeleteRef.update({'status': 0});
 
-        yield MaterialRequestDeletedState();
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Failed to delete Material Request.");
       }

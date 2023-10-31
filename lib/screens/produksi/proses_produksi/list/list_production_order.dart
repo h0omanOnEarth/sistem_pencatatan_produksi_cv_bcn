@@ -244,6 +244,7 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                   final status = doc['status_pro'] as String;
                   final tanggalRencana = doc['tanggal_rencana'] as Timestamp;
                   final tanggalProduksi = doc['tanggal_produksi'] as Timestamp;
+                  final statusDoc = doc['status'] as int;
 
                   bool isWithinDateRange = true;
                   if (selectedStartDate != null && selectedEndDate != null) {
@@ -263,7 +264,8 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                           .toLowerCase()
                           .contains(searchTerm.toLowerCase()) &&
                       (selectedStatus.isEmpty || status == selectedStatus) &&
-                      isWithinDateRange);
+                      isWithinDateRange &&
+                      statusDoc == 1);
                 }).toList();
 
                 // Implementasi Pagination

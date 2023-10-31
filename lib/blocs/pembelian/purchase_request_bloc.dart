@@ -190,13 +190,13 @@ class PurchaseRequestBloc
     }
   }
 
-  Future<List<PurchaseRequest>> _getPurchaseRequestList() async {
-    final QuerySnapshot snapshot = await purchaseRequestRef.get();
-    final List<PurchaseRequest> purchaseRequestList = [];
-    for (final doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      purchaseRequestList.add(PurchaseRequest.fromJson(data));
-    }
-    return purchaseRequestList;
-  }
+  // Future<List<PurchaseRequest>> _getPurchaseRequestList() async {
+  //   final QuerySnapshot snapshot = await purchaseRequestRef.get();
+  //   final List<PurchaseRequest> purchaseRequestList = [];
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data() as Map<String, dynamic>;
+  //     purchaseRequestList.add(PurchaseRequest.fromJson(data));
+  //   }
+  //   return purchaseRequestList;
+  // }
 }

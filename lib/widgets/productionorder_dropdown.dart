@@ -55,6 +55,12 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('production_orders')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled
+                ? 1
+                : null, // Filter status hanya saat isEnabled true
+          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

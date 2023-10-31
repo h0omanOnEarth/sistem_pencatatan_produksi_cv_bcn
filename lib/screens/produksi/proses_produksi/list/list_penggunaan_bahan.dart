@@ -10,6 +10,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produks
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/sidebar_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_appbar.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/listCardFinishedDelete.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/search_bar.dart';
 
@@ -36,23 +37,68 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 2;
   bool _isSidebarCollapsed = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: ResponsiveBuilder(
-          builder: (context, sizingInformation) {
-            if (sizingInformation.deviceScreenType ==
-                DeviceScreenType.desktop) {
-              return _buildDesktopContent();
-            } else {
-              return _buildMobileContent();
-            }
-          },
-        ),
-      ),
-    );
+    return BlocListener<MaterialUsageBloc, MaterialUsageBlocState>(
+        listener: (context, state) async {
+          if (state is SuccessState) {
+            setState(() {
+              isLoading = false; // Matikan isLoading saat successState
+            });
+          } else if (state is ErrorState) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
+          } else if (state is LoadingState) {
+            setState(() {
+              isLoading = true;
+            });
+          }
+          if (state is! LoadingState) {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+              child: Stack(
+            children: [
+              Center(
+                child: ResponsiveBuilder(
+                  builder: (context, sizingInformation) {
+                    if (sizingInformation.deviceScreenType ==
+                        DeviceScreenType.desktop) {
+                      return _buildDesktopContent();
+                    } else {
+                      return _buildMobileContent();
+                    }
+                  },
+                ),
+              ),
+              if (isLoading)
+                Positioned(
+                  // Menambahkan Positioned untuk indikator loading
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.3), // Latar belakang semi-transparan
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          )),
+        ));
   }
 
   void _toggleSidebar() {
@@ -219,6 +265,7 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
             final status = doc['status_mu'] as String;
             final tanggalRencana =
                 doc['tanggal_penggunaan'] as Timestamp; // Tanggal Pesan
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -231,7 +278,8 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Implementasi Pagination

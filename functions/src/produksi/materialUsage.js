@@ -36,6 +36,7 @@ exports.materialUsageValidation = async (req) => {
     .collection("material_transfers")
     .where("material_request_id", "==", materialRequestId)
     .where("status_mtr", "==", "Selesai")
+    .where("status", "==", 1)
     .get();
 
   if (materialTransferQuery.empty) {
@@ -112,11 +113,11 @@ exports.materialUsageValidation = async (req) => {
 
   // Pemeriksaan apakah material.material_id ada yang cocok dengan material_id pada detailMaterialRequestRef
   const detailMaterialRequests = detailMaterialRequestQuery.docs.map((doc) =>
-    doc.data(),
+    doc.data()
   );
   const invalidMaterialIds = materials.filter((material) => {
     return !detailMaterialRequests.some(
-      (detailMaterial) => detailMaterial.material_id === material.material_id,
+      (detailMaterial) => detailMaterial.material_id === material.material_id
     );
   });
 

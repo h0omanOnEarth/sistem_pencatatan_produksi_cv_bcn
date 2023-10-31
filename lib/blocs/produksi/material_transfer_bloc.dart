@@ -232,17 +232,41 @@ class MaterialTransferBloc
         final detailMaterialTransferCollectionRef =
             materialTransferToDeleteRef.collection('detail_material_transfers');
 
-        // Delete all documents within the 'detail_material_transfers' subcollection
         final detailMaterialTransferDocs =
             await detailMaterialTransferCollectionRef.get();
+
+        // Loop through each document in the subcollection
         for (var doc in detailMaterialTransferDocs.docs) {
-          await doc.reference.delete();
+          // Get the data of the detail material transfer
+          final detailMaterialTransferData = doc.data();
+          final materialId =
+              detailMaterialTransferData['material_id'] as String;
+          final quantity = detailMaterialTransferData['jumlah_bom'] as int;
+
+          // Update the status of the detail material transfer document to 0
+          await doc.reference.update({'status': 0});
+
+          // Get a reference to the material to update the stock
+          final materialRef = _firestore
+              .collection('materials')
+              .where('id', isEqualTo: materialId);
+
+          // Get the current stock of the material
+          final materialQuery = await materialRef.get();
+          final materialDoc = materialQuery.docs.first;
+          final currentStock = materialDoc['stok'] as int;
+
+          // Update the stock by adding the quantity back
+          final newStock = currentStock + quantity;
+
+          // Update the stock of the material
+          await materialDoc.reference.update({'stok': newStock});
         }
 
-        // After deleting all documents within the subcollection, delete the material transfer document itself
-        await materialTransferToDeleteRef.delete();
+        // Update the status of the material transfer document itself to 0
+        await materialTransferToDeleteRef.update({'status': 0});
 
-        yield MaterialTransferDeletedState();
+        yield SuccessState();
       } catch (e) {
         yield MaterialTransferErrorState("Failed to delete Material Transfer.");
       }

@@ -244,27 +244,27 @@ class MaterialUsageBloc
     } else if (event is DeleteMaterialUsageEvent) {
       yield LoadingState();
       try {
-        // Get a reference to the material usage document to be deleted
-        final materialUsageToDeleteRef =
+        // Get a reference to the material usage document to be updated
+        final materialUsageToUpdateRef =
             _firestore.collection('material_usages').doc(event.materialUsageId);
 
         // Get a reference to the 'detail_material_usages' subcollection within the material usage document
         final detailMaterialUsageCollectionRef =
-            materialUsageToDeleteRef.collection('detail_material_usages');
+            materialUsageToUpdateRef.collection('detail_material_usages');
 
-        // Delete all documents within the 'detail_material_usages' subcollection
+        // Update the status to 0 for all documents within the 'detail_material_usages' subcollection
         final detailMaterialUsageDocs =
             await detailMaterialUsageCollectionRef.get();
         for (var doc in detailMaterialUsageDocs.docs) {
-          await doc.reference.delete();
+          await doc.reference.update({'status': 0});
         }
 
-        // After deleting all documents within the subcollection, delete the material usage document itself
-        await materialUsageToDeleteRef.delete();
+        // Update the status of the material usage document itself
+        await materialUsageToUpdateRef.update({'status': 0});
 
-        yield MaterialUsageDeletedState();
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Material Usage.");
+        yield ErrorState("Failed to delete Material Usage: $e");
       }
     } else if (event is FinishedMaterialUsageEvent) {
       yield LoadingState();

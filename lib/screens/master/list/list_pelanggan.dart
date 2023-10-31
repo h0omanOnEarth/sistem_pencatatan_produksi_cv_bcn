@@ -159,7 +159,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
 
   Widget buildPegawaiList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: customerRef.snapshots(),
+      stream: customerRef.orderBy('nama').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

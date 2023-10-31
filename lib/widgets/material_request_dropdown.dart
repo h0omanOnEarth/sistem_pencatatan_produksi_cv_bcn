@@ -20,6 +20,11 @@ class MaterialRequestDropdown extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('material_requests')
+          .where(
+            'status',
+            isEqualTo:
+                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
+          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

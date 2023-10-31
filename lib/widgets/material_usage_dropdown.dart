@@ -27,8 +27,15 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream:
-          FirebaseFirestore.instance.collection('material_usages').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('material_usages')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled
+                ? 1
+                : null, // Filter status hanya saat isEnabled true
+          )
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();

@@ -334,23 +334,27 @@ class ProductionOrderBloc
 
         final detailProductionOrderDocs =
             await detailProductionOrderCollectionRef.get();
+
+        // Mengubah status menjadi 0 pada dokumen detail_production_orders
         for (var doc in detailProductionOrderDocs.docs) {
-          await doc.reference.delete();
+          await doc.reference.update({'status': 0});
         }
 
-        // Delete 'detail_machines' subcollection
+        // Mengambil dan mengubah status pada 'detail_machines' subcollection
         final detailMachinesCollectionRef =
             productionOrderToDeleteRef.collection('detail_machines');
 
         final detailMachinesDocs = await detailMachinesCollectionRef.get();
+
+        // Mengubah status menjadi 0 pada dokumen detail_machines
         for (var doc in detailMachinesDocs.docs) {
-          await doc.reference.delete();
+          await doc.reference.update({'status': 0});
         }
 
-        // Delete the main production order document
-        await productionOrderToDeleteRef.delete();
+        // Mengubah status menjadi 0 pada dokumen produksi utama
+        await productionOrderToDeleteRef.update({'status': 0});
 
-        yield ProductionOrderDeletedState();
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Gagal menghapus Production Order.");
       }
