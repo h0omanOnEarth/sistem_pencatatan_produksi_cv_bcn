@@ -46,7 +46,6 @@ class _FormPesananPembelianScreenState
   String? selectedNomorPermintaan;
   String? dropdownValue;
   bool isLoading = false;
-  bool errorDialogShown = false;
 
   // controller
   TextEditingController namaBahanController = TextEditingController();
@@ -206,16 +205,14 @@ class _FormPesananPembelianScreenState
               isLoading = false; // Matikan isLoading saat successState
             });
           } else if (state is ErrorState) {
-            if (!errorDialogShown) {
-              // Tambahkan pengecekan apakah dialog sudah ditampilkan
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return ErrorDialog(errorMessage: state.errorMessage);
-                },
-              );
-              errorDialogShown = true; // Set variabel flag menjadi true
-            }
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            ).then((_) {
+              Navigator.pop(context, null);
+            });
           } else if (state is LoadingState) {
             setState(() {
               isLoading = true; // Aktifkan isLoading saat LoadingState

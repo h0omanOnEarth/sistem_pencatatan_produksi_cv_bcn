@@ -164,7 +164,9 @@ class _FormPengubahanBahanState extends State<FormPengubahanBahan> {
               builder: (BuildContext context) {
                 return ErrorDialog(errorMessage: state.errorMessage);
               },
-            );
+            ).then((_) {
+              Navigator.pop(context, null);
+            });
           } else if (state is LoadingState) {
             setState(() {
               isLoading = true;

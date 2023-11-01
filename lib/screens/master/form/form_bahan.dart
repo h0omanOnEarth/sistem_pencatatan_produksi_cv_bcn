@@ -67,13 +67,6 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
 
   void _addMaterial() {
     final bahanBloc = BlocProvider.of<MaterialBloc>(context);
-    int stok = 0; // Default stok
-    try {
-      stok = int.parse(stokController.text);
-    } catch (e) {
-      // Tangani kesalahan konversi ke int di sini
-      print('Error parsing stok: $e');
-    }
 
     final Bahan newMaterial = Bahan(
       id: '', // auto generate
@@ -82,7 +75,8 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
       nama: namaBahanController.text,
       satuan: selectedSatuan,
       status: selectedStatus == 'Aktif' ? 1 : 0,
-      stok: stok, // Gunakan nilai stok yang telah di-parse
+      stok: int.tryParse(stokController.text) ??
+          0, // Gunakan nilai stok yang telah di-parse
     );
 
     if (widget.materialId != null) {

@@ -204,7 +204,7 @@ class ShipmentBloc extends Bloc<ShipmentEvent, ShipmentBlocState> {
         final detailShipmentDocs = await detailShipmentCollectionRef.get();
 
         for (final doc in detailShipmentDocs.docs) {
-          final detailShipmentData = doc.data() as Map<String, dynamic>;
+          final detailShipmentData = doc.data();
           final productId = detailShipmentData['product_id'] as String;
           final jumlahPengiriman =
               detailShipmentData['jumlah_pengiriman'] as int;

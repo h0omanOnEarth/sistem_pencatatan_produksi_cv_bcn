@@ -416,7 +416,9 @@ class _FormPesananPengirimanScreenState
               builder: (BuildContext context) {
                 return ErrorDialog(errorMessage: state.errorMessage);
               },
-            );
+            ).then((_) {
+              Navigator.pop(context, null);
+            });
           } else if (state is LoadingState) {
             setState(() {
               isLoading = true; // Aktifkan isLoading saat LoadingState

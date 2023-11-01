@@ -53,8 +53,9 @@ class ProductionConfirmationBloc
   final HttpsCallable proConfCallable;
 
   ProductionConfirmationBloc()
-      : proConfCallable = FirebaseFunctions.instance
-            .httpsCallable('productionConfirmationValidation'),
+      : proConfCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('productionConfirmationValidation'),
         super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }

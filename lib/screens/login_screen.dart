@@ -262,7 +262,7 @@ class LoginForm extends StatelessWidget {
                           //   ),
                           // );
 
-                          Routemaster.of(context).push(MainGudang.routeName);
+                          Routemaster.of(context).push(MainProduksi.routeName);
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

@@ -245,7 +245,9 @@ class _FormPenerimaanHasilProduksiState
               builder: (BuildContext context) {
                 return ErrorDialog(errorMessage: state.errorMessage);
               },
-            );
+            ).then((_) {
+              Navigator.pop(context, null);
+            });
           } else if (state is ItemReceiveLoadingState) {
             setState(() {
               isLoading = true;
