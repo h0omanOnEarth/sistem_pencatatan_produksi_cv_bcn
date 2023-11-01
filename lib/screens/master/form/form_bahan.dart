@@ -102,223 +102,224 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<MaterialBloc, MaterialBlocState>(
-      listener: (context, state) async {
-        if (state is SuccessState) {
-          _showSuccessMessageAndNavigateBack();
-          setState(() {
-            isLoading = false; // Matikan isLoading saat successState
-          });
-        } else if (state is ErrorState) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return ErrorDialog(errorMessage: state.errorMessage);
-            },
-          );
-        } else if (state is LoadingState) {
-          setState(() {
-            isLoading = true; // Aktifkan isLoading saat LoadingState
-          });
-        }
+        listener: (context, state) async {
+          if (state is SuccessState) {
+            _showSuccessMessageAndNavigateBack();
+            setState(() {
+              isLoading = false; // Matikan isLoading saat successState
+            });
+          } else if (state is ErrorState) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ErrorDialog(errorMessage: state.errorMessage);
+              },
+            );
+          } else if (state is LoadingState) {
+            setState(() {
+              isLoading = true; // Aktifkan isLoading saat LoadingState
+            });
+          }
 
-        // Hanya jika bukan LoadingState, atur isLoading ke false
-        if (state is! LoadingState) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Center(
-                // Membungkus konten dengan Center
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.pop(context, null);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 3),
+          // Hanya jika bukan LoadingState, atur isLoading ke false
+          if (state is! LoadingState) {
+            setState(() {
+              isLoading = false;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Center(
+                    // Membungkus konten dengan Center
+                    child: Container(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.pop(context, null);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    child: Icon(Icons.arrow_back,
+                                        color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 24.0),
+                              const Text(
+                                'Bahan',
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24.0),
+                          TextFieldWidget(
+                            label: 'Nama Bahan',
+                            placeholder: 'Nama',
+                            controller: namaBahanController,
+                          ),
+                          const SizedBox(height: 16.0),
+                          DropdownWidget(
+                            label: 'Satuan',
+                            selectedValue:
+                                selectedKategori, // Isi dengan nilai yang sesuai
+                            items: const ['Bahan Baku', 'Bahan Tambahan'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedKategori =
+                                    newValue; // Update _selectedValue saat nilai berubah
+                                print('Selected value: $newValue');
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16.0),
+                          DropdownWidget(
+                            label: 'Satuan',
+                            selectedValue:
+                                selectedSatuan, // Isi dengan nilai yang sesuai
+                            items: const ['Kg', 'Ons', 'Pcs', 'Gram', 'Sak'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedSatuan =
+                                    newValue; // Update _selectedValue saat nilai berubah
+                                print('Selected value: $newValue');
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16.0),
+                          TextFieldWidget(
+                            label: 'Stok',
+                            placeholder: 'Stok',
+                            controller: stokController,
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          DropdownWidget(
+                            label: 'Status',
+                            selectedValue:
+                                selectedStatus, // Isi dengan nilai yang sesuai
+                            items: const ['Aktif', 'Tidak Aktif'],
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedStatus =
+                                    newValue; // Update _selectedValue saat nilai berubah
+                                print('Selected value: $newValue');
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFieldWidget(
+                            label: 'Keterangan',
+                            placeholder: 'Keterangan',
+                            controller: keteranganController,
+                          ),
+                          const SizedBox(height: 16.0),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Handle save button press
+                                    _addMaterial(); // Panggil method _addMaterial saat tombol "Simpan" ditekan
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromRGBO(59, 51, 51, 1),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                  ],
-                                ),
-                                child: const CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  child: Icon(Icons.arrow_back,
-                                      color: Colors.black),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 24.0),
-                            const Text(
-                              'Bahan',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24.0),
-                        TextFieldWidget(
-                          label: 'Nama Bahan',
-                          placeholder: 'Nama',
-                          controller: namaBahanController,
-                        ),
-                        const SizedBox(height: 16.0),
-                        DropdownWidget(
-                          label: 'Satuan',
-                          selectedValue:
-                              selectedKategori, // Isi dengan nilai yang sesuai
-                          items: const ['Bahan Baku', 'Bahan Tambahan'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedKategori =
-                                  newValue; // Update _selectedValue saat nilai berubah
-                              print('Selected value: $newValue');
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16.0),
-                        DropdownWidget(
-                          label: 'Satuan',
-                          selectedValue:
-                              selectedSatuan, // Isi dengan nilai yang sesuai
-                          items: const ['Kg', 'Ons', 'Pcs', 'Gram', 'Sak'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedSatuan =
-                                  newValue; // Update _selectedValue saat nilai berubah
-                              print('Selected value: $newValue');
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16.0),
-                        TextFieldWidget(
-                          label: 'Stok',
-                          placeholder: 'Stok',
-                          controller: stokController,
-                        ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        DropdownWidget(
-                          label: 'Status',
-                          selectedValue:
-                              selectedStatus, // Isi dengan nilai yang sesuai
-                          items: const ['Aktif', 'Tidak Aktif'],
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedStatus =
-                                  newValue; // Update _selectedValue saat nilai berubah
-                              print('Selected value: $newValue');
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFieldWidget(
-                          label: 'Keterangan',
-                          placeholder: 'Keterangan',
-                          controller: keteranganController,
-                        ),
-                        const SizedBox(height: 16.0),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Handle save button press
-                                  _addMaterial(); // Panggil method _addMaterial saat tombol "Simpan" ditekan
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromRGBO(59, 51, 51, 1),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Text(
-                                    'Simpan',
-                                    style: TextStyle(fontSize: 18),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 16.0),
+                                    child: Text(
+                                      'Simpan',
+                                      style: TextStyle(fontSize: 18),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Handle clear button press
-                                  namaBahanController.clear();
-                                  hargaController.clear();
-                                  stokController.clear();
-                                  keteranganController.clear();
-                                  selectedKategori = "Bahan Baku";
-                                  selectedSatuan = "Kg";
-                                  selectedStatus = "Aktif";
-                                  isLoading = false;
-                                  setState(() {});
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color.fromRGBO(59, 51, 51, 1),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
+                              const SizedBox(width: 16.0),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Handle clear button press
+                                    namaBahanController.clear();
+                                    hargaController.clear();
+                                    stokController.clear();
+                                    keteranganController.clear();
+                                    selectedKategori = "Bahan Baku";
+                                    selectedSatuan = "Kg";
+                                    selectedStatus = "Aktif";
+                                    isLoading = false;
+                                    setState(() {});
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        const Color.fromRGBO(59, 51, 51, 1),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
                                   ),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                                  child: Text(
-                                    'Bersihkan',
-                                    style: TextStyle(fontSize: 18),
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 16.0),
+                                    child: Text(
+                                      'Bersihkan',
+                                      style: TextStyle(fontSize: 18),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                  if (isLoading)
+                    Positioned(
+                      // Menambahkan Positioned untuk indikator loading
+                      top: 0,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        color: Colors.black
+                            .withOpacity(0.3), // Latar belakang semi-transparan
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                ],
               ),
-              if (isLoading)
-                Positioned(
-                  // Menambahkan Positioned untuk indikator loading
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    color: Colors.black
-                        .withOpacity(0.3), // Latar belakang semi-transparan
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

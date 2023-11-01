@@ -258,6 +258,7 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: paginatedDocs.length,
                 itemBuilder: (context, index) {

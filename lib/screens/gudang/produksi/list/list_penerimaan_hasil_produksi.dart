@@ -291,6 +291,7 @@ class _ListItemReceiveState extends State<ListItemReceive> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount:
                     (filteredDocs.length - startIndex).clamp(0, itemsPerPage),

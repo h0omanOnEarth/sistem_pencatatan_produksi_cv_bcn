@@ -16,6 +16,10 @@ class CardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight =
+        screenHeight * 0.16; // Sesuaikan dengan persentase yang Anda inginkan
+
     return GestureDetector(
       onTap: () {
         //   Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
@@ -32,11 +36,11 @@ class CardItem extends StatelessWidget {
           ),
         ),
         child: Container(
-          height: 110.0, // Set the desired height of the card
+          height: cardHeight, // Set the desired height of the card
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Container(
+              SizedBox(
                 width: 40.0, // Set the width for the icon
                 child: Align(
                   alignment: Alignment.centerLeft,

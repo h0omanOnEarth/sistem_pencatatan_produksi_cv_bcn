@@ -299,6 +299,7 @@ class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: paginatedDocs.length,
                 itemBuilder: (context, index) {

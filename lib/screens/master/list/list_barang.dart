@@ -239,6 +239,7 @@ class _ListMasterBarangScreenState extends State<ListMasterBarangScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filteredProductDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

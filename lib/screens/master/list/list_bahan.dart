@@ -241,6 +241,7 @@ class _ListMasterBahanScreenState extends State<ListMasterBahanScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filterJenisDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

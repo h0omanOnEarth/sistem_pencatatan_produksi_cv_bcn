@@ -192,6 +192,7 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filteredProductDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

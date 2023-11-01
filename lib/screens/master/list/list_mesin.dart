@@ -241,6 +241,7 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filteredTipeDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

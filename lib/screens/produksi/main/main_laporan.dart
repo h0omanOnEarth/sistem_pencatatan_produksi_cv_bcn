@@ -112,6 +112,10 @@ class CardItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight =
+        screenHeight * 0.16; // Sesuaikan dengan persentase yang Anda inginkan
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, pageRoute);
@@ -126,7 +130,7 @@ class CardItem extends StatelessWidget {
           ),
         ),
         child: Container(
-          height: 90.0, // Set the desired height of the card
+          height: cardHeight,
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
@@ -143,8 +147,7 @@ class CardItem extends StatelessWidget {
               const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Center the text vertically
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(

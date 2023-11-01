@@ -196,6 +196,7 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filterJenisDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

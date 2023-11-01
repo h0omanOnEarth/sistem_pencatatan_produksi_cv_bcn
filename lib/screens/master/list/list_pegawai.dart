@@ -194,6 +194,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filteredEmployeeDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

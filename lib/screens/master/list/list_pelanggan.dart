@@ -194,6 +194,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: (filteredCustomerDocs.length - startIndex)
                     .clamp(0, itemsPerPage),

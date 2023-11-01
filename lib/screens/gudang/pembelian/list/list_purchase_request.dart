@@ -293,6 +293,7 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ListView.builder(
+                physics: const BouncingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount:
                     (filteredDocs.length - startIndex).clamp(0, itemsPerPage),

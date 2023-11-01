@@ -48,7 +48,7 @@ class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
     });
   }
 
-  Widget _buildNavigationBarItem(int index, IconData iconData, String label) {
+  Widget _buildNavigationBarItem(int index, IconData iconData) {
     return GestureDetector(
       onTap: () => _onItemTapped(index),
       child: Column(
@@ -59,14 +59,6 @@ class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
             color: _selectedIndex == index
                 ? const Color.fromRGBO(59, 51, 51, 1)
                 : Colors.grey,
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              color: _selectedIndex == index
-                  ? const Color.fromRGBO(59, 51, 51, 1)
-                  : Colors.grey,
-            ),
           ),
         ],
       ),
@@ -81,13 +73,13 @@ class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildNavigationBarItem(0, Icons.home, 'Home'),
-            _buildNavigationBarItem(1, Icons.list, 'Master'),
-            _buildNavigationBarItem(2, Icons.shopping_cart, 'Pembelian'),
-            _buildNavigationBarItem(3, Icons.shop, 'Penjualan'),
-            _buildNavigationBarItem(4, Icons.factory, 'Produksi'),
-            _buildNavigationBarItem(5, Icons.report, 'Laporan'),
-            _buildNavigationBarItem(6, Icons.person, 'Profile'),
+            _buildNavigationBarItem(0, Icons.home),
+            _buildNavigationBarItem(1, Icons.list),
+            _buildNavigationBarItem(2, Icons.shopping_cart),
+            _buildNavigationBarItem(3, Icons.shop),
+            _buildNavigationBarItem(4, Icons.factory),
+            _buildNavigationBarItem(5, Icons.report),
+            _buildNavigationBarItem(6, Icons.person),
           ],
         ),
       ),

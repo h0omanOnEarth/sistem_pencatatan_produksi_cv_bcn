@@ -310,6 +310,7 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
 
   Widget buildDeliveryOrderListView(List<DocumentSnapshot> displayedDocs) {
     return ListView.builder(
+      physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
       itemCount: displayedDocs.length,
       itemBuilder: (context, index) {

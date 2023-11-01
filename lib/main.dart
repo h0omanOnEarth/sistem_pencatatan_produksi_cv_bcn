@@ -1,3 +1,4 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:routemaster/routemaster.dart';
@@ -18,6 +19,19 @@ void main() async {
 
   configureApp();
   runApp(const MyApp());
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+          channelGroupKey: 'reminders',
+          channelKey: 'instant_notification',
+          channelName: 'Basic Instant Notification',
+          channelDescription:
+              'Notification channel that can trigger notification instantly.',
+          defaultColor: const Color(0xFF9D50DD),
+          ledColor: Colors.white),
+    ],
+  );
 }
 
 void configureApp() {

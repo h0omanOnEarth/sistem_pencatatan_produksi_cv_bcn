@@ -37,7 +37,7 @@ class LoginRegisterPage extends StatelessWidget {
                   double spacing = 8.0;
 
                   if (screenWidth < 600) {
-                    fontSize = 36;
+                    fontSize = 24;
                     spacing = 4.0;
                   }
 
