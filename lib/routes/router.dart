@@ -26,6 +26,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/li
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pengubahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_barang.dart';
@@ -161,6 +162,18 @@ final routes = RouteMap(
       // Kemudian gunakan selectedIndexValue sesuai kebutuhan
       return MaterialPage(
           child: FormMasterSupplierScreen(supplierId: supplierIdValue));
+    },
+    FormMasterPegawaiScreen.routeName: (data) {
+      final pegawaiId = data.queryParameters['pegawaiId'];
+      final pegawaiIdValue = pegawaiId;
+      final currentUsername = data.queryParameters['currentUsername'];
+      final currUsernameValue = currentUsername;
+      // Kemudian gunakan selectedIndexValue sesuai kebutuhan
+      return MaterialPage(
+          child: FormMasterPegawaiScreen(
+        pegawaiId: pegawaiIdValue,
+        currentUsername: currUsernameValue,
+      ));
     },
     LaporanPesananPelanggan.routeName: (_) =>
         const MaterialPage(child: LaporanPesananPelanggan()),

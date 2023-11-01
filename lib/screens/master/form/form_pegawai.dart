@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/employees_bloc.dar
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/employee.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
@@ -109,8 +110,11 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
         );
       },
     ).then((_) {
-      // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-      Navigator.pop(context, null);
+      if (isDesktop == true) {
+        Routemaster.of(context).push(ListMasterPegawaiScreen.routeName);
+      } else {
+        Navigator.pop(context, null);
+      }
     });
   }
 
@@ -208,7 +212,12 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        Navigator.pop(context, null);
+                        if (isDesktop == true) {
+                          Routemaster.of(context)
+                              .push(ListMasterPegawaiScreen.routeName);
+                        } else {
+                          Navigator.pop(context, null); // Navigates back
+                        }
                       },
                       child: Container(
                         decoration: BoxDecoration(

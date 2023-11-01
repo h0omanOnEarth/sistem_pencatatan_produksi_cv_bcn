@@ -119,6 +119,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
             const SizedBox(
               height: 16.0,
             ),
+            buildPegawaiList(),
           ],
         ),
       ),

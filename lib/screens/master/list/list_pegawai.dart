@@ -32,6 +32,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 1;
   bool _isSidebarCollapsed = false;
+  bool isDesktop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,7 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
           builder: (context, sizingInformation) {
             if (sizingInformation.deviceScreenType ==
                 DeviceScreenType.desktop) {
+              isDesktop = true;
               return _buildDesktopContent();
             } else {
               return _buildMobileContent();
@@ -79,10 +81,10 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const CustomAppBar(
-                    title: 'Pegawai',
-                    formScreen: FormMasterPegawaiScreen(),
-                    routes: '${MainAdministrasi.routeName}?selectedIndex=1',
-                  ),
+                      title: 'Pegawai',
+                      formScreen: FormMasterPegawaiScreen(),
+                      routes: '${MainAdministrasi.routeName}?selectedIndex=1',
+                      routeName: FormMasterPegawaiScreen.routeName),
                   const SizedBox(height: 24.0),
                   _buildSearchBar(),
                   const SizedBox(height: 16.0),
@@ -211,14 +213,19 @@ class _ListMasterPegawaiScreenState extends State<ListMasterPegawaiScreen> {
                         .map((e) => '${e.key}: ${e.value}')
                         .join('\n'),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FormMasterPegawaiScreen(
-                              pegawaiId: data['id'],
-                              currentUsername: data['username']),
-                        ),
-                      );
+                      if (isDesktop == true) {
+                        Routemaster.of(context).push(
+                            '${FormMasterPegawaiScreen.routeName}?pegawaiId=${data['id']}&currentUsername=${data['username']}');
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FormMasterPegawaiScreen(
+                                pegawaiId: data['id'],
+                                currentUsername: data['username']),
+                          ),
+                        );
+                      }
                     },
                     onDeletePressed: () async {
                       final confirmed = await showDialog(
