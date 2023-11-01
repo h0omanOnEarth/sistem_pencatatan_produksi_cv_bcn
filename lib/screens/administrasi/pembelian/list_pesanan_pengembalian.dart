@@ -380,7 +380,7 @@ class _ListPesananPengembalianPembelianState
                           : () {
                               setState(() {
                                 startIndex = (startIndex - itemsPerPage)
-                                    .clamp(0, startIndex);
+                                    .clamp(0, filteredDocs.length);
                               });
                             },
                       style: ElevatedButton.styleFrom(

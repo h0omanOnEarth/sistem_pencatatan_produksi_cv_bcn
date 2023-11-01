@@ -74,7 +74,9 @@ class _FormKonfirmasiProduksiScreenState
 
     // Periksa apakah widget.productionConfirmationId adalah null
     if (widget.productionConfirmationId == null) {
-      collection = collection.where('status_prs', isEqualTo: 'Dalam Proses');
+      collection = collection
+          .where('status_prs', isEqualTo: 'Dalam Proses')
+          .where('status', isEqualTo: 1);
     }
 
     collection.get().then((querySnapshot) {

@@ -214,6 +214,7 @@ class _ListDLOHCState extends State<ListDLOHC> {
             final status = doc['status'] as String;
             final tanggalRencana =
                 doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
+            final statusDoc = doc['status_doc'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -226,7 +227,8 @@ class _ListDLOHCState extends State<ListDLOHC> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Implementasi Pagination

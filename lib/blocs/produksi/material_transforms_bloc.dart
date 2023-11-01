@@ -191,10 +191,41 @@ class MaterialTransformsBloc
             .get();
 
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          // Perbarui status menjadi 0
+          await documentSnapshot.reference.update({'status': 0});
+
+          final materialTransformData =
+              documentSnapshot.data() as Map<String, dynamic>;
+          final jumlahBarangGagal =
+              materialTransformData['jumlah_barang_gagal'] as int;
+          final jumlahHasil = materialTransformData['jumlah_hasil'] as int;
+
+          // Update stok di koleksi 'products'
+          final productRef = _firestore
+              .collection('products')
+              .where('id', isEqualTo: 'productXXX');
+          final productQuerySnapshot = await productRef.get();
+          for (QueryDocumentSnapshot productDocument
+              in productQuerySnapshot.docs) {
+            final currentStock = productDocument['stok'] as int;
+            final newStock = currentStock + jumlahBarangGagal;
+            productDocument.reference.update({'stok': newStock});
+          }
+
+          // Kurangi stok di koleksi 'materials'
+          final materialRef = _firestore
+              .collection('materials')
+              .where('id', isEqualTo: 'materialXXX');
+          final materialQuerySnapshot = await materialRef.get();
+          for (QueryDocumentSnapshot materialDocument
+              in materialQuerySnapshot.docs) {
+            final currentStock = materialDocument['stok'] as int;
+            final newStock = currentStock - jumlahHasil;
+            materialDocument.reference.update({'stok': newStock});
+          }
         }
-        final materialTransformsList = await _getMaterialTransformsList();
-        yield LoadedState(materialTransformsList);
+
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Failed to delete Material Transforms.");
       }

@@ -204,11 +204,40 @@ class ItemReceiveBloc extends Bloc<ItemReceiveEvent, ItemReceiveBlocState> {
             itemReceiveToDeleteRef.collection('detail_item_receives');
         final detailItemReceiveDocs =
             await detailItemReceiveCollectionRef.get();
+
+        // Mengubah status item receive menjadi 0
+        await itemReceiveToDeleteRef.update({'status': 0});
+
         for (var doc in detailItemReceiveDocs.docs) {
-          await doc.reference.delete();
+          final productId = doc['product_id'] as String;
+          final quantity = doc['jumlah_konfirmasi'] as int;
+
+          final productRef = _firestore
+              .collection('products')
+              .where('id', isEqualTo: productId);
+          productRef.get().then((querySnapshot) {
+            for (var productDoc in querySnapshot.docs) {
+              final currentStock = productDoc['stok'] as int;
+              final newStock = currentStock - quantity;
+              productDoc.reference.update({'stok': newStock});
+            }
+          });
+
+          // Mengubah status detail_item_receives menjadi 0
+          doc.reference.update({'status': 0});
         }
-        await itemReceiveToDeleteRef.delete();
-        yield ItemReceiveDeletedState();
+
+        // Mengubah status production_confirmations yang sesuai
+        final itemReceiveData =
+            (await itemReceiveToDeleteRef.get()).data() as Map<String, dynamic>;
+        final productionConfirmationId =
+            itemReceiveData['production_confirmation_id'] as String;
+        final productionConfirmationRef = _firestore
+            .collection('production_confirmations')
+            .doc(productionConfirmationId);
+        await productionConfirmationRef.update({'status_prc': 'Dalam Proses'});
+
+        yield SuccessState();
       } catch (e) {
         yield ItemReceiveErrorState("Failed to delete Item Receive.");
       }

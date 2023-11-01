@@ -1,6 +1,6 @@
 class MaterialReturnDetail {
   String id;
-  String jumlah;
+  int jumlah;
   String materialId;
   String materialReturnId;
   String satuan;
@@ -18,7 +18,7 @@ class MaterialReturnDetail {
   factory MaterialReturnDetail.fromJson(Map<String, dynamic> json) {
     return MaterialReturnDetail(
       id: json['id'] as String,
-      jumlah: json['jumlah'] as String,
+      jumlah: json['jumlah'] as int,
       materialId: json['material_id'] as String,
       materialReturnId: json['material_return_id'] as String,
       satuan: json['satuan'] as String,

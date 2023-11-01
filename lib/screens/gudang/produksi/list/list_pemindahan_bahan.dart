@@ -267,6 +267,7 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
             final status = doc['status_mtr'] as String;
             final tanggalPembuatan =
                 doc['tanggal_pemindahan'] as Timestamp; // Tanggal Pesan
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -279,7 +280,8 @@ class _ListPemindahanBahanState extends State<ListPemindahanBahan> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

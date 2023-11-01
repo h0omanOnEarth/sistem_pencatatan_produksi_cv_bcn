@@ -79,7 +79,8 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
             'biayaTenagaKerja': biayaTenagaKerja,
             'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
             'subtotal': subtotal,
-            'materialUsageId': materialUsageId
+            'materialUsageId': materialUsageId,
+            'status_doc': event.dloh.statusDoc
           });
 
           if (result.data['success'] == true) {
@@ -137,7 +138,8 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
             'biayaTenagaKerja': biayaTenagaKerja,
             'upahTenagaKerjaPerjam': upahTenagaKerjaPerjam,
             'subtotal': subtotal,
-            'materialUsageId': materialUsageId
+            'materialUsageId': materialUsageId,
+            'status_doc': event.updatedDLOH.statusDoc
           });
 
           if (result.data['success'] == true) {
@@ -178,10 +180,16 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
         final QuerySnapshot querySnapshot =
             await dlohRef.where('id', isEqualTo: event.dlohId).get();
 
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+        // Perbarui status menjadi 0 pada semua dokumen yang sesuai dengan pencarian
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          await documentSnapshot.reference.update({'status_doc': 0});
         }
+
+        // Setelah memperbarui status, Anda dapat memilih untuk menjalankan penghapusan jika masih diperlukan
+        // for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
+        //   await documentSnapshot.reference.delete();
+        // }
+
         final dlohList = await _getDLOHList();
         yield LoadedState(dlohList);
       } catch (e) {

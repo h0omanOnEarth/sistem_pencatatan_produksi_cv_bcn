@@ -208,7 +208,6 @@ class ProductionConfirmationBloc
     } else if (event is DeleteProductionConfirmationEvent) {
       yield LoadingState();
       try {
-        // Get a reference to the production confirmation document to be deleted
         final productionConfirmationToDeleteRef = _firestore
             .collection('production_confirmations')
             .doc(event.productionConfirmationId);
@@ -217,16 +216,20 @@ class ProductionConfirmationBloc
         final detailsCollectionRef = productionConfirmationToDeleteRef
             .collection('detail_production_confirmations');
 
-        // Delete all documents within the 'details' subcollection
         final detailsDocs = await detailsCollectionRef.get();
         for (var doc in detailsDocs.docs) {
-          await doc.reference.delete();
+          final productionResultId = doc['production_result_id'] as String;
+          // Update status in the production_results collection
+          final productionResultRef = _firestore
+              .collection('production_results')
+              .doc(productionResultId);
+          await productionResultRef.update({'status_prs': 'Dalam Proses'});
         }
 
-        // After deleting all documents within the subcollection, delete the production confirmation document itself
-        await productionConfirmationToDeleteRef.delete();
+        // Update status in the production confirmation document
+        await productionConfirmationToDeleteRef.update({'status': 0});
 
-        yield ProductionConfirmationDeletedState();
+        yield SuccessState();
       } catch (e) {
         yield ErrorState("Failed to delete Production Confirmation.");
       }

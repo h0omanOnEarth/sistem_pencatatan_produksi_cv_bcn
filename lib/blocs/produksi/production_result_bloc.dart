@@ -186,15 +186,80 @@ class ProductionResultBloc
         final QuerySnapshot querySnapshot = await productionResultRef
             .where('id', isEqualTo: event.productionResultId)
             .get();
-        // Hapus semua dokumen yang sesuai dengan pencarian (biasanya hanya satu dokumen)
+
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.delete();
+          // Ubah status produksi_orders menjadi "Dalam Proses"
+          final materialUsageId =
+              documentSnapshot['material_usage_id'] as String;
+          final productionOrderId =
+              await getProductionOrderIdFromMaterialUsageId(materialUsageId);
+          if (productionOrderId != null) {
+            await updateProductionOrderStatus(
+                productionOrderId, 'Dalam Proses');
+          }
+
+          final jumlahProdukCacat =
+              documentSnapshot['jumlah_produk_cacat'] as int;
+          await decreaseProductStock('productXXX', jumlahProdukCacat);
+
+          // Ubah status menjadi 0 pada semua dokumen yang sesuai dengan pencarian
+          await documentSnapshot.reference.update({'status': 0});
         }
-        final productionResultList = await _getProductionResultList();
-        yield LoadedState(productionResultList);
+
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Gagal menghapus Hasil Produksi.");
+        yield ErrorState(e.toString());
       }
+    }
+  }
+
+  Future<String?> getProductionOrderIdFromMaterialUsageId(
+      String materialUsageId) async {
+    try {
+      final materialUsageQuery = await _firestore
+          .collection('material_usages')
+          .doc(materialUsageId)
+          .get();
+
+      if (materialUsageQuery.exists) {
+        return materialUsageQuery['production_order_id'] as String?;
+      }
+    } catch (e) {
+      print('Error getting production order ID from material usage: $e');
+    }
+    return null;
+  }
+
+  Future<void> updateProductionOrderStatus(
+      String productionOrderId, String newStatus) async {
+    try {
+      final productionOrderDoc = await _firestore
+          .collection('production_orders')
+          .doc(productionOrderId)
+          .get();
+      if (productionOrderDoc.exists) {
+        await productionOrderDoc.reference.update({'status_pro': newStatus});
+      }
+    } catch (e) {
+      print('Error updating production order status: $e');
+    }
+  }
+
+  Future<void> decreaseProductStock(String productId, int amount) async {
+    try {
+      final productQuery = await _firestore
+          .collection('products')
+          .where('id', isEqualTo: productId)
+          .get();
+
+      if (productQuery.docs.isNotEmpty) {
+        final productDoc = productQuery.docs.first;
+        final currentStock = productDoc['stok'] as int;
+        final newStock = currentStock - amount;
+        await productDoc.reference.update({'stok': newStock});
+      }
+    } catch (e) {
+      print('Error decreasing product stock: $e');
     }
   }
 
@@ -214,13 +279,13 @@ class ProductionResultBloc
     }
   }
 
-  Future<List<ProductionResult>> _getProductionResultList() async {
-    final QuerySnapshot snapshot = await productionResultRef.get();
-    final List<ProductionResult> productionResultList = [];
-    for (final doc in snapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      productionResultList.add(ProductionResult.fromJson(data));
-    }
-    return productionResultList;
-  }
+  // Future<List<ProductionResult>> _getProductionResultList() async {
+  //   final QuerySnapshot snapshot = await productionResultRef.get();
+  //   final List<ProductionResult> productionResultList = [];
+  //   for (final doc in snapshot.docs) {
+  //     final data = doc.data() as Map<String, dynamic>;
+  //     productionResultList.add(ProductionResult.fromJson(data));
+  //   }
+  //   return productionResultList;
+  // }
 }

@@ -5,7 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_scree
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
 
 class MainAdministrasi extends StatefulWidget {
-  static const routeName = '/admnistrasi';
+  static const routeName = '/mainadministrasi';
   final int? selectedIndex;
 
   const MainAdministrasi({Key? key, this.selectedIndex}) : super(key: key);

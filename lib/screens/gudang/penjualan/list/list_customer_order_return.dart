@@ -269,6 +269,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
             final status = doc['status_cor'] as String;
             final tanggalPembuatan =
                 doc['tanggal_pengembalian'] as Timestamp; // Tanggal Pesan
+            final statusDoc = doc['status'] as int;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -281,7 +282,8 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

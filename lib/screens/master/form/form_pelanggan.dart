@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/master/customers_bloc.dar
 import 'package:sistem_manajemen_produksi_cv_bcn/models/master/customer.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/sidebar_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/general_drop_down.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
@@ -85,7 +86,11 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
       },
     ).then((_) {
       // Setelah dialog ditutup, navigasi kembali ke layar daftar pegawai
-      Navigator.pop(context, null);
+      if (isDesktop == true) {
+        Routemaster.of(context).push(ListMasterPelangganScreen.routeName);
+      } else {
+        Navigator.pop(context, null);
+      }
     });
   }
 
@@ -190,9 +195,13 @@ class _FormMasterPelangganScreenState extends State<FormMasterPelangganScreen> {
                               alignment: Alignment.topLeft,
                               child: InkWell(
                                 onTap: () {
-                                  // Handle back button press
-                                  Navigator.pop(
-                                      context, null); // Navigates back
+                                  if (isDesktop == true) {
+                                    Routemaster.of(context).push(
+                                        ListMasterPelangganScreen.routeName);
+                                  } else {
+                                    Navigator.pop(
+                                        context, null); // Navigates back
+                                  }
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(

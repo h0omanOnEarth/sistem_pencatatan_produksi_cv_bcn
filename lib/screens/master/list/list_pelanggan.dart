@@ -32,6 +32,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 1;
   bool _isSidebarCollapsed = false;
+  bool isDesktop = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +42,7 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
           builder: (context, sizingInformation) {
             if (sizingInformation.deviceScreenType ==
                 DeviceScreenType.desktop) {
+              isDesktop = true;
               return _buildDesktopContent();
             } else {
               return _buildMobileContent();
@@ -79,10 +81,10 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const CustomAppBar(
-                    title: 'Pelanggan',
-                    formScreen: FormMasterPelangganScreen(),
-                    routes: '${MainAdministrasi.routeName}?selectedIndex=1',
-                  ),
+                      title: 'Pelanggan',
+                      formScreen: FormMasterPelangganScreen(),
+                      routes: '${MainAdministrasi.routeName}?selectedIndex=1',
+                      routeName: FormMasterPelangganScreen.routeName),
                   const SizedBox(height: 24.0),
                   _buildSearchBar(),
                   const SizedBox(height: 16.0),
@@ -212,14 +214,19 @@ class _ListMasterPelangganScreenState extends State<ListMasterPelangganScreen> {
                         .map((e) => '${e.key}: ${e.value}')
                         .join('\n'),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FormMasterPelangganScreen(
-                            customerId: data['id'],
+                      if (isDesktop == true) {
+                        Routemaster.of(context).push(
+                            '${FormMasterPelangganScreen.routeName}?customerId=${data['id']}');
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FormMasterPelangganScreen(
+                              customerId: data['id'],
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                     onDeletePressed: () async {
                       final confirmed = await showDialog(

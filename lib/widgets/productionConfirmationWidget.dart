@@ -28,6 +28,12 @@ class _ProductionConfirmationDropDownState
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('production_confirmations')
+          .where(
+            'status',
+            isEqualTo: widget.isEnabled
+                ? 1
+                : null, // Filter status hanya saat isEnabled true
+          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

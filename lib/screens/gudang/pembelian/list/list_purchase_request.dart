@@ -280,7 +280,8 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
                 (selectedStatus.isEmpty || status == selectedStatus) &&
-                isWithinDateRange);
+                isWithinDateRange &&
+                statusDoc == 1);
           }).toList();
 
           // Perbarui status tombol Prev dan Next

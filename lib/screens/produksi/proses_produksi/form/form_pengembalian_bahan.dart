@@ -198,7 +198,7 @@ class _FormPengembalianBahanScreenState
       for (var productCardData in productCards) {
         final detailMaterialReturn = MaterialReturnDetail(
             id: '',
-            jumlah: productCardData.jumlah,
+            jumlah: int.tryParse(productCardData.jumlah) ?? 0,
             materialId: productCardData.kodeBahan,
             materialReturnId: '',
             satuan: productCardData.satuan,

@@ -203,7 +203,8 @@ class _FormPencatatanDirectLaborScreenState
         biayaOverhead: int.tryParse(biayaOverheadController.text) ?? 0,
         upahTenagaKerjaPerjam:
             int.tryParse(upahTenagaKerjaPerJamController.text) ?? 0,
-        subtotal: totalBiayaInt);
+        subtotal: totalBiayaInt,
+        statusDoc: 1);
 
     if (widget.dlohId != null) {
       dlohBloc.add(UpdateDLOHEvent(widget.dlohId ?? '', dloh));

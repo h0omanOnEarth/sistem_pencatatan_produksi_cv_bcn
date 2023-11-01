@@ -220,16 +220,37 @@ class MaterialReturnBloc
 
         final materialReturnDetailsDocs =
             await materialReturnDetailsCollectionRef.get();
+
         for (var doc in materialReturnDetailsDocs.docs) {
-          await doc.reference.delete();
+          final materialReturnDetailData = doc.data();
+          final materialId = materialReturnDetailData['material_id'] as String;
+          final quantity = materialReturnDetailData['jumlah'] as int;
+
+          // Update the status of the document to 0
+          await doc.reference.update({'status': 0});
+
+          // Get a reference to the material to update the stock
+          final materialRef = _firestore
+              .collection('materials')
+              .where('id', isEqualTo: materialId);
+
+          // Get the current stock of the material
+          final materialDoc = (await materialRef.get()).docs.first;
+          final currentStock = materialDoc['stok'] as int;
+
+          // Update the stock by subtracting the quantity
+          final newStock = currentStock - quantity;
+
+          // Update the stock of the material
+          await materialDoc.reference.update({'stok': newStock});
         }
 
-        // After deleting all documents within the subcollection, delete the material return document itself
-        await materialReturnToDeleteRef.delete();
+        // Update the status of the material return document itself to 0
+        await materialReturnToDeleteRef.update({'status': 0});
 
-        yield MaterialReturnDeletedState();
+        yield SuccessState();
       } catch (e) {
-        yield ErrorState("Failed to delete Material Return.");
+        yield ErrorState(e.toString());
       }
     } else if (event is FinishedMaterialReturnEvent) {
       yield LoadingState();
