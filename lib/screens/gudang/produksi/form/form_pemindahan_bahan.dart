@@ -413,6 +413,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
                                 height: 16.0,
                               ),
                               ListView.builder(
+                                physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: customCards.length,
                                 itemBuilder: (context, index) {

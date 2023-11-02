@@ -166,7 +166,7 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const CustomAppBar(
-              title: 'Surat Jalan',
+              title: 'Pengembalian Barang',
               formScreen: FormPengembalianBarangScreen(),
               routes: '${MainGudang.routeName}?selectedIndex=3',
             ),

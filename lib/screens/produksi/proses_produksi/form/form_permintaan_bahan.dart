@@ -36,6 +36,8 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
   TextEditingController tanggalProduksiController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
   TextEditingController statusController = TextEditingController();
+  TextEditingController kodeBOMController = TextEditingController();
+  TextEditingController kodeProdukController = TextEditingController();
 
   final FirebaseFirestore firestore =
       FirebaseFirestore.instance; // Instance Firestore
@@ -165,6 +167,8 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
 
           final formattedDate = '$month $day, $year';
           tanggalProduksiController.text = formattedDate;
+          kodeProdukController.text = materialData['product_id'];
+          kodeBOMController.text = materialData['bom_id'];
         }
       } else {
         print('Document does not exist on Firestore');
@@ -381,6 +385,26 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
                           },
                           tanggalProduksiController: tanggalProduksiController,
                           isEnabled: widget.materialRequestId == null,
+                          kodeProdukController: kodeProdukController,
+                          kodeBomController: kodeBOMController,
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFieldWidget(
+                          label: 'Kode Produk',
+                          placeholder: 'Kode Produk',
+                          controller: kodeProdukController,
+                          isEnabled: false,
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFieldWidget(
+                          label: 'Kode BOM',
+                          placeholder: 'Kode BOM',
+                          controller: kodeBOMController,
+                          isEnabled: false,
                         ),
                         const SizedBox(
                           height: 16.0,

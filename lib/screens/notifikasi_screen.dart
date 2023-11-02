@@ -138,6 +138,7 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
                           return Expanded(
                             child: ListView.builder(
+                              physics: const BouncingScrollPhysics(),
                               itemCount: notifications.length,
                               itemBuilder: (context, index) {
                                 final pesan = notifications[index]['pesan'];

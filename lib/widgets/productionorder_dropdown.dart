@@ -7,6 +7,7 @@ class ProductionOrderDropDown extends StatefulWidget {
   late final TextEditingController? tanggalProduksiController;
   late final TextEditingController? kodeProdukController;
   late final TextEditingController? namaProdukController;
+  late final TextEditingController? kodeBomController;
   final bool isEnabled;
 
   ProductionOrderDropDown({
@@ -16,6 +17,7 @@ class ProductionOrderDropDown extends StatefulWidget {
     this.tanggalProduksiController,
     this.kodeProdukController,
     this.namaProdukController,
+    this.kodeBomController,
     this.isEnabled = true,
   });
 
@@ -70,9 +72,7 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
         List<DropdownMenuItem<String>> proItems = [];
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
-          String productId = document['product_id'] ?? '';
           String proId = document['id'];
-          String bomId = document['bom_id'];
           proItems.add(
             DropdownMenuItem<String>(
               value: proId,
@@ -80,7 +80,7 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: $proId, Product ID: $productId, BOM ID: $bomId',
+                    proId,
                     style: const TextStyle(
                       color: Colors.black,
                     ),
@@ -151,6 +151,9 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
                         final productName =
                             await getProductName(_selectedDoc['product_id']);
                         widget.namaProdukController?.text = productName!;
+                        widget.kodeBomController?.text = _selectedDoc['bom_id'];
+                        widget.kodeProdukController?.text =
+                            _selectedDoc['product_id'];
                       }
                     : null,
                 isExpanded: true,
