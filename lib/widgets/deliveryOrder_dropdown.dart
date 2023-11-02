@@ -53,7 +53,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
 
         for (QueryDocumentSnapshot document in snapshot.data!.docs) {
           String doID = document['id'];
-          String coId = document['customer_order_id'];
+          // String coId = document['customer_order_id'];
           doItems.add(
             DropdownMenuItem<String>(
               value: doID,
@@ -61,7 +61,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'ID: $doID, Customer Order ID: $coId',
+                    doID,
                     style: const TextStyle(
                       color: Colors.black,
                     ),

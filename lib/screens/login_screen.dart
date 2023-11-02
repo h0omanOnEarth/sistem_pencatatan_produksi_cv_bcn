@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:routemaster/routemaster.dart';
@@ -270,7 +271,29 @@ class LoginForm extends StatelessWidget {
                                 "Terjadi kesalahan saat mengirim notifikasi: $error");
                           });
 
-                          Routemaster.of(context).push(MainProduksi.routeName);
+                          Routemaster.of(context)
+                              .push(MainAdministrasi.routeName);
+
+                          try {
+                            final HttpsCallable callable =
+                                FirebaseFunctions.instanceFor(
+                                        region: "asia-southeast2")
+                                    .httpsCallable('sendMail');
+                            final HttpsCallableResult<dynamic> result =
+                                await callable.call(<String, dynamic>{
+                              'dest': 'clarissa_g20@mhs.istts.ac.id',
+                              'subject': 'Login Baru',
+                              'html': 'Login baru ke aplikasi'
+                            });
+
+                            if (result.data['success'] == true) {
+                              print("Sent");
+                            } else {
+                              print(result.data['message']);
+                            }
+                          } catch (e) {
+                            print(e.toString());
+                          }
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(
