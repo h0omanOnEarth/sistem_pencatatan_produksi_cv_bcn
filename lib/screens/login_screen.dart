@@ -278,10 +278,10 @@ class LoginForm extends StatelessWidget {
                             final HttpsCallable callable =
                                 FirebaseFunctions.instanceFor(
                                         region: "asia-southeast2")
-                                    .httpsCallable('sendMail');
+                                    .httpsCallable('sendEmailNotif');
                             final HttpsCallableResult<dynamic> result =
                                 await callable.call(<String, dynamic>{
-                              'dest': 'clarissa_g20@mhs.istts.ac.id',
+                              'dest': 'clarissagracia.cg@gmail.com',
                               'subject': 'Login Baru',
                               'html': 'Login baru ke aplikasi'
                             });

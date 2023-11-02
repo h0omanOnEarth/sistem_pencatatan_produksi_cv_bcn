@@ -10,9 +10,6 @@ const admin = require("firebase-admin");
 const { onRequest, onCall } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const { setGlobalOptions } = require("firebase-functions/v2");
-const functions = require("firebase-functions");
-const nodemailer = require("nodemailer");
-const cors = require("cors");
 
 setGlobalOptions({ region: "asia-southeast2" });
 
@@ -21,41 +18,12 @@ admin.initializeApp();
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: "berliancangkirnusantara@gmail.com",
-    pass: "auwh xoje pinq ldzc", //you your password
-  },
-});
-exports.sendMail = functions.https.onCall((data, context) => {
-  const dest = data.dest;
-  const subject = data.subject; // Mengambil subject dari parameter
-  const html = data.html; // Mengambil html dari parameter
-
-  const mailOptions = {
-    from: "CV. Berlian Cangkir Nusantara <berliancangkirnusantara@gmail.com>",
-    to: dest,
-    subject: subject,
-    html: html,
-  };
-
-  return transporter
-    .sendMail(mailOptions)
-    .then(() => {
-      return { success: true, message: "Email sent successfully" };
-    })
-    .catch((error) => {
-      return { success: false, message: error.toString() };
-    });
-});
-
 // validasi login
 const { loginValidation } = require("./src/loginValidation");
 exports.loginValidation = onCall(loginValidation);
+
+const { sendEmailNotif } = require("./src/sendMail");
+exports.sendEmailNotif = onCall(sendEmailNotif);
 
 // validasi pegawai
 const { pegawaiAdd } = require("./src/master/pegawai");

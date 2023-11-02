@@ -49,12 +49,16 @@ class ProductionOrderBloc
     extends Bloc<ProductionOrderEvent, ProductionOrderBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable productionOrderValidateCallable;
+  final HttpsCallable productionOrderSendMail;
   final notificationService = NotificationService();
 
   ProductionOrderBloc()
       : productionOrderValidateCallable =
             FirebaseFunctions.instanceFor(region: "asia-southeast2")
                 .httpsCallable('productionOrderValidate'),
+        productionOrderSendMail =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('sendEmailNotif'),
         super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }
