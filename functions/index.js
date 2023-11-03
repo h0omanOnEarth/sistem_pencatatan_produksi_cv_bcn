@@ -9,7 +9,9 @@
 const admin = require("firebase-admin");
 const { onRequest, onCall } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
-const { setGlobalOptions } = require("firebase-functions/v2");
+const { setGlobalOptions, https } = require("firebase-functions/v2");
+const nodemailer = require("nodemailer");
+const cors = require("cors");
 
 setGlobalOptions({ region: "asia-southeast2" });
 
@@ -18,12 +20,12 @@ admin.initializeApp();
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
+const { sendEmailNotif } = require("./src/sendMail");
+exports.sendEmailNotif = https.onCall({ cors: true }, sendEmailNotif);
+
 // validasi login
 const { loginValidation } = require("./src/loginValidation");
 exports.loginValidation = onCall(loginValidation);
-
-const { sendEmailNotif } = require("./src/sendMail");
-exports.sendEmailNotif = onCall(sendEmailNotif);
 
 // validasi pegawai
 const { pegawaiAdd } = require("./src/master/pegawai");

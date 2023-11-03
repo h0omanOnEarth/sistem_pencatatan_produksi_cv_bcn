@@ -263,13 +263,13 @@ class LoginForm extends StatelessWidget {
                           //     builder: (context) => const MainProduksi(),
                           //   ),
                           // );
-                          print("Mengirim notifikasi...");
-                          Notify.instantNotify().then((notificationCreated) {
-                            print("Notifikasi dikirim: $notificationCreated");
-                          }).catchError((error) {
-                            print(
-                                "Terjadi kesalahan saat mengirim notifikasi: $error");
-                          });
+                          // print("Mengirim notifikasi...");
+                          // Notify.instantNotify().then((notificationCreated) {
+                          //   print("Notifikasi dikirim: $notificationCreated");
+                          // }).catchError((error) {
+                          //   print(
+                          //       "Terjadi kesalahan saat mengirim notifikasi: $error");
+                          // });
 
                           Routemaster.of(context)
                               .push(MainAdministrasi.routeName);
@@ -287,7 +287,7 @@ class LoginForm extends StatelessWidget {
                             });
 
                             if (result.data['success'] == true) {
-                              print("Sent");
+                              print("Email Sent");
                             } else {
                               print(result.data['message']);
                             }

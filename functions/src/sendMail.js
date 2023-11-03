@@ -1,4 +1,13 @@
 const nodemailer = require("nodemailer");
+const cors = require("cors");
+const {
+  log,
+  info,
+  debug,
+  warn,
+  error,
+  write,
+} = require("firebase-functions/logger");
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -11,17 +20,17 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendEmailNotif = async (req) => {
+exports.sendEmailNotif = async (req, res) => {
   const { dest, subject, html } = req.data;
-  const mailOptions = {
-    from: "CV. Berlian Cangkir Nusantara <berliancangkirnusantara@gmail.com>",
-    to: dest,
-    subject: subject,
-    html: html,
-  };
   try {
+    const mailOptions = {
+      from: "CV. Berlian Cangkir Nusantara <berliancangkirnusantara@gmail.com>",
+      to: dest,
+      subject: subject,
+      html: html,
+    };
     await transporter.sendMail(mailOptions);
-    return { success: true, message: "Email sent successfully" };
+    return { success: true, message: "Sent" };
   } catch (error) {
     return { success: false, message: error.toString() };
   }
