@@ -290,7 +290,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           ),
           if (detailMaterialUsages.isNotEmpty)
             pw.Header(
-              text: 'Detail Material Usages',
+              text: 'Detail Penggunaan Bahan',
               level: 2,
               textStyle: pw.TextStyle(
                 font: font2,
