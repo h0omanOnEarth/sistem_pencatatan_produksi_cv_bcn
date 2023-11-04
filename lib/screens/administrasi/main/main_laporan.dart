@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -84,7 +85,7 @@ class _MainMasterAdministrasiScreenState
                         icon: Icons.point_of_sale,
                         textA: 'Penggunaan Bahan Baku',
                         textB: 'Melihat laporan penggunaan bahan baku',
-                        pageRoute: '/page1'),
+                        pageRoute: LaporanPenggunaanBahan.routeName),
                     const CardItem(
                         icon: Icons.shopping_cart_checkout,
                         textA: 'Barang Jadi Hasil Produksi',

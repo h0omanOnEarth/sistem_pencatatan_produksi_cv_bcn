@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_barang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
@@ -189,5 +190,7 @@ final routes = RouteMap(
     LaporanPesananPelanggan.routeName: (_) =>
         const MaterialPage(child: LaporanPesananPelanggan()),
     LaporanBarang.routeName: (_) => const MaterialPage(child: LaporanBarang()),
+    LaporanPenggunaanBahan.routeName: (_) =>
+        const MaterialPage(child: LaporanPenggunaanBahan()),
   },
 );
