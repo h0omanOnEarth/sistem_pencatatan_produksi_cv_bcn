@@ -7,6 +7,7 @@ import 'package:routemaster/routemaster.dart';
 //Local imports
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -132,6 +133,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     titleRange.cellStyle.hAlign = HAlignType.center;
     titleRange.cellStyle.bold = true;
     titleRange.cellStyle.fontSize = 18;
+    titleRange.cellStyle.backColor = '#C0C0C0'; // Header background color
 
     // Add the title
     titleRange.setText('Laporan Penggunaan Bahan');
@@ -147,20 +149,50 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final materialUsageDoc = materialUsagesQuerySnapshot.docs[i];
       final materialUsageData = materialUsageDoc.data();
 
-      sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
-      sheet
-          .getRangeByIndex(rowIndex, 2)
-          .setText(materialUsageData['production_order_id']);
-      sheet
-          .getRangeByIndex(rowIndex, 3)
-          .setText(materialUsageData['material_request_id']);
-      sheet.getRangeByIndex(rowIndex, 4).setText(materialUsageData['batch']);
-      sheet
-          .getRangeByIndex(rowIndex, 5)
-          .setDateTime(materialUsageData['tanggal_penggunaan'].toDate());
-      sheet
-          .getRangeByIndex(rowIndex, 6)
-          .setText(materialUsageData['status_mu']);
+      // Populate headers with background colors
+      for (var colIndex = 1; colIndex <= 6; colIndex++) {
+        final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+        cell.setText([
+          'ID',
+          'Production Order ID',
+          'Material Request ID',
+          'Batch',
+          'Tanggal Penggunaan',
+          'Status MU'
+        ][colIndex - 1]);
+        cell.cellStyle.backColor = '#FFFF00'; // Header background color
+        cell.cellStyle.bold = true;
+      }
+
+      rowIndex++;
+
+      // Populate data cells
+      for (var colIndex = 1; colIndex <= 6; colIndex++) {
+        sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
+        sheet
+            .getRangeByIndex(rowIndex, 2)
+            .setText(materialUsageData['production_order_id']);
+        sheet
+            .getRangeByIndex(rowIndex, 3)
+            .setText(materialUsageData['material_request_id']);
+        sheet.getRangeByIndex(rowIndex, 4).setText(materialUsageData['batch']);
+        sheet
+            .getRangeByIndex(rowIndex, 5)
+            .setDateTime(materialUsageData['tanggal_penggunaan'].toDate());
+        sheet
+            .getRangeByIndex(rowIndex, 6)
+            .setText(materialUsageData['status_mu']);
+      }
+
+      rowIndex++;
+
+      // Add a separator line
+      for (var colIndex = 1; colIndex <= 6; colIndex++) {
+        final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+        cell.cellStyle.borders.bottom.color = '#000000'; // Border color
+      }
+
+      rowIndex++;
 
       // Fetch and populate the details from subcollection
       final detailMaterialUsagesQuery =
@@ -169,14 +201,33 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           await detailMaterialUsagesQuery.get();
 
       if (detailMaterialUsagesQuerySnapshot.docs.isNotEmpty) {
+        // Populate detail headers with a different background color
+        for (var colIndex = 1; colIndex <= 3; colIndex++) {
+          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          cell.setText(['Material ID', 'Jumlah', 'Satuan'][colIndex - 1]);
+          cell.cellStyle.backColor =
+              '#FFFF00'; // Header detail_material_usages background color
+          cell.cellStyle.bold = true;
+        }
+
+        // Add 'Nama Bahan' header with background color
+        sheet.getRangeByIndex(rowIndex, 4).setText('Nama Bahan');
+        sheet.getRangeByIndex(rowIndex, 4).cellStyle.backColor = '#FFFF00';
+
         rowIndex++;
-        sheet
-            .getRangeByIndex(rowIndex, 1)
-            .setText('Material Usage ID: ${materialUsageDoc.id}');
-        rowIndex++;
-        sheet.getRangeByIndex(rowIndex, 1).setText('Material ID');
-        sheet.getRangeByIndex(rowIndex, 2).setText('Jumlah');
-        sheet.getRangeByIndex(rowIndex, 3).setText('Satuan');
+
+        // Add a separator line
+        for (var colIndex = 1; colIndex <= 4; colIndex++) {
+          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          cell.cellStyle.borders.bottom.color = '#000000';
+        }
+
+        // Add a separator line for 'Nama Bahan'
+        for (var colIndex = 4; colIndex <= 4; colIndex++) {
+          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          cell.cellStyle.borders.bottom.color = '#000000';
+        }
+
         rowIndex++;
 
         for (var j = 0;
@@ -184,20 +235,47 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             j++) {
           final detailMaterialUsageData =
               detailMaterialUsagesQuerySnapshot.docs[j].data();
+
+          // Populate data cells for detail_material_usages
+          for (var colIndex = 1; colIndex <= 3; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.setText([
+              detailMaterialUsageData['material_id'],
+              detailMaterialUsageData['jumlah'].toString(),
+              detailMaterialUsageData['satuan']
+            ][colIndex - 1]);
+          }
+
+          // Fetch material info using the MaterialService
+          final materialId = detailMaterialUsageData['material_id'];
+          final materialInfo =
+              await MaterialService().getMaterialInfo(materialId);
+
+          // Populate 'Nama Bahan' column with material name
           sheet
-              .getRangeByIndex(rowIndex, 1)
-              .setText(detailMaterialUsageData['material_id']);
-          sheet
-              .getRangeByIndex(rowIndex, 2)
-              .setNumber(detailMaterialUsageData['jumlah']);
-          sheet
-              .getRangeByIndex(rowIndex, 3)
-              .setText(detailMaterialUsageData['satuan']);
+              .getRangeByIndex(rowIndex, 4)
+              .setText(materialInfo != null ? materialInfo['nama'] : '');
           rowIndex++;
+
+          if (j < detailMaterialUsagesQuerySnapshot.docs.length - 1) {
+            // Add a separator line between detail_material_usages
+            for (var colIndex = 1; colIndex <= 4; colIndex++) {
+              final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+              cell.cellStyle.borders.bottom.color = '#000000';
+            }
+            rowIndex++;
+          }
         }
       }
 
-      rowIndex++;
+      if (i < materialUsagesQuerySnapshot.docs.length - 1) {
+        // Add a separator line between material_usages
+        for (var colIndex = 1; colIndex <= 6; colIndex++) {
+          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          cell.cellStyle.borders.bottom.color = '#000000';
+        }
+        rowIndex++;
+      }
     }
 
     final List<int> bytes = workbook.saveAsStream();
