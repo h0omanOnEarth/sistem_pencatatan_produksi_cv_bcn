@@ -136,25 +136,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     // Add the title
     titleRange.setText('Laporan Penggunaan Bahan');
 
-    // Add headers with background color
-    final headers = [
-      'ID',
-      'Production Order ID',
-      'Material Request ID',
-      'Batch',
-      'Tanggal Penggunaan',
-      'Status MU',
-      'Material ID',
-      'Jumlah',
-      'Satuan',
-    ];
-
-    for (var i = 0; i < headers.length; i++) {
-      final headerCell = sheet.getRangeByIndex(2, i + 1);
-      headerCell.setText(headers[i]);
-      headerCell.cellStyle.backColor = '#C0C0C0';
-    }
-
     // Fetch data from Firestore and populate the Excel sheet
     final materialUsagesQuery =
         FirebaseFirestore.instance.collection('material_usages');
@@ -187,20 +168,36 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final detailMaterialUsagesQuerySnapshot =
           await detailMaterialUsagesQuery.get();
 
-      for (var j = 0; j < detailMaterialUsagesQuerySnapshot.docs.length; j++) {
-        final detailMaterialUsageData =
-            detailMaterialUsagesQuerySnapshot.docs[j].data();
-        sheet
-            .getRangeByIndex(rowIndex, 7)
-            .setText(detailMaterialUsageData['material_id']);
-        sheet
-            .getRangeByIndex(rowIndex, 8)
-            .setNumber(detailMaterialUsageData['jumlah']);
-        sheet
-            .getRangeByIndex(rowIndex, 9)
-            .setText(detailMaterialUsageData['satuan']);
+      if (detailMaterialUsagesQuerySnapshot.docs.isNotEmpty) {
         rowIndex++;
+        sheet
+            .getRangeByIndex(rowIndex, 1)
+            .setText('Material Usage ID: ${materialUsageDoc.id}');
+        rowIndex++;
+        sheet.getRangeByIndex(rowIndex, 1).setText('Material ID');
+        sheet.getRangeByIndex(rowIndex, 2).setText('Jumlah');
+        sheet.getRangeByIndex(rowIndex, 3).setText('Satuan');
+        rowIndex++;
+
+        for (var j = 0;
+            j < detailMaterialUsagesQuerySnapshot.docs.length;
+            j++) {
+          final detailMaterialUsageData =
+              detailMaterialUsagesQuerySnapshot.docs[j].data();
+          sheet
+              .getRangeByIndex(rowIndex, 1)
+              .setText(detailMaterialUsageData['material_id']);
+          sheet
+              .getRangeByIndex(rowIndex, 2)
+              .setNumber(detailMaterialUsageData['jumlah']);
+          sheet
+              .getRangeByIndex(rowIndex, 3)
+              .setText(detailMaterialUsageData['satuan']);
+          rowIndex++;
+        }
       }
+
+      rowIndex++;
     }
 
     final List<int> bytes = workbook.saveAsStream();
