@@ -31,6 +31,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
   TextEditingController beratController = TextEditingController();
   TextEditingController ketebalanController = TextEditingController();
   TextEditingController stokController = TextEditingController();
+  TextEditingController banyaknyaController = TextEditingController();
 
   @override
   void initState() {
@@ -74,18 +75,18 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
     final stok = int.tryParse(stokController.text);
 
     final Product newProduct = Product(
-      id: '',
-      nama: namaController.text,
-      deskripsi: deskripsiController.text,
-      jenis: selectedJenis,
-      satuan: selectedSatuan,
-      berat: berat ?? 0.0, // Berikan nilai default jika null
-      dimensi: dimensi ?? 0, // Berikan nilai default jika null
-      harga: harga ?? 0, // Berikan nilai default jika null
-      ketebalan: ketebalan ?? 0, // Berikan nilai default jika null
-      status: selectedStatus == 'Aktif' ? 1 : 0,
-      stok: stok ?? 0, // Berikan nilai default jika null
-    );
+        id: '',
+        nama: namaController.text,
+        deskripsi: deskripsiController.text,
+        jenis: selectedJenis,
+        satuan: selectedSatuan,
+        berat: berat ?? 0.0, // Berikan nilai default jika null
+        dimensi: dimensi ?? 0, // Berikan nilai default jika null
+        harga: harga ?? 0, // Berikan nilai default jika null
+        ketebalan: ketebalan ?? 0, // Berikan nilai default jika null
+        status: selectedStatus == 'Aktif' ? 1 : 0,
+        stok: stok ?? 0, // Berikan nilai default jika null
+        banyaknya: int.tryParse(banyaknyaController.text) ?? 0);
 
     if (widget.productId != null) {
       productBloc.add(UpdateProductEvent(widget.productId ?? '', newProduct));
@@ -262,6 +263,12 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                           ],
                         ),
                         const SizedBox(height: 24.0),
+                        TextFieldWidget(
+                          label: 'Banyaknya (Per Dus)',
+                          placeholder: '0',
+                          controller: banyaknyaController,
+                        ),
+                        const SizedBox(height: 24.0),
                         Row(
                           children: [
                             Expanded(
@@ -339,6 +346,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
                                   dimensiController.clear();
                                   beratController.clear();
                                   ketebalanController.clear();
+                                  banyaknyaController.clear();
                                   stokController.clear();
                                   selectedJenis = "Gelas Pop";
                                   selectedSatuan = "Kg";

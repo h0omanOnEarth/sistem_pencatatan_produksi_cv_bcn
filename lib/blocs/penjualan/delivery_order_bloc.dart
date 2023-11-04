@@ -107,7 +107,8 @@ class DeliveryOrderBloc
                 'tanggal_request_pengiriman': tanggalRequestPengiriman,
                 'total_barang': totalBarang,
                 'total_harga': totalHarga,
-                'catatan': catatan
+                'catatan': catatan,
+                'nama_ekspedisi': event.deliveryOrder.namaEkspedisi
               };
 
               await deliveryOrderRef.set(deliveryOrderData);
@@ -197,7 +198,8 @@ class DeliveryOrderBloc
                 'tanggal_request_pengiriman': tanggalRequestPengiriman,
                 'total_barang': totalBarang,
                 'total_harga': totalHarga,
-                'catatan': catatan
+                'catatan': catatan,
+                'nama_ekspedisi': event.deliveryOrder.namaEkspedisi
               };
 
               await deliveryOrderToUpdateRef.set(deliveryOrderData);

@@ -95,7 +95,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Surat Jalan Report'),
+        title: const Text('Surat Jalan Report'),
       ),
       body: PdfPreview(
         allowPrinting: true, // Nonaktifkan opsi cetak

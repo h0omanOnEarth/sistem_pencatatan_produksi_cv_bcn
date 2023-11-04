@@ -12,6 +12,7 @@ class DeliveryOrder {
   String statusPesananPengiriman;
   DateTime tanggalPesananPengiriman;
   DateTime tanggalRequestPengiriman;
+  String namaEkspedisi;
   int totalBarang;
   int totalHarga;
   int estimasiWaktu;
@@ -32,27 +33,28 @@ class DeliveryOrder {
     required this.totalBarang,
     required this.totalHarga,
     required this.estimasiWaktu,
+    required this.namaEkspedisi,
     this.detailDeliveryOrderList = const [], // Initialize the list
   });
 
   factory DeliveryOrder.fromJson(Map<String, dynamic> json) {
     return DeliveryOrder(
-      id: json['id'] as String,
-      catatan: json['catatan'],
-      customerOrderId: json['customer_order_id'] as String,
-      metodePengiriman: json['metode_pengiriman'] as String,
-      satuan: json['satuan'] as String,
-      alamatPengiriman: json['alamat_pengiriman'] as String,
-      status: json['status'] as int,
-      statusPesananPengiriman: json['status_pesanan_pengiriman'] as String,
-      tanggalPesananPengiriman:
-          DateTime.parse(json['tanggal_pesanan_pengiriman'] as String),
-      tanggalRequestPengiriman:
-          DateTime.parse(json['tanggal_request_pengiriman'] as String),
-      totalBarang: json['total_barang'] as int,
-      totalHarga: json['total_harga'] as int,
-      estimasiWaktu: json['estimasi_waktu'] as int,
-    );
+        id: json['id'] as String,
+        catatan: json['catatan'],
+        customerOrderId: json['customer_order_id'] as String,
+        metodePengiriman: json['metode_pengiriman'] as String,
+        satuan: json['satuan'] as String,
+        alamatPengiriman: json['alamat_pengiriman'] as String,
+        status: json['status'] as int,
+        statusPesananPengiriman: json['status_pesanan_pengiriman'] as String,
+        tanggalPesananPengiriman:
+            DateTime.parse(json['tanggal_pesanan_pengiriman'] as String),
+        tanggalRequestPengiriman:
+            DateTime.parse(json['tanggal_request_pengiriman'] as String),
+        totalBarang: json['total_barang'] as int,
+        totalHarga: json['total_harga'] as int,
+        estimasiWaktu: json['estimasi_waktu'] as int,
+        namaEkspedisi: json['nama_ekspedisi'] as String);
   }
 
   Future<void> fetchDetailDeliveryOrders() async {
@@ -91,6 +93,7 @@ class DeliveryOrder {
       'total_harga': totalHarga,
       'estimasi_waktu': estimasiWaktu,
       'detail_delivery_order': detailDeliveryOrderJson,
+      'nama_ekspedisi': namaEkspedisi
     };
   }
 }

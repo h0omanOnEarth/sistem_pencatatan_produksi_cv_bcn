@@ -10,6 +10,7 @@ class Product {
   final int ketebalan;
   final int status;
   final int stok;
+  final int banyaknya;
 
   Product({
     required this.id,
@@ -23,22 +24,23 @@ class Product {
     required this.ketebalan,
     required this.status,
     required this.stok,
+    required this.banyaknya,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? '',
-      nama: json['nama'] ?? '',
-      deskripsi: json['deskripsi'] ?? '',
-      jenis: json['jenis'] ?? '',
-      satuan: json['satuan'] ?? '',
-      berat: (json['berat'] as num).toDouble(),
-      dimensi: json['dimensi'] ?? 0,
-      harga: json['harga'] ?? 0,
-      ketebalan: json['ketebalan'] ?? 0,
-      status: json['status'] ?? 0,
-      stok: json['stok'] ?? 0,
-    );
+        id: json['id'] ?? '',
+        nama: json['nama'] ?? '',
+        deskripsi: json['deskripsi'] ?? '',
+        jenis: json['jenis'] ?? '',
+        satuan: json['satuan'] ?? '',
+        berat: (json['berat'] as num).toDouble(),
+        dimensi: json['dimensi'] ?? 0,
+        harga: json['harga'] ?? 0,
+        ketebalan: json['ketebalan'] ?? 0,
+        status: json['status'] ?? 0,
+        stok: json['stok'] ?? 0,
+        banyaknya: json['banyaknya'] ?? 0);
   }
 
   Map<String, dynamic> toJson() {
@@ -54,6 +56,7 @@ class Product {
       'ketebalan': ketebalan,
       'status': status,
       'stok': stok,
+      'banyaknya': banyaknya
     };
   }
 }

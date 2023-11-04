@@ -274,26 +274,26 @@ class LoginForm extends StatelessWidget {
                           Routemaster.of(context)
                               .push(MainAdministrasi.routeName);
 
-                          try {
-                            final HttpsCallable callable =
-                                FirebaseFunctions.instanceFor(
-                                        region: "asia-southeast2")
-                                    .httpsCallable('sendEmailNotif');
-                            final HttpsCallableResult<dynamic> result =
-                                await callable.call(<String, dynamic>{
-                              'dest': 'clarissagracia.cg@gmail.com',
-                              'subject': 'Login Baru',
-                              'html': 'Login baru ke aplikasi'
-                            });
+                          // try {
+                          //   final HttpsCallable callable =
+                          //       FirebaseFunctions.instanceFor(
+                          //               region: "asia-southeast2")
+                          //           .httpsCallable('sendEmailNotif');
+                          //   final HttpsCallableResult<dynamic> result =
+                          //       await callable.call(<String, dynamic>{
+                          //     'dest': 'clarissagracia.cg@gmail.com',
+                          //     'subject': 'Login Baru',
+                          //     'html': 'Login baru ke aplikasi'
+                          //   });
 
-                            if (result.data['success'] == true) {
-                              print("Email Sent");
-                            } else {
-                              print(result.data['message']);
-                            }
-                          } catch (e) {
-                            print(e.toString());
-                          }
+                          //   if (result.data['success'] == true) {
+                          //     print("Email Sent");
+                          //   } else {
+                          //     print(result.data['message']);
+                          //   }
+                          // } catch (e) {
+                          //   print(e.toString());
+                          // }
                         },
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.all<Color>(

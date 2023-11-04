@@ -45,6 +45,7 @@ class _FormPesananPengirimanScreenState
   TextEditingController totalHargaController = TextEditingController();
   TextEditingController catatanController = TextEditingController();
   TextEditingController waktuPengirimanController = TextEditingController();
+  TextEditingController namaEkspedisiController = TextEditingController();
 
   List<ProductCardDataCustomerOrder> productCards = [];
   List<Map<String, dynamic>> productData = []; // Inisialisasi daftar produk
@@ -76,6 +77,7 @@ class _FormPesananPengirimanScreenState
       _selectedReqDate = null;
       selectedPesanan = null;
       selectedMetode = "Pengiriman Truk Pabrik";
+      namaEkspedisiController.text = '';
       dropdownValue = null;
       catatanController.clear();
       statusController.clear();
@@ -127,6 +129,7 @@ class _FormPesananPengirimanScreenState
           statusPesananPengiriman: statusController.text,
           tanggalPesananPengiriman: _selectedDate ?? DateTime.now(),
           tanggalRequestPengiriman: _selectedReqDate ?? DateTime.now(),
+          namaEkspedisi: namaEkspedisiController.text,
           totalBarang: int.tryParse(totalBarangController.text) ?? 0,
           totalHarga: int.tryParse(
                   currencyFormat.parse(totalHargaController.text).toString()) ??
@@ -347,6 +350,7 @@ class _FormPesananPengirimanScreenState
   void initState() {
     super.initState();
     statusController.text = 'Dalam Proses';
+    namaEkspedisiController.text = '';
     fetchDataCustomerOrder();
     fetchDataProduct();
     addProductCard();
@@ -366,6 +370,7 @@ class _FormPesananPengirimanScreenState
             totalHargaController.text = data['total_harga'].toString();
             totalBarangController.text = data['total_barang'].toString();
             statusController.text = data['status_pesanan_pengiriman'];
+            namaEkspedisiController.text = data['nama_ekspedisi'] ?? '';
             final tanggalDeliveryOrderFirestore =
                 data['tanggal_pesanan_pengiriman'];
             if (tanggalDeliveryOrderFirestore != null) {
@@ -555,6 +560,15 @@ class _FormPesananPengirimanScreenState
                             });
                           },
                           isEnabled: widget.statusDo != "Selesai",
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFieldWidget(
+                          label: 'Nama Ekspedisi',
+                          placeholder: 'Nama Ekspedisi',
+                          controller: namaEkspedisiController,
+                          isEnabled: selectedMetode == 'Ekspedisi',
                         ),
                         const SizedBox(
                           height: 16.0,

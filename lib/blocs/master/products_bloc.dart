@@ -93,6 +93,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
               'satuan': satuan,
               'status': status,
               'stok': stok,
+              'banyaknya': event.product.banyaknya
             });
 
             yield SuccessState();
@@ -149,6 +150,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductBlocState> {
                 'satuan': satuan,
                 'status': status,
                 'stok': stok,
+                'banyaknya': event.updatedProduct.banyaknya
               });
 
               yield SuccessState();
