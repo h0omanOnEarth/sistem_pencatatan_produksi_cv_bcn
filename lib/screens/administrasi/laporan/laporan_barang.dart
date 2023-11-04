@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:routemaster/routemaster.dart';
 //Local imports
@@ -39,6 +38,20 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 
 class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false; // Tambahkan variabel status loading
+  final firestore = FirebaseFirestore.instance;
+  List<Map<String, dynamic>> products = [];
+  List<Map<String, dynamic>> customerOrders = [];
+  List<Map<String, dynamic>> customerOrderReturns = [];
+  List<Map<String, dynamic>> productionResults = [];
+  List<Map<String, dynamic>> materialUsages = [];
+  List<Map<String, dynamic>> productionOrders = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,25 +131,57 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     );
   }
 
+  Future<void> fetchData() async {
+    final productsSnapshot = await firestore.collection('products').get();
+    products = productsSnapshot.docs.map((doc) => doc.data()).toList();
+
+    customerOrders = await fetchCustomerOrders();
+    customerOrderReturns = await fetchCustomerOrderReturns();
+    productionResults = await fetchProductionResults();
+    materialUsages = await fetchMaterialUsages();
+    productionOrders = await fetchProductionOrders();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCustomerOrders() async {
+    final snapshot = await firestore.collection('customer_orders').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCustomerOrderReturns() async {
+    final snapshot = await firestore.collection('customer_order_returns').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProductionResults() async {
+    final snapshot = await firestore.collection('production_results').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchMaterialUsages() async {
+    final snapshot = await firestore.collection('material_usages').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchProductionOrders() async {
+    final snapshot = await firestore.collection('production_orders').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
   Future<void> generateExcel() async {
     final Workbook workbook = Workbook();
     final Worksheet sheet = workbook.worksheets[0];
     sheet.showGridlines = false;
 
-    // Set column widths
     sheet.getRangeByName('A1:F1').columnWidth = 13;
 
-    // Merge cells for the title and format it
     final titleRange = sheet.getRangeByName('A1:F1');
     titleRange.merge();
     titleRange.cellStyle.hAlign = HAlignType.center;
     titleRange.cellStyle.bold = true;
     titleRange.cellStyle.fontSize = 18;
 
-    // Add the title
     titleRange.setText('Laporan Barang Produksi');
 
-    // Add headers with background color
     final headers = [
       'product_id',
       'nama',
@@ -149,116 +194,23 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     for (var i = 0; i < headers.length; i++) {
       final headerCell = sheet.getRangeByIndex(2, i + 1);
       headerCell.setText(headers[i]);
-      headerCell.cellStyle.backColor = '#C0C0C0'; // Grey background color
+      headerCell.cellStyle.backColor = '#C0C0C0';
     }
-
-    // Fetch data from Firestore and populate the Excel sheet
-    final productsSnapshot =
-        await FirebaseFirestore.instance.collection('products').get();
-    final products = productsSnapshot.docs.map((doc) => doc.data()).toList();
-
-    final customerOrdersSnapshot =
-        await FirebaseFirestore.instance.collection('customer_orders').get();
-
-    final customerOrderReturnsSnapshot = await FirebaseFirestore.instance
-        .collection('customer_order_returns')
-        .get();
-
-    final productionResultsSnapshot =
-        await FirebaseFirestore.instance.collection('production_results').get();
-    final productionResults =
-        productionResultsSnapshot.docs.map((doc) => doc.data()).toList();
-
-    final materialUsagesSnapshot =
-        await FirebaseFirestore.instance.collection('material_usages').get();
-    final materialUsages =
-        materialUsagesSnapshot.docs.map((doc) => doc.data()).toList();
-
-    final productionOrdersSnapshot =
-        await FirebaseFirestore.instance.collection('production_orders').get();
-    final productionOrders =
-        productionOrdersSnapshot.docs.map((doc) => doc.data()).toList();
 
     for (var i = 0; i < products.length; i++) {
       final product = products[i];
       final productID = product['id'];
 
-      final customerOrdersData =
-          await Future.wait(customerOrdersSnapshot.docs.map((doc) async {
-        final detailCustomerOrdersCollection =
-            doc.reference.collection('detail_customer_orders');
-        final detailCustomerOrdersSnapshot =
-            await detailCustomerOrdersCollection.get();
-
-        final jumlahPesanan = detailCustomerOrdersSnapshot.docs
-            .where((detailOrder) => detailOrder['product_id'] == productID)
-            .map((detailOrder) => detailOrder['jumlah'] as int)
-            .fold(0, (prev, amount) => prev + amount);
-
-        return {'product_id': productID, 'jumlah_pesanan': jumlahPesanan};
-      }));
-
-      final customerOrders = customerOrdersData
-          .where((order) => order['product_id'] == productID)
-          .map((order) => order['jumlah_pesanan'] as int)
-          .toList();
-
-      final totalJumlahPesanan =
-          customerOrders.fold(0, (prev, amount) => prev + amount);
-
-      final customerOrderReturnsData =
-          await Future.wait(customerOrderReturnsSnapshot.docs.map((doc) async {
-        final detailCustomerOrderReturnsCollection =
-            doc.reference.collection('detail_customer_order_returns');
-        final detailCustomerOrderReturnsSnapshot =
-            await detailCustomerOrderReturnsCollection.get();
-
-        final jumlahRetur = detailCustomerOrderReturnsSnapshot.docs
-            .where((detailOrderReturn) =>
-                detailOrderReturn['product_id'] == productID)
-            .map((detailOrderReturn) =>
-                detailOrderReturn['jumlah_pengembalian'] as int)
-            .fold(0, (prev, amount) => prev + amount);
-
-        return {'product_id': productID, 'jumlah_retur': jumlahRetur};
-      }));
-
-      final customerOrderReturns = customerOrderReturnsData
-          .where((orderReturn) => orderReturn['product_id'] == productID)
-          .map((orderReturn) => orderReturn['jumlah_retur'] as int)
-          .toList();
-
-      final totalJumlahRetur =
-          customerOrderReturns.fold(0, (prev, amount) => prev + amount);
-
-      final jumlahProduksi = productionResults
-          .where((result) {
-            final materialUsageID = result['material_usage_id'] as String;
-            final materialUsage = materialUsages.firstWhere(
-                (usage) => usage['id'] == materialUsageID,
-                orElse: () => {});
-            // ignore: unnecessary_null_comparison
-            if (materialUsage == null) return false;
-            final productionOrderID =
-                materialUsage['production_order_id'] as String;
-            final productionOrder = productionOrders.firstWhere(
-                (order) => order['id'] == productionOrderID,
-                orElse: () => {});
-            // ignore: unnecessary_null_comparison
-            if (productionOrder == null) return false;
-            final productIDFromOrder = productionOrder['product_id'] as String;
-
-            return productIDFromOrder == productID;
-          })
-          .map((result) => result['jumlah_produk_berhasil'] as int)
-          .fold(0, (prev, amount) => prev + amount);
+      final jumlahPesanan = calculateTotalJumlahPesanan(productID);
+      final jumlahRetur = calculateTotalJumlahRetur(productID);
+      final jumlahProduksi = calculateJumlahProduksi(productID);
 
       final data = [
         product['id'],
         product['nama'],
         product['stok'],
-        totalJumlahPesanan,
-        totalJumlahRetur,
+        jumlahPesanan,
+        jumlahRetur,
         jumlahProduksi,
       ];
 
@@ -268,14 +220,11 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       }
     }
 
-    // Save and launch the excel.
     final List<int> bytes = workbook.saveAsStream();
-    // Dispose the document.
     workbook.dispose();
 
     Uint8List uint8list = Uint8List.fromList(bytes);
 
-    // Save and launch the file using open_file
     try {
       await FileSaveHelper.saveAndLaunchFile(
           uint8list, 'Laporan_Barang_Produksi.xlsx');
@@ -284,16 +233,76 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     }
   }
 
+  int calculateTotalJumlahPesanan(String productID) {
+    return customerOrders
+        .where((order) => order['product_id'] == productID)
+        .map((order) => order['jumlah_pesanan'] as int)
+        .fold(0, (prev, amount) => prev + amount);
+  }
+
+  int calculateTotalJumlahRetur(String productID) {
+    return customerOrderReturns
+        .where((orderReturn) => orderReturn['product_id'] == productID)
+        .map((orderReturn) => orderReturn['jumlah_retur'] as int)
+        .fold(0, (prev, amount) => prev + amount);
+  }
+
+  int calculateJumlahProduksi(String productID) {
+    return productionResults
+        .where((result) {
+          final materialUsageID = result['material_usage_id'] as String;
+          final materialUsage = materialUsages.firstWhere(
+              (usage) => usage['id'] == materialUsageID,
+              orElse: () => {});
+          if (materialUsage == null) return false;
+          final productionOrderID =
+              materialUsage['production_order_id'] as String;
+          final productionOrder = productionOrders.firstWhere(
+              (order) => order['id'] == productionOrderID,
+              orElse: () => {});
+          if (productionOrder == null) return false;
+          final productIDFromOrder = productionOrder['product_id'] as String;
+
+          return productIDFromOrder == productID;
+        })
+        .map((result) => result['jumlah_produk_berhasil'] as int)
+        .fold(0, (prev, amount) => prev + amount);
+  }
+
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
-
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('customer_orders').get();
-    final orders = querySnapshot.docs.map((doc) => doc.data()).toList();
-
-    final font = await PdfGoogleFonts.nunitoExtraLight();
     final font1 = await PdfGoogleFonts.openSansRegular();
     final font2 = await PdfGoogleFonts.openSansBold();
+    final font = await PdfGoogleFonts.nunitoExtraLight();
+
+    final tableData = <List<String>>[
+      [
+        'product_id',
+        'nama',
+        'stok',
+        'jumlah_pesanan',
+        'jumlah_retur',
+        'jumlah_produksi',
+      ],
+    ];
+
+    for (var i = 0; i < products.length; i++) {
+      final product = products[i];
+      final productID = product['id'];
+
+      final totalJumlahPesanan = calculateTotalJumlahPesanan(productID);
+      final totalJumlahRetur = calculateTotalJumlahRetur(productID);
+      final jumlahProduksi = calculateJumlahProduksi(productID);
+
+      tableData.add([
+        product['id'].toString(),
+        product['nama'].toString(),
+        product['stok'].toString(),
+        totalJumlahPesanan.toString(),
+        totalJumlahRetur.toString(),
+        jumlahProduksi.toString(),
+      ]);
+    }
 
     pdf.addPage(
       pw.MultiPage(
@@ -306,53 +315,23 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         ),
         build: (context) => [
           pw.Header(
-            text: 'Laporan Pesanan Pelanggan',
+            text: 'Laporan Barang Produksi',
             level: 0,
             textStyle: pw.TextStyle(
-              font: font, // Gunakan variabel font
+              font: font,
               fontSize: 18,
               fontWeight: pw.FontWeight.bold,
             ),
           ),
           pw.Table.fromTextArray(
             context: context,
-            data: [
-              [
-                'Customer ID',
-                'ID',
-                'Status Pesanan',
-                'Tanggal Pesan',
-                'Tanggal Kirim',
-                'Total Harga',
-                'Total Produk',
-                'Satuan'
-              ],
-              for (var order in orders)
-                [
-                  order['customer_id'].toString(),
-                  order['id'].toString(),
-                  order['status_pesanan'].toString(),
-                  DateFormat('dd/MM/yyyy')
-                      .format(order['tanggal_pesan'].toDate()),
-                  DateFormat('dd/MM/yyyy')
-                      .format(order['tanggal_kirim'].toDate()),
-                  order['total_harga'].toString(),
-                  order['total_produk'].toString(),
-                  order['satuan'].toString(),
-                ],
-            ],
+            data: tableData,
           ),
         ],
       ),
     );
 
     final pdfBytes = Uint8List.fromList(await pdf.save());
-
-    // Printing.layoutPdf(
-    //   onLayout: (format) {
-    //     return pdfBytes;
-    //   },
-    // );
     return pdfBytes;
   }
 }
