@@ -38,6 +38,7 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 }
 
 class _CreateExcelState extends State<CreateExcelStatefulWidget> {
+  bool isGenerating = false; // Tambahkan variabel status loading
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +65,18 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               backgroundColor: Colors.green, // Memberikan warna teks putih
               minimumSize: const Size(200, 50), // Menentukan ukuran tombol
             ),
-            onPressed: generateExcel,
+            onPressed: () {
+              // Tandai status loading saat tombol ditekan
+              setState(() {
+                isGenerating = true;
+              });
+              generateExcel().then((_) {
+                // Setelah selesai, hentikan status loading
+                setState(() {
+                  isGenerating = false;
+                });
+              });
+            },
             child: const Text('Generate Excel'),
           ),
           const SizedBox(height: 16.0),
@@ -92,6 +104,15 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             },
             child: const Text('Generate PDF'),
           ),
+          if (isGenerating) // Tampilkan CircularProgressIndicator jika sedang loading
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Downloading'), // Tambahkan teks "Downloading" di sini
+              ],
+            )
         ],
       )),
     );
