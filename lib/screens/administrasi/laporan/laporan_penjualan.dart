@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
 import 'package:routemaster/routemaster.dart';
 //Local imports
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
@@ -74,7 +75,21 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               backgroundColor: Colors.red, // Memberikan warna teks putih
               minimumSize: const Size(200, 50), // Menentukan ukuran tombol
             ),
-            onPressed: generatePDF,
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return Scaffold(
+                      appBar: AppBar(
+                        title: const Text('PDF Preview'),
+                      ),
+                      body: PdfPreview(
+                        allowPrinting: true,
+                        build: (format) => generatePDF(format),
+                      ),
+                    );
+                  });
+            },
             child: const Text('Generate PDF'),
           ),
         ],
@@ -168,7 +183,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     }
   }
 
-  Future<void> generatePDF() async {
+  Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
     final querySnapshot =
@@ -232,24 +247,11 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
     final pdfBytes = Uint8List.fromList(await pdf.save());
 
-    Printing.layoutPdf(
-      onLayout: (format) {
-        return pdfBytes;
-      },
-    );
-
-    // await showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return Scaffold(
-    //         appBar: AppBar(
-    //           title: Text('PDF Preview'),
-    //         ),
-    //         body: PdfPreview(
-    //           allowPrinting: true,
-    //           build: (format) => pdfBytes,
-    //         ),
-    //       );
-    //     });
+    // Printing.layoutPdf(
+    //   onLayout: (format) {
+    //     return pdfBytes;
+    //   },
+    // );
+    return pdfBytes;
   }
 }
