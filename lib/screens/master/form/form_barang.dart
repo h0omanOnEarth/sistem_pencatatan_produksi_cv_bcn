@@ -51,6 +51,7 @@ class _FormMasterBarangScreenState extends State<FormMasterBarangScreen> {
             deskripsiController.text = data['deskripsi'] ?? '';
             dimensiController.text = data['dimensi'].toString();
             hargaController.text = data['harga'].toString();
+            banyaknyaController.text = data['banyaknya'].toString();
             selectedJenis = data['jenis'];
             ketebalanController.text = data['ketebalan'].toString();
             selectedSatuan = data['satuan'];

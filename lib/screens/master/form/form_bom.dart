@@ -103,16 +103,14 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
         String materialId = doc['id'];
 
         // Tambahkan pemeriksaan untuk mengabaikan material dengan ID "materialXXX"
-        if (materialId != 'materialXXX') {
-          Map<String, dynamic> bahan = {
-            'id': materialId, // Gunakan ID dokumen sebagai ID produk
-            'nama': doc['nama']
-                as String, // Ganti 'nama' dengan field yang sesuai di Firestore
-          };
-          setState(() {
-            productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
-          });
-        }
+        Map<String, dynamic> bahan = {
+          'id': materialId, // Gunakan ID dokumen sebagai ID produk
+          'nama': doc['nama']
+              as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+        };
+        setState(() {
+          productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
+        });
       }
     });
   }

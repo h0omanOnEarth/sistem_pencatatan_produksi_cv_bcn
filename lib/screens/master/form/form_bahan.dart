@@ -200,7 +200,14 @@ class _FormMasterBahanScreenState extends State<FormMasterBahanScreen> {
                             label: 'Satuan',
                             selectedValue:
                                 selectedSatuan, // Isi dengan nilai yang sesuai
-                            items: const ['Kg', 'Ons', 'Pcs', 'Gram', 'Sak'],
+                            items: const [
+                              'Kg',
+                              'Ons',
+                              'Pcs',
+                              'Gram',
+                              'Sak',
+                              'Roll'
+                            ],
                             onChanged: (newValue) {
                               setState(() {
                                 selectedSatuan =

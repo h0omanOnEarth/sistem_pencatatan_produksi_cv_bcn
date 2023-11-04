@@ -111,7 +111,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
             Expanded(
               child: DropdownDetailWidget(
                 label: 'Satuan',
-                items: const ['Pcs', 'Kg', 'Ons'],
+                items: const ['Pcs', 'Kg', 'Ons', 'Ton', 'Roll'],
                 selectedValue: widget.productCardData.satuan,
                 onChanged: (newValue) {
                   setState(() {
