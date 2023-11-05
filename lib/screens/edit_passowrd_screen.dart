@@ -24,6 +24,7 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
       TextEditingController();
 
   String _errorMessage = '';
+  bool isLoading = false;
 
   void _showSuccessMessageAndNavigateBack() {
     showDialog(
@@ -35,7 +36,6 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                // Setelah menampilkan pesan sukses, navigasi kembali ke layar daftar pegawai
                 Navigator.pop(context, null);
               },
               child: const Text('OK'),
@@ -52,106 +52,122 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const SizedBox(width: 8.0),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 3),
+          child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const SizedBox(width: 8.0),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const CircleAvatar(
+                                    backgroundColor: Colors.white,
+                                    child: Icon(
+                                      Icons.arrow_back,
+                                      color: Colors.black,
                                     ),
-                                  ],
-                                ),
-                                child: const CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  child: Icon(
-                                    Icons.arrow_back,
-                                    color: Colors.black,
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 24.0),
-                          const Text(
-                            'Sunting Password',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(width: 24.0),
+                            const Text(
+                              'Sunting Password',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24.0),
+                  RoundedTextField(
+                    label: 'Password Sekarang',
+                    placeholder: 'Masukkan Password saat ini',
+                    controller: _currentPasswordController,
+                    isObscure: true,
+                  ),
+                  const SizedBox(height: 16.0),
+                  RoundedTextField(
+                    label: 'Password Baru',
+                    placeholder: 'Masukkan password baru',
+                    controller: _newPasswordController,
+                    isObscure: true,
+                  ),
+                  const SizedBox(height: 16.0),
+                  RoundedTextField(
+                    label: 'Konfirmasi Password Baru',
+                    placeholder: 'Masukkan ulang password baru',
+                    controller: _confirmNewPasswordController,
+                    isObscure: true,
+                  ),
+                  const SizedBox(height: 24.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      updatePassword();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24.0),
-                RoundedTextField(
-                  label: 'Password Sekarang',
-                  placeholder: 'Masukkan Password saat ini',
-                  controller: _currentPasswordController,
-                  isObscure: true,
-                ),
-                const SizedBox(height: 16.0),
-                RoundedTextField(
-                  label: 'Password Baru',
-                  placeholder: 'Masukkan password baru',
-                  controller: _newPasswordController,
-                  isObscure: true,
-                ),
-                const SizedBox(height: 16.0),
-                RoundedTextField(
-                  label: 'Konfirmasi Password Baru',
-                  placeholder: 'Masukkan ulang password baru',
-                  controller: _confirmNewPasswordController,
-                  isObscure: true,
-                ),
-                const SizedBox(height: 24.0),
-                ElevatedButton(
-                  onPressed: () {
-                    updatePassword();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        'Simpan',
+                        style: TextStyle(fontSize: 18),
+                      ),
                     ),
                   ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    child: Text(
-                      'Simpan',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+          if (isLoading)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                color: Colors.white.withOpacity(0.3),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ),
+        ],
+      )),
     );
   }
 
@@ -175,6 +191,10 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
     }
 
     try {
+      setState(() {
+        isLoading = true;
+      });
+
       final User? user = _auth.currentUser;
       final AuthCredential credential = EmailAuthProvider.credential(
         email: widget.email!,
@@ -215,6 +235,10 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
           return ErrorDialog(errorMessage: _errorMessage);
         },
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }
