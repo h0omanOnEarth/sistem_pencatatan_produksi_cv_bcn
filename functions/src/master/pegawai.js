@@ -104,23 +104,33 @@ exports.pegawaiUpdate = async (req) => {
 };
 
 exports.pegawaiUpdateProfile = async (req) => {
-  const { currentEmail, telp } = req.data;
+  const { currentEmail, telp, email } = req.data;
 
   const employeesColl = await admin.firestore().collection("employees");
   // Check if the username is already taken by other users (kecuali pengguna saat ini)
-  const qSnapUname = await employeesColl
-    .where("email", "==", currentEmail)
-    .get();
+  const qSnapUname = await employeesColl.where("email", "==", email).get();
   if (!qSnapUname.empty) {
     // Check if the username is already taken by someone other than the current user
     const existingUsers = qSnapUname.docs.filter(
-      (doc) => doc.data().email === currentEmail
+      (doc) => doc.data().email === email
     );
     if (
       existingUsers.length > 1 &&
       existingUsers[0].data().email != currentEmail
     ) {
       return { success: false, message: "Email telah digunakan" };
+    }
+  }
+
+  // Update the email in Firebase Authentication if it has changed
+  if (email !== currentEmail) {
+    try {
+      await admin.auth().updateUser(currentEmail, { email: email });
+    } catch (error) {
+      return {
+        success: false,
+        message: "Gagal memperbarui email di Firebase Authentication",
+      };
     }
   }
 

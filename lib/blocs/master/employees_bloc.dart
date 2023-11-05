@@ -237,10 +237,11 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
             final HttpsCallable callable =
                 FirebaseFunctions.instanceFor(region: "asia-southeast2")
                     .httpsCallable('pegawaiUpdateProfile');
-            final HttpsCallableResult<dynamic> result = await callable
-                .call(<String, dynamic>{
+            final HttpsCallableResult<dynamic> result =
+                await callable.call(<String, dynamic>{
               'currentEmail': currentUsername,
-              'telp': nomorTelepon
+              'telp': nomorTelepon,
+              'email': event.updatedEmployee.email
             });
 
             if (result.data['success'] == true) {

@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class RoundedTextField extends StatelessWidget {
   final String label;
   final String placeholder;
-  final TextEditingController? controller; // Tambahkan controller di sini
+  final TextEditingController? controller;
+  final bool isObscure; // Tambahkan isObscure di sini dengan default false
 
   const RoundedTextField({
     Key? key,
     required this.label,
     required this.placeholder,
-    this.controller, // Tambahkan controller di sini
+    this.controller,
+    this.isObscure = false, // Tambahkan isObscure dengan default false
   }) : super(key: key);
 
   @override
@@ -24,9 +26,11 @@ class RoundedTextField extends StatelessWidget {
             color: Colors.grey[600],
           ),
         ),
-        const SizedBox(height: 8.0), // Add spacing between label and text field
+        const SizedBox(height: 8.0),
         TextField(
-          controller: controller, // Tambahkan controller di sini
+          controller: controller,
+          obscureText:
+              isObscure, // Set isObscure untuk mengatur apakah harus diubah menjadi titik-titik atau tidak
           decoration: InputDecoration(
             hintText: placeholder,
             filled: true,
