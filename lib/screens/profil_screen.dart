@@ -111,7 +111,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const EditProfileScreen(),
+                        builder: (context) => EditProfileScreen(
+                          email: userEmail ?? '',
+                        ),
                       ),
                     );
                   },
@@ -164,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     const SizedBox(height: 8.0),
                                     Text(
                                       userEmail ?? '',
-                                      style: TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 16),
                                     ),
                                   ],
                                 ),
@@ -172,7 +174,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => EditProfileScreen(
+                                          email: userEmail ?? '',
+                                        )),
+                              );
+                            },
                             icon: const Icon(Icons.edit),
                           ),
                         ],

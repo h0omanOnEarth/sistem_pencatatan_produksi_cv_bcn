@@ -20,6 +20,14 @@ class UpdateEmployeeEvent extends EmployeeEvent {
       this.employeeId, this.updatedEmployee, this.currentUsername);
 }
 
+class UpdateProfileEmployeeEvent extends EmployeeEvent {
+  final String employeeId;
+  final Employee updatedEmployee;
+  final String currentUsername;
+  UpdateProfileEmployeeEvent(
+      this.employeeId, this.updatedEmployee, this.currentUsername);
+}
+
 class DeleteEmployeeEvent extends EmployeeEvent {
   final String employeeId;
   final String employeePassword; // Tambahkan atribut ini
@@ -168,6 +176,71 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
               'gajiLembur': gajiLemburJam,
               'status': status,
               'currentUser': currentUsername
+            });
+
+            if (result.data['success'] == true) {
+              final employeeDoc = employeeSnapshot.docs.first;
+              final Map<String, dynamic> updatedData = {
+                'alamat': alamat,
+                'gaji_harian': gajiHarian,
+                'gaji_lembur_jam': gajiLemburJam,
+                'jenis_kelamin': jenisKelamin,
+                'nama': nama,
+                'nomor_telepon': nomorTelepon,
+                'posisi': posisi,
+                'status': status,
+                'tanggal_masuk': tanggalMasuk,
+                'username': username
+              };
+
+              // Langkah 2: Perbarui data pegawai di Firestore
+              await employeeDoc.reference.update(updatedData);
+              yield SuccessState();
+            } else {
+              yield ErrorState(result.data['message']);
+            }
+          } catch (e) {
+            yield ErrorState(e.toString());
+          }
+        } else {
+          yield ErrorState("Harap isi semua field!");
+        }
+      } else {
+        // Handle jika data pegawai dengan ID tersebut tidak ditemukan
+        yield ErrorState(
+            'Data pegawai dengan ID ${event.employeeId} tidak ditemukan.');
+      }
+    } else if (event is UpdateProfileEmployeeEvent) {
+      yield LoadingState();
+      final employeeSnapshot =
+          await employeesRef.where('id', isEqualTo: event.employeeId).get();
+      if (employeeSnapshot.docs.isNotEmpty) {
+        final alamat = event.updatedEmployee.alamat;
+        final gajiHarian = event.updatedEmployee.gajiHarian;
+        final gajiLemburJam = event.updatedEmployee.gajiLemburJam;
+        final jenisKelamin = event.updatedEmployee.jenisKelamin;
+        final nama = event.updatedEmployee.nama;
+        final nomorTelepon = event.updatedEmployee.nomorTelepon;
+        final posisi = event.updatedEmployee.posisi;
+        final status = event.updatedEmployee.status;
+        final tanggalMasuk = event.updatedEmployee.tanggalMasuk;
+        final username = event.updatedEmployee.username;
+        final currentUsername = event.currentUsername;
+
+        if (alamat.isNotEmpty &&
+            jenisKelamin.isNotEmpty &&
+            nama.isNotEmpty &&
+            nomorTelepon.isNotEmpty &&
+            posisi.isNotEmpty &&
+            username.isNotEmpty) {
+          try {
+            final HttpsCallable callable =
+                FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                    .httpsCallable('pegawaiUpdateProfile');
+            final HttpsCallableResult<dynamic> result = await callable
+                .call(<String, dynamic>{
+              'currentEmail': currentUsername,
+              'telp': nomorTelepon
             });
 
             if (result.data['success'] == true) {

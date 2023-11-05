@@ -34,6 +34,9 @@ exports.pegawaiAdd = onCall(pegawaiAdd);
 const { pegawaiUpdate } = require("./src/master/pegawai");
 exports.pegawaiUpdate = onCall(pegawaiUpdate);
 
+const { pegawaiUpdateProfile } = require("./src/master/pegawai");
+exports.pegawaiUpdateProfile = onCall(pegawaiUpdateProfile);
+
 // validasi supplier
 const { supplierAdd } = require("./src/master/supplier");
 exports.supplierAdd = onCall(supplierAdd);

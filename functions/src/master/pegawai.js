@@ -69,7 +69,7 @@ exports.pegawaiUpdate = async (req) => {
   if (!qSnapUname.empty) {
     // Check if the username is already taken by someone other than the current user
     const existingUsers = qSnapUname.docs.filter(
-      (doc) => doc.data().username === username,
+      (doc) => doc.data().username === username
     );
     if (
       existingUsers.length > 1 &&
@@ -99,6 +99,35 @@ exports.pegawaiUpdate = async (req) => {
     return { success: false, message: "Status harus angka" };
   }
 
+  // Modifikasi berhasil
+  return { success: true };
+};
+
+exports.pegawaiUpdateProfile = async (req) => {
+  const { currentEmail, telp } = req.data;
+
+  const employeesColl = await admin.firestore().collection("employees");
+  // Check if the username is already taken by other users (kecuali pengguna saat ini)
+  const qSnapUname = await employeesColl
+    .where("email", "==", currentEmail)
+    .get();
+  if (!qSnapUname.empty) {
+    // Check if the username is already taken by someone other than the current user
+    const existingUsers = qSnapUname.docs.filter(
+      (doc) => doc.data().email === currentEmail
+    );
+    if (
+      existingUsers.length > 1 &&
+      existingUsers[0].data().email != currentEmail
+    ) {
+      return { success: false, message: "Email telah digunakan" };
+    }
+  }
+
+  // Check if telp contains only numeric characters
+  if (!/^\d+$/.test(telp)) {
+    return { success: false, message: "Nomor telepon hanya bisa angka" };
+  }
   // Modifikasi berhasil
   return { success: true };
 };

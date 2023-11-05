@@ -1,6 +1,6 @@
 class Employee {
   final String id;
-  final String alamat;
+  late final String alamat;
   final String email;
   final int gajiHarian;
   final int gajiLemburJam;
