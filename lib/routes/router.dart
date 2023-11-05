@@ -4,6 +4,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_scree
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_pembelian.dart';
@@ -192,5 +193,7 @@ final routes = RouteMap(
     LaporanBarang.routeName: (_) => const MaterialPage(child: LaporanBarang()),
     LaporanPenggunaanBahan.routeName: (_) =>
         const MaterialPage(child: LaporanPenggunaanBahan()),
+    LaporanReturBarang.routeName: (_) =>
+        const MaterialPage(child: LaporanReturBarang()),
   },
 );

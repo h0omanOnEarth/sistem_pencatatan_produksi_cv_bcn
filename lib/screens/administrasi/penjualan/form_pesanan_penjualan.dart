@@ -214,7 +214,7 @@ class _FormPesananPelangganScreenState
         .then((querySnapshot) {
       final newProductCards = <ProductCardDataCustomerOrder>[];
       querySnapshot.docs.forEach((doc) async {
-        final detailData = doc.data() as Map<String, dynamic>;
+        final detailData = doc.data();
 
         final productId = detailData['product_id'] as String;
         // Mencari nama produk berdasarkan productId

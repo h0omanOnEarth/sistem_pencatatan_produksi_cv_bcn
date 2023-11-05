@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -14,7 +15,30 @@ class HomeScreenGudang extends StatefulWidget {
 }
 
 class _HomeScreenGudangState extends State<HomeScreenGudang> {
-  final String userName = "John Doe";
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      getUserDetails(user.email ?? '');
+    }
+  }
+
+  Future<void> getUserDetails(String email) async {
+    final firestore = FirebaseFirestore.instance;
+    final userRef =
+        firestore.collection('employees').where('email', isEqualTo: email);
+    final userSnapshot = await userRef.get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      final userData = userSnapshot.docs.first;
+      setState(() {
+        userName = userData['nama'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +124,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                           ),
                         ),
                         Text(
-                          userName,
+                          userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -221,7 +245,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                           ),
                         ),
                         Text(
-                          userName,
+                          userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,

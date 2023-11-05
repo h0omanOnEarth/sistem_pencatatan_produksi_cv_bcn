@@ -164,7 +164,6 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
             querySnapshot.docs.first.data() as Map<String, dynamic>;
         kodeProdukController.text = productData['product_id'];
         final namaProduk = await getProductName(productData['product_id']);
-        ;
         namaProdukController.text = namaProduk ?? '';
       } else {
         print('Document does not exist on Firestore');

@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/homeService.dart';
@@ -11,7 +13,30 @@ class HomeScreenProduksi extends StatefulWidget {
 }
 
 class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
-  final String userName = "John Doe";
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      getUserDetails(user.email ?? '');
+    }
+  }
+
+  Future<void> getUserDetails(String email) async {
+    final firestore = FirebaseFirestore.instance;
+    final userRef =
+        firestore.collection('employees').where('email', isEqualTo: email);
+    final userSnapshot = await userRef.get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      final userData = userSnapshot.docs.first;
+      setState(() {
+        userName = userData['nama'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +101,7 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                                     ),
                                   ),
                                   Text(
-                                    userName,
+                                    userName ?? '',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontSize: 18,

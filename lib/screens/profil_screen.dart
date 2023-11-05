@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
@@ -15,6 +16,34 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String? userName;
+  String? userEmail;
+  final _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = _auth.currentUser;
+    if (user != null) {
+      getUserDetails(user.email ?? '');
+    }
+  }
+
+  Future<void> getUserDetails(String email) async {
+    final firestore = FirebaseFirestore.instance;
+    final userRef =
+        firestore.collection('employees').where('email', isEqualTo: email);
+    final userSnapshot = await userRef.get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      final userData = userSnapshot.docs.first;
+      setState(() {
+        userName = userData['nama'];
+        userEmail = userData['email'];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(width: 16.0),
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -125,8 +154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Clarissa Graciene',
-                                      style: TextStyle(
+                                      userName ?? '',
+                                      style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -134,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     // ignore: unnecessary_const
                                     const SizedBox(height: 8.0),
                                     Text(
-                                      'clarissagracia.cg@gmail.com',
+                                      userEmail ?? '',
                                       style: TextStyle(fontSize: 16),
                                     ),
                                   ],
@@ -203,19 +232,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    //  FirebaseAuth.instance.signOut().then((value) {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => const MainMenuScreen()),
-                    //   );
-                    // });
+                    _auth.signOut().then((value) {
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => const MainMenuScreen()),
+                      // );
+                      Routemaster.of(context).push(MainMenuScreen.routeName);
+                    });
 
                     // Navigator.push(
                     //     context,
                     //     MaterialPageRoute(builder: (context) => const MainMenuScreen()),
                     //   );
 
-                    Routemaster.of(context).push(MainMenuScreen.routeName);
+                    // Routemaster.of(context).push(MainMenuScreen.routeName);
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(

@@ -74,7 +74,7 @@ class FileSaveHelper {
   static void _saveAndLaunchFileMobile(
       Uint8List uint8list, String fileName) async {
     try {
-      final fileStorage = FileStorage();
+      // final fileStorage = FileStorage();
       await FileStorage.writeCounter(uint8list, "test.xlsx");
       // final tempDir = Directory.systemTemp;
       // print(tempDir.path);

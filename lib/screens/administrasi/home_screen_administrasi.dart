@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreenAdministrasi extends StatefulWidget {
   static const routeName = '/administrasi/home';
@@ -14,7 +15,30 @@ class HomeScreenAdministrasi extends StatefulWidget {
 }
 
 class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
-  final String userName = "John Doe";
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      getUserDetails(user.email ?? '');
+    }
+  }
+
+  Future<void> getUserDetails(String email) async {
+    final firestore = FirebaseFirestore.instance;
+    final userRef =
+        firestore.collection('employees').where('email', isEqualTo: email);
+    final userSnapshot = await userRef.get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      final userData = userSnapshot.docs.first;
+      setState(() {
+        userName = userData['nama'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +123,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                           ),
                         ),
                         Text(
-                          userName,
+                          userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -223,7 +247,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                           ),
                         ),
                         Text(
-                          userName,
+                          userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,

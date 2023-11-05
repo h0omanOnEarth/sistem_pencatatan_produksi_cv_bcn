@@ -3,6 +3,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainLaporanAdministrasiScreen extends StatefulWidget {
@@ -100,7 +101,7 @@ class _MainMasterAdministrasiScreenState
                         icon: Icons.upload_file_sharp,
                         textA: 'Retur Barang',
                         textB: 'Melihat laporan retur barang',
-                        pageRoute: '/page2'),
+                        pageRoute: LaporanReturBarang.routeName),
                   ],
                 ),
               ),
