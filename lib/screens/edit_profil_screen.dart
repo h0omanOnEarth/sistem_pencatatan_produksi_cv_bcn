@@ -227,6 +227,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ElevatedButton(
                         onPressed: () {
                           // Handle save button press
+                          updatePegawai();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromRGBO(59, 51, 51, 1),
