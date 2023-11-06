@@ -19,8 +19,8 @@ class LaporanPenggunaanBahan extends StatelessWidget {
   const LaporanPenggunaanBahan({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CreateExcelStatefulWidget(title: 'Laporan Penggunaan Bahan'),
+    return const Scaffold(
+      body: CreateExcelStatefulWidget(title: 'Laporan Penggunaan Bahan'),
     );
   }
 }
@@ -216,19 +216,19 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
         rowIndex++;
 
-        // Add a separator line
-        for (var colIndex = 1; colIndex <= 4; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#000000';
-        }
+        // // Add a separator line
+        // for (var colIndex = 1; colIndex <= 4; colIndex++) {
+        //   final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+        //   cell.cellStyle.borders.bottom.color = '#000000';
+        // }
 
-        // Add a separator line for 'Nama Bahan'
-        for (var colIndex = 4; colIndex <= 4; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#000000';
-        }
+        // // Add a separator line for 'Nama Bahan'
+        // for (var colIndex = 4; colIndex <= 4; colIndex++) {
+        //   final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+        //   cell.cellStyle.borders.bottom.color = '#000000';
+        // }
 
-        rowIndex++;
+        // rowIndex++;
 
         for (var j = 0;
             j < detailMaterialUsagesQuerySnapshot.docs.length;
@@ -257,14 +257,14 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               .setText(materialInfo != null ? materialInfo['nama'] : '');
           rowIndex++;
 
-          if (j < detailMaterialUsagesQuerySnapshot.docs.length - 1) {
-            // Add a separator line between detail_material_usages
-            for (var colIndex = 1; colIndex <= 4; colIndex++) {
-              final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-              cell.cellStyle.borders.bottom.color = '#000000';
-            }
-            rowIndex++;
-          }
+          // if (j < detailMaterialUsagesQuerySnapshot.docs.length - 1) {
+          //   // Add a separator line between detail_material_usages
+          //   for (var colIndex = 1; colIndex <= 4; colIndex++) {
+          //     final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          //     cell.cellStyle.borders.bottom.color = '#000000';
+          //   }
+          //   rowIndex++;
+          // }
         }
       }
 
@@ -296,9 +296,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     final materialUsagesQuery =
         FirebaseFirestore.instance.collection('material_usages');
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
-    final materialUsages = materialUsagesQuerySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+    final materialUsages =
+        materialUsagesQuerySnapshot.docs.map((doc) => doc.data()).toList();
 
     final font = await PdfGoogleFonts.nunitoExtraLight();
     final font1 = await PdfGoogleFonts.openSansRegular();
@@ -312,7 +311,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final detailMaterialUsagesQuerySnapshot =
           await detailMaterialUsagesQuery.get();
       final detailMaterialUsages = detailMaterialUsagesQuerySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => doc.data())
           .toList();
 
       pdf.addPage(pw.MultiPage(

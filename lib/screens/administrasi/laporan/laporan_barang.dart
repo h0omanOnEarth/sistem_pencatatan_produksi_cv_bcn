@@ -17,8 +17,8 @@ class LaporanBarang extends StatelessWidget {
   const LaporanBarang({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CreateExcelStatefulWidget(title: 'Laporan Barang'),
+    return const Scaffold(
+      body: CreateExcelStatefulWidget(title: 'Laporan Barang'),
     );
   }
 }

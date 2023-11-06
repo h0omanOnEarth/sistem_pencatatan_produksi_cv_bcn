@@ -16,8 +16,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseFunctions.instanceFor(region: "asia-southeast2")
-      .useFunctionsEmulator('localhost', 5001); // If you're using the emulator
+  // FirebaseFunctions.instanceFor(region: "asia-southeast2")
+  //     .useFunctionsEmulator('localhost', 5001); // If you're using the emulator
 
   configureApp();
   runApp(const MyApp());

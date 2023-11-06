@@ -121,6 +121,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
               'status': status,
               'tanggal_masuk': tanggalMasuk,
               'username': username,
+              'password': password
             });
 
             await FirebaseAuth.instance.createUserWithEmailAndPassword(

@@ -19,8 +19,8 @@ class LaporanReturBarang extends StatelessWidget {
   const LaporanReturBarang({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: CreateExcelStatefulWidget(title: 'Laporan Retur Barang'),
+    return const Scaffold(
+      body: CreateExcelStatefulWidget(title: 'Laporan Retur Barang'),
     );
   }
 }
@@ -135,7 +135,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     titleRange.cellStyle.fontSize = 18;
     titleRange.cellStyle.backColor = '#C0C0C0';
 
-    titleRange.setText('Laporan Penggunaan Bahan');
+    titleRange.setText('Laporan Pengembalian Barang');
 
     final customerOrderReturnsQuery =
         FirebaseFirestore.instance.collection('customer_order_returns');
@@ -230,7 +230,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
     try {
       await FileSaveHelper.saveAndLaunchFile(
-          uint8list, 'Laporan_Penggunaan_Bahan.xlsx');
+          uint8list, 'Laporan_pengembalian_barang.xlsx');
     } catch (e) {
       print('Error opening file: $e');
     }
@@ -266,8 +266,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         'Tanggal Pengembalian',
         'Alasan Pengembalian',
         'Status COR',
-        'Product ID',
-        'Jumlah Pengembalian',
       ];
 
       final headerData = [
