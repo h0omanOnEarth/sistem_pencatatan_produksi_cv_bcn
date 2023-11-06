@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_produksi.dart';
 
 class MainLaporanProduksiScreen extends StatefulWidget {
   static const routeName = '/produksi/laporan';
@@ -80,7 +82,7 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                         icon: Icons.warehouse,
                         textA: 'Laporan Produksi Harian',
                         textB: 'Melihat laporan produksi harian',
-                        pageRoute: '/page1'),
+                        pageRoute: LaporanProduksi.routeName),
                     const CardItem(
                         icon: Icons.notes_rounded,
                         textA: 'Laporan Kualitas Produk',
@@ -118,7 +120,7 @@ class CardItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, pageRoute);
+        Routemaster.of(context).push(pageRoute);
       },
       child: Card(
         color: Colors.white,
