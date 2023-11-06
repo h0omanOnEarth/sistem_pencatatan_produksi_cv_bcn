@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -83,7 +84,7 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                         icon: Icons.warehouse,
                         textA: 'Stok Bahan',
                         textB: 'Melihat laporan stok bahan',
-                        pageRoute: '/page1'),
+                        pageRoute: LaporanBahanGudang.routeName),
                     const CardItem(
                         icon: Icons.edit_note_outlined,
                         textA: 'Stok Barang',

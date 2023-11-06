@@ -18,6 +18,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.da
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_master.dart';
@@ -201,5 +202,7 @@ final routes = RouteMap(
         const MaterialPage(child: LaporanReturBarangGudang()),
     LaporanBarangGudang.routeName: (_) =>
         const MaterialPage(child: LaporanBarangGudang()),
+    LaporanBahanGudang.routeName: (_) =>
+        const MaterialPage(child: LaporanBahanGudang()),
   },
 );
