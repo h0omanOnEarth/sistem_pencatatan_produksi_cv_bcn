@@ -117,6 +117,7 @@ class CardItem extends StatelessWidget {
   final String pageRoute; // New property to specify the page route
 
   const CardItem({
+    super.key,
     required this.icon,
     required this.textA,
     required this.textB,
@@ -143,7 +144,7 @@ class CardItem extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Container(
+              SizedBox(
                 width: 40.0, // Set the width for the icon
                 child: Align(
                   alignment: Alignment.centerLeft,

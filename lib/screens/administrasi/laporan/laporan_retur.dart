@@ -14,7 +14,7 @@ import 'package:printing/printing.dart';
 
 /// Represents the XlsIO widget class.
 class LaporanReturBarang extends StatelessWidget {
-  static const routeName = 'administrasi/laporan/retur';
+  static const routeName = '/administrasi/laporan/retur';
 
   const LaporanReturBarang({Key? key}) : super(key: key);
   @override
