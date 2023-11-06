@@ -43,6 +43,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   @override
   void initState() {
     super.initState();
+    fetchData();
   }
 
   @override
