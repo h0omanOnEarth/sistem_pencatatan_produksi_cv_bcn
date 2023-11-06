@@ -184,15 +184,11 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             .setText(materialUsageData['status_mu']);
       }
 
-      rowIndex++;
-
       // Add a separator line
       for (var colIndex = 1; colIndex <= 6; colIndex++) {
         final cell = sheet.getRangeByIndex(rowIndex, colIndex);
         cell.cellStyle.borders.bottom.color = '#000000'; // Border color
       }
-
-      rowIndex++;
 
       // Fetch and populate the details from subcollection
       final detailMaterialUsagesQuery =
@@ -201,6 +197,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           await detailMaterialUsagesQuery.get();
 
       if (detailMaterialUsagesQuerySnapshot.docs.isNotEmpty) {
+        rowIndex++;
         // Populate detail headers with a different background color
         for (var colIndex = 1; colIndex <= 3; colIndex++) {
           final cell = sheet.getRangeByIndex(rowIndex, colIndex);
@@ -213,22 +210,9 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         // Add 'Nama Bahan' header with background color
         sheet.getRangeByIndex(rowIndex, 4).setText('Nama Bahan');
         sheet.getRangeByIndex(rowIndex, 4).cellStyle.backColor = '#FFFF00';
+        sheet.getRangeByIndex(rowIndex, 4).cellStyle.bold = true;
 
         rowIndex++;
-
-        // // Add a separator line
-        // for (var colIndex = 1; colIndex <= 4; colIndex++) {
-        //   final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-        //   cell.cellStyle.borders.bottom.color = '#000000';
-        // }
-
-        // // Add a separator line for 'Nama Bahan'
-        // for (var colIndex = 4; colIndex <= 4; colIndex++) {
-        //   final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-        //   cell.cellStyle.borders.bottom.color = '#000000';
-        // }
-
-        // rowIndex++;
 
         for (var j = 0;
             j < detailMaterialUsagesQuerySnapshot.docs.length;
@@ -256,15 +240,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               .getRangeByIndex(rowIndex, 4)
               .setText(materialInfo != null ? materialInfo['nama'] : '');
           rowIndex++;
-
-          // if (j < detailMaterialUsagesQuerySnapshot.docs.length - 1) {
-          //   // Add a separator line between detail_material_usages
-          //   for (var colIndex = 1; colIndex <= 4; colIndex++) {
-          //     final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          //     cell.cellStyle.borders.bottom.color = '#000000';
-          //   }
-          //   rowIndex++;
-          // }
         }
       }
 

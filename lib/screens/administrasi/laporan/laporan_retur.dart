@@ -200,7 +200,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             'Nama Produk',
             'Jumlah Pengembalian'
           ][colIndex - 1]);
-          cell.cellStyle.borders.bottom.color = '#000000'; // Border color
+          cell.cellStyle.backColor = '#FFFFCC'; // Border color
+          cell.cellStyle.bold = true;
         }
 
         rowIndex++;
