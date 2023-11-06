@@ -153,6 +153,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     penerimaanTitleRange.cellStyle.bold = true;
     penerimaanTitleRange.cellStyle.backColor =
         '#FFFF00'; // Title background color
+    penerimaanTitleRange.cellStyle.fontSize = 24;
     rowIndex++;
 
     // Populate headers for "Penerimaan Barang"
@@ -269,6 +270,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     pengirimanTitleRange.cellStyle.bold = true;
     pengirimanTitleRange.cellStyle.backColor =
         '#FFFF00'; // Title background color
+    pengirimanTitleRange.cellStyle.fontSize =
+        24; // Set the font size to 14 (adjust as needed)
     rowIndex++;
 
     // Populate headers for "Pengiriman Barang"
@@ -452,7 +455,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     void createItemReceivesPage(
         pw.Document pdf, Map<String, dynamic> itemReceiveData) {
       pdf.addPage(pw.MultiPage(
-        pageTheme: pw.PageTheme(
+        pageTheme: const pw.PageTheme(
           orientation: pw.PageOrientation.landscape,
         ),
         build: (pw.Context context) => [
@@ -484,7 +487,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             pw.Header(
               text: 'Detail Penerimaan Barang',
               level: 2,
-              textStyle: pw.TextStyle(
+              textStyle: const pw.TextStyle(
                 fontSize: 14,
               ),
             ),
@@ -508,7 +511,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     void createShipmentsPage(
         pw.Document pdf, Map<String, dynamic> shipmentData) {
       pdf.addPage(pw.MultiPage(
-        pageTheme: pw.PageTheme(
+        pageTheme: const pw.PageTheme(
           orientation: pw.PageOrientation.landscape,
         ),
         build: (pw.Context context) => [
@@ -542,7 +545,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             pw.Header(
               text: 'Detail Pengiriman Barang',
               level: 2,
-              textStyle: pw.TextStyle(
+              textStyle: const pw.TextStyle(
                 fontSize: 14,
               ),
             ),
