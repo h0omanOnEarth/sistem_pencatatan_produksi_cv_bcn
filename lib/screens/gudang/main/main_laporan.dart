@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
 class MainLaporanGudangScreen extends StatefulWidget {
@@ -51,7 +54,7 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => NotifikasiScreen(),
+                                builder: (context) => const NotifikasiScreen(),
                               ),
                             );
                           },
@@ -85,7 +88,7 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                         icon: Icons.edit_note_outlined,
                         textA: 'Stok Barang',
                         textB: 'Melihat laporan stok barang',
-                        pageRoute: '/page2'),
+                        pageRoute: LaporanBarangGudang.routeName),
                     const CardItem(
                         icon: Icons.drive_file_move_rtl,
                         textA: 'Pengiriman dan Penerimaan',
@@ -95,7 +98,7 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                         icon: Icons.shopping_cart_checkout,
                         textA: 'Retur Barang',
                         textB: 'Melihat laporan retur barang',
-                        pageRoute: '/page2'),
+                        pageRoute: LaporanReturBarangGudang.routeName),
                   ],
                 ),
               ),
@@ -124,7 +127,7 @@ class CardItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, pageRoute);
+        Routemaster.of(context).push(pageRoute);
       },
       child: Card(
         color: Colors.white,
@@ -150,7 +153,7 @@ class CardItem extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(width: 16.0),
+              const SizedBox(width: 16.0),
               Expanded(
                 child: Column(
                   mainAxisAlignment:

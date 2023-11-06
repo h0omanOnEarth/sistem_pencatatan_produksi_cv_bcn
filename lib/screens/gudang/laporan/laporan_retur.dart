@@ -6,17 +6,17 @@ import 'package:pdf/pdf.dart';
 import 'package:routemaster/routemaster.dart';
 //Local imports
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 /// Represents the XlsIO widget class.
-class LaporanReturBarang extends StatelessWidget {
-  static const routeName = 'administrasi/laporan/retur';
+class LaporanReturBarangGudang extends StatelessWidget {
+  static const routeName = 'gudang/laporan/retur';
 
-  const LaporanReturBarang({Key? key}) : super(key: key);
+  const LaporanReturBarangGudang({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -49,7 +49,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Routemaster.of(context)
-                .push('${MainAdministrasi.routeName}?selectedIndex=4');
+                .push('${MainGudang.routeName}?selectedIndex=5');
           },
         ),
       ),

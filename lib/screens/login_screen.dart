@@ -274,8 +274,7 @@ class LoginForm extends StatelessWidget {
                           //       "Terjadi kesalahan saat mengirim notifikasi: $error");
                           // });
 
-                          Routemaster.of(context)
-                              .push(MainAdministrasi.routeName);
+                          Routemaster.of(context).push(MainGudang.routeName);
 
                           // try {
                           //   final HttpsCallable callable =
@@ -324,7 +323,7 @@ class LoginForm extends StatelessWidget {
               if (state is LoginLoading) {
                 return Positioned.fill(
                   child: Container(
-                    color: Colors.black.withOpacity(0.5),
+                    color: Colors.white.withOpacity(0.5),
                     child: const Center(
                       child: CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),

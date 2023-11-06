@@ -464,7 +464,7 @@ class _FormHasilProduksiScreenState extends State<FormHasilProduksiScreen> {
                   left: 0,
                   right: 0,
                   child: Container(
-                    color: Colors.black
+                    color: Colors.white
                         .withOpacity(0.3), // Latar belakang semi-transparan
                     child: const Center(
                       child: CircularProgressIndicator(),

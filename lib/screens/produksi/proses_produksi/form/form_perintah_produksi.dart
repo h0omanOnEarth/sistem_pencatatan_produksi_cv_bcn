@@ -863,7 +863,7 @@ class _FormPerintahProduksiScreenState
                   left: 0,
                   right: 0,
                   child: Container(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.3),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),
