@@ -265,13 +265,14 @@ class LoginForm extends StatelessWidget {
                           //   ),
                           // );
 
-                          print("Mengirim notifikasi...");
-                          Notify.instantNotify().then((notificationCreated) {
-                            print("Notifikasi dikirim: $notificationCreated");
-                          }).catchError((error) {
-                            print(
-                                "Terjadi kesalahan saat mengirim notifikasi: $error");
-                          });
+                          // print("Mengirim notifikasi...");
+                          // Notify.instantNotify("Login", "Berhasil Login")
+                          //     .then((notificationCreated) {
+                          //   print("Notifikasi dikirim: $notificationCreated");
+                          // }).catchError((error) {
+                          //   print(
+                          //       "Terjadi kesalahan saat mengirim notifikasi: $error");
+                          // });
 
                           Routemaster.of(context)
                               .push(MainAdministrasi.routeName);

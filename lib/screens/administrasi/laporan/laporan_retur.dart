@@ -133,10 +133,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     titleRange.cellStyle.hAlign = HAlignType.center;
     titleRange.cellStyle.bold = true;
     titleRange.cellStyle.fontSize = 18;
-    titleRange.cellStyle.backColor = '#C0C0C0';
+    titleRange.cellStyle.backColor = '#C0C0C0'; // Header background color
 
-    titleRange.setText('Laporan Pengembalian Barang');
+    // Add the title
+    titleRange.setText('Laporan Retur Barang');
 
+    // Fetch data from Firestore and populate the Excel sheet
     final customerOrderReturnsQuery =
         FirebaseFirestore.instance.collection('customer_order_returns');
     final customerOrderReturnsQuerySnapshot =
@@ -148,25 +150,25 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final corDoc = customerOrderReturnsQuerySnapshot.docs[i];
       final corData = corDoc.data();
 
+      // Populate headers with background colors
       final headerTitles = [
         'ID',
         'Invoice ID',
         'Tanggal Pengembalian',
         'Alasan Pengembalian',
         'Status COR',
-        'Product ID',
-        'Jumlah Pengembalian'
       ];
 
       for (var colIndex = 1; colIndex <= headerTitles.length; colIndex++) {
         final cell = sheet.getRangeByIndex(rowIndex, colIndex);
         cell.setText(headerTitles[colIndex - 1]);
-        cell.cellStyle.backColor = '#FFFF00';
+        cell.cellStyle.backColor = '#FFFF00'; // Header background color
         cell.cellStyle.bold = true;
       }
 
       rowIndex++;
 
+      // Populate data cells for COR data
       final corRowData = [
         corData['id'],
         corData['invoice_id'],
@@ -182,6 +184,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             .setText(corRowData[colIndex - 1]);
       }
 
+      // Fetch and populate the details from the subcollection
       final detailCORQuery =
           corDoc.reference.collection('detail_customer_order_returns');
       final detailCORQuerySnapshot = await detailCORQuery.get();
@@ -189,9 +192,23 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       if (detailCORQuerySnapshot.docs.isNotEmpty) {
         rowIndex++;
 
+        // Add a separator line
+        for (var colIndex = 1; colIndex <= 3; colIndex++) {
+          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+          cell.setText([
+            'ID Produk',
+            'Nama Produk',
+            'Jumlah Pengembalian'
+          ][colIndex - 1]);
+          cell.cellStyle.borders.bottom.color = '#000000'; // Border color
+        }
+
+        rowIndex++;
+
         for (var j = 0; j < detailCORQuerySnapshot.docs.length; j++) {
           final detailCORData = detailCORQuerySnapshot.docs[j].data();
 
+          // Fetch product info using the ProductService
           final productService = ProductService();
           final productInfo =
               await productService.getProductInfo(detailCORData['product_id']);
@@ -199,16 +216,16 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               ? productInfo['nama']
               : 'Product Name Not Found';
 
+          // Populate data cells for detail_customer_order_returns
           final detailRowData = [
             detailCORData['product_id'],
             productName,
             detailCORData['jumlah_pengembalian'].toString(),
           ];
 
-          for (var colIndex = 1; colIndex <= detailRowData.length; colIndex++) {
-            sheet
-                .getRangeByIndex(rowIndex, colIndex + 4)
-                .setText(detailRowData[colIndex - 1]);
+          for (var colIndex = 1; colIndex <= 3; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.setText(detailRowData[colIndex - 1]);
           }
 
           rowIndex++;
@@ -216,9 +233,10 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       }
 
       if (i < customerOrderReturnsQuerySnapshot.docs.length - 1) {
+        // Add a separator line between COR entries
         for (var colIndex = 1; colIndex <= 7; colIndex++) {
           final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#000000';
+          cell.cellStyle.borders.bottom.color = '#FFFFCC';
         }
         rowIndex++;
       }
@@ -230,7 +248,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
     try {
       await FileSaveHelper.saveAndLaunchFile(
-          uint8list, 'Laporan_pengembalian_barang.xlsx');
+          uint8list, 'Laporan_Retur_Barang.xlsx');
     } catch (e) {
       print('Error opening file: $e');
     }
@@ -274,8 +292,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         DateFormat('dd/MM/yyyy').format(cor['tanggal_pengembalian'].toDate()),
         cor['alasan_pengembalian'],
         cor['status_cor'],
-        '',
-        '',
       ];
 
       pdf.addPage(pw.MultiPage(
