@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_penerimaan_pengeluaran.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
@@ -94,7 +95,7 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                         icon: Icons.drive_file_move_rtl,
                         textA: 'Pengiriman dan Penerimaan',
                         textB: 'Melihat laporan pengiriman dan penerimaan',
-                        pageRoute: '/page2'),
+                        pageRoute: LaporanPenerimaanPengiriman.routeName),
                     const CardItem(
                         icon: Icons.shopping_cart_checkout,
                         textA: 'Retur Barang',
