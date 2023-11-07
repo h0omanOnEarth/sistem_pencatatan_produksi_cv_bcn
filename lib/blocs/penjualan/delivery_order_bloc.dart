@@ -84,7 +84,8 @@ class DeliveryOrderBloc
                 await deliveryOrderCallable.call(<String, dynamic>{
               'products': products?.map((product) => product.toJson()).toList(),
               'totalProduk': totalBarang,
-              'totalHarga': totalHarga
+              'totalHarga': totalHarga,
+              'customerOrderId': customerOrderId
             });
 
             if (result.data['success'] == true) {
@@ -176,7 +177,8 @@ class DeliveryOrderBloc
                 await deliveryOrderCallable.call(<String, dynamic>{
               'products': products?.map((product) => product.toJson()).toList(),
               'totalProduk': totalBarang,
-              'totalHarga': totalHarga
+              'totalHarga': totalHarga,
+              'customerOrderId': customerOrderId
             });
 
             if (result.data['success'] == true) {
