@@ -17,6 +17,8 @@ class DeliveryOrderService {
         return {
           'id': deliveryOrderId,
           'customerOrderId': productDoc['customer_order_id'] as String,
+          'metodePengiriman': productDoc['metode_pengiriman'] as String,
+          'namaEkspedisi': productDoc['nama_ekspedisi'] as String
         };
       } else {
         return null;

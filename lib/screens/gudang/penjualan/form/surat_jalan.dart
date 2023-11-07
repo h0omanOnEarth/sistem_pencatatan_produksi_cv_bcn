@@ -29,6 +29,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
   var id;
   var totalPcs;
   var namaPelanggan;
+  var metodePengiriman;
+  var namaEkspedisi;
 
   List<Map<String, dynamic>> detailShipments = [];
   final ProductService productService = ProductService();
@@ -69,6 +71,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
       Map<String, dynamic>? custInfo =
           await customerService.getCustomerInfo(coInfo?['customer_id']);
       namaPelanggan = custInfo?['nama'];
+      metodePengiriman = doInfo?['metodePengiriman'];
+      namaEkspedisi = doInfo?['namaEkspedisi'];
 
       final detailSnapshot = await FirebaseFirestore.instance
           .collection('shipments')
@@ -84,7 +88,12 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
               await productService.fetchProductInfo(productId);
           String productName =
               productInfo.containsKey('nama') ? productInfo['nama'] : 'N/A';
+          String banyaknya = productInfo.containsKey('banyaknya')
+              ? productInfo['banyaknya'].toString()
+              : 'N/A';
           detail['product_name'] = productName;
+          detail['banyaknya'] = banyaknya;
+
           detailShipments.add(detail);
         }
       }
@@ -172,6 +181,26 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
               ),
               pw.Row(
                 children: [
+                  pw.Text('Metode Pengiriman: ',
+                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(
+                    metodePengiriman ?? 'N/A',
+                    style: const pw.TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+              pw.Row(
+                children: [
+                  pw.Text('Nama Ekspedisi: ',
+                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(
+                    namaEkspedisi ?? 'N/A',
+                    style: const pw.TextStyle(fontSize: 20),
+                  ),
+                ],
+              ),
+              pw.Row(
+                children: [
                   pw.Text('Tanggal: ', style: const pw.TextStyle(fontSize: 20)),
                   pw.Text(tanggalPembuatan ?? 'N/A',
                       style: const pw.TextStyle(fontSize: 20)),
@@ -194,6 +223,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                   <String>[
                     'ID',
                     'Nama Produk',
+                    'Banyaknya @dus',
                     'Jumlah Pengiriman',
                     'Jumlah Pengiriman Dus'
                   ],
@@ -201,6 +231,7 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                     <String>[
                       detail['product_id'] ?? 'N/A',
                       detail['product_name']?.toString() ?? 'N/A',
+                      detail['banyaknya']?.toString() ?? 'N/A',
                       detail['jumlah_pengiriman']?.toString() ?? 'N/A',
                       detail['jumlah_pengiriman_dus']?.toString() ?? 'N/A',
                     ],

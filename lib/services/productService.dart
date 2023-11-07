@@ -15,6 +15,7 @@ class ProductService {
         return {
           'id': productId,
           'nama': productDoc['nama'] as String,
+          'banyaknya': productDoc['banyaknya'] as int
         };
       } else {
         return null;
@@ -36,8 +37,14 @@ class ProductService {
       final productName = productData['nama'] as String? ?? '';
       final productStock = productData['stok'] as int? ?? 0;
       final productPrice = productData['harga'] as int? ?? 0;
+      final productBanyaknya = productData['banyaknya'] as int? ?? 0;
 
-      return {'nama': productName, 'stok': productStock, 'harga': productPrice};
+      return {
+        'nama': productName,
+        'stok': productStock,
+        'harga': productPrice,
+        'banyaknya': productBanyaknya
+      };
     }
 
     return {
