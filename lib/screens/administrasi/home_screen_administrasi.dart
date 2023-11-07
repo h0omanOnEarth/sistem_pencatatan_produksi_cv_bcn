@@ -427,11 +427,14 @@ class CardList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('ID: ${itemData['id']}'),
-                      Text('Total Barang: ${itemData['total_barang']}'),
                       Text('Total Harga: ${itemData['total_harga']}'),
                       // Tambahan sesuai dengan koleksi (customer_orders atau delivery_orders)
                       if (collectionName == 'customer_orders')
+                        Text('Total Barang: ${itemData['total_produk']}'),
+                      if (collectionName == 'customer_orders')
                         Text('Customer ID: ${itemData['customer_id']}'),
+                      if (collectionName == 'delivery_orders')
+                        Text('Total Barang: ${itemData['total_barang']}'),
                       if (collectionName == 'delivery_orders')
                         Text(
                             'Customer Order ID: ${itemData['customer_order_id']}'),

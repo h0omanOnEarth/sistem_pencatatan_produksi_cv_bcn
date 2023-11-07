@@ -38,7 +38,6 @@ exports.materialRecValidation = async (req) => {
     const purchaseRequestRef = admin
       .firestore()
       .collection("purchase_requests")
-      .where("status", "==", 1)
       .doc(purchaseReqId);
     const purchaseRequestDoc = await purchaseRequestRef.get();
 
