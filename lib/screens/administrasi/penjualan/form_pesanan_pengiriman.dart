@@ -552,7 +552,11 @@ class _FormPesananPengirimanScreenState
                           label: 'Metode Pengiriman',
                           selectedValue:
                               selectedMetode, // Isi dengan nilai yang sesuai
-                          items: const ['Pengiriman Truk Pabrik', 'Ekspedisi'],
+                          items: const [
+                            'Pengiriman Truk Pabrik',
+                            'Ekspedisi',
+                            'Ambil Sendiri'
+                          ],
                           onChanged: (newValue) {
                             setState(() {
                               selectedMetode =

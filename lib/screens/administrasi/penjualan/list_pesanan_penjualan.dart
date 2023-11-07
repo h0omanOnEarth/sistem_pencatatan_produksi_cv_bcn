@@ -273,8 +273,9 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
                     'Tanggal Kirim': DateFormat('dd/MM/yyyy').format(
                         (data['tanggal_kirim'] as Timestamp)
                             .toDate()), // Format tanggal
-                    'Total Harga': data['total_harga'],
-                    'Total Produk': '${data['total_produk']} ${data['satuan']}',
+                    'Total Harga': data['total_harga'].toString(),
+                    'Total Produk':
+                        '${data['total_produk'].toString()} ${data['satuan']}',
                     'Catatan': data['catatan'],
                     'Status': data['status_pesanan'],
                   };

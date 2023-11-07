@@ -82,6 +82,8 @@ exports.deliveryOrderValidate = async (req) => {
       };
     }
 
+    await customerOrdersRef.update({ status_pesanan: "Selesai" });
+
     // Periksa satuan pada products
     const productsRef = admin.firestore().collection("products");
 
