@@ -8,6 +8,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -40,6 +41,8 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 
 class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false; // Tambahkan variabel status loading
+  DateTime? startDate; // Tambahkan variabel tanggal awal
+  DateTime? endDate; // Tambahkan variabel tanggal akhir
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,68 +80,111 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         elevation: 0, // Atur elevation (ketebalan garis bawah) menjadi 0
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Tambahkan ini untuk memusatkan tombol
-        children: [
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.green, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
+        child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
-            onPressed: () {
-              // Tandai status loading saat tombol ditekan
-              setState(() {
-                isGenerating = true;
-              });
-              generateExcel().then((_) {
-                // Setelah selesai, hentikan status loading
-                setState(() {
-                  isGenerating = false;
-                });
-              });
-            },
-            child: const Text('Generate Excel'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.red, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
-            ),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('PDF Preview'),
+            margin: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Awal',
+                        selectedDate: startDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            startDate = date;
+                          });
+                        },
                       ),
-                      body: PdfPreview(
-                        allowPrinting: true,
-                        build: (format) => generatePDF(format),
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Akhir',
+                        selectedDate: endDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            endDate = date;
+                          });
+                        },
                       ),
-                    );
-                  });
-            },
-            child: const Text('Generate PDF'),
-          ),
-          if (isGenerating) // Tampilkan CircularProgressIndicator jika sedang loading
-            const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Downloading'), // Tambahkan teks "Downloading" di sini
-              ],
-            )
-        ],
-      )),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isGenerating = true;
+                        });
+                        generateExcel().then((_) {
+                          setState(() {
+                            isGenerating = false;
+                          });
+                        });
+                      },
+                      child: const Text('Generate Excel'),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Scaffold(
+                              appBar: AppBar(
+                                title: const Text('PDF Preview'),
+                              ),
+                              body: PdfPreview(
+                                allowPrinting: true,
+                                build: (format) => generatePDF(format),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Generate PDF'),
+                    ),
+                    if (isGenerating)
+                      const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading'),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            )),
+      ),
     );
   }
 
@@ -161,9 +207,19 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     // Add the title
     titleRange.setText('Laporan Retur Barang');
 
-    // Fetch data from Firestore and populate the Excel sheet
-    final customerOrderReturnsQuery =
+    Query<Map<String, dynamic>> customerOrderReturnsQuery =
         FirebaseFirestore.instance.collection('customer_order_returns');
+
+    // Tambahkan filter berdasarkan tanggal
+    if (startDate != null) {
+      customerOrderReturnsQuery = customerOrderReturnsQuery
+          .where('tanggal_pengembalian', isGreaterThanOrEqualTo: startDate);
+    }
+    if (endDate != null) {
+      customerOrderReturnsQuery = customerOrderReturnsQuery
+          .where('tanggal_pengembalian', isLessThanOrEqualTo: endDate);
+    }
+
     final customerOrderReturnsQuerySnapshot =
         await customerOrderReturnsQuery.get();
 
@@ -281,8 +337,19 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
-    final customerOrderReturnsQuery =
+    Query<Map<String, dynamic>> customerOrderReturnsQuery =
         FirebaseFirestore.instance.collection('customer_order_returns');
+
+    // Tambahkan filter berdasarkan tanggal
+    if (startDate != null) {
+      customerOrderReturnsQuery = customerOrderReturnsQuery
+          .where('tanggal_pengembalian', isGreaterThanOrEqualTo: startDate);
+    }
+    if (endDate != null) {
+      customerOrderReturnsQuery = customerOrderReturnsQuery
+          .where('tanggal_pengembalian', isLessThanOrEqualTo: endDate);
+    }
+
     final customerOrderReturnsQuerySnapshot =
         await customerOrderReturnsQuery.get();
     final customerOrderReturns = customerOrderReturnsQuerySnapshot.docs
@@ -293,74 +360,100 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     final font1 = await PdfGoogleFonts.openSansRegular();
     final font2 = await PdfGoogleFonts.openSansBold();
 
-    for (var i = 0; i < customerOrderReturns.length; i++) {
-      final cor = customerOrderReturns[i];
-      final detailCORQuery = customerOrderReturnsQuery
-          .doc(cor['id'])
-          .collection('detail_customer_order_returns');
-      final detailCORQuerySnapshot = await detailCORQuery.get();
-      final detailCOR =
-          detailCORQuerySnapshot.docs.map((doc) => doc.data()).toList();
+    if (customerOrderReturns.isNotEmpty) {
+      for (var i = 0; i < customerOrderReturns.length; i++) {
+        final cor = customerOrderReturns[i];
 
-      final headerTitles = [
-        'ID',
-        'Invoice ID',
-        'Tanggal Pengembalian',
-        'Alasan Pengembalian',
-        'Status COR',
-      ];
+        // Ganti ini dengan cara yang sesuai untuk mengakses dokumen dalam koleksi
+        final detailCORQuery = FirebaseFirestore.instance.collection(
+            'customer_order_returns/${cor['id']}/detail_customer_order_returns');
 
-      final headerData = [
-        cor['id'].toString(),
-        cor['invoice_id'].toString(),
-        DateFormat('dd/MM/yyyy').format(cor['tanggal_pengembalian'].toDate()),
-        cor['alasan_pengembalian'],
-        cor['status_cor'],
-      ];
+        final detailCORQuerySnapshot = await detailCORQuery.get();
+        final detailCOR =
+            detailCORQuerySnapshot.docs.map((doc) => doc.data()).toList();
 
-      pdf.addPage(pw.MultiPage(
-        pageTheme: pw.PageTheme(
-          orientation: pw.PageOrientation.landscape,
-          theme: pw.ThemeData.withFont(
-            base: font1,
-            bold: font2,
-          ),
-        ),
-        build: (pw.Context context) => [
-          pw.Header(
-            text: 'Laporan Penggunaan Bahan',
-            level: 0,
-            textStyle: pw.TextStyle(
-              font: font,
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
+        final headerTitles = [
+          'ID',
+          'Invoice ID',
+          'Tanggal Pengembalian',
+          'Alasan Pengembalian',
+          'Status COR',
+        ];
+
+        final headerData = [
+          cor['id'].toString(),
+          cor['invoice_id'].toString(),
+          DateFormat('dd/MM/yyyy').format(cor['tanggal_pengembalian'].toDate()),
+          cor['alasan_pengembalian'],
+          cor['status_cor'],
+        ];
+
+        final productService = ProductService();
+
+        final detailRows = <List<String>>[];
+
+        for (var detail in detailCOR) {
+          final productInfo =
+              await productService.getProductInfo(detail['product_id']);
+          final productName = productInfo != null
+              ? productInfo['nama']
+              : 'Product Name Not Found';
+
+          detailRows.add([
+            detail['product_id'],
+            productName,
+            detail['jumlah_pengembalian'].toString(),
+          ]);
+        }
+
+        final pdfPage = pw.MultiPage(
+          pageTheme: pw.PageTheme(
+            orientation: pw.PageOrientation.landscape,
+            theme: pw.ThemeData.withFont(
+              base: font1,
+              bold: font2,
             ),
           ),
-          pw.Table.fromTextArray(
-            data: [headerTitles, headerData],
-          ),
-          if (detailCOR.isNotEmpty)
+          build: (pw.Context context) => [
             pw.Header(
-              text: 'Detail Penggunaan Bahan',
-              level: 2,
+              text: 'Laporan Retur Barang',
+              level: 0,
               textStyle: pw.TextStyle(
-                font: font2,
-                fontSize: 14,
+                font: font,
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
               ),
             ),
-          if (detailCOR.isNotEmpty)
             pw.Table.fromTextArray(
-              data: [
-                ['Product ID', 'Product Name', 'Jumlah Pengembalian'],
-                for (var detail in detailCOR)
-                  [
-                    detail['product_id'],
-                    'Product Name Not Found', // Default value
-                    detail['jumlah_pengembalian'].toString()
-                  ],
-              ],
+              data: [headerTitles, headerData],
             ),
-        ],
+            if (detailCOR.isNotEmpty)
+              pw.Header(
+                text: 'Detail Penggunaan Bahan',
+                level: 2,
+                textStyle: pw.TextStyle(
+                  font: font2,
+                  fontSize: 14,
+                ),
+              ),
+            if (detailCOR.isNotEmpty)
+              pw.Table.fromTextArray(
+                data: [
+                  ['Product ID', 'Product Name', 'Jumlah Pengembalian'],
+                  ...detailRows,
+                ],
+              ),
+          ],
+        );
+
+        pdf.addPage(pdfPage);
+      }
+    } else {
+      // Tambahkan lembar dengan teks "Tidak ada data" jika tidak ada data yang sesuai dengan filter
+      pdf.addPage(pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: pw.Text('Tidak ada data'),
+        ),
       ));
     }
 

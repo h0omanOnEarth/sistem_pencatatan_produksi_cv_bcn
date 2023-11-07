@@ -89,68 +89,83 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         elevation: 0, // Atur elevation (ketebalan garis bawah) menjadi 0
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Tambahkan ini untuk memusatkan tombol
-        children: [
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.green, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
+        child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
-            onPressed: () {
-              // Tandai status loading saat tombol ditekan
-              setState(() {
-                isGenerating = true;
-              });
-              generateExcel().then((_) {
-                // Setelah selesai, hentikan status loading
-                setState(() {
-                  isGenerating = false;
-                });
-              });
-            },
-            child: const Text('Generate Excel'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.red, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
-            ),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('PDF Preview'),
+            margin: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
                       ),
-                      body: PdfPreview(
-                        allowPrinting: true,
-                        build: (format) => generatePDF(format),
+                      onPressed: () {
+                        setState(() {
+                          isGenerating = true;
+                        });
+                        generateExcel().then((_) {
+                          setState(() {
+                            isGenerating = false;
+                          });
+                        });
+                      },
+                      child: const Text('Generate Excel'),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
                       ),
-                    );
-                  });
-            },
-            child: const Text('Generate PDF'),
-          ),
-          if (isGenerating) // Tampilkan CircularProgressIndicator jika sedang loading
-            const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Downloading'), // Tambahkan teks "Downloading" di sini
-              ],
-            )
-        ],
-      )),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Scaffold(
+                              appBar: AppBar(
+                                title: const Text('PDF Preview'),
+                              ),
+                              body: PdfPreview(
+                                allowPrinting: true,
+                                build: (format) => generatePDF(format),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Generate PDF'),
+                    ),
+                    if (isGenerating)
+                      const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading'),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            )),
+      ),
     );
   }
 
