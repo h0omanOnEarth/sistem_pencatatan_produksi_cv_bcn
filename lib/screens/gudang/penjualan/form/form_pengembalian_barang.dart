@@ -125,7 +125,11 @@ class _FormPengembalianBarangScreenState
         ],
       ));
     }
-    setState(() {});
+    setState(() {
+      if (widget.custOrderReturnId != null) {
+        fetchDetail();
+      }
+    });
   }
 
   @override
@@ -208,7 +212,6 @@ class _FormPengembalianBarangScreenState
     if (widget.invoiceId != null) {
       fetchDataFromFirestore(widget.invoiceId ?? '');
       fetchCustomerDetail();
-      fetchDetail();
     }
   }
 

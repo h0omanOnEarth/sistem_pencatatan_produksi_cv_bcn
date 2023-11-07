@@ -131,50 +131,52 @@ exports.suratJalanValidation = async (req) => {
         };
       }
 
-      const productQuerySnapshot = await productsRef
-        .where("id", "==", productId)
-        .get();
+      if (mode == "add") {
+        const productQuerySnapshot = await productsRef
+          .where("id", "==", productId)
+          .get();
 
-      if (!productQuerySnapshot.empty) {
-        const productDocData = productQuerySnapshot.docs[0].data();
-        const stokProduk = productDocData.stok;
+        if (!productQuerySnapshot.empty) {
+          const productDocData = productQuerySnapshot.docs[0].data();
+          const stokProduk = productDocData.stok;
 
-        if (stokProduk - jumlahPengiriman < 0) {
-          const notificationId = await generateNextNotificationId();
-          // Jika stok tidak mencukupi, push notifikasi
-          const notifDoc = {
-            id: notificationId,
-            pesan: `Stok Produk ${productId} habis`,
-            posisi: "Produksi",
-            status: 1,
-            created_at: moment().format(),
-          };
+          if (stokProduk - jumlahPengiriman < 0) {
+            const notificationId = await generateNextNotificationId();
+            // Jika stok tidak mencukupi, push notifikasi
+            const notifDoc = {
+              id: notificationId,
+              pesan: `Stok Produk ${productId} habis`,
+              posisi: "Produksi",
+              status: 1,
+              created_at: moment().format(),
+            };
 
-          await notificationsRef.add(notifDoc);
+            await notificationsRef.add(notifDoc);
 
-          return {
-            success: false,
-            message: `Stok Produk ${productId} tidak mencukupi, pengiriman tidak dapat dilakukan`,
-          };
+            return {
+              success: false,
+              message: `Stok Produk ${productId} tidak mencukupi, pengiriman tidak dapat dilakukan`,
+            };
+          }
         }
       }
-    }
 
-    // Jika semua produk tersedia, kurangi stok dan ubah status_pesanan_pengiriman
-    for (const product of products) {
-      const productId = product.product_id;
-      const jumlahPengiriman = product.jumlah_pengiriman;
+      // Jika semua produk tersedia, kurangi stok dan ubah status_pesanan_pengiriman
+      for (const product of products) {
+        const productId = product.product_id;
+        const jumlahPengiriman = product.jumlah_pengiriman;
 
-      const productQuerySnapshot = await productsRef
-        .where("id", "==", productId)
-        .get();
+        const productQuerySnapshot = await productsRef
+          .where("id", "==", productId)
+          .get();
 
-      if (!productQuerySnapshot.empty) {
-        const productDocRef = productQuerySnapshot.docs[0].ref;
-        const currentStock = (await productDocRef.get()).data().stok;
+        if (!productQuerySnapshot.empty) {
+          const productDocRef = productQuerySnapshot.docs[0].ref;
+          const currentStock = (await productDocRef.get()).data().stok;
 
-        // Kurangi stok produk
-        await productDocRef.update({ stok: currentStock - jumlahPengiriman });
+          // Kurangi stok produk
+          await productDocRef.update({ stok: currentStock - jumlahPengiriman });
+        }
       }
     }
 

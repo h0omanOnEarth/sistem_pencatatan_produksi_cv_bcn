@@ -146,7 +146,11 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
         ],
       ));
     }
-    setState(() {});
+    setState(() {
+      if (widget.shipmentId != null) {
+        fetchDetail();
+      }
+    });
   }
 
 // Tambahkan fungsi untuk menghitung total Pcs produk
@@ -164,13 +168,17 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
     // Fetch the shipment detail
     final shipmentDetails =
         await shipmentService.getDetailShipments(widget.shipmentId ?? '');
+
     if (shipmentDetails != null) {
-      // Lakukan sesuatu dengan daftar detail pengiriman yang diterima
+      // Iterate through each card and update its details
       for (int i = 0; i < cardDataList.length; i++) {
         // Find the corresponding detail shipment data by productID
         final detailShipment = shipmentDetails.firstWhere(
-            (detail) => detail['product_id'] == cardDataList[i].productID,
-            orElse: () => {});
+          (detail) => detail['product_id'] == cardDataList[i].productID,
+          orElse: () => {},
+        );
+
+        // Update the data for the current card
         cardDataList[i].pcsController.text =
             detailShipment['jumlahPengiriman'].toString();
         cardDataList[i].dusController.text =
@@ -179,6 +187,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
           updateTotalPcsProduk();
         });
       }
+
       updateTotalPcsProduk();
     } else {
       // Handle the case where shipmentDetails is null
@@ -266,7 +275,6 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
       fetchDataFromFirestore(widget.deliveryId ?? '');
       updateTotalPcsProduk();
       fetchCustomerDetail();
-      fetchDetail();
     }
   }
 

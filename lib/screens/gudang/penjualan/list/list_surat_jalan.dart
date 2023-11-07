@@ -309,6 +309,7 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
                         (data['tanggal_pembuatan'] as Timestamp)
                             .toDate()), // Format tanggal
                     'Alamat Penerima': data['alamat_penerima'],
+                    'Catatan': data['catatan'],
                     'Status': data['status_shp']
                   };
                   return ListCardPrint(
