@@ -70,23 +70,35 @@ class _CustomerOrderDropDownWidgetState
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: firestore
-                  .collection('customer_orders')
-                  .where(
-                    'status',
-                    isEqualTo: widget.isEnabled
-                        ? 1
-                        : null, // Filter status hanya saat isEnabled true
-                  )
-                  .snapshots(),
+              stream: firestore.collection('customer_orders').snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
                 }
+                // Ambil data dari snapshot
+                List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+                // Filter dan urutkan data secara lokal
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+                    return document['status'] == 1 &&
+                        document['status_pesanan'] == "Dalam Proses";
+                  } else {
+                    // Jika isEnabled false, tampilkan semua data
+                    return true;
+                  }
+                }).toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_pesan'].toDate();
+                  DateTime dateB = b['tanggal_pesan'].toDate();
+                  return dateB.compareTo(dateA);
+                });
 
                 List<DropdownMenuItem<String>> customerOrderItems = [];
 
-                for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+                for (QueryDocumentSnapshot document in documents) {
                   String customerOrderId = document['id'];
                   customerOrderItems.add(
                     DropdownMenuItem<String>(

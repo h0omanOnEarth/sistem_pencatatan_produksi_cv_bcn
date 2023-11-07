@@ -248,7 +248,9 @@ class _ListSuratJalanState extends State<ListSuratJalan> {
 
   Widget _buildShipmentList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: purchaseReqRef.snapshots(),
+      stream: purchaseReqRef
+          .orderBy('tanggal_pembuatan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

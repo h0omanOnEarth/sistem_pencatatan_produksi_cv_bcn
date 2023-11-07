@@ -97,7 +97,7 @@ exports.materialRecValidation = async (req) => {
           message: `Supplier id tidak sesuai purchase order, supplier id seharusnya ${purchaseOrderData.supplier_id}`,
         };
       }
-      await purchaseOrderDoc.ref.update({ status: "Selesai" });
+      await purchaseOrderDoc.ref.update({ status_pengiriman: "Selesai" });
     } else {
       // Purchase Order tidak ditemukan, lakukan penanganan kesalahan di sini jika diperlukan
       return { success: false, message: "Purchase order tidak ditemukan" };

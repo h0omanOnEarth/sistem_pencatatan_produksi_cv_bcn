@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/positionWidget.dart';
 
 class SidebarGudangWidget extends StatelessWidget {
   final int selectedIndex;
@@ -44,7 +45,7 @@ class SidebarGudangWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                PositionWidget(),
                 _buildSidebarItem(0, Icons.home, 'Home',
                     iconSize: 24, isActive: selectedIndex == 0),
                 _buildSidebarItem(1, Icons.list, 'Master',

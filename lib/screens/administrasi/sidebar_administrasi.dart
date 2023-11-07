@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_laporan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_master.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_pembelian.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_penjualan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/positionWidget.dart';
 
 class SidebarAdministrasiWidget extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
   final bool isSidebarCollapsed;
   final Function() onToggleSidebar;
-  static dynamic menu = const HomeScreenAdministrasi();
 
   const SidebarAdministrasiWidget({
     Key? key,
@@ -21,26 +17,8 @@ class SidebarAdministrasiWidget extends StatefulWidget {
     required this.onToggleSidebar,
   }) : super(key: key);
 
-  // Define a static function to get screens based on the selected index
-  static dynamic getMenuByIndex(int index) {
-    if (index == 0) {
-      return const HomeScreenAdministrasi();
-    } else if (index == 1) {
-      return const MainMasterAdministrasiScreen();
-    } else if (index == 2) {
-      return const MainPembelianAdministrasiScreen();
-    } else if (index == 3) {
-      return const MainPenjulanAdministrasiScreen();
-    } else if (index == 4) {
-      return const MainLaporanAdministrasiScreen();
-    } else if (index == 5) {
-      return const ProfileScreen();
-    }
-    return const HomeScreenAdministrasi(); // Default menu
-  }
-
   @override
-  State<SidebarAdministrasiWidget> createState() =>
+  _SidebarAdministrasiWidgetState createState() =>
       _SidebarAdministrasiWidgetState();
 }
 
@@ -75,7 +53,7 @@ class _SidebarAdministrasiWidgetState extends State<SidebarAdministrasiWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                PositionWidget(), // Ganti nilai sesuai kebutuhan
                 _buildSidebarItem(0, Icons.home, 'Home',
                     iconSize: 24, isActive: widget.selectedIndex == 0),
                 _buildSidebarItem(1, Icons.list, 'Master',

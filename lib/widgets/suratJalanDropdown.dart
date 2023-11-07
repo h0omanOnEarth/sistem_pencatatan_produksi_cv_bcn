@@ -40,21 +40,35 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: firestore
-          .collection('shipments')
-          .where(
-            'status',
-            isEqualTo: widget.isEnabled ? 1 : null,
-          )
-          .snapshots(),
+      stream: firestore.collection('shipments').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1 &&
+                document['status_shp'] == "Dalam Proses";
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_pembuatan'].toDate();
+          DateTime dateB = b['tanggal_pembuatan'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> shipmentItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String shipmentId = document['id'];
           shipmentItems.add(
             DropdownMenuItem<String>(

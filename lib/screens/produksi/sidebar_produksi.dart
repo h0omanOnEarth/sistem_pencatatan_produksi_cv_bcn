@@ -4,6 +4,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_lapo
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/positionWidget.dart';
 
 class SidebarProduksiWidget extends StatefulWidget {
   final int selectedIndex;
@@ -70,7 +71,7 @@ class _SidebarProduksiWidgetState extends State<SidebarProduksiWidget> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                PositionWidget(),
                 _buildSidebarItem(0, Icons.home, 'Home',
                     iconSize: 24, isActive: widget.selectedIndex == 0),
                 _buildSidebarItem(1, Icons.list, 'Master',

@@ -2,7 +2,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/utils/notify_awesome.dart';
 
 // Events
 abstract class ProductionOrderEvent {}
@@ -175,7 +177,8 @@ class ProductionOrderBloc
               final nextNotifId =
                   await notificationService.generateNextNotificationId();
               final Map<String, dynamic> notificationData = {
-                'pesan': 'Production Order baru ditambahkan',
+                'pesan':
+                    'Perintah Produksi $nextProductionOrderId baru ditambahkan',
                 'status': 1,
                 'posisi': 'Produksi',
                 'created_at': DateTime.now(),
@@ -187,6 +190,14 @@ class ProductionOrderBloc
 
               // Gunakan .set() untuk menambahkan data ke dokumen tersebut
               await newNotificationDoc.set(notificationData);
+
+              Notify.instantNotify("Perintah Produksi Baru",
+                  'Production Order $nextProductionOrderId baru ditambahkan');
+
+              EmailNotificationService.sendNotification(
+                  'Perintah Produksi Baru',
+                  'Perintah Produksi $nextProductionOrderId baru ditambahkan',
+                  'Produksi');
 
               yield SuccessState();
             } else {

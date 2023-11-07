@@ -43,21 +43,35 @@ class _FakturDropdownState extends State<FakturDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('invoices')
-          .where(
-            'status',
-            isEqualTo: widget.isEnabled ? 1 : null,
-          )
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('invoices').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1 &&
+                document['status_fk'] == "Selesai";
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_pembuatan'].toDate();
+          DateTime dateB = b['tanggal_pembuatan'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> invoiceItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String invoiceId = document['id'];
           invoiceItems.add(
             DropdownMenuItem<String>(

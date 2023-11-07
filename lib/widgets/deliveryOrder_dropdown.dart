@@ -37,23 +37,37 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('delivery_orders')
-          .where(
-            'status',
-            isEqualTo: widget.isEnabled ? 1 : null,
-          )
-          .snapshots(),
+      stream: firestore.collection('delivery_orders').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        // Ambil data dari snapshot
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1 &&
+                document['status_pesanan_pengiriman'] == "Dalam Proses";
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_pesanan_pengiriman'].toDate();
+          DateTime dateB = b['tanggal_pesanan_pengiriman'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> doItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String doID = document['id'];
-          // String coId = document['customer_order_id'];
           doItems.add(
             DropdownMenuItem<String>(
               value: doID,
@@ -71,6 +85,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
             ),
           );
         }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -93,7 +108,7 @@ class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
                 onChanged: widget.isEnabled
                     ? (newValue) async {
                         widget.onChanged(newValue);
-                        _selectedDoc = snapshot.data!.docs.firstWhere(
+                        _selectedDoc = documents.firstWhere(
                           (document) => document['id'] == newValue,
                         );
 

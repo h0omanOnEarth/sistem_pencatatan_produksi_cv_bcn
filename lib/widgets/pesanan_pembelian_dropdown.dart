@@ -57,21 +57,35 @@ class _PesananPembelianDropdownState extends State<PesananPembelianDropdown> {
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('purchase_orders')
-                  .where(
-                    'status',
-                    isEqualTo: widget.isEnabled
-                        ? 1
-                        : null, // Filter status hanya saat isEnabled true
-                  )
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
                 }
 
+                List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+                // Filter dan urutkan data secara lokal
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+                    return document['status'] == 1 &&
+                        document['status_pengiriman'] == "Selesai";
+                  } else {
+                    // Jika isEnabled false, tampilkan semua data
+                    return true;
+                  }
+                }).toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_pesan'].toDate();
+                  DateTime dateB = b['tanggal_pesan'].toDate();
+                  return dateB.compareTo(dateA);
+                });
+
                 List<DropdownMenuItem<String>> purchaseOrderItems = [];
 
-                for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+                for (QueryDocumentSnapshot document in documents) {
                   String purchaseOrderId = document['id'];
                   purchaseOrderItems.add(
                     DropdownMenuItem<String>(

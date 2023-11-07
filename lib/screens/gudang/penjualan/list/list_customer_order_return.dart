@@ -248,7 +248,9 @@ class _ListCustomerOrderReturnState extends State<ListCustomerOrderReturn> {
 
   Widget _buildCustomerOrderReturnList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: custReturnReqRef.snapshots(),
+      stream: custReturnReqRef
+          .orderBy('tanggal_pengembalian', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
