@@ -56,14 +56,37 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
+        toolbarHeight: 80,
+        backgroundColor:
+            Colors.white, // Atur warna latar belakang AppBar menjadi putih
+        iconTheme: const IconThemeData(
+          color: Colors.black, // Atur warna ikon kembali menjadi hitam
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ), // Atur warna teks title menjadi hitam
+        ),
+        leading: InkWell(
+          onTap: () {
             Routemaster.of(context)
                 .push('${MainAdministrasi.routeName}?selectedIndex=4');
           },
+          child: Container(
+            margin: const EdgeInsets.only(left: 8.0), // Tambahkan margin kiri
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white, // Mengubah latar belakang menjadi putih
+            ),
+            child: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ),
         ),
+        elevation: 0, // Atur elevation (ketebalan garis bawah) menjadi 0
       ),
       body: Center(
           child: Column(

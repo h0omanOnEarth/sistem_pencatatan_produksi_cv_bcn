@@ -7,6 +7,7 @@ import 'package:routemaster/routemaster.dart';
 //Local imports
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -39,82 +40,150 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 
 class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false; // Tambahkan variabel status loading
+  DateTime? startDate; // Tambahkan variabel tanggal awal
+  DateTime? endDate; // Tambahkan variabel tanggal akhir
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
+        toolbarHeight: 80,
+        backgroundColor:
+            Colors.white, // Atur warna latar belakang AppBar menjadi putih
+        iconTheme: const IconThemeData(
+          color: Colors.black, // Atur warna ikon kembali menjadi hitam
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ), // Atur warna teks title menjadi hitam
+        ),
+        leading: InkWell(
+          onTap: () {
             Routemaster.of(context)
                 .push('${MainAdministrasi.routeName}?selectedIndex=4');
           },
+          child: Container(
+            margin: const EdgeInsets.only(left: 8.0), // Tambahkan margin kiri
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white, // Mengubah latar belakang menjadi putih
+            ),
+            child: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ),
         ),
+        elevation: 0, // Atur elevation (ketebalan garis bawah) menjadi 0
       ),
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment:
-            CrossAxisAlignment.center, // Tambahkan ini untuk memusatkan tombol
-        children: [
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.green, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
+        child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
-            onPressed: () {
-              // Tandai status loading saat tombol ditekan
-              setState(() {
-                isGenerating = true;
-              });
-              generateExcel().then((_) {
-                // Setelah selesai, hentikan status loading
-                setState(() {
-                  isGenerating = false;
-                });
-              });
-            },
-            child: const Text('Generate Excel'),
-          ),
-          const SizedBox(height: 16.0),
-          ElevatedButton(
-            // Mengganti TextButton dengan ElevatedButton
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.red, // Memberikan warna teks putih
-              minimumSize: const Size(200, 50), // Menentukan ukuran tombol
-            ),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('PDF Preview'),
+            margin: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Awal',
+                        selectedDate: startDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            startDate = date;
+                          });
+                        },
                       ),
-                      body: PdfPreview(
-                        allowPrinting: true,
-                        build: (format) => generatePDF(format),
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Akhir',
+                        selectedDate: endDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            endDate = date;
+                          });
+                        },
                       ),
-                    );
-                  });
-            },
-            child: const Text('Generate PDF'),
-          ),
-          if (isGenerating) // Tampilkan CircularProgressIndicator jika sedang loading
-            const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Downloading'), // Tambahkan teks "Downloading" di sini
-              ],
-            )
-        ],
-      )),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isGenerating = true;
+                        });
+                        generateExcel().then((_) {
+                          setState(() {
+                            isGenerating = false;
+                          });
+                        });
+                      },
+                      child: const Text('Generate Excel'),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Scaffold(
+                              appBar: AppBar(
+                                title: const Text('PDF Preview'),
+                              ),
+                              body: PdfPreview(
+                                allowPrinting: true,
+                                build: (format) => generatePDF(format),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Generate PDF'),
+                    ),
+                    if (isGenerating)
+                      const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading'),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            )),
+      ),
     );
   }
 
@@ -159,8 +228,15 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         await FirebaseFirestore.instance.collection('customer_orders').get();
     final orders = querySnapshot.docs.map((doc) => doc.data()).toList();
 
-    for (var i = 0; i < orders.length; i++) {
-      final order = orders[i];
+    // Filter data berdasarkan tanggal pesan
+    final filteredOrders = orders.where((order) {
+      final orderDate = order['tanggal_pesan'].toDate();
+      return (startDate == null || orderDate.isAfter(startDate)) &&
+          (endDate == null || orderDate.isBefore(endDate));
+    }).toList();
+
+    for (var i = 0; i < filteredOrders.length; i++) {
+      final order = filteredOrders[i];
       sheet.getRangeByIndex(i + 3, 1).setText(order['customer_id']);
       sheet.getRangeByIndex(i + 3, 2).setText(order['id']);
       sheet.getRangeByIndex(i + 3, 3).setText(order['catatan']);
@@ -179,12 +255,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     }
 
     // Add "Total" to the left of the subtotal
-    final totalCell = sheet.getRangeByIndex(orders.length + 3, 6);
+    final totalCell = sheet.getRangeByIndex(filteredOrders.length + 3, 6);
     totalCell.setText('Total');
     totalCell.cellStyle.bold = true;
 
-    final subtotalRange = sheet.getRangeByIndex(orders.length + 3, 7);
-    subtotalRange.setFormula('SUM(G3:G${orders.length + 2})');
+    final subtotalRange = sheet.getRangeByIndex(filteredOrders.length + 3, 7);
+    subtotalRange.setFormula('SUM(G3:G${filteredOrders.length + 2})');
     subtotalRange.cellStyle.bold = true;
     subtotalRange.cellStyle.backColor = '#C0C0C0';
 
@@ -214,6 +290,13 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     final font = await PdfGoogleFonts.nunitoExtraLight();
     final font1 = await PdfGoogleFonts.openSansRegular();
     final font2 = await PdfGoogleFonts.openSansBold();
+
+    // Filter data berdasarkan tanggal pesan
+    final filteredOrders = orders.where((order) {
+      final orderDate = order['tanggal_pesan'].toDate();
+      return (startDate == null || orderDate.isAfter(startDate)) &&
+          (endDate == null || orderDate.isBefore(endDate));
+    }).toList();
 
     pdf.addPage(
       pw.MultiPage(
@@ -247,7 +330,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
                 'Total Produk',
                 'Satuan'
               ],
-              for (var order in orders)
+              for (var order in filteredOrders)
                 [
                   order['customer_id'].toString(),
                   order['id'].toString(),

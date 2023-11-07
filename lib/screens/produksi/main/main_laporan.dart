@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_kualitas_produk.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_produksi.dart';
 
 class MainLaporanProduksiScreen extends StatefulWidget {
@@ -87,7 +88,7 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                         icon: Icons.notes_rounded,
                         textA: 'Laporan Kualitas Produk',
                         textB: 'Melihat laporan kualitas produk',
-                        pageRoute: '/page2'),
+                        pageRoute: LaporanKualitasProduksi.routeName),
                   ],
                 ),
               ),

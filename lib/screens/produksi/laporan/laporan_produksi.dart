@@ -30,10 +30,10 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 
   final String title;
   @override
-  _CreateExcelState createState() => _CreateExcelState();
+  CreateExcelState createState() => CreateExcelState();
 }
 
-class _CreateExcelState extends State<CreateExcelStatefulWidget> {
+class CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false;
   DateTime? startDate; // Tambahkan variabel tanggal awal
   DateTime? endDate; // Tambahkan variabel tanggal akhir
@@ -43,106 +43,142 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
+        toolbarHeight: 80,
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(
+          color: Colors.black,
+        ),
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: InkWell(
+          onTap: () {
             Routemaster.of(context)
                 .push('${MainProduksi.routeName}?selectedIndex=3');
           },
+          child: Container(
+            margin: const EdgeInsets.only(left: 8.0),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            child: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.arrow_back, color: Colors.black),
+            ),
+          ),
         ),
+        elevation: 0,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              // Container untuk mengatur lebar DatePickerButton
-              width: 250, // Sesuaikan lebar sesuai kebutuhan Anda
-              child: DatePickerButton(
-                label: 'Pilih Tanggal Awal',
-                selectedDate: startDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    startDate = date;
-                  });
-                },
-              ),
+        child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
             ),
-            const SizedBox(
-              height: 16.0,
-            ),
-            SizedBox(
-              // Container untuk mengatur lebar DatePickerButton
-              width: 250, // Sesuaikan lebar sesuai kebutuhan Anda
-              child: DatePickerButton(
-                label: 'Pilih Tanggal Akhir',
-                selectedDate: endDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    endDate = date;
-                  });
-                },
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.green,
-                minimumSize: const Size(250,
-                    50), // Sesuaikan lebar dan tinggi sesuai kebutuhan Anda
-              ),
-              onPressed: () {
-                setState(() {
-                  isGenerating = true;
-                });
-                generateExcel().then((_) {
-                  setState(() {
-                    isGenerating = false;
-                  });
-                });
-              },
-              child: const Text('Generate Excel'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.red,
-                minimumSize: const Size(250,
-                    50), // Sesuaikan lebar dan tinggi sesuai kebutuhan Anda
-              ),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return Scaffold(
-                      appBar: AppBar(
-                        title: const Text('PDF Preview'),
+            margin: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Awal',
+                        selectedDate: startDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            startDate = date;
+                          });
+                        },
                       ),
-                      body: PdfPreview(
-                        allowPrinting: true,
-                        build: (format) => generatePDF(format),
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Akhir',
+                        selectedDate: endDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            endDate = date;
+                          });
+                        },
                       ),
-                    );
-                  },
-                );
-              },
-              child: const Text('Generate PDF'),
-            ),
-            if (isGenerating)
-              const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Downloading'),
-                ],
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isGenerating = true;
+                        });
+                        generateExcel().then((_) {
+                          setState(() {
+                            isGenerating = false;
+                          });
+                        });
+                      },
+                      child: const Text('Generate Excel'),
+                    ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        minimumSize: const Size(250, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Scaffold(
+                              appBar: AppBar(
+                                title: const Text('PDF Preview'),
+                              ),
+                              body: PdfPreview(
+                                allowPrinting: true,
+                                build: (format) => generatePDF(format),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: const Text('Generate PDF'),
+                    ),
+                    if (isGenerating)
+                      const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading'),
+                        ],
+                      ),
+                  ],
+                ),
               ),
-          ],
-        ),
+            )),
       ),
     );
   }
@@ -171,6 +207,11 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       'Total Produk',
       'Waktu Produksi',
       'Catatan',
+      'Tanggal Rencana',
+      'Tanggal Produksi',
+      'Tanggal Selesai',
+      'Jumlah Produksi Est',
+      'Jumlah Tenaga Kerja Est',
     ];
 
     for (var i = 0; i < headers.length; i++) {
@@ -220,6 +261,20 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       sheet.getRangeByIndex(i + 3, 7).setNumber(result['total_produk']);
       sheet.getRangeByIndex(i + 3, 8).setNumber(result['waktu_produksi']);
       sheet.getRangeByIndex(i + 3, 9).setText(result['catatan'].toString());
+      final tanggalRencana = productionOrderDoc.data()?['tanggal_rencana'];
+      final tanggalProduksi = productionOrderDoc.data()?['tanggal_produksi'];
+      final tanggalSelesai = productionOrderDoc.data()?['tanggal_selesai'];
+      final jumlahProduksiEst =
+          productionOrderDoc.data()?['jumlah_produksi_est'];
+      final jumlahTenagaKerjaEst =
+          productionOrderDoc.data()?['jumlah_tenaga_kerja_est'];
+
+      // Add values for the new columns
+      sheet.getRangeByIndex(i + 3, 10).setDateTime(tanggalRencana?.toDate());
+      sheet.getRangeByIndex(i + 3, 11).setDateTime(tanggalProduksi?.toDate());
+      sheet.getRangeByIndex(i + 3, 12).setDateTime(tanggalSelesai?.toDate());
+      sheet.getRangeByIndex(i + 3, 13).setNumber(jumlahProduksiEst ?? 0);
+      sheet.getRangeByIndex(i + 3, 14).setNumber(jumlahTenagaKerjaEst ?? 0);
     }
 
     final totalProdukRange =
@@ -259,7 +314,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       'Total Produk',
       'Waktu Produksi',
       'Catatan',
-      'Nama Produk', // Tambahkan kolom "Nama Produk"
+      'Nama Produk',
+      'Tanggal Rencana',
+      'Tanggal Produksi',
+      'Tanggal Selesai',
+      'Jumlah Produksi Est',
+      'Jumlah Tenaga Kerja Est',
     ];
 
     final tableData = <List<dynamic>>[];
@@ -292,6 +352,14 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final productInfo = await productService.getProductInfo(productId);
       final productName = productInfo?['nama'] as String? ?? '';
 
+      final tanggalRencana = productionOrderDoc.data()?['tanggal_rencana'];
+      final tanggalProduksi = productionOrderDoc.data()?['tanggal_produksi'];
+      final tanggalSelesai = productionOrderDoc.data()?['tanggal_selesai'];
+      final jumlahProduksiEst =
+          productionOrderDoc.data()?['jumlah_produksi_est'];
+      final jumlahTenagaKerjaEst =
+          productionOrderDoc.data()?['jumlah_tenaga_kerja_est'];
+
       tableData.add([
         result['id'].toString(),
         DateFormat('dd/MM/yyyy HH:mm')
@@ -302,7 +370,18 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         result['total_produk'].toString(),
         result['waktu_produksi'].toString(),
         result['catatan'],
-        productName, // Tambahkan kolom "Nama Produk" di sini
+        productName,
+        tanggalRencana != null
+            ? DateFormat('dd/MM/yyyy').format(tanggalRencana.toDate())
+            : '',
+        tanggalProduksi != null
+            ? DateFormat('dd/MM/yyyy').format(tanggalProduksi.toDate())
+            : '',
+        tanggalSelesai != null
+            ? DateFormat('dd/MM/yyyy').format(tanggalSelesai.toDate())
+            : '',
+        jumlahProduksiEst?.toString() ?? '',
+        jumlahTenagaKerjaEst?.toString() ?? '',
       ]);
     }
 
