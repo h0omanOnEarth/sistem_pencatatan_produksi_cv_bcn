@@ -82,7 +82,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
               await invoiceCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalProduk': totalProduk,
-            'totalHarga': total
+            'totalHarga': total,
+            'shipmentId': shipmentId
           });
 
           if (result.data['success'] == true) {
@@ -163,7 +164,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
               await invoiceCallable.call(<String, dynamic>{
             'products': products.map((product) => product.toJson()).toList(),
             'totalProduk': totalProduk,
-            'totalHarga': total
+            'totalHarga': total,
+            'shipmentId': shipmentId
           });
 
           if (result.data['success'] == true) {

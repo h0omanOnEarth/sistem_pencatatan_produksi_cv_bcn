@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.invoiceValidation = async (req) => {
-  const { products, totalProduk, totalHarga } = req.data;
+  const { products, totalProduk, totalHarga, shipmentId } = req.data;
 
   if (!products || products.length === 0) {
     return { success: false, message: "Minimal harus ada satu produk" };
@@ -23,7 +23,42 @@ exports.invoiceValidation = async (req) => {
     return { success: false, message: "Total harga harus lebih besar dari 0" };
   }
 
-  return {
-    success: true,
-  };
+  try {
+    // Periksa status_shp pada shipmentId
+    const shipmentsRef = admin
+      .firestore()
+      .collection("shipments")
+      .doc(shipmentId);
+
+    const shipmentDoc = await shipmentsRef.get();
+
+    if (!shipmentDoc.exists) {
+      return {
+        success: false,
+        message: "Surat jalan tidak ditemukan",
+      };
+    }
+
+    const statusShp = shipmentDoc.data().status_shp;
+
+    if (statusShp === "Selesai") {
+      return {
+        success: false,
+        message: "Surat jalan telah dibuat",
+      };
+    }
+
+    // Update status_shp to "Selesai" in the shipment document
+    await shipmentsRef.update({ status_shp: "Selesai" });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Error validating invoice:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan dalam validasi invoice",
+    };
+  }
 };

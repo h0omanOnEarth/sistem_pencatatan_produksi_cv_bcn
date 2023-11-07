@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const moment = require("moment");
 const {
   log,
   info,
@@ -146,7 +147,7 @@ exports.suratJalanValidation = async (req) => {
             pesan: `Stok Produk ${productId} habis`,
             posisi: "Produksi",
             status: 1,
-            created_at: admin.firestore.FieldValue.serverTimestamp(),
+            created_at: moment().format(),
           };
 
           await notificationsRef.add(notifDoc);
