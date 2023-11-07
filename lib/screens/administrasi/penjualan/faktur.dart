@@ -31,7 +31,6 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
   @override
   void initState() {
     super.initState();
-    loadInvoiceData();
   }
 
   Future<void> loadInvoiceData() async {
@@ -105,6 +104,8 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
     final font2 = await PdfGoogleFonts.openSansBold();
     final Uint8List logoImage =
         (await rootBundle.load('images/logo2.jpg')).buffer.asUint8List();
+
+    await loadInvoiceData();
 
     doc.addPage(
       pw.Page(

@@ -41,7 +41,6 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
   @override
   void initState() {
     super.initState();
-    loadShipmentData();
   }
 
   Future<void> loadShipmentData() async {
@@ -120,6 +119,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
     final font2 = await PdfGoogleFonts.openSansBold();
     final Uint8List logoImage =
         (await rootBundle.load('images/logo2.jpg')).buffer.asUint8List();
+
+    await loadShipmentData();
 
     doc.addPage(
       pw.Page(
