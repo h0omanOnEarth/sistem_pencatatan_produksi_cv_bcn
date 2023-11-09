@@ -15,14 +15,22 @@ class HomeScreenProduksi extends StatefulWidget {
 
 class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
   String? userName;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       getUserDetails(user.email ?? '');
     }
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   Future<void> getUserDetails(String email) async {
@@ -31,7 +39,7 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
         firestore.collection('employees').where('email', isEqualTo: email);
     final userSnapshot = await userRef.get();
 
-    if (userSnapshot.docs.isNotEmpty) {
+    if (_isMounted && userSnapshot.docs.isNotEmpty) {
       final userData = userSnapshot.docs.first;
       setState(() {
         userName = userData['nama'];

@@ -33,7 +33,32 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   void initState() {
     super.initState();
     // Inisialisasi data produksi yang sedang dalam proses
-    fetchMaterialUsageWithStatusPro();
+    if (widget.isEnabled == true) {
+      fetchMaterialUsageWithStatusPro();
+    } else {
+      fetchMaterialUsageEdit();
+    }
+  }
+
+  void fetchMaterialUsageEdit() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    QuerySnapshot materialUsageSnapshot =
+        await firestore.collection('material_usages').get();
+
+    List<String> inProgressMaterialUsageIds = [];
+
+    for (QueryDocumentSnapshot document in materialUsageSnapshot.docs) {
+      inProgressMaterialUsageIds.add(document['id']);
+    }
+
+    materialUsageIds = inProgressMaterialUsageIds;
+
+    setState(() {
+      isLoading = false;
+    }); // Update the view after data is fetched and sorted
   }
 
   void fetchMaterialUsageWithStatusPro() async {
@@ -41,13 +66,22 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
       isLoading = true;
     });
 
-    QuerySnapshot materialUsageSnapshot = await firestore
-        .collection('material_usages')
-        .where('status', isEqualTo: 1)
-        .where('status_mu', isEqualTo: 'Selesai')
-        .where('batch', isEqualTo: 'Pencetakan')
-        .get();
+    Query materialUsageQuery = firestore.collection('material_usages');
 
+    if (widget.feature != null) {
+      materialUsageQuery = materialUsageQuery
+          .where('status_mu', isEqualTo: 'Selesai')
+          .where('batch', isEqualTo: 'Pencetakan')
+          .where('status', isEqualTo: 1);
+    }
+
+    if (widget.feature == null) {
+      materialUsageQuery = materialUsageQuery
+          .where('status_mu', isEqualTo: 'Selesai')
+          .where('status', isEqualTo: 1);
+    }
+
+    QuerySnapshot materialUsageSnapshot = await materialUsageQuery.get();
     List<String> inProgressMaterialUsageIds = [];
 
     for (QueryDocumentSnapshot document in materialUsageSnapshot.docs) {
@@ -106,7 +140,7 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
             border: Border.all(color: Colors.grey[400]!),
           ),
           child: isLoading
-              ? Center(
+              ? const Center(
                   child: CircularProgressIndicator(), // Indikator loading
                 )
               : DropdownButtonFormField<String>(

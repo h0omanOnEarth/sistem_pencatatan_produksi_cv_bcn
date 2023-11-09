@@ -21,7 +21,7 @@ class CustomAppBar extends StatelessWidget {
 
     // Periksa lebar layar
     if (MediaQuery.of(context).size.width <= 600) {
-      fontSize = 18.0; // Ubah ukuran font untuk layar HP
+      fontSize = 16.0; // Ubah ukuran font untuk layar HP
     }
     return SizedBox(
       height: 80,

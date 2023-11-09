@@ -138,9 +138,17 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
                           // Sort notifications based on 'created_at' in descending order
                           notifications.sort((a, b) {
-                            final aDate = a['created_at'] as Timestamp;
-                            final bDate = b['created_at'] as Timestamp;
-                            return bDate.compareTo(aDate);
+                            final aDate = a['created_at'];
+                            final bDate = b['created_at'];
+
+                            if (aDate is Timestamp && bDate is Timestamp) {
+                              return bDate.compareTo(aDate);
+                            } else if (aDate is String && bDate is String) {
+                              return DateTime.parse(bDate)
+                                  .compareTo(DateTime.parse(aDate));
+                            }
+
+                            return 0;
                           });
 
                           return Expanded(
