@@ -321,6 +321,7 @@ class CombinedCard extends StatelessWidget {
   final String title;
 
   const CombinedCard({
+    super.key,
     required this.collectionName,
     required this.statusField,
     required this.statusValue,

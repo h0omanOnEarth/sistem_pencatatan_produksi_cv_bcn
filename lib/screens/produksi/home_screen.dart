@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/homeService.dart';
 
 class HomeScreenProduksi extends StatefulWidget {
@@ -177,11 +178,11 @@ class CardList extends StatelessWidget {
             ),
             subtitle: FutureBuilder(
               future: HomeService().fetchFirestoreData(
-                  ['production_orders', 'material_usages', 'products']),
+                ['production_orders', 'material_usages', 'products'],
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Text(
-                      'Jumlah On Process: Loading...'); // Menampilkan pesan "Loading..." selama data dimuat.
+                  return const Text('Jumlah On Process: Loading...');
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
@@ -196,7 +197,7 @@ class CardList extends StatelessWidget {
                     return Text(
                       'Jumlah On Process: $productionOrdersCount',
                       style: const TextStyle(
-                        fontSize: 18, // Sesuaikan ukuran teks sesuai kebutuhan.
+                        fontSize: 18,
                       ),
                     );
                   } else {
@@ -208,7 +209,8 @@ class CardList extends StatelessWidget {
           ),
           FutureBuilder(
             future: HomeService().fetchFirestoreData(
-                ['production_orders', 'material_usages', 'products']),
+              ['production_orders', 'material_usages', 'products'],
+            ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
@@ -255,19 +257,30 @@ class CardList extends StatelessWidget {
                       productionOrderId,
                     );
 
-                    // Hitung persentase progress
                     final percentage = (progressBarValue * 100).toInt();
-                    // Dapatkan nama produk dari product_id
                     final productId = productionOrder['product_id'];
                     final productData = products.firstWhere(
                         (product) => product['id'] == productId,
                         orElse: () => {});
                     final productName = productData['nama'] as String;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 16.0),
-                      child: Card(
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FormPerintahProduksiScreen(
+                              productionOrderId: productionOrderId,
+                              productId: productId,
+                              statusPro: productionOrder['status_pro'],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 16.0),
+                        child: Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10.0),
@@ -323,7 +336,9 @@ class CardList extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -340,13 +355,13 @@ class CardList extends StatelessWidget {
     if (materialUsages.any((usage) =>
         usage['production_order_id'] == productionOrderId &&
         usage['batch'] == 'Pencetakan')) {
-      return 0.9; // Jika batch 'Pencetakan' ada, progress bar 90%
+      return 0.9;
     } else if (materialUsages.any((usage) =>
         usage['production_order_id'] == productionOrderId &&
         usage['batch'] == 'Sheet')) {
-      return 0.6; // Jika batch 'Sheet' ada, progress bar 50%
+      return 0.6;
     } else {
-      return 0.3; // Jika keduanya tidak ada, progress bar 0%
+      return 0.3;
     }
   }
 
@@ -355,13 +370,13 @@ class CardList extends StatelessWidget {
     if (materialUsages.any((usage) =>
         usage['production_order_id'] == productionOrderId &&
         usage['batch'] == 'Pencetakan')) {
-      return 'Pencetakan'; // Jika batch 'Pencetakan' ada, progress bar 90%
+      return 'Pencetakan';
     } else if (materialUsages.any((usage) =>
         usage['production_order_id'] == productionOrderId &&
         usage['batch'] == 'Sheet')) {
-      return 'Sheet'; // Jika batch 'Sheet' ada, progress bar 50%
+      return 'Sheet';
     } else {
-      return 'Pencampuran'; // Jika keduanya tidak ada, progress bar 0%
+      return 'Pencampuran';
     }
   }
 }

@@ -99,16 +99,17 @@ class _FormPerintahProduksiScreenState
     for (final doc in snapshot.docs) {
       final data = doc.data() as Map<String, dynamic>;
       int jumlah = 0;
+
       if (widget.productionOrderId != null) {
-        jumlah = data['jumlah_bom'] ?? 0;
+        jumlah = int.tryParse(data['jumlah_bom'].toString()) ?? 0;
       } else {
-        jumlah = data['jumlah'] ?? 0;
+        jumlah = int.tryParse(data['jumlah_bom'].toString()) ?? 0;
       }
       customCards.add(
         CustomCard(
           content: [
             CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
-            CustomCardContent(text: 'Jumlah: $jumlah'),
+            CustomCardContent(text: 'Jumlah: ${jumlah.toString()}'),
             CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
             CustomCardContent(text: 'Batch: ${data['batch'] ?? ''}'),
           ],
@@ -625,12 +626,12 @@ class _FormPerintahProduksiScreenState
                                     selectedMesinMixer = newValue;
                                     mesinPencampuran.clear();
                                     mesinPencampuran = {
-                                      'batch': 'Pencampur',
+                                      'batch': 'Pencampuran',
                                       'machine_id': newValue,
                                     };
                                   });
                                 },
-                                title: 'Pencampur',
+                                title: 'Pencampuran',
                                 namaMesinController:
                                     namaMesinPencampurController,
                                 isEnabled: widget.statusPro != "Selesai",
