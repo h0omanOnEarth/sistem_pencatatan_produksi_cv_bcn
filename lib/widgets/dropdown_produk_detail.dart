@@ -40,6 +40,7 @@ class DropdownProdukDetailWidget extends StatelessWidget {
             underline: Container(),
             items: products.map((product) {
               String productId = product['id'].toString();
+              String productName = product['nama'].toString();
               return DropdownMenuItem<String>(
                 value: productId,
                 child: Padding(
@@ -48,7 +49,7 @@ class DropdownProdukDetailWidget extends StatelessWidget {
                     horizontal: 16.0,
                   ),
                   child: Text(
-                    productId,
+                    productName,
                     style: TextStyle(
                       color: isEnabled
                           ? Colors.black

@@ -36,7 +36,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
     return Column(
       children: [
         DropdownProdukDetailWidget(
-          label: 'Kode Bahan',
+          label: 'Nama Bahan',
           selectedValue: widget.productCardData.kodeBahan,
           onChanged: (newValue) {
             setState(() {
@@ -48,7 +48,7 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
                   (product) => product['id'] == newValue,
                   orElse: () => {'nama': 'Nama Bahan Tidak Ditemukan'},
                 );
-                widget.productCardData.namaBahan = selectedProduct['nama'];
+                widget.productCardData.namaBahan = selectedProduct['id'];
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -66,8 +66,8 @@ class _ProductCardBahanWidgetState extends State<ProductCardBahanWidget> {
         ),
         const SizedBox(height: 8.0),
         TextFieldWidget(
-          label: 'Nama Bahan',
-          placeholder: 'Nama Bahan',
+          label: 'Kode Bahan',
+          placeholder: 'Kode Bahan',
           controller:
               TextEditingController(text: widget.productCardData.namaBahan),
           isEnabled: false,

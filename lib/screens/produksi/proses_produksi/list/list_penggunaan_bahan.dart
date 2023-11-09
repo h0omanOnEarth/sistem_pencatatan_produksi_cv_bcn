@@ -244,7 +244,9 @@ class _ListMaterialUsageState extends State<ListMaterialUsage> {
 
   Widget _buildMaterialUsageList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: materialUsageRef.snapshots(),
+      stream: materialUsageRef
+          .orderBy('tanggal_penggunaan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

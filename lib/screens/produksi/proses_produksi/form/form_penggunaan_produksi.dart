@@ -87,7 +87,7 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
 
         final productCardData = ProductCardDataBahan(
             kodeBahan: detailData['material_id'] as String,
-            namaBahan: material['nama'] as String,
+            namaBahan: material['id'] as String,
             jumlah: detailData['jumlah'].toString(),
             satuan: detailData['satuan'] as String);
 
@@ -119,21 +119,21 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
     }
   }
 
-  Future<void> filterProductDataBahan(String materialRequestId) async {
+  Future<void> filterProductDataBahan(String productionOrderId) async {
     final List<Map<String, dynamic>> filteredProductDataBahan = [];
 
-    if (materialRequestId.isNotEmpty) {
-      final detailMaterialRequestsQuery = await firestore
-          .collection('material_requests')
-          .doc(materialRequestId)
-          .collection('detail_material_requests')
+    if (productionOrderId.isNotEmpty) {
+      final detailProductionOrdersQuery = await firestore
+          .collection('production_orders')
+          .doc(productionOrderId)
+          .collection('detail_production_orders')
           .get();
 
-      final detailMaterialRequests =
-          detailMaterialRequestsQuery.docs.map((doc) => doc.data());
+      final detailProductionOrders =
+          detailProductionOrdersQuery.docs.map((doc) => doc.data());
 
-      for (final detailMaterialRequest in detailMaterialRequests) {
-        final materialId = detailMaterialRequest['material_id'] as String;
+      for (final detailProductionOrder in detailProductionOrders) {
+        final materialId = detailProductionOrder['material_id'] as String;
 
         // Lakukan filter berdasarkan material_id
         final filteredData = productDataBahan.where((product) {
@@ -213,7 +213,7 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
     }
 
     if (widget.materialRequestId != null) {
-      filterProductDataBahan(widget.materialRequestId ?? '');
+      filterProductDataBahan(widget.productionOrderId ?? '');
       fetchDataDetail();
     }
   }
@@ -263,17 +263,14 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
       for (var doc in querySnapshot.docs) {
         String materialId = doc['id'];
 
-        // Tambahkan pemeriksaan untuk mengabaikan material dengan ID "materialXXX"
-        if (materialId != 'materialXXX') {
-          Map<String, dynamic> bahan = {
-            'id': materialId, // Gunakan ID dokumen sebagai ID produk
-            'nama': doc['nama']
-                as String, // Ganti 'nama' dengan field yang sesuai di Firestore
-          };
-          setState(() {
-            productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
-          });
-        }
+        Map<String, dynamic> bahan = {
+          'id': materialId, // Gunakan ID dokumen sebagai ID produk
+          'nama': doc['nama']
+              as String, // Ganti 'nama' dengan field yang sesuai di Firestore
+        };
+        setState(() {
+          productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
+        });
       }
     });
   }
@@ -414,6 +411,13 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                           onChanged: (newValue) {
                             setState(() {
                               selectedNomorPerintah = newValue ?? '';
+                              if (productCards[0].kodeBahan.isNotEmpty) {
+                                resetProductCardDropdown(newValue ?? '');
+                              } else {
+                                productDataBahan.clear();
+                                fetchDataBahan();
+                                filterProductDataBahan(newValue ?? '');
+                              }
                             });
                           },
                           kodeProdukController: kodeProdukController,
@@ -422,20 +426,15 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
                         ),
                         const SizedBox(height: 16.0),
                         MaterialRequestDropdown(
-                            selectedMaterialRequest: selectedNomorPermintaan,
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedNomorPermintaan = newValue ?? '';
-                                if (productCards[0].kodeBahan.isNotEmpty) {
-                                  resetProductCardDropdown(newValue ?? '');
-                                } else {
-                                  productDataBahan.clear();
-                                  fetchDataBahan();
-                                  filterProductDataBahan(newValue ?? '');
-                                }
-                              });
-                            },
-                            isEnabled: widget.materialUsageId == null),
+                          selectedMaterialRequest: selectedNomorPermintaan,
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedNomorPermintaan = newValue ?? '';
+                            });
+                          },
+                          isEnabled: widget.materialUsageId == null,
+                          feature: "usage",
+                        ),
                         const SizedBox(height: 16.0),
                         Row(
                           children: [

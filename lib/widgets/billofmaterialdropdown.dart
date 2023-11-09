@@ -31,7 +31,26 @@ class BillOfMaterialDropDown extends StatelessWidget {
 
         List<DropdownMenuItem<String>> bomItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status_bom'] == 1 && document['status'] == 1;
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_pembuatan'].toDate();
+          DateTime dateB = b['tanggal_pembuatan'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
+        for (QueryDocumentSnapshot document in documents) {
           String productId = document['product_id'] ?? '';
           String bomId = document['id'];
           String versiBom = document['versi_bom'].toString();

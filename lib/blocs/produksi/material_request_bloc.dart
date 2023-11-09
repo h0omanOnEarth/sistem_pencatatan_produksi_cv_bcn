@@ -52,8 +52,9 @@ class MaterialRequestBloc
   final HttpsCallable materialReqValidationCallable;
 
   MaterialRequestBloc()
-      : materialReqValidationCallable = FirebaseFunctions.instance
-            .httpsCallable('materialRequestValidation'),
+      : materialReqValidationCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('materialRequestValidation'),
         super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }

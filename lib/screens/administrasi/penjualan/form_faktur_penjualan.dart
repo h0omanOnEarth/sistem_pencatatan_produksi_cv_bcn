@@ -625,6 +625,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                                 height: 16.0,
                               ),
                               ListView.builder(
+                                physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: customCards.length,
                                 itemBuilder: (context, index) {

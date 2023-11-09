@@ -344,6 +344,12 @@ class _ListMasterSupplierScreenState extends State<ListMasterSupplierScreen> {
               },
               child: const Text('Bahan Tambahan'),
             ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context, 'Mesin');
+              },
+              child: const Text('Mesin'),
+            ),
           ],
         );
       },

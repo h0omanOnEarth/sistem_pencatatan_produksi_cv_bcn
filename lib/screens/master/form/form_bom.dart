@@ -99,6 +99,9 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     }
 
     collectionQuery.get().then((querySnapshot) {
+      List<Map<String, dynamic>> tempProductData =
+          []; // Daftar sementara untuk penyimpanan data
+
       for (var doc in querySnapshot.docs) {
         String materialId = doc['id'];
 
@@ -108,10 +111,17 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
           'nama': doc['nama']
               as String, // Ganti 'nama' dengan field yang sesuai di Firestore
         };
-        setState(() {
-          productDataBahan.add(bahan); // Tambahkan produk ke daftar produk
-        });
+
+        tempProductData.add(bahan); // Tambahkan produk ke daftar sementara
       }
+
+      // Urutkan daftar produk berdasarkan ID secara ascending
+      tempProductData.sort((a, b) => a['id'].compareTo(b['id']));
+
+      setState(() {
+        productDataBahan =
+            tempProductData; // Setel daftar produk ke daftar terurut
+      });
     });
   }
 
@@ -196,7 +206,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
 
         final productCardData = ProductCardDataBahan(
             kodeBahan: detailData['material_id'] as String,
-            namaBahan: material['nama'] as String,
+            namaBahan: material['id'] as String,
             namaBatch: detailData['batch'] as String,
             jumlah: detailData['jumlah'].toString(),
             satuan: detailData['satuan'] as String);

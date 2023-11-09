@@ -43,14 +43,14 @@ class MachineDropdown extends StatelessWidget {
             DropdownMenuItem<String>(
               value: machineId,
               child: Text(
-                machineId,
+                machineName,
                 style: const TextStyle(color: Colors.black),
               ),
             ),
           );
           if (selectedMachine == machineId && namaMesinController != null) {
             Future.delayed(Duration.zero, () {
-              namaMesinController?.text = machineName;
+              namaMesinController?.text = machineId;
             });
           }
         }

@@ -126,7 +126,7 @@ class _FormPengembalianBahanScreenState
 
         final productCardData = ProductCardDataBahan(
             kodeBahan: detailData['material_id'] as String,
-            namaBahan: material['nama'] as String,
+            namaBahan: material['id'] as String,
             jumlah: detailData['jumlah'].toString(),
             satuan: detailData['satuan'] as String);
 

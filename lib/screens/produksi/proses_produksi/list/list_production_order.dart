@@ -199,7 +199,9 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
 
   Widget _buildProductionOrderList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: productionOrderRef.snapshots(),
+      stream: productionOrderRef
+          .orderBy('tanggal_rencana', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -293,11 +295,13 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
                             paginatedDocs[index].data() as Map<String, dynamic>;
                         final id = data['id'] as String;
                         // Dapatkan batch yang sesuai dengan produksi
-                        final batch = calculateCurrentBatch(
-                            materialUsagesDocs, data['id']);
+                        final batch = findBatch(materialUsagesDocs, data['id']);
                         // Dapatkan nilai progress bar
                         final progressBarValue = calculateProgressBarValue(
-                            materialUsagesDocs, data['id'], batch);
+                            materialUsagesDocs,
+                            data['id'],
+                            batch,
+                            data['status_pro']);
 
                         final info = {
                           'ID Produk': data['product_id'],
@@ -423,28 +427,38 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
     );
   }
 
-  String calculateCurrentBatch(List<QueryDocumentSnapshot> materialUsagesDocs,
+  String findBatch(List<QueryDocumentSnapshot> materialUsagesDocs,
       String productionOrderId) {
-    for (var usage in materialUsagesDocs) {
-      if (usage['production_order_id'] == productionOrderId) {
-        return usage['batch'] ?? 'Pencampuran';
-      }
+    if (materialUsagesDocs.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Pencetakan')) {
+      return 'Pencetakan'; // Jika batch 'Pencetakan' ada, progress bar 90%
+    } else if (materialUsagesDocs.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Sheet')) {
+      return 'Sheet'; // Jika batch 'Sheet' ada, progress bar 50%
+    } else {
+      return 'Pencampuran'; // Jika keduanya tidak ada, progress bar 0%
     }
-    return 'Pencampuran'; // Jika tidak ditemukan, kembalikan 'Pencampuran'
   }
 
   double calculateProgressBarValue(
       List<QueryDocumentSnapshot> materialUsagesDocs,
       String productionOrderId,
-      String productionOrderBatch) {
+      String productionOrderBatch,
+      String productionOrderStatus) {
     if (materialUsagesDocs.any((usage) =>
-        usage['production_order_id'] == productionOrderId &&
-        usage['batch'] == 'Pencetakan')) {
+            usage['production_order_id'] == productionOrderId &&
+            usage['batch'] == 'Pencetakan') &&
+        productionOrderStatus == "Dalam Proses") {
       return 0.9; // Jika batch 'Pencetakan' ada, progress bar 90%
     } else if (materialUsagesDocs.any((usage) =>
-        usage['production_order_id'] == productionOrderId &&
-        usage['batch'] == 'Sheet')) {
+            usage['production_order_id'] == productionOrderId &&
+            usage['batch'] == 'Sheet') &&
+        productionOrderStatus == "Dalam Proses") {
       return 0.6; // Jika batch 'Sheet' ada, progress bar 60%
+    } else if (productionOrderStatus == "Selesai") {
+      return 1.0;
     } else {
       return 0.3; // Jika keduanya tidak ada, progress bar 30%
     }

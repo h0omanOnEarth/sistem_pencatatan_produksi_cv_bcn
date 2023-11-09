@@ -246,7 +246,9 @@ class _ListPengembalianBahanState extends State<ListPengembalianBahan> {
 
   Widget _buildMaterialReturnList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: materialReturnRef.snapshots(),
+      stream: materialReturnRef
+          .orderBy('tanggal_pengembalian', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

@@ -246,7 +246,9 @@ class _ListMaterialRequestState extends State<ListMaterialRequest> {
 
   Widget _buildMaterialRequestList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: productionOrderRef.snapshots(),
+      stream: productionOrderRef
+          .orderBy('tanggal_permintaan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

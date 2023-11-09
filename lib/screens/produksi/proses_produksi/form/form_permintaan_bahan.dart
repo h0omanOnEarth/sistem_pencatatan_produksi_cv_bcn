@@ -67,36 +67,38 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
       final data = doc.data() as Map<String, dynamic>;
       final materialId = data['material_id'] as String? ?? '';
 
-      Future<Map<String, dynamic>> materialInfoFuture =
-          fetchMaterialInfo(materialId);
+      if (materialId != "material011" && materialId != "material012") {
+        Future<Map<String, dynamic>> materialInfoFuture =
+            fetchMaterialInfo(materialId);
 
-      final materialInfoSnapshot = await materialInfoFuture;
+        final materialInfoSnapshot = await materialInfoFuture;
 
-      final materialName = materialInfoSnapshot['nama'] as String;
-      final materialStock = materialInfoSnapshot['stok'] as int;
-      final jumlahBOM =
-          data['jumlah_bom'] as int? ?? 0; // Ubah ini sesuai kebutuhan
+        final materialName = materialInfoSnapshot['nama'] as String;
+        final materialStock = materialInfoSnapshot['stok'] as int;
+        final jumlahBOM =
+            data['jumlah_bom'] as int? ?? 0; // Ubah ini sesuai kebutuhan
 
-      customCards.add(
-        CustomCard(
-          content: [
-            CustomCardContent(text: 'Kode Bahan: $materialId'),
-            CustomCardContent(text: 'Nama: $materialName'),
-            CustomCardContent(text: 'Batch: ${data['batch']}'),
-            CustomCardContent(text: 'Jumlah: $jumlahBOM'),
-            CustomCardContent(text: 'Stok: $materialStock'),
-            CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
-          ],
-        ),
-      );
+        customCards.add(
+          CustomCard(
+            content: [
+              CustomCardContent(text: 'Kode Bahan: $materialId'),
+              CustomCardContent(text: 'Nama: $materialName'),
+              CustomCardContent(text: 'Batch: ${data['batch']}'),
+              CustomCardContent(text: 'Jumlah: $jumlahBOM'),
+              CustomCardContent(text: 'Stok: $materialStock'),
+              CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
+            ],
+          ),
+        );
 
-      Map<String, dynamic> detailMaterial = {
-        'materialId': materialId,
-        'jumlah': jumlahBOM,
-        'satuan': data['satuan'],
-        'batch': data['batch'],
-      };
-      materialDetailsData.add(detailMaterial);
+        Map<String, dynamic> detailMaterial = {
+          'materialId': materialId,
+          'jumlah': jumlahBOM,
+          'satuan': data['satuan'],
+          'batch': data['batch'],
+        };
+        materialDetailsData.add(detailMaterial);
+      }
     }
     setState(() {});
   }
@@ -210,7 +212,6 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
           } else {
             print('Document does not exist on Firestore');
           }
-          fetchProductionOrders();
         },
       ).catchError((error) {
         print('Error getting document: $error');
@@ -218,6 +219,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
     }
 
     if (widget.productionOrderId != null) {
+      fetchProductionOrders();
       initializeMaterial();
     }
   }
@@ -469,6 +471,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
                                 height: 16.0,
                               ),
                               ListView.builder(
+                                physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 itemCount: customCards.length,
                                 itemBuilder: (context, index) {

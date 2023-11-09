@@ -57,21 +57,35 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('production_orders')
-          .where(
-            'status',
-            isEqualTo: widget.isEnabled
-                ? 1
-                : null, // Filter status hanya saat isEnabled true
-          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1 &&
+                document['status_pro'] == "Dalam Proses";
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_rencana'].toDate();
+          DateTime dateB = b['tanggal_rencana'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> proItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String proId = document['id'];
           proItems.add(
             DropdownMenuItem<String>(

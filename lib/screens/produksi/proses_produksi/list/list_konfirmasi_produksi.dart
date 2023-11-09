@@ -246,7 +246,9 @@ class _ListKonfirmasiProduksiState extends State<ListKonfirmasiProduksi> {
 
   Widget _buildKonfirmasiProduksiList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: productionResultRef.snapshots(),
+      stream: productionResultRef
+          .orderBy('tanggal_konfirmasi', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

@@ -1,6 +1,8 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_mesin_production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
@@ -194,10 +196,62 @@ class ProductionOrderBloc
               Notify.instantNotify("Perintah Produksi Baru",
                   'Production Order $nextProductionOrderId baru ditambahkan');
 
-              EmailNotificationService.sendNotification(
-                  'Perintah Produksi Baru',
-                  'Perintah Produksi $nextProductionOrderId baru ditambahkan',
-                  'Produksi');
+              // EmailNotificationService.sendNotification(
+              //     'Perintah Produksi Baru',
+              //     'Perintah Produksi $nextProductionOrderId baru ditambahkan',
+              //     'Produksi');
+
+              // EmailNotificationService.sendNotification(
+              //   'Perintah Produksi Baru',
+              //   _createEmailMessage(
+              //     nextProductionOrderId,
+              //     bomId,
+              //     jumlahProduksiEst,
+              //     jumlahTenagaKerjaEst,
+              //     lamaWaktuEst,
+              //     productId,
+              //     statusPro,
+              //     tanggalProduksi,
+              //     tanggalRencana,
+              //     tanggalSelesai,
+              //     materials!,
+              //     machines!,
+              //   ),
+              //   'Produksi',
+              // );
+
+              try {
+                final HttpsCallable callable =
+                    FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                        .httpsCallable('sendEmailNotif');
+                final HttpsCallableResult<dynamic> result =
+                    await callable.call(<String, dynamic>{
+                  'dest': 'clarissagracia.cg@gmail.com',
+                  'subject': 'Login Baru',
+                  'html': _createEmailMessage(
+                    nextProductionOrderId,
+                    bomId,
+                    jumlahProduksiEst,
+                    jumlahTenagaKerjaEst,
+                    lamaWaktuEst,
+                    productId,
+                    statusPro,
+                    tanggalProduksi,
+                    tanggalRencana,
+                    tanggalSelesai,
+                    materials!,
+                    machines!,
+                  ),
+                });
+
+                if (result.data['success'] == true) {
+                  print("Email Sent");
+                } else {
+                  print(result.data['message']);
+                }
+              } catch (e) {
+                print(e.toString());
+              }
 
               yield SuccessState();
             } else {
@@ -391,5 +445,52 @@ class ProductionOrderBloc
       }
       productionCount++;
     }
+  }
+
+  String _createEmailMessage(
+    String nextProductionOrderId,
+    String bomId,
+    int jumlahProduksiEst,
+    int jumlahTenagaKerjaEst,
+    int lamaWaktuEst,
+    String productId,
+    String statusPro,
+    DateTime tanggalProduksi,
+    DateTime tanggalRencana,
+    DateTime tanggalSelesai,
+    List<DetailProductionOrder> materials,
+    List<MachineDetail> machines,
+  ) {
+    final StringBuffer message = StringBuffer();
+
+    message
+        .writeln('Perintah Produksi $nextProductionOrderId baru ditambahkan');
+    message.writeln('Detail Produksi:');
+    message.writeln('BOM ID: $bomId');
+    message.writeln('Jumlah Produksi Estimasi: $jumlahProduksiEst');
+    message.writeln('Jumlah Tenaga Kerja Estimasi: $jumlahTenagaKerjaEst');
+    message.writeln('Lama Waktu Estimasi: $lamaWaktuEst');
+    message.writeln('Product ID: $productId');
+    message.writeln('Status Produksi: $statusPro');
+    message.writeln('Tanggal Produksi: $tanggalProduksi');
+    message.writeln('Tanggal Rencana: $tanggalRencana');
+    message.writeln('Tanggal Selesai: $tanggalSelesai');
+
+    message.writeln('Materials:');
+    for (final material in materials) {
+      message.writeln('- Material ID: ${material.materialId}');
+      message.writeln('  Jumlah BOM: ${material.jumlahBOM}');
+      message.writeln('  Batch: ${material.batch}');
+      message.writeln('  Satuan: ${material.satuan}');
+    }
+
+    message.writeln('Machines:');
+    for (final machine in machines) {
+      message.writeln('- Machine ID: ${machine.machineId}');
+      message.writeln('  Batch: ${machine.batch}');
+      message.writeln('  Status: ${machine.status}');
+    }
+
+    return message.toString();
   }
 }

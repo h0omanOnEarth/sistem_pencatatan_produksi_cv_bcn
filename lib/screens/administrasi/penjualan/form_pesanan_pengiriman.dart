@@ -330,7 +330,7 @@ class _FormPesananPengirimanScreenState
         final productCardData = ProductCardDataCustomerOrder(
           kodeProduk: detailData['product_id'] as String,
           namaProduk: product[
-              'nama'], // Anda dapat mengisi nama produk berdasarkan productData
+              'id'], // Anda dapat mengisi nama produk berdasarkan productData
           jumlah: detailData['jumlah'].toString(),
           satuan: detailData['satuan'] as String,
           hargaSatuan: detailData['harga_satuan'].toString(),

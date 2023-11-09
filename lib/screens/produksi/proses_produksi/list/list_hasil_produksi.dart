@@ -245,7 +245,9 @@ class _ListHasilProduksiState extends State<ListHasilProduksi> {
 
   Widget _buildProductionResultList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: productionResultRef.snapshots(),
+      stream: productionResultRef
+          .orderBy('tanggal_pencatatan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

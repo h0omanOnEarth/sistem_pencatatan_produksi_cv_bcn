@@ -22,7 +22,7 @@ void main() async {
   configureApp();
   runApp(const MyApp());
   AwesomeNotifications().initialize(
-    null,
+    'assets/images/logo2.jpg',
     [
       NotificationChannel(
           channelGroupKey: 'reminders',

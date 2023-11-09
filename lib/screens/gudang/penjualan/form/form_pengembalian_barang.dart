@@ -487,6 +487,7 @@ class _FormPengembalianBarangScreenState
                           height: 16.0,
                         ),
                         ListView.builder(
+                          physics: const BouncingScrollPhysics(),
                           shrinkWrap: true,
                           itemCount: detailPesananWidgets.length,
                           itemBuilder: (context, index) {

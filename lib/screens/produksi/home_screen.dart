@@ -236,30 +236,24 @@ class CardList extends StatelessWidget {
                     (data['products'] as List).cast<Map<String, dynamic>>();
 
                 final productionOrdersInProcess = productionOrders
-                    .where((order) => order['status_pro'] == 'Dalam Proses')
+                    .where((order) => order['status'] == 1)
                     .toList();
 
                 return ListView.builder(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   itemCount: productionOrdersInProcess.length,
                   itemBuilder: (context, index) {
                     final productionOrder = productionOrdersInProcess[index];
                     final productionOrderId = productionOrder['id'];
 
-                    final materialUsage = materialUsages.firstWhere(
-                      (usage) =>
-                          usage['production_order_id'] == productionOrderId,
-                      orElse: () => {},
-                    );
-
                     final productionOrderBatch =
-                        materialUsage['batch'] ?? 'Pencampuran';
+                        findBatch(materialUsages, productionOrderId);
 
                     final progressBarValue = calculateProgressBarValue(
-                        materialUsages,
-                        productionOrderId,
-                        productionOrderBatch);
+                      materialUsages,
+                      productionOrderId,
+                    );
 
                     // Hitung persentase progress
                     final percentage = (progressBarValue * 100).toInt();
@@ -341,8 +335,8 @@ class CardList extends StatelessWidget {
     );
   }
 
-  double calculateProgressBarValue(List<Map<String, dynamic>> materialUsages,
-      String productionOrderId, String productionOrderBatch) {
+  double calculateProgressBarValue(
+      List<Map<String, dynamic>> materialUsages, String productionOrderId) {
     if (materialUsages.any((usage) =>
         usage['production_order_id'] == productionOrderId &&
         usage['batch'] == 'Pencetakan')) {
@@ -353,6 +347,21 @@ class CardList extends StatelessWidget {
       return 0.6; // Jika batch 'Sheet' ada, progress bar 50%
     } else {
       return 0.3; // Jika keduanya tidak ada, progress bar 0%
+    }
+  }
+
+  String findBatch(
+      List<Map<String, dynamic>> materialUsages, String productionOrderId) {
+    if (materialUsages.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Pencetakan')) {
+      return 'Pencetakan'; // Jika batch 'Pencetakan' ada, progress bar 90%
+    } else if (materialUsages.any((usage) =>
+        usage['production_order_id'] == productionOrderId &&
+        usage['batch'] == 'Sheet')) {
+      return 'Sheet'; // Jika batch 'Sheet' ada, progress bar 50%
+    } else {
+      return 'Pencampuran'; // Jika keduanya tidak ada, progress bar 0%
     }
   }
 }

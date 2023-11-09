@@ -245,7 +245,9 @@ class _ListItemReceiveState extends State<ListItemReceive> {
 
   Widget _buildItemReceiveList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: custReturnReqRef.snapshots(),
+      stream: custReturnReqRef
+          .orderBy('tanggal_penerimaan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

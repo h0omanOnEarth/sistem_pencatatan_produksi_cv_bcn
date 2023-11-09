@@ -33,10 +33,12 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
   DateTime? _selectedDate;
   String? selectedNomorPermintaan;
   bool isLoading = false;
+  String? mode;
 
   TextEditingController catatanController = TextEditingController();
   TextEditingController statusController = TextEditingController();
   TextEditingController tanggalPermintaanController = TextEditingController();
+  TextEditingController productionOrderController = TextEditingController();
   List<Map<String, dynamic>> materialDetailsData = []; // Initialize the list
   List<Widget> customCards = [];
 
@@ -83,6 +85,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
 
           final formattedDate = '$month $day, $year';
           tanggalPermintaanController.text = formattedDate;
+          productionOrderController.text = materialData['production_order_id'];
         }
       } else {
         print('Document does not exist on Firestore');
@@ -95,6 +98,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
   @override
   void initState() {
     super.initState();
+    mode = "add";
     statusController.text = "Dalam Proses";
     if (widget.materialTransferId != null) {
       firestore
@@ -117,13 +121,14 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
         } else {
           print('Document does not exist on Firestore');
         }
-        fetchMaterialTransfer();
       }).catchError((error) {
         print('Error getting document: $error');
       });
     }
 
     if (widget.materialRequestId != null) {
+      mode = "edit";
+      fetchMaterialTransfer();
       initializeMaterial();
     }
   }
@@ -200,6 +205,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
   }
 
   void addOrUpdate() {
+    mode = "edit";
     final materialTransferBloc = BlocProvider.of<MaterialTransferBloc>(context);
     final materialTransfer = MaterialTransfer(
         id: '',
@@ -335,17 +341,19 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
                           height: 16.0,
                         ),
                         MaterialRequestDropdown(
-                          selectedMaterialRequest: selectedNomorPermintaan,
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedNomorPermintaan = newValue ?? '';
-                              fetchMaterialTransfer();
-                            });
-                          },
-                          tanggalPermintaanController:
-                              tanggalPermintaanController,
-                          isEnabled: widget.materialTransferId == null,
-                        ),
+                            selectedMaterialRequest: selectedNomorPermintaan,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedNomorPermintaan = newValue ?? '';
+                                fetchMaterialTransfer();
+                              });
+                            },
+                            nomorPerintahProduksiController:
+                                productionOrderController,
+                            tanggalPermintaanController:
+                                tanggalPermintaanController,
+                            isEnabled: widget.materialTransferId == null,
+                            mode: mode),
                         const SizedBox(
                           height: 16.0,
                         ),
@@ -353,6 +361,15 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
                           label: 'Tanggal Permintaan',
                           placeholder: 'Tanggal Permintaan',
                           controller: tanggalPermintaanController,
+                          isEnabled: false,
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFieldWidget(
+                          label: 'Nomor Perintah Produksi',
+                          placeholder: 'Nomor Perintah Produksi',
+                          controller: productionOrderController,
                           isEnabled: false,
                         ),
                         const SizedBox(

@@ -272,7 +272,7 @@ class _FormMasterSupplierScreenState extends State<FormMasterSupplierScreen> {
                 DropdownWidget(
                   label: 'Jenis Supplier',
                   selectedValue: selectedJenis, // Isi dengan nilai yang sesuai
-                  items: const ['Bahan Baku', 'Bahan Tambahan'],
+                  items: const ['Bahan Baku', 'Bahan Tambahan', 'Mesin'],
                   onChanged: (newValue) {
                     setState(() {
                       selectedJenis =

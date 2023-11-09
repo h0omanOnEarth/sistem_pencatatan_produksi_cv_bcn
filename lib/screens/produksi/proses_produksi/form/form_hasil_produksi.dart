@@ -281,6 +281,7 @@ class _FormHasilProduksiScreenState extends State<FormHasilProduksiScreen> {
                               nomorPerintahProduksiController,
                           namaBatchController: namaBatchController,
                           isEnabled: widget.productionResultId == null,
+                          feature: "result",
                         ),
                         const SizedBox(height: 16.0),
                         Row(

@@ -11,6 +11,7 @@ const {
 exports.materialUsageValidation = async (req) => {
   const { materials, materialRequestId, productionOrderId, batch, mode } =
     req.data;
+  let totalMaterial = 0;
 
   // Pemeriksaan apakah productionOrderId sama dengan production_order_id di koleksi material_requests
   const materialRequestSnapshot = await admin
@@ -151,6 +152,7 @@ exports.materialUsageValidation = async (req) => {
     const quantityInDetailMaterialRequests = materialIdQuantities[materialId];
     const unitInMaterials = material.satuan;
     const unitInDetailMaterialRequests = materialIdUnits[materialId];
+    totalMaterial = totalMaterial + material.jumlah;
 
     if (quantityInMaterials > quantityInDetailMaterialRequests) {
       return {
@@ -164,6 +166,40 @@ exports.materialUsageValidation = async (req) => {
         success: false,
         message: `Satuan ${materialId} tidak sesuai dengan yang ada dalam detail_material_requests, seharusnya ${unitInDetailMaterialRequests}`,
       };
+    }
+  }
+
+  if (mode == "add" && batch == "Pencampuran") {
+    const materialRef = admin
+      .firestore()
+      .collection("materials")
+      .where("id", "==", "material011");
+    const materialQuery = await materialRef.get();
+    if (!materialQuery.empty) {
+      const materialDoc = materialQuery.docs[0];
+      const materialData = materialDoc.data();
+      const stokSaatIni = materialData.stok || 0;
+
+      const stokBaru = stokSaatIni + totalMaterial;
+      // Update stok di dokumen 'materials'
+      await materialDoc.ref.update({ stok: stokBaru });
+    }
+  }
+
+  if (mode == "add" && batch == "Sheet") {
+    const materialRef = admin
+      .firestore()
+      .collection("materials")
+      .where("id", "==", "material012");
+    const materialQuery = await materialRef.get();
+    if (!materialQuery.empty) {
+      const materialDoc = materialQuery.docs[0];
+      const materialData = materialDoc.data();
+      const stokSaatIni = materialData.stok || 0;
+
+      const stokBaru = stokSaatIni + 1;
+      // Update stok di dokumen 'materials'
+      await materialDoc.ref.update({ stok: stokBaru });
     }
   }
 

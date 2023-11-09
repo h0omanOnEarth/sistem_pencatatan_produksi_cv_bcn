@@ -413,6 +413,7 @@ class CardList extends StatelessWidget {
         } else {
           final data = snapshot.data as List<Map>;
           return ListView.builder(
+            physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.vertical,
             itemCount: data.length,
             itemBuilder: (context, index) {

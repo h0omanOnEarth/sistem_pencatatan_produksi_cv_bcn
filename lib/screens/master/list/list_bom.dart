@@ -157,7 +157,8 @@ class _ListBOMScreenState extends State<ListBOMScreen> {
 
   Widget _buildBomList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: productRef.orderBy('id').snapshots(),
+      stream:
+          productRef.orderBy('tanggal_pembuatan', descending: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

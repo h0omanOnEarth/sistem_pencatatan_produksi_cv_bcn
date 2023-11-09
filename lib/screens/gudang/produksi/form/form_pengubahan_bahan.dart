@@ -90,7 +90,7 @@ class _FormPengubahanBahanState extends State<FormPengubahanBahan> {
     Map<String, dynamic> machineInfo =
         await machineService.fetchMachineInfo(widget.machineId ?? '');
     setState(() {
-      namaMesinController.text = machineInfo['nama'] ?? '';
+      namaMesinController.text = machineInfo['id'] ?? '';
     });
   }
 
@@ -259,8 +259,8 @@ class _FormPengubahanBahanState extends State<FormPengubahanBahan> {
                             const SizedBox(width: 16.0),
                             Expanded(
                               child: TextFieldWidget(
-                                label: 'Nama Mesin',
-                                placeholder: 'Nama Mesin',
+                                label: 'Kode Mesin',
+                                placeholder: 'Kode Mesin',
                                 isEnabled: false,
                                 controller: namaMesinController,
                               ),

@@ -1,39 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MaterialRequestDropdown extends StatelessWidget {
+class MaterialRequestDropdown extends StatefulWidget {
   final String? selectedMaterialRequest;
   final Function(String?) onChanged;
   final TextEditingController? tanggalPermintaanController;
+  final TextEditingController? nomorPerintahProduksiController;
   final bool isEnabled;
+  final String? mode;
+  final String? feature;
 
-  const MaterialRequestDropdown({
-    Key? key,
-    required this.selectedMaterialRequest,
-    required this.onChanged,
-    this.tanggalPermintaanController,
-    this.isEnabled = true,
-  }) : super(key: key);
+  const MaterialRequestDropdown(
+      {Key? key,
+      required this.selectedMaterialRequest,
+      required this.onChanged,
+      this.tanggalPermintaanController,
+      this.nomorPerintahProduksiController,
+      this.isEnabled = true,
+      this.mode,
+      this.feature})
+      : super(key: key);
 
+  @override
+  State<MaterialRequestDropdown> createState() =>
+      _MaterialRequestDropdownState();
+}
+
+class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('material_requests')
-          .where(
-            'status',
-            isEqualTo:
-                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
-          )
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        if (widget.feature == null) {
+          //material transfer
+          // Filter dan urutkan data secara lokal
+          documents = documents.where((document) {
+            if (widget.mode == "add") {
+              // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+              return document['status'] == 1 &&
+                  document['status_mr'] == "Dalam Proses";
+            } else {
+              // Jika isEnabled false, tampilkan semua data
+              return true;
+            }
+          }).toList();
+        } else {
+          //material usage
+          documents = documents.where((document) {
+            if (widget.isEnabled == true) {
+              // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+              return document['status'] == 1 &&
+                  document['status_mr'] == "Selesai";
+            } else {
+              // Jika isEnabled false, tampilkan semua data
+              return true;
+            }
+          }).toList();
+        }
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_permintaan'].toDate();
+          DateTime dateB = b['tanggal_permintaan'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> materialRequestItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String materialRequestId = document['id'];
           materialRequestItems.add(
             DropdownMenuItem<String>(
@@ -63,12 +105,12 @@ class MaterialRequestDropdown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedMaterialRequest,
+                value: widget.selectedMaterialRequest,
                 items: materialRequestItems,
-                onChanged: isEnabled
+                onChanged: widget.isEnabled
                     ? (newValue) {
-                        onChanged(newValue);
-                        if (tanggalPermintaanController != null) {
+                        widget.onChanged(newValue);
+                        if (widget.tanggalPermintaanController != null) {
                           final selectedDoc = snapshot.data!.docs
                               .firstWhere((doc) => doc['id'] == newValue);
                           var tanggalPermintaanFirestore =
@@ -102,7 +144,13 @@ class MaterialRequestDropdown extends StatelessWidget {
                             tanggalPermintaan = '$day $month $year';
                           }
 
-                          tanggalPermintaanController!.text = tanggalPermintaan;
+                          widget.tanggalPermintaanController!.text =
+                              tanggalPermintaan;
+
+                          if (widget.nomorPerintahProduksiController != null) {
+                            widget.nomorPerintahProduksiController!.text =
+                                selectedDoc['production_order_id'];
+                          }
                         }
                       }
                     : null,

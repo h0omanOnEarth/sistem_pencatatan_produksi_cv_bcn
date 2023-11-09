@@ -72,13 +72,17 @@ class _FormPencatatanDirectLaborScreenState
 
   void updateBiayaTenagaKerja() {
     // Ambil nilai dari controller yang relevan
-    int jumlahJam = int.tryParse(jumlahJamTenagaKerjaController.text) ?? 0;
-    int upahPerJam = int.tryParse(upahTenagaKerjaPerJamController.text) ?? 0;
-    int jumlahTenagaKerja = int.tryParse(jumlahTenagaKerjaController.text) ?? 0;
+    double jumlahJam =
+        double.tryParse(jumlahJamTenagaKerjaController.text) ?? 0.0;
+    double upahPerJam =
+        double.tryParse(upahTenagaKerjaPerJamController.text) ?? 0.0;
+    double jumlahTenagaKerja =
+        double.tryParse(jumlahTenagaKerjaController.text) ?? 0.0;
 
     // Hitung biaya tenaga kerja
-    int biayaTenagaKerjaDouble = jumlahJam * upahPerJam * jumlahTenagaKerja;
-    int biayaTenagaKerja = biayaTenagaKerjaDouble.round(); // Ubah menjadi int
+    double biayaTenagaKerjaDouble = jumlahJam * upahPerJam * jumlahTenagaKerja;
+    double biayaTenagaKerja =
+        biayaTenagaKerjaDouble.round() as double; // Ubah menjadi int
 
     // Format biaya tenaga kerja menjadi format mata uang Rupiah
     biayaTenagaKerjaController.text = NumberFormat.currency(
@@ -91,14 +95,14 @@ class _FormPencatatanDirectLaborScreenState
   }
 
   void updateTotalBiaya() {
-    int biayaTenagaKerja = int.tryParse(biayaTenagaKerjaController.text
+    double biayaTenagaKerja = double.tryParse(biayaTenagaKerjaController.text
             .replaceAll(RegExp(r'[^0-9]'), '')) ??
         0;
-    int biayaOverhead = int.tryParse(
+    double biayaOverhead = double.tryParse(
             biayaOverheadController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
         0;
 
-    int totalBiaya = biayaTenagaKerja + biayaOverhead;
+    double totalBiaya = biayaTenagaKerja + biayaOverhead;
     totalBiayaController.text = NumberFormat.currency(
       locale: 'id_ID', // Atur locale ke ID untuk format Rupiah
       symbol: 'Rp',
@@ -322,6 +326,7 @@ class _FormPencatatanDirectLaborScreenState
                           namaBatchController: namaBatchController,
                           nomorPerintahProduksiController:
                               nomorPerintahProduksiController,
+                          feature: "usage",
                         ),
                         const SizedBox(height: 16.0),
                         Row(

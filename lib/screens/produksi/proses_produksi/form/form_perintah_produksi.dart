@@ -606,33 +606,6 @@ class _FormPerintahProduksiScreenState
                           height: 16.0,
                         ),
                         const Text(
-                          'Instruksi Produksi',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 16.0,
-                        ),
-                        CustomCard(
-                          content: [
-                            CustomCardContent(
-                                text:
-                                    '1. Campur bahan recycle dan biji plastik PP.'),
-                            CustomCardContent(
-                                text: '2. Ekstruksi dan Bentuk PP Sheet.'),
-                            CustomCardContent(
-                                text:
-                                    '3. Cetak PP Sheet menjadi gelas plastik'),
-                            CustomCardContent(
-                                text: '4. Uji kualitas dan pengemasan'),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 16.0,
-                        ),
-                        const Text(
                           'Mesin',
                           style: TextStyle(
                             fontSize: 24,
@@ -652,7 +625,7 @@ class _FormPerintahProduksiScreenState
                                     selectedMesinMixer = newValue;
                                     mesinPencampuran.clear();
                                     mesinPencampuran = {
-                                      'batch': 'Pencampuran',
+                                      'batch': 'Pencampur',
                                       'machine_id': newValue,
                                     };
                                   });
@@ -796,6 +769,33 @@ class _FormPerintahProduksiScreenState
                               )
                             ],
                           ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        const Text(
+                          'Instruksi Produksi',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        CustomCard(
+                          content: [
+                            CustomCardContent(
+                                text:
+                                    '1. Campur bahan recycle dan biji plastik PP.'),
+                            CustomCardContent(
+                                text: '2. Ekstruksi dan Bentuk PP Sheet.'),
+                            CustomCardContent(
+                                text:
+                                    '3. Cetak PP Sheet menjadi gelas plastik'),
+                            CustomCardContent(
+                                text: '4. Uji kualitas dan pengemasan'),
+                          ],
+                        ),
                         const SizedBox(
                           height: 16.0,
                         ),

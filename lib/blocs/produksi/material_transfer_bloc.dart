@@ -57,8 +57,9 @@ class MaterialTransferBloc
   final HttpsCallable materialTransferCallable;
 
   MaterialTransferBloc()
-      : materialTransferCallable = FirebaseFunctions.instance
-            .httpsCallable('materialTransferValidation'),
+      : materialTransferCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('materialTransferValidation'),
         super(MaterialTransferLoadingState()) {
     _firestore = FirebaseFirestore.instance;
   }

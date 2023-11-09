@@ -193,7 +193,8 @@ class _ListDLOHCState extends State<ListDLOHC> {
 
   Widget _buildDlohList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: dlohcRef.snapshots(),
+      stream:
+          dlohcRef.orderBy('tanggal_pencatatan', descending: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

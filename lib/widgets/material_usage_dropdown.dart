@@ -7,15 +7,17 @@ class MaterialUsageDropdown extends StatefulWidget {
   final TextEditingController? namaBatchController;
   final TextEditingController? nomorPerintahProduksiController;
   final bool isEnabled;
+  final String? feature;
 
-  const MaterialUsageDropdown({
-    Key? key,
-    required this.selectedMaterialUsage,
-    required this.onChanged,
-    this.namaBatchController,
-    this.nomorPerintahProduksiController,
-    this.isEnabled = true,
-  }) : super(key: key);
+  const MaterialUsageDropdown(
+      {Key? key,
+      required this.selectedMaterialUsage,
+      required this.onChanged,
+      this.namaBatchController,
+      this.nomorPerintahProduksiController,
+      this.isEnabled = true,
+      this.feature})
+      : super(key: key);
 
   @override
   State<MaterialUsageDropdown> createState() => _MaterialUsageDropdownState();
@@ -23,27 +25,44 @@ class MaterialUsageDropdown extends StatefulWidget {
 
 class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   String? selectedBatch; // Menyimpan nilai batch terpilih
+  final firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('material_usages')
-          .where(
-            'status',
-            isEqualTo: widget.isEnabled
-                ? 1
-                : null, // Filter status hanya saat isEnabled true
-          )
-          .snapshots(),
+      stream: firestore.collection('material_usages').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
         }
 
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled && widget.feature != null) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1 &&
+                document['status_mu'] == "Selesai" &&
+                document['batch'] == "Pencetakan";
+          } else if (widget.isEnabled) {
+            return document['status'] == 1 &&
+                document['status_mu'] == "Selesai";
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        documents.sort((a, b) {
+          DateTime dateA = a['tanggal_penggunaan'].toDate();
+          DateTime dateB = b['tanggal_penggunaan'].toDate();
+          return dateB.compareTo(dateA);
+        });
+
         List<DropdownMenuItem<String>> materialUsageItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        for (QueryDocumentSnapshot document in documents) {
           String materialUsageId = document['id'];
           materialUsageItems.add(
             DropdownMenuItem<String>(

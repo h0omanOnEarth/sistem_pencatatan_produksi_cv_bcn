@@ -101,6 +101,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
               'upah_tenaga_kerja_perjam': upahTenagaKerjaPerjam,
               'subtotal': subtotal,
               'tanggal_pencatatan': tanggalPencatatan,
+              'status_doc': event.dloh.statusDoc
             };
 
             // Add the material request data to Firestore
@@ -158,6 +159,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
                 'upah_tenaga_kerja_perjam': upahTenagaKerjaPerjam,
                 'subtotal': subtotal,
                 'tanggal_pencatatan': tanggalPencatatan,
+                'status_doc': event.updatedDLOH.statusDoc
               });
               yield SuccessState();
             } else {

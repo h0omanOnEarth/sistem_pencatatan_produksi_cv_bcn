@@ -58,6 +58,19 @@ exports.materialRequestValidation = async (req) => {
       return { success: false, message: "Production order telah 'Selesai'" };
     }
 
+    // Periksa apakah sudah ada permintaan material dengan production_order_id yang sama dan status 1
+    const existingMaterialRequestRef = admin
+      .firestore()
+      .collection("material_requests")
+      .where("production_order_id", "==", productionOrderId)
+      .where("status", "==", 1);
+
+    const existingMaterialRequestDocs = await existingMaterialRequestRef.get();
+
+    if (!existingMaterialRequestDocs.empty) {
+      return { success: false, message: "Sudah Melakukan Permintaan Bahan" };
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Error validating material request:", error);
