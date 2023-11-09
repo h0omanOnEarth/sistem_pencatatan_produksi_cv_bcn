@@ -136,6 +136,13 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
 
                           final notifications = snapshot.data?.docs ?? [];
 
+                          // Sort notifications based on 'created_at' in descending order
+                          notifications.sort((a, b) {
+                            final aDate = a['created_at'] as Timestamp;
+                            final bDate = b['created_at'] as Timestamp;
+                            return bDate.compareTo(aDate);
+                          });
+
                           return Expanded(
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
