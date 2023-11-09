@@ -227,7 +227,7 @@ class ProductionOrderBloc
                 final HttpsCallableResult<dynamic> result =
                     await callable.call(<String, dynamic>{
                   'dest': 'clarissagracia.cg@gmail.com',
-                  'subject': 'Login Baru',
+                  'subject': 'Production Order Baru',
                   'html': _createEmailMessage(
                     nextProductionOrderId,
                     bomId,

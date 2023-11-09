@@ -146,7 +146,7 @@ exports.productionResValidate = async (req) => {
     }
 
     // Jika semua pemeriksaan berhasil, ubah status produksi menjadi 'Selesai'
-    await productionOrderRef.update({ status: "Selesai" });
+    await productionOrderRef.update({ status_pro: "Selesai" });
 
     return {
       success: true,
