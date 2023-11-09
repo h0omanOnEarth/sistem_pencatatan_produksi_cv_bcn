@@ -187,32 +187,31 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
   void fetchDataDetail() async {
     firestore
         .collection('bill_of_materials')
-        .doc(widget.bomId!) // Menggunakan widget.bomId
+        .doc(widget.bomId!)
         .collection('detail_bill_of_materials')
         .get()
-        .then((querySnapshot) {
-      List<ProductCardDataBahan> newProductCards = <ProductCardDataBahan>[];
-      querySnapshot.docs.forEach((doc) async {
+        .then((querySnapshot) async {
+      List<ProductCardDataBahan> newProductCards = [];
+
+      await Future.wait(querySnapshot.docs.map((doc) async {
         final detailData = doc.data();
 
-        final bahanId = detailData['material_id'] as String;
-        // Mencari nama produk berdasarkan productId
+        final bahanId = detailData['material_id'];
         final material = productDataBahan.firstWhere(
           (material) => material['id'] == bahanId,
-          orElse: () => {
-            'nama': 'Produk Tidak Ditemukan'
-          }, // Default jika tidak ditemukan
+          orElse: () => {'nama': 'Produk Tidak Ditemukan'},
         );
 
         final productCardData = ProductCardDataBahan(
-            kodeBahan: detailData['material_id'] as String,
-            namaBahan: material['id'] as String,
-            namaBatch: detailData['batch'] as String,
-            jumlah: detailData['jumlah'].toString(),
-            satuan: detailData['satuan'] as String);
+          kodeBahan: detailData['material_id'] as String,
+          namaBahan: material['id'] as String,
+          namaBatch: detailData['batch'] as String,
+          jumlah: detailData['jumlah'].toString(),
+          satuan: detailData['satuan'] as String,
+        );
 
         newProductCards.add(productCardData);
-      });
+      }));
 
       setState(() {
         productCards = newProductCards;
@@ -290,18 +289,12 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
       }).catchError((error) {
         print('Error getting document: $error');
       });
-
-      try {
-        fetchDataDetail(); // Ambil data detail_customer_orders
-      } catch (error) {
-        print('Error while fetching data detail: $error');
-        // Handle error as needed, e.g., show an error message to the user.
-      }
     }
 
     if (widget.productId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         initializeProduct();
+        fetchDataDetail();
       });
     }
 
