@@ -384,7 +384,7 @@ class _FormPengembalianBahanScreenState
                             });
                           },
                           namaBatchController: namaBatchController,
-                          isEnabled: widget.materialUsageId == null,
+                          isEnabled: widget.materialReturnId == null,
                         ),
                         const SizedBox(
                           height: 16.0,

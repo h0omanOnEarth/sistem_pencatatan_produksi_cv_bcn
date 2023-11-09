@@ -326,6 +326,7 @@ class _FormPencatatanDirectLaborScreenState
                           namaBatchController: namaBatchController,
                           nomorPerintahProduksiController:
                               nomorPerintahProduksiController,
+                          isEnabled: widget.materialUsageId == null,
                           feature: "usage",
                         ),
                         const SizedBox(height: 16.0),
