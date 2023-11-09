@@ -80,6 +80,7 @@ class _MainAdministrasiState extends State<MainAdministrasi> {
             ),
             bottomNavigationBar: BottomNavigationAdministrasi(
               onItemTapped: _onItemTapped,
+              selectedIndex: _selectedIndex,
             ),
           );
         }

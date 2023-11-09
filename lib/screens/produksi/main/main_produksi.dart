@@ -79,6 +79,7 @@ class _MainProduksiState extends State<MainProduksi> {
             ),
             bottomNavigationBar: BottomNavigationProduksi(
               onItemTapped: _onItemTapped,
+              selectedIndex: _selectedIndex,
             ),
           );
         }

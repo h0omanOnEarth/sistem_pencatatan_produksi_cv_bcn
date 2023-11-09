@@ -79,6 +79,7 @@ class _MainGudangState extends State<MainGudang> {
             ),
             bottomNavigationBar: BottomNavigationGudang(
               onItemTapped: _onItemTapped,
+              selectedIndex: _selectedIndex,
             ),
           );
         }

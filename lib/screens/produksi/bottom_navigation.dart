@@ -8,10 +8,14 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 class BottomNavigationProduksi extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
+  final int selectedIndex;
   static dynamic menu = const HomeScreenProduksi();
 
-  const BottomNavigationProduksi({this.key, required this.onItemTapped})
-      : super(key: key);
+  const BottomNavigationProduksi({
+    this.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  }) : super(key: key);
 
   @override
   _BottomNavigationProduksiState createState() =>
@@ -35,6 +39,12 @@ class BottomNavigationProduksi extends StatefulWidget {
 
 class _BottomNavigationProduksiState extends State<BottomNavigationProduksi> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+  }
 
   void _onItemTapped(int index) {
     setState(() {

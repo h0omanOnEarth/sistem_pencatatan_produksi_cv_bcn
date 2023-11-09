@@ -11,9 +11,13 @@ class BottomNavigationGudang extends StatefulWidget {
   final Key? key; // Named 'key' parameter
   final Function(int) onItemTapped;
   static dynamic menu = const HomeScreenGudang();
+  final int selectedIndex;
 
-  BottomNavigationGudang({this.key, required this.onItemTapped})
-      : super(key: key);
+  BottomNavigationGudang({
+    this.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  }) : super(key: key);
 
   @override
   _BottomNavigationGudangState createState() => _BottomNavigationGudangState();
@@ -40,6 +44,12 @@ class BottomNavigationGudang extends StatefulWidget {
 
 class _BottomNavigationGudangState extends State<BottomNavigationGudang> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+  }
 
   void _onItemTapped(int index) {
     setState(() {
