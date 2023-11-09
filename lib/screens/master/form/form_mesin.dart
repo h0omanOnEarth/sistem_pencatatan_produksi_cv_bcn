@@ -270,7 +270,7 @@ class _FormMasterMesinScreenState extends State<FormMasterMesinScreen> {
     return DropdownWidget(
       label: 'Tipe',
       selectedValue: selectedTipe,
-      items: const ['Penggiling', 'Pencampur', 'Pencetak', 'Sheet'],
+      items: const ['Penggiling', 'Pencampuran', 'Pencetak', 'Sheet'],
       onChanged: (newValue) {
         setState(() {
           selectedTipe = newValue;
