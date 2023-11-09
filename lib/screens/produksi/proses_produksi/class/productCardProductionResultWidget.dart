@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/class/productCardProductionResult.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productionOrderService.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/dropdown_produk_detail.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/drop_down_produk_konfirmasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/text_field_widget.dart';
 
 class ProductCardProductionResultWidget extends StatefulWidget {
@@ -40,7 +40,7 @@ class _ProductCardProductionResultWidgetState
   Widget build(BuildContext context) {
     return Column(
       children: [
-        DropdownProdukDetailWidget(
+        DropdownProdukDetailWidgetKonfirmasi(
           label: 'Hasil Produksi',
           selectedValue: widget.productCardData.nomorHasilProduksi,
           onChanged: (newValue) async {

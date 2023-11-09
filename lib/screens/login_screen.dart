@@ -274,7 +274,7 @@ class LoginForm extends StatelessWidget {
                           //       "Terjadi kesalahan saat mengirim notifikasi: $error");
                           // });
 
-                          Routemaster.of(context).push(MainProduksi.routeName);
+                          Routemaster.of(context).push(MainGudang.routeName);
 
                           // try {
                           //   final HttpsCallable callable =

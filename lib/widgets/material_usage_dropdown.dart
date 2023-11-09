@@ -27,6 +27,7 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   String? selectedBatch; // Menyimpan nilai batch terpilih
   final firestore = FirebaseFirestore.instance;
   List<String> materialUsageIds = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -36,6 +37,10 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
   }
 
   void fetchMaterialUsageWithStatusPro() async {
+    setState(() {
+      isLoading = true;
+    });
+
     QuerySnapshot materialUsageSnapshot = await firestore
         .collection('material_usages')
         .where('status', isEqualTo: 1)
@@ -66,7 +71,9 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
 
     materialUsageIds = inProgressMaterialUsageIds;
 
-    setState(() {}); // Update the view after data is fetched and sorted
+    setState(() {
+      isLoading = false;
+    }); // Update the view after data is fetched and sorted
   }
 
   // Periksa status produksi dalam production_orders
@@ -98,61 +105,67 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
             borderRadius: BorderRadius.circular(10.0),
             border: Border.all(color: Colors.grey[400]!),
           ),
-          child: DropdownButtonFormField<String>(
-            value: widget.selectedMaterialUsage,
-            items: materialUsageIds
-                .map(
-                  (materialUsageId) => DropdownMenuItem<String>(
-                    value: materialUsageId,
-                    child: Text(
-                      materialUsageId,
-                      style: const TextStyle(color: Colors.black),
+          child: isLoading
+              ? Center(
+                  child: CircularProgressIndicator(), // Indikator loading
+                )
+              : DropdownButtonFormField<String>(
+                  value: widget.selectedMaterialUsage,
+                  items: materialUsageIds
+                      .map(
+                        (materialUsageId) => DropdownMenuItem<String>(
+                          value: materialUsageId,
+                          child: Text(
+                            materialUsageId,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: widget.isEnabled
+                      ? (newValue) async {
+                          widget.onChanged(newValue);
+
+                          final batchData = await FirebaseFirestore.instance
+                              .collection('material_usages')
+                              .doc(newValue)
+                              .get();
+
+                          if (batchData.exists) {
+                            final batchValue = batchData['batch'] as String?;
+                            if (widget.namaBatchController != null) {
+                              widget.namaBatchController!.text =
+                                  batchValue ?? '';
+                            }
+                            selectedBatch = batchValue;
+
+                            if (widget.nomorPerintahProduksiController !=
+                                null) {
+                              widget.nomorPerintahProduksiController!.text =
+                                  batchData['production_order_id'];
+                            }
+                          } else {
+                            if (widget.namaBatchController != null) {
+                              widget.namaBatchController!.text = '';
+                            }
+                            selectedBatch = null;
+                          }
+                        }
+                      : null, // Menonaktifkan dropdown jika isEnabled false
+                  isExpanded: true,
+                  autovalidateMode: widget.isEnabled
+                      ? AutovalidateMode.onUserInteraction
+                      : AutovalidateMode
+                          .disabled, // Mengatur validasi sesuai isEnabled
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 16.0,
                     ),
                   ),
-                )
-                .toList(),
-            onChanged: widget.isEnabled
-                ? (newValue) async {
-                    widget.onChanged(newValue);
-
-                    final batchData = await FirebaseFirestore.instance
-                        .collection('material_usages')
-                        .doc(newValue)
-                        .get();
-
-                    if (batchData.exists) {
-                      final batchValue = batchData['batch'] as String?;
-                      if (widget.namaBatchController != null) {
-                        widget.namaBatchController!.text = batchValue ?? '';
-                      }
-                      selectedBatch = batchValue;
-
-                      if (widget.nomorPerintahProduksiController != null) {
-                        widget.nomorPerintahProduksiController!.text =
-                            batchData['production_order_id'];
-                      }
-                    } else {
-                      if (widget.namaBatchController != null) {
-                        widget.namaBatchController!.text = '';
-                      }
-                      selectedBatch = null;
-                    }
-                  }
-                : null, // Menonaktifkan dropdown jika isEnabled false
-            isExpanded: true,
-            autovalidateMode: widget.isEnabled
-                ? AutovalidateMode.onUserInteraction
-                : AutovalidateMode
-                    .disabled, // Mengatur validasi sesuai isEnabled
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                vertical: 8.0,
-                horizontal: 16.0,
-              ),
-            ),
-            style: const TextStyle(color: Colors.black),
-          ),
+                  style: const TextStyle(color: Colors.black),
+                ),
         ),
       ],
     );

@@ -80,17 +80,27 @@ class _FormKonfirmasiProduksiScreenState
     }
 
     collection.get().then((querySnapshot) {
+      List<Map<String, dynamic>> tempProductDataPR = [];
+
       for (var doc in querySnapshot.docs) {
         Map<String, dynamic> pResult = {
           'id': doc['id'],
           'satuan': doc['satuan'] as String,
           'jumlahHasil': doc['jumlah_produk_berhasil'] as int,
-          'materialUsageId': doc['material_usage_id'] as String
+          'materialUsageId': doc['material_usage_id'] as String,
+          'tanggalPencatatan': doc['tanggal_pencatatan'] as Timestamp,
         };
-        setState(() {
-          productDataPR.add(pResult);
-        });
+        tempProductDataPR.add(pResult);
       }
+
+      // Sort data berdasarkan tanggal_pencatatan dalam urutan descending
+      tempProductDataPR.sort((a, b) => b['tanggalPencatatan']
+          .toDate()
+          .compareTo(a['tanggalPencatatan'].toDate()));
+
+      setState(() {
+        productDataPR = tempProductDataPR;
+      });
     });
   }
 
