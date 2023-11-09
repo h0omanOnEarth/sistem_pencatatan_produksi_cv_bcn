@@ -16,13 +16,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseFunctions.instanceFor(region: "asia-southeast2")
-      .useFunctionsEmulator('localhost', 5001); // If you're using the emulator
+  // FirebaseFunctions.instanceFor(region: "asia-southeast2")
+  //     .useFunctionsEmulator('localhost', 5001); // If you're using the emulator
 
   configureApp();
   runApp(const MyApp());
   AwesomeNotifications().initialize(
-    'assets/images/logo2.jpg',
+    null,
     [
       NotificationChannel(
           channelGroupKey: 'reminders',

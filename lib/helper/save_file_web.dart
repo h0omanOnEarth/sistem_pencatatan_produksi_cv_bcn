@@ -75,7 +75,7 @@ class FileSaveHelper {
       Uint8List uint8list, String fileName) async {
     try {
       // final fileStorage = FileStorage();
-      await FileStorage.writeCounter(uint8list, "test.xlsx");
+      await FileStorage.writeCounter(uint8list, fileName);
       // final tempDir = Directory.systemTemp;
       // print(tempDir.path);
       // final directory = await getApplicationDocumentsDirectory();
@@ -84,14 +84,23 @@ class FileSaveHelper {
       // final file = File(filePath);
       // await file.writeAsBytes(uint8list, flush: true);
 
-      final result =
-          await OpenFile.open('/storage/emulated/0/Download/$fileName');
-      print(result.message);
-      print(result.type);
-      if (result.type == ResultType.done) {
-        print("File opened with success");
-      } else {
-        print("Failed to open the file");
+      try {
+        // Dapatkan direktori dokumen
+        final documentsDirectory = await getApplicationDocumentsDirectory();
+
+        // Spesifikasikan path file di direktori dokumen
+        final filePath = '${documentsDirectory.path}/$fileName';
+
+        final result = await OpenFile.open(filePath);
+        print(result.message);
+        print(result.type);
+        if (result.type == ResultType.done) {
+          print("File opened with success");
+        } else {
+          print("Failed to open the file");
+        }
+      } catch (e) {
+        print('Error opening file: $e');
       }
     } catch (e) {
       print('Error opening file: $e');

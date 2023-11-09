@@ -50,6 +50,12 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double fontSize = 24.0; // Ukuran font default
+
+    // Periksa lebar layar
+    if (MediaQuery.of(context).size.width <= 600) {
+      fontSize = 18.0; // Ubah ukuran font untuk layar HP
+    }
     return Scaffold(
       body: SafeArea(
           child: Stack(
@@ -97,13 +103,15 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                               ),
                             ),
                             const SizedBox(width: 24.0),
-                            const Text(
-                              'Sunting Password',
-                              style: TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                "Sunting Password",
+                                style: TextStyle(
+                                    fontSize: fontSize,
+                                    fontWeight: FontWeight.bold),
                               ),
-                            ),
+                            )
                           ],
                         ),
                       ],

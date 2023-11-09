@@ -256,10 +256,16 @@ class CreateExcelState extends State<CreateExcelStatefulWidget> {
       sheet.getRangeByIndex(i + 3, 4).setText(productName);
       sheet
           .getRangeByIndex(i + 3, 5)
-          .setNumber(result['jumlah_produk_berhasil']);
-      sheet.getRangeByIndex(i + 3, 6).setNumber(result['jumlah_produk_cacat']);
-      sheet.getRangeByIndex(i + 3, 7).setNumber(result['total_produk']);
-      sheet.getRangeByIndex(i + 3, 8).setNumber(result['waktu_produksi']);
+          .setNumber(result['jumlah_produk_berhasil'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 6)
+          .setNumber(result['jumlah_produk_cacat'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 7)
+          .setNumber(result['total_produk'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 8)
+          .setNumber(result['waktu_produksi'].toDouble());
       sheet.getRangeByIndex(i + 3, 9).setText(result['catatan'].toString());
       final tanggalRencana = productionOrderDoc.data()?['tanggal_rencana'];
       final tanggalProduksi = productionOrderDoc.data()?['tanggal_produksi'];
@@ -273,8 +279,12 @@ class CreateExcelState extends State<CreateExcelStatefulWidget> {
       sheet.getRangeByIndex(i + 3, 10).setDateTime(tanggalRencana?.toDate());
       sheet.getRangeByIndex(i + 3, 11).setDateTime(tanggalProduksi?.toDate());
       sheet.getRangeByIndex(i + 3, 12).setDateTime(tanggalSelesai?.toDate());
-      sheet.getRangeByIndex(i + 3, 13).setNumber(jumlahProduksiEst ?? 0);
-      sheet.getRangeByIndex(i + 3, 14).setNumber(jumlahTenagaKerjaEst ?? 0);
+      sheet
+          .getRangeByIndex(i + 3, 13)
+          .setNumber(jumlahProduksiEst.toDouble() ?? 0.0);
+      sheet
+          .getRangeByIndex(i + 3, 14)
+          .setNumber(jumlahTenagaKerjaEst.toDouble() ?? 0.0);
     }
 
     final totalProdukRange =
@@ -289,7 +299,7 @@ class CreateExcelState extends State<CreateExcelStatefulWidget> {
 
     try {
       await FileSaveHelper.saveAndLaunchFile(
-          uint8list, 'Laporan_Produksi.xlsx');
+          uint8list, 'Laporan_Kualitas_Produksi.xlsx');
     } catch (e) {
       print('Error opening file: $e');
     }

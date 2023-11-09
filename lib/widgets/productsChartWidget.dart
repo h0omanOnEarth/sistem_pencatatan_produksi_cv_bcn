@@ -97,7 +97,7 @@ Future<List<DataPoint>> fetchProductChartData() async {
         .fetchProductInfo(id); // Ganti dengan fetchProductInfo yang sesuai
 
     final productName = productInfo['nama'] as String;
-    final stok = productInfo['stok'] as int;
+    final stok = productInfo['stok'].toDouble();
 
     chartData.add(DataPoint(productName, stok as double));
   }

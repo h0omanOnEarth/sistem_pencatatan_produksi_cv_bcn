@@ -93,9 +93,9 @@ Future<List<DataPoint>> fetchMaterialChartData() async {
         .fetchMaterialInfo(id); // Mengambil informasi bahan
 
     final materialName = materialInfo['nama'] as String;
-    final stok = materialInfo['stok'] as int;
+    final stok = materialInfo['stok'].toDouble();
 
-    chartData.add(DataPoint(materialName, stok as double));
+    chartData.add(DataPoint(materialName, stok.toDouble()));
   }
   return chartData;
 }

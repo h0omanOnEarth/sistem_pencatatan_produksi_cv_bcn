@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/la
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainLaporanAdministrasiScreen extends StatefulWidget {
   static const routeName = '/administrasi/laporan';
@@ -108,76 +109,6 @@ class _MainMasterAdministrasiScreenState
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CardItem extends StatelessWidget {
-  final IconData icon;
-  final String textA;
-  final String textB;
-  final String pageRoute; // New property to specify the page route
-
-  const CardItem({
-    super.key,
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Routemaster.of(context).push(pageRoute);
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Set corner radius
-          side: const BorderSide(
-            color: Colors.grey, // Set border color
-            width: 1.0, // Set border width
-          ),
-        ),
-        child: Container(
-          height: 100.0, // Set the desired height of the card
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 40.0, // Set the width for the icon
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    icon,
-                    size: 36, // Customize the icon size
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.center, // Center the text vertically
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textA,
-                      style: const TextStyle(
-                        fontSize: 18, // Customize the font size
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                    ),
-                    Text(textB),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

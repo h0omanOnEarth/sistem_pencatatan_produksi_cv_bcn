@@ -142,12 +142,27 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                               itemCount: notifications.length,
                               itemBuilder: (context, index) {
                                 final pesan = notifications[index]['pesan'];
-                                final createdAt = notifications[index]
-                                    ['created_at'] as Timestamp;
-                                final formattedDate =
-                                    formatDate(createdAt.toDate());
+                                final createdAt =
+                                    notifications[index]['created_at'];
+
+                                DateTime formattedDate;
+
+                                if (createdAt is Timestamp) {
+                                  // If 'created_at' is a Timestamp, use it directly
+                                  formattedDate = createdAt.toDate();
+                                } else if (createdAt is String) {
+                                  // If 'created_at' is a String, convert it to DateTime
+                                  formattedDate = DateTime.parse(createdAt);
+                                } else {
+                                  // Handle other cases or set a default value
+                                  formattedDate = DateTime.now();
+                                }
+
+                                final formattedDateString =
+                                    formatDate(formattedDate);
+
                                 return buildCard(
-                                    pesan, 'Tanggal: $formattedDate');
+                                    pesan, 'Tanggal: $formattedDateString');
                               },
                             ),
                           );

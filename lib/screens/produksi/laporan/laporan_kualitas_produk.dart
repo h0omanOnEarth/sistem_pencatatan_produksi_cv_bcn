@@ -251,10 +251,16 @@ class CreateExcelState extends State<CreateExcelStatefulWidget> {
       sheet.getRangeByIndex(i + 3, 4).setText(productName);
       sheet
           .getRangeByIndex(i + 3, 5)
-          .setNumber(result['jumlah_produk_berhasil']);
-      sheet.getRangeByIndex(i + 3, 6).setNumber(result['jumlah_produk_cacat']);
-      sheet.getRangeByIndex(i + 3, 7).setNumber(result['total_produk']);
-      sheet.getRangeByIndex(i + 3, 8).setNumber(result['waktu_produksi']);
+          .setNumber(result['jumlah_produk_berhasil'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 6)
+          .setNumber(result['jumlah_produk_cacat'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 7)
+          .setNumber(result['total_produk'].toDouble());
+      sheet
+          .getRangeByIndex(i + 3, 8)
+          .setNumber(result['waktu_produksi'].toDouble());
       sheet.getRangeByIndex(i + 3, 9).setText(result['catatan'].toString());
     }
 
