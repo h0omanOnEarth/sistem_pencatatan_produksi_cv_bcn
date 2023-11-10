@@ -239,11 +239,11 @@ class LoginForm extends StatelessWidget {
                       margin: const EdgeInsets.all(10),
                       child: ElevatedButton(
                         onPressed: () async {
-                          // //cloud functions
-                          // final email = emailController.text;
-                          // final password = passwordController.text;
-                          // loginBloc.add(LoginButtonPressed(
-                          //     email: email, password: password));
+                          //cloud functions
+                          final email = emailController.text;
+                          final password = passwordController.text;
+                          loginBloc.add(LoginButtonPressed(
+                              email: email, password: password));
 
                           // final email = _emailController.text;
                           // final password = _passwordController.text;
@@ -274,7 +274,7 @@ class LoginForm extends StatelessWidget {
                           //       "Terjadi kesalahan saat mengirim notifikasi: $error");
                           // });
 
-                          Routemaster.of(context).push(MainProduksi.routeName);
+                          // Routemaster.of(context).push(MainGudang.routeName);
 
                           // try {
                           //   final HttpsCallable callable =

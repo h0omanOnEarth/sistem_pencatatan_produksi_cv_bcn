@@ -130,7 +130,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const CustomAppBar(
-                    title: 'Pesanan Pembelian',
+                    title: 'Pembelian Bahan',
                     formScreen: FormPesananPembelianScreen(),
                     routes: '${MainAdministrasi.routeName}?selectedIndex=2',
                   ),
@@ -163,7 +163,7 @@ class _ListPesananPembelianState extends State<ListPesananPembelian> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const CustomAppBar(
-              title: 'Pesanan Pembelian',
+              title: 'Pembelian Bahan',
               formScreen: FormPesananPembelianScreen(),
               routes: '${MainAdministrasi.routeName}?selectedIndex=2',
             ),

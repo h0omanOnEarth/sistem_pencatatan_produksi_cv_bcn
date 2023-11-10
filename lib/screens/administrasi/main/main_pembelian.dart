@@ -82,13 +82,13 @@ class _MainMasterAdministrasiScreenState
                     const SizedBox(height: 16),
                     const CardItem(
                         icon: Icons.point_of_sale,
-                        textA: 'Pesanan Pembelian',
+                        textA: 'Pembelian Bahan',
                         textB: 'Memodifikasi dan melihat pesanan pembelian',
                         pageRoute: ListPesananPembelian.routeName),
                     const CardItem(
                         icon: Icons.shopping_cart_checkout,
-                        textA: 'Pesanan Pengembalian',
-                        textB: 'Memodifikasi dan melihat pesanan pengembalian',
+                        textA: 'Pengembalian Bahan',
+                        textB: 'Memodifikasi dan melihat pengembalian bahan',
                         pageRoute: ListPesananPengembalianPembelian.routeName),
                   ],
                 ),

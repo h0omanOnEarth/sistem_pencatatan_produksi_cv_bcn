@@ -413,34 +413,26 @@ class _FormPesananPelangganScreenState
                           isEnabled: false,
                         ),
                         const SizedBox(height: 16.0),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DatePickerButton(
-                                label: 'Tanggal Pesan',
-                                selectedDate: _selectedTanggalPesan,
-                                onDateSelected: (newDate) {
-                                  setState(() {
-                                    _selectedTanggalPesan = newDate;
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: DatePickerButton(
-                                label: 'Tanggal Kirim',
-                                selectedDate: _selectedTanggalKirim,
-                                onDateSelected: (newDate) {
-                                  setState(() {
-                                    _selectedTanggalKirim = newDate;
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
-                          ],
+                        DatePickerButton(
+                          label: 'Tanggal Pesan',
+                          selectedDate: _selectedTanggalPesan,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedTanggalPesan = newDate;
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
+                        ),
+                        const SizedBox(height: 16.0),
+                        DatePickerButton(
+                          label: 'Tanggal Kirim',
+                          selectedDate: _selectedTanggalKirim,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedTanggalKirim = newDate;
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
                         ),
                         const SizedBox(height: 16),
                         TextFieldWidget(

@@ -263,7 +263,7 @@ class _FormPesananPembelianScreenState
                             ),
                             const SizedBox(width: 16.0),
                             const Text(
-                              'Pesanan Pembelian',
+                              'Pembelian Bahan',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,

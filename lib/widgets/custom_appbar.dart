@@ -19,10 +19,6 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     double fontSize = 24.0; // Ukuran font default
 
-    // Periksa lebar layar
-    if (MediaQuery.of(context).size.width <= 600) {
-      fontSize = 16.0; // Ubah ukuran font untuk layar HP
-    }
     return SizedBox(
       height: 80,
       child: Padding(
@@ -65,12 +61,23 @@ class CustomAppBar extends StatelessWidget {
                 const SizedBox(width: 24.0),
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                        fontSize: fontSize, fontWeight: FontWeight.bold),
+                  child: RichText(
+                    text: TextSpan(
+                      text: title,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      children: [
+                        if (MediaQuery.of(context).size.width <= 600)
+                          const TextSpan(
+                            text: '\n', // Tambahkan baris baru jika di layar HP
+                          ),
+                      ],
+                    ),
                   ),
-                )
+                ),
               ],
             ),
             Row(

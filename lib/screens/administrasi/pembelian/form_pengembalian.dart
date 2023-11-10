@@ -249,11 +249,13 @@ class _FormPengembalianPesananScreenState
                               ),
                             ),
                             const SizedBox(width: 16.0),
-                            const Text(
-                              'Pengembalian Pesanan Pembelian',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            const Flexible(
+                              child: Text(
+                                'Pengembalian Pembelian Bahan',
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
