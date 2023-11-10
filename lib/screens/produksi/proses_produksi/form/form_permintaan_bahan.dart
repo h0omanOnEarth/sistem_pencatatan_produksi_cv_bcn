@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/material_request_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_material_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_request.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
@@ -38,10 +39,12 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
   TextEditingController statusController = TextEditingController();
   TextEditingController kodeBOMController = TextEditingController();
   TextEditingController kodeProdukController = TextEditingController();
+  TextEditingController namaProdukController = TextEditingController();
 
   final FirebaseFirestore firestore =
       FirebaseFirestore.instance; // Instance Firestore
   List<Map<String, dynamic>> materialDetailsData = []; // Initialize the list
+  final productService = ProductService();
 
   Future<void> fetchProductionOrders() async {
     QuerySnapshot snapshot;
@@ -131,7 +134,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
     super.dispose();
   }
 
-  void initializeMaterial() {
+  void initializeMaterial() async {
     selectedNoPerintah = widget.productionOrderId;
     firestore
         .collection('production_orders')
@@ -139,7 +142,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
             isEqualTo:
                 widget.productionOrderId) // Gunakan .where untuk mencocokkan ID
         .get()
-        .then((QuerySnapshot querySnapshot) {
+        .then((QuerySnapshot querySnapshot) async {
       if (querySnapshot.docs.isNotEmpty) {
         final materialData =
             querySnapshot.docs.first.data() as Map<String, dynamic>;
@@ -171,6 +174,12 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
           tanggalProduksiController.text = formattedDate;
           kodeProdukController.text = materialData['product_id'];
           kodeBOMController.text = materialData['bom_id'];
+          final productInfo =
+              await productService.getProductInfo(materialData['product_id']);
+          final productName = productInfo != null
+              ? productInfo['nama']
+              : 'Product Name Not Found';
+          namaProdukController.text = productName;
         }
       } else {
         print('Document does not exist on Firestore');
@@ -389,6 +398,7 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
                           isEnabled: widget.materialRequestId == null,
                           kodeProdukController: kodeProdukController,
                           kodeBomController: kodeBOMController,
+                          namaProdukController: namaProdukController,
                         ),
                         const SizedBox(
                           height: 16.0,
@@ -397,6 +407,15 @@ class _FormPermintaanBahanScreenState extends State<FormPermintaanBahanScreen> {
                           label: 'Kode Produk',
                           placeholder: 'Kode Produk',
                           controller: kodeProdukController,
+                          isEnabled: false,
+                        ),
+                        const SizedBox(
+                          height: 16.0,
+                        ),
+                        TextFieldWidget(
+                          label: 'Nama Produk',
+                          placeholder: 'Nama Produk',
+                          controller: namaProdukController,
                           isEnabled: false,
                         ),
                         const SizedBox(

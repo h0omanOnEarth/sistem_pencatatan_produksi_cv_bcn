@@ -305,13 +305,12 @@ class _FormPesananPelangganScreenState
       }).catchError((error) {
         print('Error getting document: $error');
       });
-
-      fetchDataDetailCustomerOrder(); // Ambil data detail_customer_orders
     }
 
     if (widget.customerId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         initializeCustomer();
+        fetchDataDetailCustomerOrder(); // Ambil data detail_customer_orders
       });
     }
 

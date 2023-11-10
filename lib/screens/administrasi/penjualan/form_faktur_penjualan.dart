@@ -192,8 +192,6 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                   true; // Dinonaktifkan jika null atau kosong
             }
           });
-          fetchShipments();
-          _updateTotal();
         } else {
           print('Document does not exist on Firestore');
         }
@@ -204,6 +202,8 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
 
     if (widget.shipmentId != null) {
       initializeShipment();
+      fetchShipments();
+      _updateTotal();
     }
   }
 

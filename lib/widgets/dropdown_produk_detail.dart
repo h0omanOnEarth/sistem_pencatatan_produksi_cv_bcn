@@ -18,6 +18,13 @@ class DropdownProdukDetailWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double fontSize = 16.0; // Ukuran font default
+
+    // Periksa lebar layar
+    if (MediaQuery.of(context).size.width <= 600) {
+      fontSize = 14.0; // Ubah ukuran font untuk layar HP
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,6 +58,7 @@ class DropdownProdukDetailWidget extends StatelessWidget {
                   child: Text(
                     productName,
                     style: TextStyle(
+                      fontSize: fontSize,
                       color: isEnabled
                           ? Colors.black
                           : Colors
