@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
@@ -51,6 +52,7 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
 
   @override
   Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 600;
     return Scaffold(
       body: Stack(
         children: [
@@ -119,27 +121,28 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
+                                  if (isMobile) const SizedBox(height: 16),
                                   // Add the position of the employee here
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(
-                                        color: Colors.black,
+                                  if (isMobile)
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                          color: Colors.black,
+                                        ),
+                                        color: Colors
+                                            .white, // Adjust opacity as needed
                                       ),
-                                      color: Colors
-                                          .white, // Adjust opacity as needed
-                                    ),
-                                    child: Text(
-                                      'Posisi: ${posisi ?? ''}', // Replace with the actual position
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
+                                      child: Text(
+                                        'Posisi: ${posisi ?? ''}', // Replace with the actual position
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ],
