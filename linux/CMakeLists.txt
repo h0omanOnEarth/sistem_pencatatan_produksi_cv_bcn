@@ -7,7 +7,7 @@ project(runner LANGUAGES CXX)
 set(BINARY_NAME "sistem_manajemen_produksi_cv_bcn")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "com.example.sistem_manajemen_produksi_cv_bcn")
+set(APPLICATION_ID "com.catatbcn.sistem_manajemen_produksi_cv_bcn")
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

@@ -16,6 +16,7 @@ class HomeScreenGudang extends StatefulWidget {
 
 class _HomeScreenGudangState extends State<HomeScreenGudang> {
   String? userName;
+  String? posisi;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
       final userData = userSnapshot.docs.first;
       setState(() {
         userName = userData['nama'];
+        posisi = userData['posisi'];
       });
     }
   }
@@ -129,6 +131,26 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                             color: Colors.black,
                             fontSize: 18,
                             fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Add the position of the employee here
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                            color: Colors.white, // Adjust opacity as needed
+                          ),
+                          child: Text(
+                            'Posisi: ${posisi ?? ''}', // Replace with the actual position
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ],

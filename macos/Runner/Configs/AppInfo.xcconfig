@@ -8,7 +8,7 @@
 PRODUCT_NAME = sistem_manajemen_produksi_cv_bcn
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.sistemManajemenProduksiCvBcn
+PRODUCT_BUNDLE_IDENTIFIER = com.catatbcn.sistemManajemenProduksiCvBcn
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.catatbcn. All rights reserved.

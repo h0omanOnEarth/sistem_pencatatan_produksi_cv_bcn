@@ -69,7 +69,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'pencatatanproduksibcn.appspot.com',
     iosClientId:
         '514128904326-ru3gtr7grrne08orumlhuho5jlu5f51u.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sistemManajemenProduksiCvBcn',
+    iosBundleId: 'com.catatbcn.sistemManajemenProduksiCvBcn',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -80,6 +80,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'pencatatanproduksibcn.appspot.com',
     iosClientId:
         '514128904326-ur7u69i542au4o62k2fnhk0a38drdmn4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.sistemManajemenProduksiCvBcn.RunnerTests',
+    iosBundleId: 'com.catatbcn.sistemManajemenProduksiCvBcn.RunnerTests',
   );
 }

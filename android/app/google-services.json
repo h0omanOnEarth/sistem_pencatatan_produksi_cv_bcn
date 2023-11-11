@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:514128904326:android:c360a5404963dca0585107",
         "android_client_info": {
-          "package_name": "com.example.sistem_manajemen_produksi_cv_bcn"
+          "package_name": "com.catatbcn.sistem_manajemen_produksi_cv_bcn"
         }
       },
       "oauth_client": [
@@ -29,6 +29,13 @@
             {
               "client_id": "514128904326-7mi5tej04ll01hshleou1mm89c48uifk.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "514128904326-ru3gtr7grrne08orumlhuho5jlu5f51u.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.catatbcn.sistemManajemenProduksiCvBcn"
+              }
             }
           ]
         }

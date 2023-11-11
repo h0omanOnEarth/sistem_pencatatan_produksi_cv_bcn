@@ -196,29 +196,29 @@ class ProductionOrderBloc
               Notify.instantNotify("Perintah Produksi Baru",
                   'Production Order $nextProductionOrderId baru ditambahkan');
 
-              // EmailNotificationService.sendNotification(
-              //     'Perintah Produksi Baru',
-              //     'Perintah Produksi $nextProductionOrderId baru ditambahkan',
-              //     'Produksi');
+              EmailNotificationService.sendNotification(
+                  'Perintah Produksi Baru',
+                  'Perintah Produksi $nextProductionOrderId baru ditambahkan',
+                  'Produksi');
 
-              // EmailNotificationService.sendNotification(
-              //   'Perintah Produksi Baru',
-              //   _createEmailMessage(
-              //     nextProductionOrderId,
-              //     bomId,
-              //     jumlahProduksiEst,
-              //     jumlahTenagaKerjaEst,
-              //     lamaWaktuEst,
-              //     productId,
-              //     statusPro,
-              //     tanggalProduksi,
-              //     tanggalRencana,
-              //     tanggalSelesai,
-              //     materials!,
-              //     machines!,
-              //   ),
-              //   'Produksi',
-              // );
+              EmailNotificationService.sendNotification(
+                'Perintah Produksi Baru',
+                _createEmailMessage(
+                  nextProductionOrderId,
+                  bomId,
+                  jumlahProduksiEst,
+                  jumlahTenagaKerjaEst,
+                  lamaWaktuEst,
+                  productId,
+                  statusPro,
+                  tanggalProduksi,
+                  tanggalRencana,
+                  tanggalSelesai,
+                  materials!,
+                  machines!,
+                ),
+                'Produksi',
+              );
 
               try {
                 final HttpsCallable callable =
@@ -239,8 +239,8 @@ class ProductionOrderBloc
                     tanggalProduksi,
                     tanggalRencana,
                     tanggalSelesai,
-                    materials!,
-                    machines!,
+                    materials,
+                    machines,
                   ),
                 });
 

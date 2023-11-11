@@ -317,6 +317,19 @@ class LoginForm extends StatelessWidget {
                           // });
 
                           // Routemaster.of(context).push(MainGudang.routeName);
+                          // if (kIsWeb) {
+                          //   // ignore: use_build_context_synchronously
+                          //   Routemaster.of(context)
+                          //       .push(MainAdministrasi.routeName);
+                          // } else {
+                          //   // ignore: use_build_context_synchronously
+                          //   Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => const MainAdministrasi(),
+                          //     ),
+                          //   );
+                          // }
 
                           // try {
                           //   final HttpsCallable callable =
