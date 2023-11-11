@@ -318,33 +318,25 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                   ],
                 ),
                 const SizedBox(height: 24.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DatePickerButton(
-                        label: 'Tanggal Masuk',
-                        selectedDate: _selectedDate,
-                        onDateSelected: (newDate) {
-                          setState(() {
-                            _selectedDate = newDate;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16.0),
-                    Expanded(
-                      child: DropdownWidget(
-                        label: 'Status',
-                        selectedValue: selectedStatus,
-                        items: const ['Aktif', 'Tidak Aktif'],
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedStatus = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+                DatePickerButton(
+                  label: 'Tanggal Masuk',
+                  selectedDate: _selectedDate,
+                  onDateSelected: (newDate) {
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                ),
+                const SizedBox(width: 16.0),
+                DropdownWidget(
+                  label: 'Status',
+                  selectedValue: selectedStatus,
+                  items: const ['Aktif', 'Tidak Aktif'],
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedStatus = newValue;
+                    });
+                  },
                 ),
                 const SizedBox(height: 16),
                 Row(
