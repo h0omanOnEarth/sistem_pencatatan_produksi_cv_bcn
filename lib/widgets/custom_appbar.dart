@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -33,10 +34,10 @@ class CustomAppBar extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   child: InkWell(
                     onTap: () {
-                      if (routes == null) {
-                        Navigator.pop(context);
-                      } else {
+                      if (kIsWeb) {
                         Routemaster.of(context).push(routes!);
+                      } else {
+                        Navigator.pop(context);
                       }
                     },
                     child: Container(

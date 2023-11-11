@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
@@ -249,7 +250,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       //   context,
                       //   MaterialPageRoute(builder: (context) => const MainMenuScreen()),
                       // );
-                      Routemaster.of(context).push(MainMenuScreen.routeName);
+                      if (kIsWeb) {
+                        // ignore: use_build_context_synchronously
+                        Routemaster.of(context).push(MainMenuScreen.routeName);
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainMenuScreen(),
+                          ),
+                        );
+                      }
                     });
 
                     // Navigator.push(

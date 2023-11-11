@@ -1,5 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:routemaster/routemaster.dart';
@@ -7,6 +8,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/providers/bloc_providers.dart';
 
 import 'package:sistem_manajemen_produksi_cv_bcn/routes/router.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/splash_screen.dart';
 import 'firebase_options.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
@@ -41,15 +43,28 @@ void configureApp() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: AppBlocProviders.providers,
-      child: MaterialApp.router(
-        routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
-        routeInformationParser: const RoutemasterParser(),
-      ),
-    );
+    if (kIsWeb) {
+      // Jika aplikasi dijalankan di web, gunakan Routemaster
+      return MultiBlocProvider(
+        providers: AppBlocProviders.providers,
+        child: MaterialApp.router(
+          routerDelegate: RoutemasterDelegate(routesBuilder: (_) => routes),
+          routeInformationParser: const RoutemasterParser(),
+        ),
+      );
+    } else {
+      // Jika aplikasi dijalankan di ponsel atau platform lainnya
+      // Gunakan MaterialApp biasa atau Navigator-based routing
+      return MultiBlocProvider(
+        providers: AppBlocProviders.providers,
+        child: const MaterialApp(
+          home: SplashScreen(), // Ganti dengan halaman utama yang sesuai
+        ),
+      );
+    }
   }
 }

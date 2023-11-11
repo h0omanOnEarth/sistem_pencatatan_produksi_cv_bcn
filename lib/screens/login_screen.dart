@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:routemaster/routemaster.dart';
@@ -81,13 +82,45 @@ class LoginForm extends StatelessWidget {
               //   ),
               // );
               // ignore: use_build_context_synchronously
-              Routemaster.of(context).push(MainAdministrasi.routeName);
+              if (kIsWeb) {
+                // ignore: use_build_context_synchronously
+                Routemaster.of(context).push(MainAdministrasi.routeName);
+              } else {
+                // ignore: use_build_context_synchronously
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainAdministrasi(),
+                  ),
+                );
+              }
             } else if (posisi == 'Gudang') {
               // ignore: use_build_context_synchronously
-              Routemaster.of(context).push(MainGudang.routeName);
+              if (kIsWeb) {
+                // ignore: use_build_context_synchronously
+                Routemaster.of(context).push(MainGudang.routeName);
+              } else {
+                // ignore: use_build_context_synchronously
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainGudang(),
+                  ),
+                );
+              }
             } else if (posisi == 'Produksi') {
-              // ignore: use_build_context_synchronously
-              Routemaster.of(context).push(MainProduksi.routeName);
+              if (kIsWeb) {
+                // ignore: use_build_context_synchronously
+                Routemaster.of(context).push(MainProduksi.routeName);
+              } else {
+                // ignore: use_build_context_synchronously
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MainProduksi(),
+                  ),
+                );
+              }
             }
           }
         } else if (state is LoginFailure) {
@@ -125,8 +158,17 @@ class LoginForm extends StatelessWidget {
                       child: InkWell(
                         onTap: () {
                           // Navigator.pop(context);
-                          Routemaster.of(context)
-                              .push(MainMenuScreen.routeName);
+                          if (kIsWeb) {
+                            Routemaster.of(context)
+                                .push(MainMenuScreen.routeName);
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MainMenuScreen(),
+                              ),
+                            );
+                          }
                         },
                         child: Container(
                           decoration: BoxDecoration(

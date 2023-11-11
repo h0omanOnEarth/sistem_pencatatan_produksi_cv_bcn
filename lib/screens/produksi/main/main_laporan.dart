@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_kualitas_produk.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainLaporanProduksiScreen extends StatefulWidget {
   static const routeName = '/produksi/laporan';
@@ -80,93 +80,25 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                     ),
                     const SizedBox(height: 16),
                     const CardItem(
-                        icon: Icons.warehouse,
-                        textA: 'Laporan Produksi Harian',
-                        textB: 'Melihat laporan produksi harian',
-                        pageRoute: LaporanProduksi.routeName),
+                      icon: Icons.warehouse,
+                      textA: 'Laporan Produksi Harian',
+                      textB: 'Melihat laporan produksi harian',
+                      pageRoute: LaporanProduksi.routeName,
+                      pageWidget: LaporanProduksi(),
+                    ),
                     const CardItem(
-                        icon: Icons.notes_rounded,
-                        textA: 'Laporan Kualitas Produk',
-                        textB: 'Melihat laporan kualitas produk',
-                        pageRoute: LaporanKualitasProduksi.routeName),
+                      icon: Icons.notes_rounded,
+                      textA: 'Laporan Kualitas Produk',
+                      textB: 'Melihat laporan kualitas produk',
+                      pageRoute: LaporanKualitasProduksi.routeName,
+                      pageWidget: LaporanKualitasProduksi(),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CardItem extends StatelessWidget {
-  final IconData icon;
-  final String textA;
-  final String textB;
-  final String pageRoute; // New property to specify the page route
-
-  const CardItem({
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final cardHeight =
-        screenHeight * 0.16; // Sesuaikan dengan persentase yang Anda inginkan
-
-    return GestureDetector(
-      onTap: () {
-        Routemaster.of(context).push(pageRoute);
-      },
-      child: Card(
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0), // Set corner radius
-          side: const BorderSide(
-            color: Colors.grey, // Set border color
-            width: 1.0, // Set border width
-          ),
-        ),
-        child: Container(
-          height: cardHeight,
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 40.0, // Set the width for the icon
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Icon(
-                    icon,
-                    size: 36, // Customize the icon size
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      textA,
-                      style: const TextStyle(
-                        fontSize: 18, // Customize the font size
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                    ),
-                    Text(textB),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

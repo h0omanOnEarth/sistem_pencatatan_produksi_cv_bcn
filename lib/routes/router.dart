@@ -33,6 +33,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/li
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/produksi/list/list_pengubahan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_bom.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pegawai.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/form/form_supplier.dart';
@@ -51,6 +52,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_lapo
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_dloh.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_konfirmasi_produksi.dart';
@@ -213,5 +215,9 @@ final routes = RouteMap(
         const MaterialPage(child: LaporanProduksi()),
     LaporanKualitasProduksi.routeName: (_) =>
         const MaterialPage(child: LaporanKualitasProduksi()),
+    FormMasterBOMScreen.routeName: (_) =>
+        const MaterialPage(child: FormMasterBOMScreen()),
+    FormPerintahProduksiScreen.routeName: (_) =>
+        const MaterialPage(child: FormPerintahProduksiScreen()),
   },
 );

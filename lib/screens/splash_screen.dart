@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
@@ -24,7 +25,16 @@ class _SplashScreenState extends State<SplashScreen>
     // Timer untuk mengatur waktu tampilan SplashScreen
     Timer(const Duration(seconds: 3), () {
       // Navigasi ke halaman berikutnya setelah 3 detik
-      Routemaster.of(context).push(MainMenuScreen.routeName);
+      if (kIsWeb) {
+        Routemaster.of(context).push(MainMenuScreen.routeName);
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MainMenuScreen(),
+          ),
+        );
+      }
     });
 
     // Membuat AnimationController

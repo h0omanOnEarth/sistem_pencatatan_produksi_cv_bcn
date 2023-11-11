@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 
@@ -6,13 +7,14 @@ class CardItem extends StatelessWidget {
   final String textA;
   final String textB;
   final String pageRoute; // New property to specify the page route
+  final Widget? pageWidget;
 
-  const CardItem({
-    required this.icon,
-    required this.textA,
-    required this.textB,
-    required this.pageRoute,
-  });
+  const CardItem(
+      {required this.icon,
+      required this.textA,
+      required this.textB,
+      required this.pageRoute,
+      this.pageWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,12 @@ class CardItem extends StatelessWidget {
       onTap: () {
         //   Navigator.push(context,MaterialPageRoute( builder: (context) => pageRoute,),
         // );
-        Routemaster.of(context).push(pageRoute);
+        if (kIsWeb) {
+          Routemaster.of(context).push(pageRoute);
+        } else {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => pageWidget!));
+        }
       },
       child: Card(
         color: Colors.white,

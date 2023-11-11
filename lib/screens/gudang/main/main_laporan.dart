@@ -4,7 +4,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainLaporanGudangScreen extends StatefulWidget {
   static const routeName = '/gudang/laporan';
@@ -82,25 +82,33 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                     ),
                     const SizedBox(height: 16),
                     const CardItem(
-                        icon: Icons.warehouse,
-                        textA: 'Stok Bahan',
-                        textB: 'Melihat laporan stok bahan',
-                        pageRoute: LaporanBahanGudang.routeName),
+                      icon: Icons.warehouse,
+                      textA: 'Stok Bahan',
+                      textB: 'Melihat laporan stok bahan',
+                      pageRoute: LaporanBahanGudang.routeName,
+                      pageWidget: LaporanBahanGudang(),
+                    ),
                     const CardItem(
-                        icon: Icons.edit_note_outlined,
-                        textA: 'Stok Barang',
-                        textB: 'Melihat laporan stok barang',
-                        pageRoute: LaporanBarangGudang.routeName),
+                      icon: Icons.edit_note_outlined,
+                      textA: 'Stok Barang',
+                      textB: 'Melihat laporan stok barang',
+                      pageRoute: LaporanBarangGudang.routeName,
+                      pageWidget: LaporanBarangGudang(),
+                    ),
                     const CardItem(
-                        icon: Icons.drive_file_move_rtl,
-                        textA: 'Pengiriman dan Penerimaan',
-                        textB: 'Melihat laporan pengiriman dan penerimaan',
-                        pageRoute: LaporanPenerimaanPengiriman.routeName),
+                      icon: Icons.drive_file_move_rtl,
+                      textA: 'Pengiriman dan Penerimaan',
+                      textB: 'Melihat laporan pengiriman dan penerimaan',
+                      pageRoute: LaporanPenerimaanPengiriman.routeName,
+                      pageWidget: LaporanPenerimaanPengiriman(),
+                    ),
                     const CardItem(
-                        icon: Icons.shopping_cart_checkout,
-                        textA: 'Retur Barang',
-                        textB: 'Melihat laporan retur barang',
-                        pageRoute: LaporanReturBarangGudang.routeName),
+                      icon: Icons.shopping_cart_checkout,
+                      textA: 'Retur Barang',
+                      textB: 'Melihat laporan retur barang',
+                      pageRoute: LaporanReturBarangGudang.routeName,
+                      pageWidget: LaporanReturBarangGudang(),
+                    ),
                   ],
                 ),
               ),

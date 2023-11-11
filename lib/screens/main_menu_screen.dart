@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/login_screen.dart';
@@ -76,7 +77,16 @@ class LoginRegisterPage extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     // Tombol login ditekan
-                    Routemaster.of(context).push(LoginPageScreen.routeName);
+                    if (kIsWeb) {
+                      Routemaster.of(context).push(LoginPageScreen.routeName);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPageScreen(),
+                        ),
+                      );
+                    }
                   },
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
