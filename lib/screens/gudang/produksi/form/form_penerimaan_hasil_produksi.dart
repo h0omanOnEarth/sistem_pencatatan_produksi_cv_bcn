@@ -187,13 +187,13 @@ class _FormPenerimaanHasilProduksiState
   void addOrUpdate() {
     final itemReceiveBloc = BlocProvider.of<ItemReceiveBloc>(context);
     final itemReceive = ItemReceive(
-      id: '',
-      productionConfirmationId: selectedNomorKonfirmasi ?? '',
-      status: 1,
-      statusIrc: statusController.text,
-      tanggalPenerimaan: _selectedDate ?? DateTime.now(),
-      detailItemReceiveList: [],
-    );
+        id: '',
+        productionConfirmationId: selectedNomorKonfirmasi ?? '',
+        status: 1,
+        statusIrc: statusController.text,
+        tanggalPenerimaan: _selectedDate ?? DateTime.now(),
+        detailItemReceiveList: [],
+        catatan: catatanController.text);
 
     for (var productCardData in materialDetailsData) {
       final jumlah = productCardData['jumlah'].toDouble(); // Konversi ke double
