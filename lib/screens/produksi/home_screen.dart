@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
@@ -55,6 +54,10 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
+    double fontSize = 18;
+    if (isMobile) {
+      fontSize = 16;
+    }
     return Scaffold(
       body: Stack(
         children: [
@@ -107,19 +110,19 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     "Welcome Back,",
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 18,
+                                      fontSize: fontSize,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
                                   Text(
                                     userName ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: 18,
+                                      fontSize: fontSize,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),

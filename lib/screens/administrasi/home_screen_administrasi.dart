@@ -242,7 +242,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                           "Welcome Back,",
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -250,7 +250,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
                           userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w400,
                           ),
                         ),

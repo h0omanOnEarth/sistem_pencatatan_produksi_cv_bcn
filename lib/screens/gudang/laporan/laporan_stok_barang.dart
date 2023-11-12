@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:routemaster/routemaster.dart';
@@ -71,8 +72,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         ),
         leading: InkWell(
           onTap: () {
-            Routemaster.of(context)
-                .push('${MainGudang.routeName}?selectedIndex=5');
+            if (kIsWeb) {
+              Routemaster.of(context)
+                  .push('${MainGudang.routeName}?selectedIndex=5');
+            } else {
+              Navigator.pop(context, null);
+            }
           },
           child: Container(
             margin: const EdgeInsets.only(left: 8.0), // Tambahkan margin kiri

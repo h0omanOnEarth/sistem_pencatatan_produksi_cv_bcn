@@ -240,7 +240,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                           "Welcome Back,",
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -248,7 +248,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                           userName ?? '',
                           style: const TextStyle(
                             color: Colors.black,
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
