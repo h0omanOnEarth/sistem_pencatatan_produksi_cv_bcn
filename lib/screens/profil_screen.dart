@@ -7,6 +7,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -91,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     '${NotifikasiScreen.routeName}?routeBack=${MainAdministrasi.routeName}?selectedIndex=5');
                               } else {
                                 Routemaster.of(context).push(
-                                    '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=4');
+                                    '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=4');
                               }
                             } else {
                               Navigator.push(
