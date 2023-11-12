@@ -256,7 +256,7 @@ class _FormPesananPelangganScreenState
       if (querySnapshot.docs.isNotEmpty) {
         final customerData =
             querySnapshot.docs.first.data() as Map<String, dynamic>;
-        final namaCustomer = customerData['nama'];
+        final namaCustomer = customerData['id'];
         namaPelangganController.text = namaCustomer ?? '';
       } else {
         print('Document does not exist on Firestore');
@@ -402,13 +402,14 @@ class _FormPesananPelangganScreenState
                           namaPelangganController: namaPelangganController,
                           customerId: widget.customerId,
                           isEnabled: widget.customerOrderId == null,
+                          alamatPelangganController: alamatPengirimanController,
                         ),
                         const SizedBox(
                           height: 16.0,
                         ),
                         TextFieldWidget(
-                          label: 'Nama Pelanggan',
-                          placeholder: 'Nama Pelanggan',
+                          label: 'Kode Pelanggan',
+                          placeholder: 'Kode Pelanggan',
                           controller: namaPelangganController,
                           isEnabled: false,
                         ),

@@ -1,5 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_dloh.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_hasil_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/list/list_konfirmasi_produksi.dart';
@@ -56,12 +59,18 @@ class _MainProsesProduksiScreenState extends State<MainProsesProduksiScreen> {
                         GestureDetector(
                           onTap: () {
                             // Handle notification button press
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotifikasiScreen(),
-                              ),
-                            );
+                            if (kIsWeb) {
+                              Routemaster.of(context).push(
+                                  '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=2');
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotifikasiScreen(),
+                                ),
+                              );
+                            }
                           },
                           child: Container(
                             margin: const EdgeInsets.only(right: 20.0),

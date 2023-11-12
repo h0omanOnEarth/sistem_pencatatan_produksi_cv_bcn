@@ -83,7 +83,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
             'products': products.map((product) => product.toJson()).toList(),
             'totalProduk': totalProduk,
             'totalHarga': total,
-            'shipmentId': shipmentId
+            'shipmentId': shipmentId,
+            'mode': "add"
           });
 
           if (result.data['success'] == true) {
@@ -165,7 +166,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
             'products': products.map((product) => product.toJson()).toList(),
             'totalProduk': totalProduk,
             'totalHarga': total,
-            'shipmentId': shipmentId
+            'shipmentId': shipmentId,
+            'mode': "edit"
           });
 
           if (result.data['success'] == true) {
@@ -266,9 +268,8 @@ class InvoiceBloc extends Bloc<InvoiceEvent, InvoiceBlocState> {
         final invoiceRef =
             _firestore.collection('invoices').doc(event.invoiceId);
 
-        await invoiceRef.update({
-          'status_fk': 'Selesai',
-        });
+        await invoiceRef
+            .update({'status_fk': 'Selesai', 'status_pembayaran': 'Lunas'});
 
         yield SuccessState();
       } catch (e) {

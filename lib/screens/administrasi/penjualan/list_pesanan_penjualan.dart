@@ -203,7 +203,9 @@ class _ListPesananPelangganState extends State<ListPesananPelanggan> {
 
   Widget _buildCustomerOrderList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: customerOrderRef.snapshots(),
+      stream: customerOrderRef
+          .orderBy('tanggal_pesan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

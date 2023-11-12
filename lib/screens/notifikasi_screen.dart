@@ -1,11 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:routemaster/routemaster.dart';
 
 class NotifikasiScreen extends StatefulWidget {
   static const routeName = '/notifikasi';
+  final String? routeBack;
 
-  const NotifikasiScreen({Key? key}) : super(key: key);
+  const NotifikasiScreen({Key? key, this.routeBack}) : super(key: key);
 
   @override
   State<NotifikasiScreen> createState() => _NotifikasiScreenState();
@@ -40,7 +43,12 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                             child: InkWell(
                               onTap: () {
                                 // Handle back button press
-                                Navigator.pop(context); // Navigates back
+                                if (kIsWeb) {
+                                  Routemaster.of(context)
+                                      .push(widget.routeBack!);
+                                } else {
+                                  Navigator.pop(context, null);
+                                }
                               },
                               child: Container(
                                 decoration: BoxDecoration(

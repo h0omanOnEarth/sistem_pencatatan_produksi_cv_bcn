@@ -247,7 +247,8 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
 
   Widget _buildInvoiceList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: invoiceRef.snapshots(),
+      stream:
+          invoiceRef.orderBy('tanggal_pembuatan', descending: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -306,7 +307,7 @@ class _ListFakturPenjualanState extends State<ListFakturPenjualan> {
                       paginatedDocs[index].data() as Map<String, dynamic>;
                   final id = data['id'] as String;
                   final info = {
-                    'ID': data['id'],
+                    'Nomor Surat Jalan': data['shipment_id'],
                     'Tanggal Pembuatan': DateFormat('dd/MM/yyyy').format(
                         (data['tanggal_pembuatan'] as Timestamp)
                             .toDate()), // Format tanggal

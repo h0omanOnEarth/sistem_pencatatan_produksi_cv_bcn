@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/homeService.dart';
 
@@ -158,13 +160,18 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                               radius: 24,
                               child: IconButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NotifikasiScreen(),
-                                    ),
-                                  );
+                                  if (isMobile) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const NotifikasiScreen(),
+                                      ),
+                                    );
+                                  } else {
+                                    Routemaster.of(context).push(
+                                        '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=0');
+                                  }
                                 },
                                 icon: const Icon(
                                   Icons.notifications,

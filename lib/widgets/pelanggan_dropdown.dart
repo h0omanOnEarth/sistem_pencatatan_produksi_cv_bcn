@@ -6,11 +6,13 @@ ValueNotifier<String?> selectedPelangganNotifier = ValueNotifier<String?>(null);
 
 class PelangganDropdownWidget extends StatefulWidget {
   final TextEditingController namaPelangganController;
+  final TextEditingController? alamatPelangganController;
   final String? customerId; // Tambahkan parameter customerId
   final bool isEnabled;
 
   PelangganDropdownWidget({
     required this.namaPelangganController,
+    this.alamatPelangganController,
     this.customerId, // Jadikan customerId sebagai parameter opsional
     this.isEnabled = true,
   }) : super();
@@ -41,7 +43,7 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kode Pelanggan',
+              'Nama Pelanggan',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -66,11 +68,12 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
 
                 for (QueryDocumentSnapshot document in snapshot.data!.docs) {
                   String customerId = document['id'];
+                  String customerName = document['nama'];
                   customerItems.add(
                     DropdownMenuItem<String>(
                       value: customerId,
                       child: Text(
-                        customerId,
+                        customerName,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ),
@@ -97,7 +100,9 @@ class _PelangganDropdownWidgetState extends State<PelangganDropdownWidget> {
                               (document) => document['id'] == newValue,
                             );
                             widget.namaPelangganController.text =
-                                selectedPelanggan['nama'] ?? '';
+                                selectedPelanggan['id'] ?? '';
+                            widget.alamatPelangganController?.text =
+                                selectedPelanggan['alamat'] ?? '';
                           }
                         : null,
                     isExpanded: true,

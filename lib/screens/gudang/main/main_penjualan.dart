@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_customer_order_return.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_surat_jalan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
@@ -51,12 +54,18 @@ class _MainPenjualanGudangScreenState extends State<MainPenjualanGudangScreen> {
                         GestureDetector(
                           onTap: () {
                             // Handle notification button press
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotifikasiScreen(),
-                              ),
-                            );
+                            if (kIsWeb) {
+                              Routemaster.of(context).push(
+                                  '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=3');
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotifikasiScreen(),
+                                ),
+                              );
+                            }
                           },
                           child: Container(
                             margin: const EdgeInsets.only(right: 20.0),

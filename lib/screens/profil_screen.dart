@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 
@@ -19,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String? userName;
   String? userEmail;
+  String? userPosisi;
   final _auth = FirebaseAuth.instance;
 
   @override
@@ -41,6 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         userName = userData['nama'];
         userEmail = userData['email'];
+        userPosisi = userData['posisi'];
       });
     }
   }
@@ -78,12 +82,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         GestureDetector(
                           onTap: () {
                             // Navigate to the notification screen
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotifikasiScreen(),
-                              ),
-                            );
+                            if (kIsWeb) {
+                              if (userPosisi!.contains('Gudang')) {
+                                Routemaster.of(context).push(
+                                    '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=6');
+                              } else if (userPosisi!.contains('Administrasi')) {
+                                Routemaster.of(context).push(
+                                    '${NotifikasiScreen.routeName}?routeBack=${MainAdministrasi.routeName}?selectedIndex=5');
+                              } else {
+                                Routemaster.of(context).push(
+                                    '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=4');
+                              }
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotifikasiScreen(),
+                                ),
+                              );
+                            }
                           },
                           child: Container(
                             width: 60,

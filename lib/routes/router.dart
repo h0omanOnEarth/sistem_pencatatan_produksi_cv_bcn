@@ -219,5 +219,12 @@ final routes = RouteMap(
         const MaterialPage(child: FormMasterBOMScreen()),
     FormPerintahProduksiScreen.routeName: (_) =>
         const MaterialPage(child: FormPerintahProduksiScreen()),
+    NotifikasiScreen.routeName: (data) {
+      final routeBack = data.queryParameters['routeBack'];
+      final routeValue = routeBack;
+      // Kemudian gunakan selectedIndexValue sesuai kebutuhan
+      return MaterialPage(child: NotifikasiScreen(routeBack: routeValue));
+    },
+    ProfileScreen.routeName: (_) => const MaterialPage(child: ProfileScreen()),
   },
 );

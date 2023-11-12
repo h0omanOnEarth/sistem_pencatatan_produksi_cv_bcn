@@ -141,7 +141,7 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
   void _navigateToScreen(int index, BuildContext context) {
     if (widget.mode == 1) {
       Routemaster.of(context)
-          .push('${MainAdministrasi.routeName}selectedIndex=$index');
+          .push('${MainAdministrasi.routeName}?selectedIndex=$index');
     } else if (widget.mode == 2) {
       Routemaster.of(context)
           .push('${MainGudang.routeName}?selectedIndex=$index');
@@ -160,7 +160,7 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
           children: [
             CustomAppBar(
               title: 'Mesin',
-              formScreen: FormMasterMesinScreen(),
+              formScreen: const FormMasterMesinScreen(),
               routes: routeName,
             ),
             const SizedBox(height: 24.0),

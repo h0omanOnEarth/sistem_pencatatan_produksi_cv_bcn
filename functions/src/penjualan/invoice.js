@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.invoiceValidation = async (req) => {
-  const { products, totalProduk, totalHarga, shipmentId } = req.data;
+  const { products, totalProduk, totalHarga, shipmentId, mode } = req.data;
 
   if (!products || products.length === 0) {
     return { success: false, message: "Minimal harus ada satu produk" };
@@ -41,11 +41,13 @@ exports.invoiceValidation = async (req) => {
 
     const statusShp = shipmentDoc.data().status_shp;
 
-    if (statusShp === "Selesai") {
-      return {
-        success: false,
-        message: "Surat jalan telah dibuat",
-      };
+    if (mode == "add") {
+      if (statusShp === "Selesai") {
+        return {
+          success: false,
+          message: "Surat jalan telah dibuat",
+        };
+      }
     }
 
     // Update status_shp to "Selesai" in the shipment document

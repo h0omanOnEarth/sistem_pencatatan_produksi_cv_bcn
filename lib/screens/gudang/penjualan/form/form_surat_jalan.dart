@@ -126,6 +126,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
       Map<String, dynamic>? product =
           await productService.getProductInfo(data['product_id']);
       final namaProduct = product?['nama'];
+      final banyaknya = product?['banyaknya'];
 
       // Menambahkan cardContent ke detailPesananWidgets
       detailPesananWidgets.add(CustomWithTextFieldCard(
@@ -136,7 +137,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
           CustomWithTextFieldCardContent(
               text: 'Jumlah : ${data['jumlah']} ${data['satuan']}'),
           CustomWithTextFieldCardContent(
-              text: 'Total: ${data['jumlah'] / 2000} dus'),
+              text: 'Total: ${data['jumlah'] / banyaknya} dus'),
           CustomWithTextFieldCardContent(
               text: 'Jumlah Pengiriman (Pcs):', isBold: true),
           cardContentPcs,

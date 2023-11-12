@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialsChart.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/productsChartWidget.dart';
@@ -148,12 +150,8 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                     radius: 24,
                     child: IconButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const NotifikasiScreen(),
-                          ),
-                        );
+                        Routemaster.of(context).push(
+                            '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=0');
                       },
                       icon: const Icon(
                         Icons.notifications,

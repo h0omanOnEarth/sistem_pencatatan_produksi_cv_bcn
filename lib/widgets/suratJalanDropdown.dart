@@ -13,17 +13,18 @@ class SuratJalanDropDown extends StatefulWidget {
   late final TextEditingController? kodePelangganController;
   late final TextEditingController? nomorDeliveryOrderController;
   final bool isEnabled;
+  final String? mode;
 
-  SuratJalanDropDown({
-    super.key,
-    required this.selectedSuratJalan,
-    required this.onChanged,
-    this.namaPelangganController,
-    this.nomorPesananPelanggan,
-    this.kodePelangganController,
-    this.nomorDeliveryOrderController,
-    this.isEnabled = true,
-  });
+  SuratJalanDropDown(
+      {super.key,
+      required this.selectedSuratJalan,
+      required this.onChanged,
+      this.namaPelangganController,
+      this.nomorPesananPelanggan,
+      this.kodePelangganController,
+      this.nomorDeliveryOrderController,
+      this.isEnabled = true,
+      this.mode});
 
   @override
   State<SuratJalanDropDown> createState() => _SuratJalanDropDownState();
@@ -50,7 +51,7 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
 
         // Filter dan urutkan data secara lokal
         documents = documents.where((document) {
-          if (widget.isEnabled) {
+          if (widget.mode == "add") {
             // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
             return document['status'] == 1 &&
                 document['status_shp'] == "Dalam Proses";

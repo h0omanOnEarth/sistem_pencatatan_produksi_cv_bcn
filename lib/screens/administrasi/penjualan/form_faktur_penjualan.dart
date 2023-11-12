@@ -42,6 +42,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   int totalProduk = 0;
   bool isNomorRekeningDisabled = false;
   bool isLoading = false;
+  String? mode;
 
   TextEditingController catatanController = TextEditingController();
   TextEditingController namaPelangganController = TextEditingController();
@@ -55,6 +56,8 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   //list
   List<Map<String, dynamic>> materialDetailsData = [];
   List<Widget> customCards = [];
+  List<String> nomorRekeningEnable = const ['2711598075', '5120181868'];
+  List<String> nomorRekeningDisable = const [''];
 
   //service and providers
   final FirebaseFirestore firestore =
@@ -165,6 +168,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   @override
   void initState() {
     super.initState();
+    mode = "add";
     statusController.text = "Dalam Proses";
 
     if (widget.invoiceId != null) {
@@ -201,6 +205,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
     }
 
     if (widget.shipmentId != null) {
+      mode = "edit";
       initializeShipment();
       fetchShipments();
       _updateTotal();
@@ -268,6 +273,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
   }
 
   void addOrUpdate() {
+    mode = "edit";
     final invoiceBloc = BlocProvider.of<InvoiceBloc>(context);
     if (isNomorRekeningDisabled) {
       selectedNomorRekening = '';
@@ -451,6 +457,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                           nomorDeliveryOrderController:
                               nomorDeliveryOrderController,
                           isEnabled: widget.invoiceId == null,
+                          mode: mode,
                         ),
                         const SizedBox(height: 16.0),
                         TextFieldWidget(
@@ -526,6 +533,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                                   newValue; // Update _selectedValue saat nilai berubah
                               if (selectedMetodePembayaran == 'Tunai') {
                                 isNomorRekeningDisabled = true;
+                                selectedNomorRekening = "";
                               } else {
                                 isNomorRekeningDisabled = false;
                               }
@@ -540,7 +548,9 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                           label: 'Nomor Rekening',
                           selectedValue:
                               selectedNomorRekening, // Isi dengan nilai yang sesuai
-                          items: const ['2711598075', '5120181868'],
+                          items: isNomorRekeningDisabled
+                              ? nomorRekeningDisable
+                              : nomorRekeningEnable,
                           onChanged: (newValue) {
                             setState(() {
                               selectedNomorRekening =

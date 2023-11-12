@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_kualitas_produk.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_produksi.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/card_item_features.dart';
 
 class MainLaporanProduksiScreen extends StatefulWidget {
@@ -51,12 +54,18 @@ class _MainLaporanProduksiScreenState extends State<MainLaporanProduksiScreen> {
                         GestureDetector(
                           onTap: () {
                             // Handle notification button press
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const NotifikasiScreen(),
-                              ),
-                            );
+                            if (kIsWeb) {
+                              Routemaster.of(context).push(
+                                  '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=3');
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotifikasiScreen(),
+                                ),
+                              );
+                            }
                           },
                           child: Container(
                             margin: const EdgeInsets.only(right: 20.0),
