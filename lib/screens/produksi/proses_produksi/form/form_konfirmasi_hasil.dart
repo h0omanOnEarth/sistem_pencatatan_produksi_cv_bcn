@@ -159,33 +159,34 @@ class _FormKonfirmasiProduksiScreenState
     statusController.text = "Dalam Proses";
 
     if (widget.productionConfirmationId != null) {
-      firestore
-          .collection('production_confirmations')
-          .doc(widget
-              .productionConfirmationId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          final data = documentSnapshot.data() as Map<String, dynamic>;
-          setState(() {
-            catatanController.text = data['catatan'] ?? '';
-            statusController.text = data['status_prc'] ?? '';
-            totalController.text = data['total'].toString();
-            final tanggalKonfirmasiFirestore = data['tanggal_konfirmasi'];
-            if (tanggalKonfirmasiFirestore != null) {
-              selectedDate = (tanggalKonfirmasiFirestore as Timestamp).toDate();
-            }
-          });
-        } else {
-          print('Document does not exist on Firestore');
-        }
-      }).catchError((error) {
-        print('Error getting document: $error');
-      });
+      _initializeProductionConfirmation();
     }
-    if (widget.productionConfirmationId != null) {
-      fetchDataDetail();
-    }
+  }
+
+  void _initializeProductionConfirmation() {
+    firestore
+        .collection('production_confirmations')
+        .doc(widget.productionConfirmationId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_prc'] ?? '';
+          totalController.text = data['total'].toString();
+          final tanggalKonfirmasiFirestore = data['tanggal_konfirmasi'];
+          if (tanggalKonfirmasiFirestore != null) {
+            selectedDate = (tanggalKonfirmasiFirestore as Timestamp).toDate();
+          }
+        });
+        fetchDataDetail();
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
   }
 
   void clear() {

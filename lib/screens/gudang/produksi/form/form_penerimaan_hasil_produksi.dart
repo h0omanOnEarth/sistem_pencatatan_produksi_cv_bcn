@@ -137,35 +137,42 @@ class _FormPenerimaanHasilProduksiState
   void initState() {
     super.initState();
     if (widget.itemReceivceId != null) {
-      firestore
-          .collection('item_receives')
-          .doc(widget.itemReceivceId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          final data = documentSnapshot.data() as Map<String, dynamic>;
-          setState(() {
-            catatanController.text = data['catatan'] ?? '';
-            statusController.text = data['status_irc'];
-            final tanggalPenerimaanFirestore = data['tanggal_penerimaan'];
-            if (tanggalPenerimaanFirestore != null) {
-              _selectedDate =
-                  (tanggalPenerimaanFirestore as Timestamp).toDate();
-            }
-            selectedNomorKonfirmasi = data['production_confirmation_id'];
-          });
-        } else {
-          print('Document does not exist on Firestore');
-        }
-      }).catchError((error) {
-        print('Error getting document: $error');
-      });
+      _initializeItemReceive();
     }
 
     if (widget.productionConfirmationId != null) {
-      initProductionConf();
+      _initializeProductionConfirmation();
       fetchConfirmations();
     }
+  }
+
+  void _initializeItemReceive() {
+    firestore
+        .collection('item_receives')
+        .doc(widget.itemReceivceId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_irc'];
+          final tanggalPenerimaanFirestore = data['tanggal_penerimaan'];
+          if (tanggalPenerimaanFirestore != null) {
+            _selectedDate = (tanggalPenerimaanFirestore as Timestamp).toDate();
+          }
+          selectedNomorKonfirmasi = data['production_confirmation_id'];
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+  void _initializeProductionConfirmation() {
+    initProductionConf();
   }
 
   @override

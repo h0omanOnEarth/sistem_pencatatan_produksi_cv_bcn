@@ -103,7 +103,7 @@ class _FormPerintahProduksiScreenState
       if (widget.productionOrderId != null) {
         jumlah = int.tryParse(data['jumlah_bom'].toString()) ?? 0;
       } else {
-        jumlah = int.tryParse(data['jumlah_bom'].toString()) ?? 0;
+        jumlah = int.tryParse(data['jumlah'].toString()) ?? 0;
       }
       customCards.add(
         CustomCard(
@@ -152,7 +152,7 @@ class _FormPerintahProduksiScreenState
       if (querySnapshot.docs.isNotEmpty) {
         final productData =
             querySnapshot.docs.first.data() as Map<String, dynamic>;
-        final productName = productData['nama'];
+        final productName = productData['id'];
         namaProdukController.text = productName ?? '';
       } else {
         print('Document does not exist on Firestore');
@@ -508,24 +508,17 @@ class _FormPerintahProduksiScreenState
                         const SizedBox(
                           height: 16.0,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                                child: ProdukDropDown(
-                              namaProdukController: namaProdukController,
-                              productId: widget.productId,
-                              isEnabled: widget.productionOrderId == null,
-                            )),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: TextFieldWidget(
-                                label: 'Nama Produk',
-                                placeholder: 'Nama Produk',
-                                controller: namaProdukController,
-                                isEnabled: false,
-                              ),
-                            ),
-                          ],
+                        ProdukDropDown(
+                          namaProdukController: namaProdukController,
+                          productId: widget.productId,
+                          isEnabled: widget.productionOrderId == null,
+                        ),
+                        const SizedBox(height: 16.0),
+                        TextFieldWidget(
+                          label: 'Kode Produk',
+                          placeholder: 'Kode Produk',
+                          controller: namaProdukController,
+                          isEnabled: false,
                         ),
                         const SizedBox(height: 16),
                         BillOfMaterialDropDown(

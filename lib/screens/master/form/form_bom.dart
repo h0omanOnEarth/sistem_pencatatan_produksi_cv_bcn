@@ -232,7 +232,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
       if (querySnapshot.docs.isNotEmpty) {
         final productData =
             querySnapshot.docs.first.data() as Map<String, dynamic>;
-        final namaProduk = productData['nama'];
+        final namaProduk = productData['id'];
         namaProdukController.text = namaProduk ?? '';
         ketebalanController.text = productData['ketebalan'].toString();
         dimensiControler.text = productData['dimensi'].toString();
@@ -253,51 +253,63 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     fetchDataBahan();
 
     // Panggil _generateNextBomId() dan isi kodeBOMController dengan hasilnya
-    _generateNextBomId().then((nextBomId) {
-      kodeBOMController.text = nextBomId;
-    });
+    _initializeBomId();
 
     if (widget.bomId != null) {
-      // Jika ada customerOrderId, ambil data dari Firestore
-      firestore
-          .collection('bill_of_materials')
-          .doc(widget.bomId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        try {
-          if (documentSnapshot.exists) {
-            final data = documentSnapshot.data() as Map<String, dynamic>;
-            setState(() {
-              catatanController.text = data['catatan'] ?? '';
-              kodeBOMController.text = data['id'];
-              versiBOMController.text = data['versi_bom'].toString();
-              selectedStatus =
-                  data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';
-              final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
-              if (tanggalPembuatanFirestore != null) {
-                selectedDate =
-                    (tanggalPembuatanFirestore as Timestamp).toDate();
-              }
-            });
-          } else {
-            print('Document does not exist on Firestore');
-          }
-        } catch (error) {
-          print('Error while processing document: $error');
-          // Handle error as needed, e.g., show an error message to the user.
-        }
-      }).catchError((error) {
-        print('Error getting document: $error');
-      });
+      _fetchBomData();
     }
 
     if (widget.productId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        initializeProduct();
-        fetchDataDetail();
-      });
+      _initializeProductAndData();
     }
 
+    _addPostFrameCallback();
+  }
+
+  Future<void> _initializeBomId() async {
+    final nextBomId = await _generateNextBomId();
+    kodeBOMController.text = nextBomId;
+  }
+
+  void _fetchBomData() {
+    firestore
+        .collection('bill_of_materials')
+        .doc(widget.bomId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      try {
+        if (documentSnapshot.exists) {
+          final data = documentSnapshot.data() as Map<String, dynamic>;
+          setState(() {
+            catatanController.text = data['catatan'] ?? '';
+            kodeBOMController.text = data['id'];
+            versiBOMController.text = data['versi_bom'].toString();
+            selectedStatus = data['status_bom'] == 1 ? 'Aktif' : 'Tidak Aktif';
+            final tanggalPembuatanFirestore = data['tanggal_pembuatan'];
+            if (tanggalPembuatanFirestore != null) {
+              selectedDate = (tanggalPembuatanFirestore as Timestamp).toDate();
+            }
+          });
+        } else {
+          print('Document does not exist on Firestore');
+        }
+      } catch (error) {
+        print('Error while processing document: $error');
+        // Handle error as needed, e.g., show an error message to the user.
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
+    });
+  }
+
+  void _initializeProductAndData() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initializeProduct();
+      fetchDataDetail();
+    });
+  }
+
+  void _addPostFrameCallback() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       selectedProdukNotifier.addListener(_selectedKodeListener);
       selectedKodeProduk = selectedProdukNotifier.value;
@@ -393,11 +405,12 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                           ketebalanController: ketebalanController,
                           satuanController: satuanController,
                           productId: widget.productId,
+                          isEnabled: widget.bomId == null,
                         ),
                         const SizedBox(height: 16.0),
                         TextFieldWidget(
-                          label: 'Nama Produk',
-                          placeholder: 'Nama Produk',
+                          label: 'Kode Produk',
+                          placeholder: 'Kode Produk',
                           controller: namaProdukController,
                           isEnabled: false,
                         ),

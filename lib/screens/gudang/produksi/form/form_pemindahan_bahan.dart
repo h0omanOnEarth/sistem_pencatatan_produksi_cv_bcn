@@ -100,6 +100,14 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
     super.initState();
     mode = "add";
     statusController.text = "Dalam Proses";
+    _initializeMaterialTransfer();
+
+    if (widget.materialRequestId != null) {
+      _initializeEditMode();
+    }
+  }
+
+  void _initializeMaterialTransfer() {
     if (widget.materialTransferId != null) {
       firestore
           .collection('material_transfers')
@@ -125,12 +133,12 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
         print('Error getting document: $error');
       });
     }
+  }
 
-    if (widget.materialRequestId != null) {
-      mode = "edit";
-      fetchMaterialTransfer();
-      initializeMaterial();
-    }
+  void _initializeEditMode() {
+    mode = "edit";
+    fetchMaterialTransfer();
+    initializeMaterial();
   }
 
   Future<void> fetchMaterialTransfer() async {

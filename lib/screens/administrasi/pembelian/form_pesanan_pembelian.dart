@@ -404,34 +404,26 @@ class _FormPesananPembelianScreenState
                         const SizedBox(
                           height: 16.0,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DatePickerButton(
-                                label: 'Tanggal Pesanan',
-                                selectedDate: _selectedTanggalPesanan,
-                                onDateSelected: (newDate) {
-                                  setState(() {
-                                    _selectedTanggalPesanan = newDate;
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: DatePickerButton(
-                                label: 'Tanggal Pengirman',
-                                selectedDate: _selectedTanggalPengiriman,
-                                onDateSelected: (newDate) {
-                                  setState(() {
-                                    _selectedTanggalPengiriman = newDate;
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
-                          ],
+                        DatePickerButton(
+                          label: 'Tanggal Pesanan',
+                          selectedDate: _selectedTanggalPesanan,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedTanggalPesanan = newDate;
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
+                        ),
+                        const SizedBox(height: 16.0),
+                        DatePickerButton(
+                          label: 'Tanggal Pengirman',
+                          selectedDate: _selectedTanggalPengiriman,
+                          onDateSelected: (newDate) {
+                            setState(() {
+                              _selectedTanggalPengiriman = newDate;
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
                         ),
                         const SizedBox(
                           height: 16.0,

@@ -180,13 +180,30 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
     fetchDataBahan();
     statusController.text = "Dalam Proses";
 
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _fetchFirestoreData();
+
+    if (widget.productionOrderId != null) {
+      initializeProductionOrder();
+    }
+
+    if (widget.materialRequestId != null) {
+      filterProductDataBahan(widget.productionOrderId ?? '');
+      fetchDataDetail();
+    }
+  }
+
+  Future<void> _fetchFirestoreData() async {
     if (widget.materialUsageId != null) {
-      // Jika ada customerOrderId, ambil data dari Firestore
-      firestore
-          .collection('material_usages')
-          .doc(widget.materialUsageId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
+      try {
+        final documentSnapshot = await firestore
+            .collection('material_usages')
+            .doc(widget.materialUsageId)
+            .get();
+
         if (documentSnapshot.exists) {
           final data = documentSnapshot.data() as Map<String, dynamic>;
           setState(() {
@@ -203,18 +220,9 @@ class _FormPenggunaanBahanScreenState extends State<FormPenggunaanBahanScreen> {
         } else {
           print('Document does not exist on Firestore');
         }
-      }).catchError((error) {
+      } catch (error) {
         print('Error getting document: $error');
-      });
-    }
-
-    if (widget.productionOrderId != null) {
-      initializeProductionOrder();
-    }
-
-    if (widget.materialRequestId != null) {
-      filterProductDataBahan(widget.productionOrderId ?? '');
-      fetchDataDetail();
+      }
     }
   }
 

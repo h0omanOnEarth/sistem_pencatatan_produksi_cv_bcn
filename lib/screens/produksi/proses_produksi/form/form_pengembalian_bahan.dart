@@ -239,13 +239,26 @@ class _FormPengembalianBahanScreenState
     fetchDataBahan();
     statusController.text = "Dalam Proses";
 
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _fetchFirestoreData();
+
+    if (widget.materialUsageId != null) {
+      initializeMaterialUsage();
+      fetchDataDetail(); // Ambil data detail_customer_orders
+    }
+  }
+
+  Future<void> _fetchFirestoreData() async {
     if (widget.materialReturnId != null) {
-      // Jika ada customerOrderId, ambil data dari Firestore
-      firestore
-          .collection('material_returns')
-          .doc(widget.materialReturnId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
+      try {
+        final documentSnapshot = await firestore
+            .collection('material_returns')
+            .doc(widget.materialReturnId)
+            .get();
+
         if (documentSnapshot.exists) {
           final data = documentSnapshot.data() as Map<String, dynamic>;
           setState(() {
@@ -263,14 +276,9 @@ class _FormPengembalianBahanScreenState
         } else {
           print('Document does not exist on Firestore');
         }
-      }).catchError((error) {
+      } catch (error) {
         print('Error getting document: $error');
-      });
-    }
-
-    if (widget.materialUsageId != null) {
-      initializeMaterialUsage();
-      fetchDataDetail(); // Ambil data detail_customer_orders
+      }
     }
   }
 

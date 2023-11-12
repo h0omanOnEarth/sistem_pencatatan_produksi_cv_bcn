@@ -274,37 +274,7 @@ class _FormPesananPelangganScreenState
     fetchData();
 
     if (widget.customerOrderId != null) {
-      // Jika ada customerOrderId, ambil data dari Firestore
-      FirebaseFirestore.instance
-          .collection('customer_orders')
-          .doc(widget.customerOrderId) // Menggunakan widget.customerOrderId
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (documentSnapshot.exists) {
-          final data = documentSnapshot.data() as Map<String, dynamic>;
-          setState(() {
-            alamatPengirimanController.text = data['alamat_pengiriman'];
-            catatanController.text = data['catatan'] ?? '';
-            statusController.text = data['status_pesanan'];
-            totalHargaController.text = data['total_harga'].toString();
-            totalProdukController.text = data['total_produk'].toString();
-            final tanggalKirimFirestore = data['tanggal_kirim'];
-            if (tanggalKirimFirestore != null) {
-              _selectedTanggalKirim =
-                  (tanggalKirimFirestore as Timestamp).toDate();
-            }
-            final tanggalPesanFirestore = data['tanggal_pesan'];
-            if (tanggalPesanFirestore != null) {
-              _selectedTanggalPesan =
-                  (tanggalPesanFirestore as Timestamp).toDate();
-            }
-          });
-        } else {
-          print('Document does not exist on Firestore');
-        }
-      }).catchError((error) {
-        print('Error getting document: $error');
-      });
+      _initializeCustomerOrder();
     }
 
     if (widget.customerId != null) {
@@ -317,6 +287,39 @@ class _FormPesananPelangganScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       selectedPelangganNotifier.addListener(_selectedKodeListener);
       selectedKode = selectedPelangganNotifier.value;
+    });
+  }
+
+  void _initializeCustomerOrder() {
+    FirebaseFirestore.instance
+        .collection('customer_orders')
+        .doc(widget.customerOrderId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        final data = documentSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          alamatPengirimanController.text = data['alamat_pengiriman'];
+          catatanController.text = data['catatan'] ?? '';
+          statusController.text = data['status_pesanan'];
+          totalHargaController.text = data['total_harga'].toString();
+          totalProdukController.text = data['total_produk'].toString();
+          final tanggalKirimFirestore = data['tanggal_kirim'];
+          if (tanggalKirimFirestore != null) {
+            _selectedTanggalKirim =
+                (tanggalKirimFirestore as Timestamp).toDate();
+          }
+          final tanggalPesanFirestore = data['tanggal_pesan'];
+          if (tanggalPesanFirestore != null) {
+            _selectedTanggalPesan =
+                (tanggalPesanFirestore as Timestamp).toDate();
+          }
+        });
+      } else {
+        print('Document does not exist on Firestore');
+      }
+    }).catchError((error) {
+      print('Error getting document: $error');
     });
   }
 

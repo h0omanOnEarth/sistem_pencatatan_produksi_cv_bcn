@@ -75,7 +75,7 @@ class _ProdukDropDownState extends State<ProdukDropDown> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kode Produk',
+              'Nama Produk',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -101,11 +101,12 @@ class _ProdukDropDownState extends State<ProdukDropDown> {
 
                 for (QueryDocumentSnapshot document in snapshot.data!.docs) {
                   String productId = document['id'];
+                  String productName = document['nama'];
                   productItems.add(
                     DropdownMenuItem<String>(
                       value: productId,
                       child: Text(
-                        productId,
+                        productName,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ),
@@ -132,7 +133,7 @@ class _ProdukDropDownState extends State<ProdukDropDown> {
                               (document) => document['id'] == newValue,
                             );
                             widget.namaProdukController.text =
-                                selectedProduk['nama'] ?? '';
+                                selectedProduk['id'] ?? '';
 
                             widget.dimensiControler?.text =
                                 selectedProduk['dimensi'].toString();
