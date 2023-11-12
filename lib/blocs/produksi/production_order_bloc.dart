@@ -196,10 +196,10 @@ class ProductionOrderBloc
               Notify.instantNotify("Perintah Produksi Baru",
                   'Production Order $nextProductionOrderId baru ditambahkan');
 
-              EmailNotificationService.sendNotification(
-                  'Perintah Produksi Baru',
-                  'Perintah Produksi $nextProductionOrderId baru ditambahkan',
-                  'Produksi');
+              // EmailNotificationService.sendNotification(
+              //     'Perintah Produksi Baru',
+              //     'Perintah Produksi $nextProductionOrderId baru ditambahkan',
+              //     'Produksi');
 
               EmailNotificationService.sendNotification(
                 'Perintah Produksi Baru',
