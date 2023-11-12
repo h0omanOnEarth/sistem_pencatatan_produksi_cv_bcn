@@ -53,8 +53,9 @@ class MaterialTransformsBloc
   final HttpsCallable materialTransformCallable;
 
   MaterialTransformsBloc()
-      : materialTransformCallable = FirebaseFunctions.instance
-            .httpsCallable('materialTransformValidate'),
+      : materialTransformCallable =
+            FirebaseFunctions.instanceFor(region: "asia-southeast2")
+                .httpsCallable('materialTransformValidate'),
         super(LoadingState()) {
     _firestore = FirebaseFirestore.instance;
     materialTransformsRef = _firestore.collection('material_transforms');
