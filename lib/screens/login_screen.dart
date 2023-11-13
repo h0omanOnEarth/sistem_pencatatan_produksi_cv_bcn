@@ -49,7 +49,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool _showPassword = false;
   @override
   Widget build(BuildContext context) {
     final emailController = TextEditingController();
@@ -246,6 +252,19 @@ class LoginForm extends StatelessWidget {
                           color: Color.fromRGBO(59, 51, 51, 1),
                         ),
                         labelText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _showPassword
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Color.fromRGBO(59, 51, 51, 1),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _showPassword = !_showPassword;
+                            });
+                          },
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
                           borderSide: const BorderSide(
@@ -272,7 +291,7 @@ class LoginForm extends StatelessWidget {
                           horizontal: 10.0,
                         ),
                       ),
-                      obscureText: true,
+                      obscureText: !_showPassword,
                     ),
                     const SizedBox(height: 16.0),
                     Container(

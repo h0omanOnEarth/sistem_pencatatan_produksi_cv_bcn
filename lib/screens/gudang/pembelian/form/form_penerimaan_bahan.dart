@@ -114,7 +114,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
     if (materialId != null) {
       Map<String, dynamic>? material =
           await materialService.getMaterialInfo(materialId);
-      namaBahanController.text = material?['nama'] as String;
+      namaBahanController.text = material?['id'] as String;
     }
   }
 
@@ -325,8 +325,8 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                             const SizedBox(width: 16.0),
                             Expanded(
                               child: TextFieldWidget(
-                                label: 'Nama Bahan',
-                                placeholder: 'Nama Bahan',
+                                label: 'Kode Bahan',
+                                placeholder: 'Kode Bahan',
                                 isEnabled: false,
                                 controller: namaBahanController,
                               ),

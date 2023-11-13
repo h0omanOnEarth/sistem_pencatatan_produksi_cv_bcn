@@ -108,7 +108,7 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
     await loadInvoiceData();
 
     doc.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageTheme: pw.PageTheme(
           pageFormat: format.copyWith(
             marginBottom: 20.0,
@@ -122,8 +122,8 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
             bold: font2,
           ),
         ),
-        build: (context) {
-          return pw.Column(
+        build: (context) => [
+          pw.Column(
             children: [
               pw.Row(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -271,8 +271,8 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
                 ],
               ),
             ],
-          );
-        },
+          )
+        ],
       ),
     );
 

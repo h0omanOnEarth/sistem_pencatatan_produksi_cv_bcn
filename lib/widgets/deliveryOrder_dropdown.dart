@@ -1,11 +1,11 @@
-// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/utils/format_date.dart';
 
 class DeliveryOrderDropDown extends StatefulWidget {
-  final String? selecteDO;
+  final String? selectedDO;
   final Function(String?) onChanged;
   late final TextEditingController? namaPelangganController;
   late final TextEditingController? nomorPesananPelanggan;
@@ -14,7 +14,7 @@ class DeliveryOrderDropDown extends StatefulWidget {
   final bool isEnabled;
 
   DeliveryOrderDropDown({
-    required this.selecteDO,
+    required this.selectedDO,
     required this.onChanged,
     this.namaPelangganController,
     this.nomorPesananPelanggan,
@@ -28,119 +28,188 @@ class DeliveryOrderDropDown extends StatefulWidget {
 }
 
 class _DeliveryOrderDropDownState extends State<DeliveryOrderDropDown> {
-  late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
-  final FirebaseFirestore firestore =
-      FirebaseFirestore.instance; // Instance Firestore
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final customerOrderService = CustomerOrderService();
   final customerService = CustomerService();
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: firestore.collection('delivery_orders').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
-
-        // Ambil data dari snapshot
-        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
-
-        // Filter dan urutkan data secara lokal
-        documents = documents.where((document) {
-          if (widget.isEnabled) {
-            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-            return document['status'] == 1 &&
-                document['status_pesanan_pengiriman'] == "Dalam Proses";
-          } else {
-            // Jika isEnabled false, tampilkan semua data
-            return true;
-          }
-        }).toList();
-
-        documents.sort((a, b) {
-          DateTime dateA = a['tanggal_pesanan_pengiriman'].toDate();
-          DateTime dateB = b['tanggal_pesanan_pengiriman'].toDate();
-          return dateB.compareTo(dateA);
-        });
-
-        List<DropdownMenuItem<String>> doItems = [];
-
-        for (QueryDocumentSnapshot document in documents) {
-          String doID = document['id'];
-          doItems.add(
-            DropdownMenuItem<String>(
-              value: doID,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Perintah Pengiriman',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        GestureDetector(
+          onTap: widget.isEnabled ? () => _showDODialog(context) : null,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.grey[400]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    doID,
-                    style: const TextStyle(
-                      color: Colors.black,
-                    ),
+                    widget.selectedDO ?? 'Select Perintah Pengiriman',
+                    style: const TextStyle(color: Colors.black),
                   ),
+                  const Icon(Icons.arrow_drop_down),
                 ],
               ),
             ),
-          );
-        }
+          ),
+        ),
+      ],
+    );
+  }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Perintah Pengiriman',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+  Future<void> _showDODialog(BuildContext context) async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('delivery_orders').get();
+
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Perintah Pengiriman'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Builder(
+              builder: (BuildContext context) {
+                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    return document['status'] == 1 &&
+                        document['status_pesanan_pengiriman'] == "Dalam Proses";
+                  } else {
+                    return true;
+                  }
+                }).toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_pesanan_pengiriman'].toDate();
+                  DateTime dateB = b['tanggal_pesanan_pengiriman'].toDate();
+                  return dateB.compareTo(dateA);
+                });
+
+                return ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot document = documents[index];
+                    String doID = document['id'];
+                    String customerOrderID =
+                        document['customer_order_id'] ?? '';
+                    String metodePengiriman =
+                        document['metode_pengiriman'] ?? '';
+                    String namaEkspedisi = document['nama_ekspedisi'] ?? '';
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context, doID);
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ID: $doID',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Customer Order ID: $customerOrderID',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Perintah Pengiriman: ${DateFormatter.formatDate(document['tanggal_pesanan_pengiriman'].toDate())}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Metode Pengiriman: $metodePengiriman',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Nama Ekspedisi: $namaEkspedisi',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              FutureBuilder(
+                                future: _getCustomerName(customerOrderID),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text('Loading...');
+                                  }
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  }
+                                  if (snapshot.hasData) {
+                                    return Text(
+                                      'Nama Customer: ${snapshot.data}',
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    );
+                                  }
+                                  return Container();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: widget.selecteDO,
-                items: doItems,
-                onChanged: widget.isEnabled
-                    ? (newValue) async {
-                        widget.onChanged(newValue);
-                        _selectedDoc = documents.firstWhere(
-                          (document) => document['id'] == newValue,
-                        );
-
-                        widget.alamatController?.text =
-                            _selectedDoc['alamat_pengiriman'];
-
-                        Map<String, dynamic>? customerOrder =
-                            await customerOrderService.getCustomerOrderInfo(
-                                _selectedDoc['customer_order_id']);
-                        Map<String, dynamic>? customer = await customerService
-                            .getCustomerInfo(customerOrder?['customer_id']);
-                        widget.namaPelangganController?.text =
-                            customer?['nama'];
-                        widget.kodePelangganController?.text = customer?['id'];
-                        widget.nomorPesananPelanggan?.text =
-                            customerOrder?['id'];
-                      }
-                    : null,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
+          ),
         );
       },
-    );
+    ).then((selectedDO) async {
+      if (selectedDO != null) {
+        widget.onChanged(selectedDO);
+
+        final selectedDoc = snapshot.docs.firstWhere(
+          (document) => document['id'] == selectedDO,
+        );
+
+        widget.alamatController?.text = selectedDoc['alamat_pengiriman'] ?? '';
+
+        final customerOrder = await customerOrderService
+            .getCustomerOrderInfo(selectedDoc['customer_order_id']);
+        final customer = await customerService
+            .getCustomerInfo(customerOrder?['customer_id']);
+
+        if (customer != null) {
+          widget.namaPelangganController?.text = customer['nama'];
+          widget.kodePelangganController?.text = customer['id'];
+        }
+
+        if (customerOrder != null) {
+          widget.nomorPesananPelanggan?.text = customerOrder['id'];
+        }
+      }
+    });
+  }
+
+  Future<String> _getCustomerName(String customerOrderID) async {
+    Map<String, dynamic>? customerOrder =
+        await customerOrderService.getCustomerOrderInfo(customerOrderID);
+    Map<String, dynamic>? customer =
+        await customerService.getCustomerInfo(customerOrder?['customer_id']);
+    return customer?['nama'] ?? '';
   }
 }

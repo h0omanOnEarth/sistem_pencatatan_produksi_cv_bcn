@@ -139,7 +139,7 @@ class _FormPesananPembelianScreenState
         if (querySnapshot.docs.isNotEmpty) {
           final materialData =
               querySnapshot.docs.first.data() as Map<String, dynamic>;
-          final namaBahan = materialData['nama'];
+          final namaBahan = materialData['id'];
           namaBahanController.text = namaBahan ?? '';
         } else {
           print('Document does not exist on Firestore');
@@ -334,8 +334,8 @@ class _FormPesananPembelianScreenState
                             const SizedBox(width: 16.0),
                             Expanded(
                               child: TextFieldWidget(
-                                label: 'Nama Bahan',
-                                placeholder: 'Nama Bahan',
+                                label: 'Kode Bahan',
+                                placeholder: 'Kode Bahan',
                                 controller: namaBahanController,
                                 isEnabled: false,
                               ),

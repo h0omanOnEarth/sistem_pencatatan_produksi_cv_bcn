@@ -196,11 +196,6 @@ class ProductionOrderBloc
               Notify.instantNotify("Perintah Produksi Baru",
                   'Production Order $nextProductionOrderId baru ditambahkan');
 
-              // EmailNotificationService.sendNotification(
-              //     'Perintah Produksi Baru',
-              //     'Perintah Produksi $nextProductionOrderId baru ditambahkan',
-              //     'Produksi');
-
               EmailNotificationService.sendNotification(
                 'Perintah Produksi Baru',
                 _createEmailMessage(
@@ -219,39 +214,6 @@ class ProductionOrderBloc
                 ),
                 'Produksi',
               );
-
-              try {
-                final HttpsCallable callable =
-                    FirebaseFunctions.instanceFor(region: "asia-southeast2")
-                        .httpsCallable('sendEmailNotif');
-                final HttpsCallableResult<dynamic> result =
-                    await callable.call(<String, dynamic>{
-                  'dest': 'clarissagracia.cg@gmail.com',
-                  'subject': 'Production Order Baru',
-                  'html': _createEmailMessage(
-                    nextProductionOrderId,
-                    bomId,
-                    jumlahProduksiEst,
-                    jumlahTenagaKerjaEst,
-                    lamaWaktuEst,
-                    productId,
-                    statusPro,
-                    tanggalProduksi,
-                    tanggalRencana,
-                    tanggalSelesai,
-                    materials,
-                    machines,
-                  ),
-                });
-
-                if (result.data['success'] == true) {
-                  print("Email Sent");
-                } else {
-                  print(result.data['message']);
-                }
-              } catch (e) {
-                print(e.toString());
-              }
 
               yield SuccessState();
             } else {

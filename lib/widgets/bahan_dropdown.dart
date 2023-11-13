@@ -42,7 +42,7 @@ class _BahanDropdownState extends State<BahanDropdown> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Kode Bahan',
+              'Bahan',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
@@ -67,13 +67,14 @@ class _BahanDropdownState extends State<BahanDropdown> {
 
                 for (QueryDocumentSnapshot document in snapshot.data!.docs) {
                   String materialId = document['id'];
+                  String materialName = document['nama'];
                   // Filter nama tertentu (misalnya, 'materialXXX')
                   if (materialId != 'materialXXX') {
                     materialItems.add(
                       DropdownMenuItem<String>(
                         value: materialId,
                         child: Text(
-                          materialId,
+                          materialName,
                           style: const TextStyle(color: Colors.black),
                         ),
                       ),
@@ -100,7 +101,7 @@ class _BahanDropdownState extends State<BahanDropdown> {
                               (document) => document['id'] == newValue,
                             );
                             widget.namaBahanController.text =
-                                selectedMaterial['nama'] ?? '';
+                                selectedMaterial['id'] ?? '';
                             widget.satuanBahanController?.text =
                                 selectedMaterial['satuan'] ?? '';
                           }

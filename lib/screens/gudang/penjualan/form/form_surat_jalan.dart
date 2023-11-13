@@ -434,7 +434,7 @@ class _FormSuratJalanScreenState extends State<FormSuratJalanScreen> {
                         height: 16.0,
                       ),
                       DeliveryOrderDropDown(
-                        selecteDO: selectedNomorPerintahPengiriman,
+                        selectedDO: selectedNomorPerintahPengiriman,
                         onChanged: (newValue) {
                           setState(() {
                             selectedNomorPerintahPengiriman = newValue ?? '';

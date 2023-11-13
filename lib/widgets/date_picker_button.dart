@@ -8,17 +8,17 @@ class DatePickerButton extends StatelessWidget {
   final bool isEnabled; // Tambahkan parameter isEnabled
 
   const DatePickerButton({
+    Key? key,
     required this.label,
     required this.selectedDate,
     required this.onDateSelected,
     this.isEnabled = true, // Tambahkan default value true
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    String dateText = selectedDate == null
-        ? 'Pilih Tanggal'
-        : DateFormat.yMMMMd().format(selectedDate!);
+    DateTime currentDate = selectedDate ?? DateTime.now();
+    String dateText = DateFormat.yMMMMd().format(currentDate);
 
     Color textColor = selectedDate == null ? Colors.grey[500]! : Colors.black;
 
@@ -39,7 +39,7 @@ class DatePickerButton extends StatelessWidget {
                   // Periksa isEnabled
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: currentDate,
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2101),
                   );

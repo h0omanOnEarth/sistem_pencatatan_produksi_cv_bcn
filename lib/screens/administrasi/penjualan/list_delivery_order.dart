@@ -244,7 +244,9 @@ class _ListPesananPengirimanState extends State<ListPesananPengiriman> {
 
   Widget buildDeliveryOrderList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: deliveryOrderRef.snapshots(),
+      stream: deliveryOrderRef
+          .orderBy('tanggal_pesanan_pengiriman', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

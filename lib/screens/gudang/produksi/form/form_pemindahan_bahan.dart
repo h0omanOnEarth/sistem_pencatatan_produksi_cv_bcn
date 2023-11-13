@@ -137,8 +137,10 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
 
   void _initializeEditMode() {
     mode = "edit";
-    fetchMaterialTransfer();
-    initializeMaterial();
+    if (mounted) {
+      fetchMaterialTransfer();
+      initializeMaterial();
+    }
   }
 
   Future<void> fetchMaterialTransfer() async {
