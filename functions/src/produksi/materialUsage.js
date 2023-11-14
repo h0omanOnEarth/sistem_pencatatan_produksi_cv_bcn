@@ -13,22 +13,23 @@ exports.materialUsageValidation = async (req) => {
     req.data;
   let totalMaterial = 0;
 
-  // Pemeriksaan apakah productionOrderId sama dengan production_order_id di koleksi material_requests
-  const materialRequestSnapshot = await admin
+  // Pemeriksaan apakah productionOrderId sama dengan production_order_id di koleksi production_orders
+  const productionOrderSnapshot = await admin
     .firestore()
-    .collection("material_requests")
-    .doc(materialRequestId)
+    .collection("production_orders")
+    .doc(productionOrderId)
     .get();
-  if (materialRequestSnapshot.exists) {
-    const materialRequestData = materialRequestSnapshot.data();
-    if (materialRequestData.production_order_id !== productionOrderId) {
+
+  if (productionOrderSnapshot.exists) {
+    const productionOrderData = productionOrderSnapshot.data();
+    if (productionOrderData.id !== productionOrderId) {
       return {
         success: false,
-        message: `Nomor perintah produksi tidak sesuai dengan nomor permintaan bahan, seharusnya ${materialRequestData.production_order_id}`,
+        message: `Nomor perintah produksi tidak sesuai dengan nomor permintaan bahan, seharusnya ${productionOrderData.id}`,
       };
     }
   } else {
-    return { success: false, message: "Material Request tidak ditemukan" };
+    return { success: false, message: "Production Order tidak ditemukan" };
   }
 
   // Periksa apakah material request sudah ada pada koleksi material_transfers dengan status_mtr "Selesai"
@@ -95,30 +96,35 @@ exports.materialUsageValidation = async (req) => {
     return { success: false, message: "Satuan tidak boleh kosong" };
   }
 
-  // Periksa apakah batch sesuai dengan batch pada subkoleksi detail_material_requests
-  const detailMaterialRequestRef = admin
+  // Periksa apakah batch sesuai dengan batch pada subkoleksi detail_production_orders
+  const detailProductionOrderRef = admin
     .firestore()
-    .collection("material_requests")
-    .doc(materialRequestId)
-    .collection("detail_material_requests");
-  const detailMaterialRequestQuery = await detailMaterialRequestRef
+    .collection("production_orders")
+    .doc(productionOrderId)
+    .collection("detail_production_orders");
+
+  const detailProductionOrderQuery = await detailProductionOrderRef
     .where("batch", "==", batch)
     .get();
 
-  if (detailMaterialRequestQuery.empty) {
-    return {
-      success: false,
-      message: "Batch tidak sesuai dengan Material Request",
-    };
+  if (batch != "Sheet") {
+    if (detailProductionOrderQuery.empty) {
+      return {
+        success: false,
+        message: "Batch tidak sesuai dengan Production Order",
+      };
+    }
   }
 
-  // Pemeriksaan apakah material.material_id ada yang cocok dengan material_id pada detailMaterialRequestRef
-  const detailMaterialRequests = detailMaterialRequestQuery.docs.map((doc) =>
+  // Pemeriksaan apakah material.material_id ada yang cocok dengan material_id pada detailProductionOrderRef
+  const detailProductionOrders = detailProductionOrderQuery.docs.map((doc) =>
     doc.data()
   );
+
   const invalidMaterialIds = materials.filter((material) => {
-    return !detailMaterialRequests.some(
-      (detailMaterial) => detailMaterial.material_id === material.material_id
+    return !detailProductionOrders.some(
+      (detailProduction) =>
+        detailProduction.material_id === material.material_id
     );
   });
 
@@ -132,15 +138,15 @@ exports.materialUsageValidation = async (req) => {
     };
   }
 
-  const detailMaterialRequestsQueryQty = await detailMaterialRequestRef.get();
+  const detailProductionOrdersQueryQty = await detailProductionOrderRef.get();
   const materialIdQuantities = {};
   const materialIdUnits = {}; // Menyimpan satuan material berdasarkan material_id
 
-  detailMaterialRequestsQueryQty.forEach((doc) => {
-    const detailMaterialRequestData = doc.data();
-    const materialId = detailMaterialRequestData.material_id;
-    const quantity = detailMaterialRequestData.jumlah_bom;
-    const unit = detailMaterialRequestData.satuan;
+  detailProductionOrdersQueryQty.forEach((doc) => {
+    const detailProductionOrderData = doc.data();
+    const materialId = detailProductionOrderData.material_id;
+    const quantity = detailProductionOrderData.jumlah_bom;
+    const unit = detailProductionOrderData.satuan;
 
     materialIdQuantities[materialId] = quantity;
     materialIdUnits[materialId] = unit;
@@ -149,22 +155,22 @@ exports.materialUsageValidation = async (req) => {
   for (const material of materials) {
     const materialId = material.material_id;
     const quantityInMaterials = material.jumlah;
-    const quantityInDetailMaterialRequests = materialIdQuantities[materialId];
+    const quantityInDetailProductionOrders = materialIdQuantities[materialId];
     const unitInMaterials = material.satuan;
-    const unitInDetailMaterialRequests = materialIdUnits[materialId];
+    const unitInDetailProductionOrders = materialIdUnits[materialId];
     totalMaterial = totalMaterial + material.jumlah;
 
-    if (quantityInMaterials > quantityInDetailMaterialRequests) {
+    if (quantityInMaterials > quantityInDetailProductionOrders) {
       return {
         success: false,
-        message: `Jumlah ${materialId} melebihi yang tersedia dalam detail_material_requests,\nseharusnya ${quantityInDetailMaterialRequests}`,
+        message: `Jumlah ${materialId} melebihi yang tersedia dalam detail_production_orders,\nseharusnya ${quantityInDetailProductionOrders}`,
       };
     }
 
-    if (unitInMaterials !== unitInDetailMaterialRequests) {
+    if (unitInMaterials !== unitInDetailProductionOrders) {
       return {
         success: false,
-        message: `Satuan ${materialId} tidak sesuai dengan yang ada dalam detail_material_requests, seharusnya ${unitInDetailMaterialRequests}`,
+        message: `Satuan ${materialId} tidak sesuai dengan yang ada dalam detail_production_orders, seharusnya ${unitInDetailProductionOrders}`,
       };
     }
   }

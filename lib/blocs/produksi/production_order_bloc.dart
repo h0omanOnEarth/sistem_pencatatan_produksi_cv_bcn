@@ -6,7 +6,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_producti
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/utils/notify_awesome.dart';
 
 // Events
 abstract class ProductionOrderEvent {}
@@ -192,9 +191,6 @@ class ProductionOrderBloc
 
               // Gunakan .set() untuk menambahkan data ke dokumen tersebut
               await newNotificationDoc.set(notificationData);
-
-              Notify.instantNotify("Perintah Produksi Baru",
-                  'Production Order $nextProductionOrderId baru ditambahkan');
 
               EmailNotificationService.sendNotification(
                 'Perintah Produksi Baru',

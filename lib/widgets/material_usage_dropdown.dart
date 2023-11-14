@@ -40,6 +40,111 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
     }
   }
 
+  Future<void> _showMaterialUsageDialog() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('material_usages').get();
+
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Material Usage'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Builder(
+              builder: (BuildContext context) {
+                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_penggunaan'].toDate();
+                  DateTime dateB = b['tanggal_penggunaan'].toDate();
+                  return dateB.compareTo(dateA);
+                });
+
+                return ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot document = documents[index];
+                    String materialUsageId = document['id'];
+                    DateTime tanggalPenggunaan =
+                        document['tanggal_penggunaan'].toDate();
+                    String productionOrderId = document['production_order_id'];
+                    String materialRequestId = document['material_request_id'];
+                    String batch = document['batch'];
+                    String statusMu = document['status_mu'];
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context, materialUsageId);
+
+                        // Call the onChanged callback with the selected value
+                        widget.onChanged(materialUsageId);
+
+                        // Update other fields based on selectedMaterialUsage if needed
+                        if (widget.namaBatchController != null) {
+                          widget.namaBatchController!.text = batch;
+                        }
+                        if (widget.nomorPerintahProduksiController != null) {
+                          widget.nomorPerintahProduksiController!.text =
+                              productionOrderId;
+                        }
+                        // Add other controllers if needed
+
+                        selectedBatch = batch;
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ID: $materialUsageId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Penggunaan: ${tanggalPenggunaan.toLocal()}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Production Order ID: $productionOrderId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Material Request ID: $materialRequestId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Batch: $batch',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Status MU: $statusMu',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    ).then((selectedMaterialUsage) {
+      if (selectedMaterialUsage != null) {
+        widget.onChanged(selectedMaterialUsage);
+
+        // Update other fields based on selectedMaterialUsage if needed
+        // ...
+      }
+    });
+  }
+
   void fetchMaterialUsageEdit() async {
     setState(() {
       isLoading = true;
@@ -134,72 +239,30 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
           ),
         ),
         const SizedBox(height: 8.0),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.0),
-            border: Border.all(color: Colors.grey[400]!),
-          ),
-          child: isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(), // Indikator loading
-                )
-              : DropdownButtonFormField<String>(
-                  value: widget.selectedMaterialUsage,
-                  items: materialUsageIds
-                      .map(
-                        (materialUsageId) => DropdownMenuItem<String>(
-                          value: materialUsageId,
-                          child: Text(
-                            materialUsageId,
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: widget.isEnabled
-                      ? (newValue) async {
-                          widget.onChanged(newValue);
-
-                          final batchData = await FirebaseFirestore.instance
-                              .collection('material_usages')
-                              .doc(newValue)
-                              .get();
-
-                          if (batchData.exists) {
-                            final batchValue = batchData['batch'] as String?;
-                            if (widget.namaBatchController != null) {
-                              widget.namaBatchController!.text =
-                                  batchValue ?? '';
-                            }
-                            selectedBatch = batchValue;
-
-                            if (widget.nomorPerintahProduksiController !=
-                                null) {
-                              widget.nomorPerintahProduksiController!.text =
-                                  batchData['production_order_id'];
-                            }
-                          } else {
-                            if (widget.namaBatchController != null) {
-                              widget.namaBatchController!.text = '';
-                            }
-                            selectedBatch = null;
-                          }
-                        }
-                      : null, // Menonaktifkan dropdown jika isEnabled false
-                  isExpanded: true,
-                  autovalidateMode: widget.isEnabled
-                      ? AutovalidateMode.onUserInteraction
-                      : AutovalidateMode
-                          .disabled, // Mengatur validasi sesuai isEnabled
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8.0,
-                      horizontal: 16.0,
-                    ),
+        InkWell(
+          onTap: widget.isEnabled ? _showMaterialUsageDialog : null,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.grey[400]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.selectedMaterialUsage ?? 'Select Material Usage',
+                    style: const TextStyle(color: Colors.black),
                   ),
-                  style: const TextStyle(color: Colors.black),
-                ),
+                  const Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
     );

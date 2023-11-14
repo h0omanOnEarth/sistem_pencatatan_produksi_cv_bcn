@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/services/customerOrderService.d
 import 'package:sistem_manajemen_produksi_cv_bcn/services/customerService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/deliveryOrderService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/suratJalanService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/utils/format_date.dart';
 
 class FakturDropdown extends StatefulWidget {
   final String? selectedFaktur;
@@ -42,117 +43,191 @@ class _FakturDropdownState extends State<FakturDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('invoices').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
-
-        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
-
-        // Filter dan urutkan data secara lokal
-        documents = documents.where((document) {
-          if (widget.isEnabled) {
-            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-            return document['status'] == 1 &&
-                document['status_fk'] == "Selesai";
-          } else {
-            // Jika isEnabled false, tampilkan semua data
-            return true;
-          }
-        }).toList();
-
-        documents.sort((a, b) {
-          DateTime dateA = a['tanggal_pembuatan'].toDate();
-          DateTime dateB = b['tanggal_pembuatan'].toDate();
-          return dateB.compareTo(dateA);
-        });
-
-        List<DropdownMenuItem<String>> invoiceItems = [];
-
-        for (QueryDocumentSnapshot document in documents) {
-          String invoiceId = document['id'];
-          invoiceItems.add(
-            DropdownMenuItem<String>(
-              value: invoiceId,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Faktur',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        GestureDetector(
+          onTap: widget.isEnabled ? () => _showFakturDialog(context) : null,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.grey[400]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    invoiceId,
-                    style: const TextStyle(
-                      color: Colors.black,
-                    ),
+                    widget.selectedFaktur ?? 'Select Faktur',
+                    style: const TextStyle(color: Colors.black),
                   ),
+                  const Icon(Icons.arrow_drop_down),
                 ],
               ),
             ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Faktur',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: widget.selectedFaktur,
-                items: invoiceItems,
-                onChanged: widget.isEnabled
-                    ? (newValue) async {
-                        widget.onChanged(newValue);
-                        _selectedDoc = snapshot.data!.docs.firstWhere(
-                          (document) => document['id'] == newValue,
-                        );
+          ),
+        ),
+      ],
+    );
+  }
 
-                        Map<String, dynamic>? shipment = await suratJalanService
-                            .getSuratJalanInfo(_selectedDoc['shipment_id']);
-                        Map<String, dynamic>? deliveryOrder =
-                            await deliveryOrderService.getDeliveryOrderInfo(
-                                shipment?['deliveryOrderId'] as String);
-                        final customerOrderId =
-                            deliveryOrder?['customerOrderId'] as String;
-                        Map<String, dynamic>? customerOrder =
-                            await customerOrderService
-                                .getCustomerOrderInfo(customerOrderId);
-                        Map<String, dynamic>? customer = await customerService
-                            .getCustomerInfo(customerOrder?['customer_id']);
-                        widget.alamatController?.text =
-                            shipment?['alamatPenerima'];
-                        widget.namaPelangganController?.text =
-                            customer?['nama'];
-                        widget.kodePelangganController?.text = customer?['id'];
-                        widget.nomorPesananPelanggan?.text =
-                            customerOrder?['id'];
-                        widget.nomorSuratJalanController?.text =
-                            shipment?['id'];
-                      }
-                    : null,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-              ),
+  Future<void> _showFakturDialog(BuildContext context) async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('invoices').get();
+
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Faktur'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Builder(
+              builder: (BuildContext context) {
+                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    return document['status'] == 1 &&
+                        document['status_fk'] == "Selesai";
+                  } else {
+                    return true;
+                  }
+                }).toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_pembuatan'].toDate();
+                  DateTime dateB = b['tanggal_pembuatan'].toDate();
+                  return dateB.compareTo(dateA);
+                });
+
+                return ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot document = documents[index];
+                    String fakturId = document['id'];
+                    String shipmentId = document['shipment_id'];
+                    DateTime tanggalPembuatan =
+                        document['tanggal_pembuatan'].toDate();
+                    String metodePembayaran =
+                        document['metode_pembayaran'] ?? '';
+                    String nomorRekening = document['nomor_rekening'] ?? '';
+                    String total = document['total'].toString();
+                    String statusPembayaran =
+                        document['status_pembayaran'] ?? '';
+
+                    return InkWell(
+                      onTap: () async {
+                        Navigator.pop(context, fakturId);
+
+                        // Call the onChanged callback with the selected value
+                        widget.onChanged(fakturId);
+
+                        // Update other fields based on selectedFaktur if needed
+                        if (widget.namaPelangganController != null) {
+                          _selectedDoc = snapshot.docs.firstWhere(
+                            (doc) => doc['id'] == fakturId,
+                          );
+
+                          Map<String, dynamic>? shipment =
+                              await suratJalanService.getSuratJalanInfo(
+                                  _selectedDoc['shipment_id']);
+                          Map<String, dynamic>? deliveryOrder =
+                              await deliveryOrderService.getDeliveryOrderInfo(
+                                  shipment?['deliveryOrderId'] as String);
+                          final customerOrderId =
+                              deliveryOrder?['customerOrderId'] as String;
+                          Map<String, dynamic>? customerOrder =
+                              await customerOrderService
+                                  .getCustomerOrderInfo(customerOrderId);
+                          Map<String, dynamic>? customer = await customerService
+                              .getCustomerInfo(customerOrder?['customer_id']);
+                          widget.alamatController?.text =
+                              shipment?['alamatPenerima'];
+                          widget.namaPelangganController?.text =
+                              customer?['nama'];
+                          widget.kodePelangganController?.text =
+                              customer?['id'];
+                          widget.nomorPesananPelanggan?.text =
+                              customerOrder?['id'];
+                          widget.nomorSuratJalanController?.text =
+                              shipment?['id'];
+                        }
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ID: $fakturId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Shipment ID: $shipmentId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Pembuatan: ${DateFormatter.formatDate(tanggalPembuatan)}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Metode Pembayaran: $metodePembayaran',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Nomor Rekening: $nomorRekening',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Total: $total',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Status Pembayaran: $statusPembayaran',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ],
+          ),
         );
       },
-    );
+    ).then((selectedFaktur) {
+      if (selectedFaktur != null) {
+        widget.onChanged(selectedFaktur);
+
+        // Update other fields based on selectedFaktur if needed
+        // ...
+      }
+    });
+  }
+
+  Future<String> _getCustomerName(String customerOrderId) async {
+    Map<String, dynamic>? customerOrder =
+        await customerOrderService.getCustomerOrderInfo(customerOrderId);
+    Map<String, dynamic>? customer =
+        await customerService.getCustomerInfo(customerOrder?['customer_id']);
+    return customer?['nama'] ?? '';
   }
 }

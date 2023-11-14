@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
 
 class ProductionOrderDropDown extends StatefulWidget {
   final String? selectedPRO;
   final Function(String?) onChanged;
-  late final TextEditingController? tanggalProduksiController;
-  late final TextEditingController? kodeProdukController;
-  late final TextEditingController? namaProdukController;
-  late final TextEditingController? kodeBomController;
+  final TextEditingController? tanggalProduksiController;
+  final TextEditingController? kodeProdukController;
+  final TextEditingController? namaProdukController;
+  final TextEditingController? kodeBomController;
   final bool isEnabled;
 
   ProductionOrderDropDown({
-    super.key,
+    Key? key,
     required this.selectedPRO,
     required this.onChanged,
     this.tanggalProduksiController,
@@ -19,7 +20,7 @@ class ProductionOrderDropDown extends StatefulWidget {
     this.namaProdukController,
     this.kodeBomController,
     this.isEnabled = true,
-  });
+  }) : super(key: key);
 
   @override
   State<ProductionOrderDropDown> createState() =>
@@ -31,110 +32,52 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
   final FirebaseFirestore firestore =
       FirebaseFirestore.instance; // Instance Firestore
 
-  Future<String?> getProductName(String productId) async {
-    try {
-      final productQuery = await firestore
-          .collection('products')
-          .where('id',
-              isEqualTo:
-                  productId) // Ganti 'product_id' dengan nama field yang sesuai
-          .limit(1) // Batasi hasil ke satu dokumen (jika ada banyak yang cocok)
-          .get();
+  Future<void> _showProductionOrderDialog() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('production_orders').get();
 
-      if (productQuery.docs.isNotEmpty) {
-        final productName = productQuery.docs.first['nama'] as String?;
-        return productName;
-      }
-      return null;
-    } catch (e) {
-      print('Error fetching product name: $e');
-      return null;
-    }
-  }
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Production Order'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Builder(
+              builder: (BuildContext context) {
+                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('production_orders')
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const CircularProgressIndicator();
-        }
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_rencana'].toDate();
+                  DateTime dateB = b['tanggal_rencana'].toDate();
+                  return dateB.compareTo(dateA);
+                });
 
-        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+                return ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot document = documents[index];
+                    String productionOrderId = document['id'];
+                    DateTime tanggalRencana =
+                        document['tanggal_rencana'].toDate();
+                    DateTime tanggalProduksi =
+                        document['tanggal_produksi'].toDate();
+                    String productId = document['product_id'];
+                    String bomId = document['bom_id'];
+                    String statusPro = document['status_pro'];
 
-        // Filter dan urutkan data secara lokal
-        documents = documents.where((document) {
-          if (widget.isEnabled) {
-            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-            return document['status'] == 1 &&
-                document['status_pro'] == "Dalam Proses";
-          } else {
-            // Jika isEnabled false, tampilkan semua data
-            return true;
-          }
-        }).toList();
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context, productionOrderId);
 
-        documents.sort((a, b) {
-          DateTime dateA = a['tanggal_rencana'].toDate();
-          DateTime dateB = b['tanggal_rencana'].toDate();
-          return dateB.compareTo(dateA);
-        });
+                        // Call the onChanged callback with the selected value
+                        widget.onChanged(productionOrderId);
 
-        List<DropdownMenuItem<String>> proItems = [];
-
-        for (QueryDocumentSnapshot document in documents) {
-          String proId = document['id'];
-          proItems.add(
-            DropdownMenuItem<String>(
-              value: proId,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    proId,
-                    style: const TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Perintah Produksi',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: widget.selectedPRO,
-                items: proItems,
-                onChanged: widget.isEnabled
-                    ? (newValue) async {
-                        widget.onChanged(newValue);
-                        _selectedDoc = snapshot.data!.docs.firstWhere(
-                          (document) => document['id'] == newValue,
-                        );
-
-                        final tanggalProduksiFirestore =
-                            _selectedDoc['tanggal_produksi'];
-                        if (tanggalProduksiFirestore != null) {
+                        // Update other fields based on selectedPRO if needed
+                        if (widget.tanggalProduksiController != null) {
                           final timestamp =
-                              tanggalProduksiFirestore as Timestamp;
+                              document['tanggal_produksi'] as Timestamp;
                           final dateTime = timestamp.toDate();
 
                           final List<String> monthNames = [
@@ -157,33 +100,117 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
                           final year = dateTime.year.toString();
 
                           final formattedDate = '$month $day, $year';
-                          widget.tanggalProduksiController?.text =
+                          widget.tanggalProduksiController!.text =
                               formattedDate;
                         }
-                        widget.kodeProdukController?.text =
-                            _selectedDoc['product_id'];
-                        final productName =
-                            await getProductName(_selectedDoc['product_id']);
-                        widget.namaProdukController?.text = productName!;
-                        widget.kodeBomController?.text = _selectedDoc['bom_id'];
-                        widget.kodeProdukController?.text =
-                            _selectedDoc['product_id'];
-                      }
-                    : null,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.black),
-              ),
+
+                        widget.kodeProdukController?.text = productId;
+                        widget.kodeBomController?.text = bomId;
+
+                        // Retrieve and set product name
+                        ProductService productService = ProductService();
+                        productService
+                            .getProductInfo(productId)
+                            .then((productName) {
+                          if (productName != null &&
+                              widget.namaProdukController != null) {
+                            widget.namaProdukController!.text =
+                                productName['nama'];
+                          }
+                        });
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ID: $productionOrderId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Rencana: ${tanggalRencana.toLocal()}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Produksi: ${tanggalProduksi.toLocal()}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Product ID: $productId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              // Add more fields as needed
+                              Text(
+                                'BOM ID: $bomId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Status PRO: $statusPro',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ],
+          ),
         );
       },
+    ).then((selectedPRO) {
+      if (selectedPRO != null) {
+        widget.onChanged(selectedPRO);
+
+        // Update other fields based on selectedPRO if needed
+        // ...
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Perintah Produksi',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        InkWell(
+          onTap: widget.isEnabled ? _showProductionOrderDialog : null,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: Colors.grey[400]!),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 16.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.selectedPRO ?? 'Select Production Order',
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  const Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

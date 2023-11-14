@@ -9,7 +9,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/main_menu_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/utils/notify_awesome.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/errorDialogWidget.dart';
 
 class LoginPageScreen extends StatefulWidget {
@@ -325,15 +324,6 @@ class _LoginFormState extends State<LoginForm> {
                           //     builder: (context) => const MainProduksi(),
                           //   ),
                           // );
-
-                          // print("Mengirim notifikasi...");
-                          // Notify.instantNotify("Login", "Berhasil Login")
-                          //     .then((notificationCreated) {
-                          //   print("Notifikasi dikirim: $notificationCreated");
-                          // }).catchError((error) {
-                          //   print(
-                          //       "Terjadi kesalahan saat mengirim notifikasi: $error");
-                          // });
 
                           // Routemaster.of(context).push(MainGudang.routeName);
                           // if (kIsWeb) {
