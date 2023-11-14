@@ -28,7 +28,6 @@ class ProductionOrderDropDown extends StatefulWidget {
 }
 
 class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
-  late QueryDocumentSnapshot _selectedDoc; // Menyimpan dokumen yang dipilih
   final FirebaseFirestore firestore =
       FirebaseFirestore.instance; // Instance Firestore
 
@@ -55,6 +54,7 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
                 });
 
                 return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
                   itemCount: documents.length,
                   itemBuilder: (context, index) {
                     QueryDocumentSnapshot document = documents[index];

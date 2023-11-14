@@ -120,6 +120,7 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
                 });
 
                 return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
                   itemCount: documents.length,
                   itemBuilder: (context, index) {
                     QueryDocumentSnapshot document = documents[index];
