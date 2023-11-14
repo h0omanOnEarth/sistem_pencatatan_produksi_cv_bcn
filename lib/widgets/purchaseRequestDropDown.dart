@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/utils/format_date.dart';
 
 class PurchaseRequestDropDown extends StatefulWidget {
   final String? selectedPurchaseRequest;
@@ -91,31 +92,141 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
               ),
             ),
             const SizedBox(height: 8.0),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.0),
-                border: Border.all(color: Colors.grey[400]!),
-              ),
-              child: DropdownButtonFormField<String>(
-                value: widget.selectedPurchaseRequest,
-                items: purchaseRequestItems,
-                onChanged: widget.isEnabled
-                    ? (newValue) => widget.onChanged(newValue)
-                    : null,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
+            InkWell(
+              onTap: widget.isEnabled ? _showPurchaseRequestDialog : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.grey[400]!),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
                     vertical: 8.0,
                     horizontal: 16.0,
                   ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.selectedPurchaseRequest ??
+                            'Select Purchase Request',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      const Icon(Icons.arrow_drop_down),
+                    ],
+                  ),
                 ),
-                style: const TextStyle(color: Colors.black),
               ),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _showPurchaseRequestDialog() async {
+    final QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('purchase_requests').get();
+
+    // ignore: use_build_context_synchronously
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Purchase Request'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Builder(
+              builder: (BuildContext context) {
+                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    return document['status'] == 1 &&
+                        document['status_prq'] == "Dalam Proses";
+                  } else {
+                    return true;
+                  }
+                }).toList();
+
+                documents.sort((a, b) {
+                  DateTime dateA = a['tanggal_permintaan'].toDate();
+                  DateTime dateB = b['tanggal_permintaan'].toDate();
+                  return dateB.compareTo(dateA);
+                });
+
+                return ListView.builder(
+                  itemCount: documents.length,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot document = documents[index];
+                    String purchaseRequestId = document['id'];
+                    String tanggalPermintaan = DateFormatter.formatDate(
+                      document['tanggal_permintaan'].toDate(),
+                    );
+                    String materialId = document['material_id'];
+                    String jumlah = document['jumlah'].toString();
+                    String satuan = document['satuan'].toString();
+                    String statusPrq = document['status_prq'];
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context, purchaseRequestId);
+
+                        // Call the onChanged callback with the selected value
+                        widget.onChanged(purchaseRequestId);
+
+                        // Update other fields based on selectedPurchaseRequest if needed
+                        if (widget.jumlahPermintaanController != null) {
+                          widget.jumlahPermintaanController!.text = jumlah;
+                          widget.satuanPermintaanController!.text = satuan;
+                        }
+                      },
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'ID: $purchaseRequestId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Tanggal Permintaan: $tanggalPermintaan',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Material ID: $materialId',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Jumlah: $jumlah',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Satuan: $satuan',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              Text(
+                                'Status PRQ: $statusPrq',
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        );
+      },
+    ).then((selectedPurchaseRequest) {
+      if (selectedPurchaseRequest != null) {
+        widget.onChanged(selectedPurchaseRequest);
+      }
+    });
   }
 }

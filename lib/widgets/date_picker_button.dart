@@ -5,14 +5,14 @@ class DatePickerButton extends StatelessWidget {
   final String label;
   final DateTime? selectedDate;
   final void Function(DateTime) onDateSelected;
-  final bool isEnabled; // Tambahkan parameter isEnabled
+  final bool isEnabled;
 
   const DatePickerButton({
     Key? key,
     required this.label,
     required this.selectedDate,
     required this.onDateSelected,
-    this.isEnabled = true, // Tambahkan default value true
+    this.isEnabled = true,
   }) : super(key: key);
 
   @override
@@ -21,6 +21,10 @@ class DatePickerButton extends StatelessWidget {
     String dateText = DateFormat.yMMMMd().format(currentDate);
 
     Color textColor = selectedDate == null ? Colors.grey[500]! : Colors.black;
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double scaleFactor =
+        screenWidth > 600 ? 1.0 : 0.8; // Sesuaikan dengan kebutuhan Anda
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +40,6 @@ class DatePickerButton extends StatelessWidget {
         ElevatedButton(
           onPressed: isEnabled
               ? () async {
-                  // Periksa isEnabled
                   final DateTime? pickedDate = await showDatePicker(
                     context: context,
                     initialDate: currentDate,
@@ -48,7 +51,7 @@ class DatePickerButton extends StatelessWidget {
                     onDateSelected(pickedDate);
                   }
                 }
-              : null, // Nonaktifkan tombol jika isEnabled adalah false
+              : null,
           style: ElevatedButton.styleFrom(
             padding:
                 const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
@@ -70,6 +73,8 @@ class DatePickerButton extends StatelessWidget {
                 dateText,
                 style: TextStyle(
                   color: textColor,
+                  fontSize:
+                      14.0 * scaleFactor, // Sesuaikan dengan kebutuhan Anda
                 ),
               ),
             ],
