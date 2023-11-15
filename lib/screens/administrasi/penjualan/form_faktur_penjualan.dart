@@ -189,6 +189,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
             selectedMetodePembayaran = data['metode_pembayaran'];
             selectedStatusPembayaran = data['status_pembayaran'];
             selectedNomorSuratJalan = data['shipment_id'];
+            selectedNomorRekening = data['nomor_rekening'];
             // Periksa apakah data['nomor_rekening'] adalah null atau string kosong
             if (data['nomor_rekening'] == null ||
                 data['nomor_rekening'] == '') {
@@ -498,27 +499,20 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFieldWidget(
-                                label: 'Total Harga',
-                                placeholder: 'Total Harga',
-                                controller: totalHargaController,
-                                isEnabled: false,
-                              ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: TextFieldWidget(
-                                label: 'Total Produk',
-                                placeholder: 'Total Produk',
-                                controller: totalProdukController,
-                                isEnabled: false,
-                              ),
-                            ),
-                          ],
+                        TextFieldWidget(
+                          label: 'Total Harga',
+                          placeholder: 'Total Harga',
+                          controller: totalHargaController,
+                          isEnabled: false,
                         ),
+                        const SizedBox(height: 16.0),
+                        TextFieldWidget(
+                          label: 'Total Produk',
+                          placeholder: 'Total Produk',
+                          controller: totalProdukController,
+                          isEnabled: false,
+                        ),
+
                         const SizedBox(
                           height: 16.0,
                         ),
