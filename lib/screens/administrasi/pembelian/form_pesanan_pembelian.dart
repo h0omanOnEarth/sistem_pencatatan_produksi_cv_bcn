@@ -428,44 +428,36 @@ class _FormPesananPembelianScreenState
                         const SizedBox(
                           height: 16.0,
                         ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownWidget(
-                                label: 'Status Pembayaran',
-                                selectedValue:
-                                    selectedStatusPembayaran, // Isi dengan nilai yang sesuai
-                                items: const [
-                                  'Belum Bayar',
-                                  'Dalam Proses',
-                                  'Selesai'
-                                ],
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedStatusPembayaran =
-                                        newValue; // Update _selectedValue saat nilai berubah
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Expanded(
-                              child: DropdownWidget(
-                                label: 'Status Pengiriman',
-                                selectedValue:
-                                    selectedStatusPengiriman, // Isi dengan nilai yang sesuai
-                                items: const ['Dalam Proses', 'Selesai'],
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedStatusPengiriman =
-                                        newValue; // Update _selectedValue saat nilai berubah
-                                  });
-                                },
-                                isEnabled: widget.statusCO != "Selesai",
-                              ),
-                            ),
+                        DropdownWidget(
+                          label: 'Status Pembayaran',
+                          selectedValue:
+                              selectedStatusPembayaran, // Isi dengan nilai yang sesuai
+                          items: const [
+                            'Belum Bayar',
+                            'Dalam Proses',
+                            'Selesai'
                           ],
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedStatusPembayaran =
+                                  newValue; // Update _selectedValue saat nilai berubah
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
+                        ),
+                        const SizedBox(height: 16.0),
+                        DropdownWidget(
+                          label: 'Status Pengiriman',
+                          selectedValue:
+                              selectedStatusPengiriman, // Isi dengan nilai yang sesuai
+                          items: const ['Dalam Proses', 'Selesai'],
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedStatusPengiriman =
+                                  newValue; // Update _selectedValue saat nilai berubah
+                            });
+                          },
+                          isEnabled: widget.statusCO != "Selesai",
                         ),
                         const SizedBox(
                           height: 16.0,

@@ -24,7 +24,7 @@ class DatePickerButton extends StatelessWidget {
 
     double screenWidth = MediaQuery.of(context).size.width;
     double scaleFactor =
-        screenWidth > 600 ? 1.0 : 0.8; // Sesuaikan dengan kebutuhan Anda
+        screenWidth > 600 ? 1.0 : 0.65; // Sesuaikan dengan kebutuhan Anda
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
