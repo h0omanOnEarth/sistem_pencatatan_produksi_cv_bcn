@@ -113,7 +113,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 );
               }
-            } else if (posisi == 'Produksi') {
+            } else if (posisi == 'Produksi' || posisi == 'Kepala Produksi') {
               if (kIsWeb) {
                 // ignore: use_build_context_synchronously
                 Routemaster.of(context).push(MainProduksi.routeName);

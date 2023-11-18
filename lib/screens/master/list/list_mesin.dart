@@ -386,9 +386,9 @@ class _ListMasterMesinScreenState extends State<ListMasterMesinScreen> {
             ),
             SimpleDialogOption(
               onPressed: () {
-                Navigator.pop(context, 'Mesin');
+                Navigator.pop(context, 'Sheet');
               },
-              child: const Text('Mesin'),
+              child: const Text('Sheet'),
             ),
           ],
         );

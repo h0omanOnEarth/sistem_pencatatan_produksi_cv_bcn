@@ -294,7 +294,12 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                       child: DropdownWidget(
                         label: 'Posisi',
                         selectedValue: selectedPosisi,
-                        items: const ['Produksi', 'Gudang', 'Administrasi'],
+                        items: const [
+                          'Produksi',
+                          'Kepala Produksi',
+                          'Gudang',
+                          'Administrasi'
+                        ],
                         onChanged: (newValue) {
                           setState(() {
                             selectedPosisi = newValue;
@@ -327,7 +332,7 @@ class _FormMasterPegawaiScreenState extends State<FormMasterPegawaiScreen> {
                     });
                   },
                 ),
-                const SizedBox(width: 16.0),
+                const SizedBox(height: 16.0),
                 DropdownWidget(
                   label: 'Status',
                   selectedValue: selectedStatus,

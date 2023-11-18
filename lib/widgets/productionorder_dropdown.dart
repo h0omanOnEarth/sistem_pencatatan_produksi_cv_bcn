@@ -47,6 +47,18 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
               builder: (BuildContext context) {
                 List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
 
+                // Filter dan urutkan data secara lokal
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+                    return document['status'] == 1 &&
+                        document['status_pro'] == "Dalam Proses";
+                  } else {
+                    // Jika isEnabled false, tampilkan semua data
+                    return true;
+                  }
+                }).toList();
+
                 documents.sort((a, b) {
                   DateTime dateA = a['tanggal_rencana'].toDate();
                   DateTime dateB = b['tanggal_rencana'].toDate();
@@ -164,7 +176,7 @@ class _ProductionOrderDropDownState extends State<ProductionOrderDropDown> {
       },
     ).then((selectedPRO) {
       if (selectedPRO != null) {
-        widget.onChanged(selectedPRO);
+        // widget.onChanged(selectedPRO);
 
         // Update other fields based on selectedPRO if needed
         // ...

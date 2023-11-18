@@ -22,10 +22,6 @@ class DatePickerButton extends StatelessWidget {
 
     Color textColor = selectedDate == null ? Colors.grey[500]! : Colors.black;
 
-    double screenWidth = MediaQuery.of(context).size.width;
-    double scaleFactor =
-        screenWidth > 600 ? 1.0 : 0.65; // Sesuaikan dengan kebutuhan Anda
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,8 +49,10 @@ class DatePickerButton extends StatelessWidget {
                 }
               : null,
           style: ElevatedButton.styleFrom(
-            padding:
-                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 16.0,
+            ),
             backgroundColor: Colors.white,
             elevation: 0,
             shape: RoundedRectangleBorder(
@@ -69,12 +67,16 @@ class DatePickerButton extends StatelessWidget {
                 color: Colors.grey[600],
               ),
               const SizedBox(width: 8.0),
-              Text(
-                dateText,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize:
-                      14.0 * scaleFactor, // Sesuaikan dengan kebutuhan Anda
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    dateText,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14.0,
+                    ),
+                  ),
                 ),
               ),
             ],

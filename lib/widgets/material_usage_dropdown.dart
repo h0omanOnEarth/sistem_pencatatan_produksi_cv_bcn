@@ -56,6 +56,35 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
               builder: (BuildContext context) {
                 List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
 
+                // Filter dan urutkan data secara lokal
+                documents = documents.where((document) {
+                  bool isProductionInProgress = false;
+
+                  if (widget.isEnabled && widget.feature != null) {
+                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+                    if (document['status'] == 1 &&
+                        document['status_mu'] == "Selesai" &&
+                        document['batch'] == "Pencetakan") {
+                      isProductionInProgress =
+                          checkProductionStatus(document['production_order_id'])
+                              as bool;
+                    }
+                  } else if (widget.isEnabled) {
+                    if (document['status'] == 1 &&
+                        document['status_mu'] == "Selesai") {
+                      isProductionInProgress =
+                          checkProductionStatus(document['production_order_id'])
+                              as bool;
+                    }
+                    // Include the production status check when isEnabled is true
+                  } else {
+                    // Jika isEnabled false, tampilkan semua data
+                    return true;
+                  }
+
+                  return isProductionInProgress;
+                }).toList();
+
                 documents.sort((a, b) {
                   DateTime dateA = a['tanggal_penggunaan'].toDate();
                   DateTime dateB = b['tanggal_penggunaan'].toDate();
@@ -138,7 +167,7 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
       },
     ).then((selectedMaterialUsage) {
       if (selectedMaterialUsage != null) {
-        widget.onChanged(selectedMaterialUsage);
+        // widget.onChanged(selectedMaterialUsage);
 
         // Update other fields based on selectedMaterialUsage if needed
         // ...

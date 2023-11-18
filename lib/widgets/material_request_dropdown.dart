@@ -28,6 +28,8 @@ class MaterialRequestDropdown extends StatefulWidget {
 }
 
 class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
+  final firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -70,9 +72,20 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
     );
   }
 
+  // Periksa status produksi dalam production_orders
+  Future<bool> checkProductionStatus(String productionOrderId) async {
+    DocumentSnapshot productionOrderSnapshot = await firestore
+        .collection('production_orders')
+        .doc(productionOrderId)
+        .get();
+    return productionOrderSnapshot.exists &&
+        productionOrderSnapshot['status_pro'] == 'Dalam Proses' &&
+        productionOrderSnapshot['status'] == 1;
+  }
+
   Future<void> _showMaterialRequestDialog() async {
     final QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('material_requests').get();
+        await firestore.collection('material_requests').get();
 
     // ignore: use_build_context_synchronously
     showDialog(
@@ -82,36 +95,15 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
           title: const Text('Select Material Request'),
           content: SizedBox(
             width: double.maxFinite,
-            child: Builder(
-              builder: (BuildContext context) {
-                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
-
-                if (widget.feature == null) {
-                  //material transfer
-                  // Filter dan urutkan data secara lokal
-                  documents = documents.where((document) {
-                    if (widget.mode == "add" && widget.isEnabled) {
-                      // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-                      return document['status'] == 1 &&
-                          document['status_mr'] == "Dalam Proses";
-                    } else {
-                      // Jika isEnabled false atau mode bukan "add", tampilkan semua data
-                      return true;
-                    }
-                  }).toList();
-                } else {
-                  //material usage
-                  documents = documents.where((document) {
-                    if (widget.isEnabled) {
-                      // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-                      return document['status'] == 1 &&
-                          document['status_mr'] == "Selesai";
-                    } else {
-                      // Jika isEnabled false, tampilkan semua data
-                      return true;
-                    }
-                  }).toList();
+            child: FutureBuilder<List<QueryDocumentSnapshot>>(
+              future: filterDocuments(snapshot),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // or another loading indicator
                 }
+
+                List<QueryDocumentSnapshot> documents = snapshot.data!;
 
                 documents.sort((a, b) {
                   DateTime dateA = a['tanggal_permintaan'].toDate();
@@ -138,7 +130,7 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
 
                         // Update other fields based on selectedMaterialRequest if needed
                         if (widget.tanggalPermintaanController != null) {
-                          final selectedDoc = snapshot.docs.firstWhere(
+                          final selectedDoc = snapshot.data!.firstWhere(
                               (doc) => doc['id'] == materialRequestId);
                           var tanggalPermintaanFirestore =
                               selectedDoc['tanggal_permintaan'];
@@ -212,11 +204,56 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
       },
     ).then((selectedMaterialRequest) {
       if (selectedMaterialRequest != null) {
-        widget.onChanged(selectedMaterialRequest);
+        // widget.onChanged(selectedMaterialRequest);
 
         // Update other fields based on selectedMaterialRequest if needed
         // ...
       }
     });
+  }
+
+  Future<List<QueryDocumentSnapshot>> filterDocuments(
+      QuerySnapshot snapshot) async {
+    List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+
+    List<QueryDocumentSnapshot> filteredDocuments = [];
+
+    for (QueryDocumentSnapshot document in documents) {
+      bool isProductionInProgress = false;
+
+      if (widget.feature == null) {
+        // material transfer
+        // Filter dan urutkan data secara lokal
+        if (widget.mode == "add" && widget.isEnabled) {
+          // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+          if (document['status'] == 1 &&
+              document['status_mr'] == "Dalam Proses") {
+            isProductionInProgress =
+                await checkProductionStatus(document['production_order_id']);
+          }
+        } else {
+          // Jika isEnabled false atau mode bukan "add", tampilkan semua data
+          isProductionInProgress = true;
+        }
+      } else {
+        // material usage
+        if (widget.isEnabled) {
+          // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+          if (document['status'] == 1 && document['status_mr'] == "Selesai") {
+            isProductionInProgress =
+                await checkProductionStatus(document['production_order_id']);
+          }
+        } else {
+          // Jika isEnabled false, tampilkan semua data
+          isProductionInProgress = true;
+        }
+      }
+
+      if (isProductionInProgress) {
+        filteredDocuments.add(document);
+      }
+    }
+
+    return filteredDocuments;
   }
 }

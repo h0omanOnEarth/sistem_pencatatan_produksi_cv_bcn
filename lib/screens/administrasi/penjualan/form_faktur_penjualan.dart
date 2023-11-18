@@ -530,6 +530,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
                                 selectedNomorRekening = "";
                               } else {
                                 isNomorRekeningDisabled = false;
+                                selectedNomorRekening = "2711598075";
                               }
                             });
                           },

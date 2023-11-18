@@ -9,7 +9,7 @@ const {
 } = require("firebase-functions/logger");
 
 exports.materialRequestValidation = async (req) => {
-  const { materials, productionOrderId } = req.data;
+  const { materials, productionOrderId, mode } = req.data;
 
   if (!materials || materials.length === 0) {
     return { success: false, message: "Minimal harus ada satu bahan/material" };
@@ -67,8 +67,10 @@ exports.materialRequestValidation = async (req) => {
 
     const existingMaterialRequestDocs = await existingMaterialRequestRef.get();
 
-    if (!existingMaterialRequestDocs.empty) {
-      return { success: false, message: "Sudah Melakukan Permintaan Bahan" };
+    if (mode == "add") {
+      if (!existingMaterialRequestDocs.empty) {
+        return { success: false, message: "Sudah Melakukan Permintaan Bahan" };
+      }
     }
 
     return { success: true };

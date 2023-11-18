@@ -5,6 +5,7 @@ import 'package:sistem_manajemen_produksi_cv_bcn/blocs/produksi/production_order
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_mesin_production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_production_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/production_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/billofmaterialdropdown.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/custom_card.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
@@ -76,7 +77,6 @@ class _FormPerintahProduksiScreenState
     });
   }
 
-// Function untuk mengambil detail BOM dari Firestore
   Future<void> fetchBillOfMaterials() async {
     QuerySnapshot snapshot;
     if (widget.productionOrderId != null) {
@@ -96,7 +96,8 @@ class _FormPerintahProduksiScreenState
     billOfMaterialsData.clear();
     customCards.clear();
 
-    for (final doc in snapshot.docs) {
+    for (int i = 0; i < snapshot.docs.length; i++) {
+      final doc = snapshot.docs[i];
       final data = doc.data() as Map<String, dynamic>;
       int jumlah = 0;
 
@@ -105,9 +106,14 @@ class _FormPerintahProduksiScreenState
       } else {
         jumlah = int.tryParse(data['jumlah'].toString()) ?? 0;
       }
+
+      Map<String, dynamic>? materialInfo =
+          await MaterialService().getMaterialInfo(data['material_id']);
+
       customCards.add(
         CustomCard(
           content: [
+            CustomCardContent(text: 'Nama: ${materialInfo?['nama'] ?? ''}'),
             CustomCardContent(text: 'Kode Bahan: ${data['material_id'] ?? ''}'),
             CustomCardContent(text: 'Jumlah: ${jumlah.toString()}'),
             CustomCardContent(text: 'Satuan: ${data['satuan'] ?? ''}'),
@@ -115,13 +121,14 @@ class _FormPerintahProduksiScreenState
           ],
         ),
       );
+
       Map<String, dynamic> billOfMaterial = {
-        'materialId': doc['material_id'], // Add fields you need
+        'materialId': doc['material_id'],
         'jumlahBom': jumlah,
         'satuan': doc['satuan'],
         'batch': doc['batch'],
       };
-      billOfMaterialsData.add(billOfMaterial); // Add to the list
+      billOfMaterialsData.add(billOfMaterial);
     }
     setState(() {});
   }

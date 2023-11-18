@@ -7,12 +7,14 @@ class CustomAppBar extends StatelessWidget {
   final Widget formScreen;
   final String? routes;
   final String? routeName;
+  final String? role;
 
   const CustomAppBar({
     required this.title,
     required this.formScreen,
     this.routes,
     this.routeName,
+    this.role,
     Key? key,
   }) : super(key: key);
 
@@ -81,32 +83,33 @@ class CustomAppBar extends StatelessWidget {
                 ),
               ],
             ),
-            Row(
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.brown,
+            if (role == null)
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.brown,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add),
+                      color: Colors.white,
+                      onPressed: () {
+                        if (routeName == null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => formScreen,
+                            ),
+                          );
+                        } else {
+                          Routemaster.of(context).push(routeName!);
+                        }
+                      },
+                    ),
                   ),
-                  child: IconButton(
-                    icon: const Icon(Icons.add),
-                    color: Colors.white,
-                    onPressed: () {
-                      if (routeName == null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => formScreen,
-                          ),
-                        );
-                      } else {
-                        Routemaster.of(context).push(routeName!);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),

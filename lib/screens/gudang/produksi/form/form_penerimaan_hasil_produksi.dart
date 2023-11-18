@@ -75,7 +75,9 @@ class _FormPenerimaanHasilProduksiState
       final productInfoSnapshot = await productInfoFuture;
 
       final productName = productInfoSnapshot['nama'] as String;
-      final jumlahDusString = (data['jumlah_konfirmasi'] ~/ 2000).toString();
+      final jumlahDusString =
+          (data['jumlah_konfirmasi'] ~/ productInfoSnapshot['banyaknya'] as int)
+              .toString();
 
       Map<String, dynamic> detailMaterial = {
         'productId': productId, // Add fields you need

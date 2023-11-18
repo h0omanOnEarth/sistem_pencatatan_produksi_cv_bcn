@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,6 +38,30 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
   bool isNextButtonDisabled = false;
   int _selectedIndex = 2;
   bool _isSidebarCollapsed = false;
+  String? posisi;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      getUserDetails(user.email ?? '');
+    }
+  }
+
+  Future<void> getUserDetails(String email) async {
+    final firestore = FirebaseFirestore.instance;
+    final userRef =
+        firestore.collection('employees').where('email', isEqualTo: email);
+    final userSnapshot = await userRef.get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      final userData = userSnapshot.docs.first;
+      setState(() {
+        posisi = userData['posisi'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,11 +108,19 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const CustomAppBar(
-                    title: 'Perintah Produksi',
-                    formScreen: FormPerintahProduksiScreen(),
-                    routes: '${MainProduksi.routeName}?selectedIndex=2',
-                  ),
+                  if (posisi == "Kepala Produksi")
+                    const CustomAppBar(
+                      title: 'Perintah Produksi',
+                      formScreen: FormPerintahProduksiScreen(),
+                      routes: '${MainProduksi.routeName}?selectedIndex=2',
+                    ),
+                  if (posisi == "Produksi")
+                    CustomAppBar(
+                      title: 'Perintah Produksi',
+                      formScreen: const FormPerintahProduksiScreen(),
+                      routes: '${MainProduksi.routeName}?selectedIndex=2',
+                      role: posisi,
+                    ),
                   const SizedBox(height: 24.0),
                   _buildSearchBar(),
                   const SizedBox(height: 16.0),
@@ -116,11 +149,19 @@ class _ListProductionOrderState extends State<ListProductionOrder> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const CustomAppBar(
-              title: 'Perintah Produksi',
-              formScreen: FormPerintahProduksiScreen(),
-              routes: '${MainProduksi.routeName}?selectedIndex=2',
-            ),
+            if (posisi == "Kepala Produksi")
+              const CustomAppBar(
+                title: 'Perintah Produksi',
+                formScreen: FormPerintahProduksiScreen(),
+                routes: '${MainProduksi.routeName}?selectedIndex=2',
+              ),
+            if (posisi == "Produksi")
+              CustomAppBar(
+                title: 'Perintah Produksi',
+                formScreen: const FormPerintahProduksiScreen(),
+                routes: '${MainProduksi.routeName}?selectedIndex=2',
+                role: posisi,
+              ),
             const SizedBox(height: 24.0),
             _buildSearchBar(),
             const SizedBox(

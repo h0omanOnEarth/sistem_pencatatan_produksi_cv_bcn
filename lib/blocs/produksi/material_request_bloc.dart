@@ -76,7 +76,8 @@ class MaterialRequestBloc
               await materialReqValidationCallable.call(<String, dynamic>{
             'materials':
                 materials.map((material) => material.toJson()).toList(),
-            'productionOrderId': productionOrderId
+            'productionOrderId': productionOrderId,
+            'mode': "add"
           });
 
           if (result.data['success'] == true) {
@@ -148,7 +149,8 @@ class MaterialRequestBloc
               await materialReqValidationCallable.call(<String, dynamic>{
             'materials':
                 materials.map((material) => material.toJson()).toList(),
-            'productionOrderId': productionOrderId
+            'productionOrderId': productionOrderId,
+            'mode': "edit"
           });
 
           if (result.data['success'] == true) {
