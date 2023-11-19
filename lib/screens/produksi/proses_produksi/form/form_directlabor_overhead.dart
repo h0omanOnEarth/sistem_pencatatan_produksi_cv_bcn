@@ -199,7 +199,7 @@ class _FormPencatatanDirectLaborScreenState
         materialUsageId: selectedPenggunaanBahan ?? '',
         tanggalPencatatan: _selectedDate ?? DateTime.now(),
         catatan: catatanController.text,
-        status: "Selesai",
+        status: 1,
         jumlahTenagaKerja: int.tryParse(jumlahTenagaKerjaController.text) ?? 0,
         jumlahJamTenagaKerja:
             int.tryParse(jumlahJamTenagaKerjaController.text) ?? 0,
@@ -208,7 +208,7 @@ class _FormPencatatanDirectLaborScreenState
         upahTenagaKerjaPerjam:
             int.tryParse(upahTenagaKerjaPerJamController.text) ?? 0,
         subtotal: totalBiayaInt,
-        statusDoc: 1);
+        statusDoc: "Selesai");
 
     if (widget.dlohId != null) {
       dlohBloc.add(UpdateDLOHEvent(widget.dlohId ?? '', dloh));

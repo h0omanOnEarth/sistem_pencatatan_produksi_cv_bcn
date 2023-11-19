@@ -4,7 +4,7 @@ class DLOH {
   String id;
   String materialUsageId;
   String catatan;
-  String status;
+  int status;
   int jumlahTenagaKerja;
   int jumlahJamTenagaKerja;
   int biayaTenagaKerja;
@@ -12,13 +12,13 @@ class DLOH {
   int upahTenagaKerjaPerjam;
   int subtotal;
   DateTime tanggalPencatatan;
-  int statusDoc;
+  String statusDoc;
 
   DLOH(
       {required this.id,
       required this.materialUsageId,
       required this.catatan,
-      this.status = "",
+      this.status = 0,
       this.jumlahTenagaKerja = 0,
       this.jumlahJamTenagaKerja = 0,
       this.biayaTenagaKerja = 0,
@@ -26,7 +26,7 @@ class DLOH {
       this.upahTenagaKerjaPerjam = 0,
       this.subtotal = 0,
       required this.tanggalPencatatan,
-      required this.statusDoc});
+      this.statusDoc = ""});
 
   // Factory constructor untuk membuat instance DLOH dari Map
   factory DLOH.fromMap(Map<String, dynamic> map) {
@@ -34,7 +34,7 @@ class DLOH {
       id: map['id'] as String,
       materialUsageId: map['material_usage_id'] as String,
       catatan: map['catatan'] as String,
-      status: map['status'] as String,
+      status: map['status'] as int,
       jumlahTenagaKerja: map['jumlah_tenaga_kerja'] as int,
       jumlahJamTenagaKerja: map['jumlah_jam_tenaga_kerja'] as int,
       biayaTenagaKerja: map['biaya_tenaga_kerja'] as int,
@@ -42,7 +42,7 @@ class DLOH {
       upahTenagaKerjaPerjam: map['upah_tenaga_kerja_perjam'] as int,
       subtotal: map['subtotal'] as int,
       tanggalPencatatan: (map['tanggal_pencatatan'] as Timestamp).toDate(),
-      statusDoc: map['status_doc'] as int,
+      statusDoc: map['status_doc'] as String,
     );
   }
 

@@ -18,11 +18,14 @@ class HomeService {
             .where((order) => order['status_pro'] == 'Dalam Proses')
             .toList();
         data[collectionName] = filteredProductionOrders;
+
+        // Add the count for 'production_orders' with 'Dalam Proses' status to the data map
+        data['${collectionName}_count'] = filteredProductionOrders.length;
       } else {
         data[collectionName] = collectionData;
+        // Add the count for other collections to the data map
+        data['${collectionName}_count'] = collectionData.length;
       }
-      // Add the count to the data map
-      data['${collectionName}_count'] = collectionData.length;
     }
 
     return data;

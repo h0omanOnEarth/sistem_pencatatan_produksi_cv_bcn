@@ -212,10 +212,10 @@ class _ListDLOHCState extends State<ListDLOHC> {
 
           final filteredDocs = itemDocs.where((doc) {
             final keterangan = doc['id'] as String;
-            final status = doc['status'] as String;
+            final status = doc['status'] as int;
             final tanggalRencana =
                 doc['tanggal_pencatatan'] as Timestamp; // Tanggal Pesan
-            final statusDoc = doc['status_doc'] as int;
+            final statusDoc = doc['status_doc'] as String;
 
             bool isWithinDateRange = true;
             if (selectedStartDate != null && selectedEndDate != null) {
@@ -227,9 +227,9 @@ class _ListDLOHCState extends State<ListDLOHC> {
             return (keterangan
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
-                (selectedStatus.isEmpty || status == selectedStatus) &&
+                (selectedStatus.isEmpty || status == 1) &&
                 isWithinDateRange &&
-                statusDoc == 1);
+                statusDoc == selectedStatus);
           }).toList();
 
           // Implementasi Pagination
