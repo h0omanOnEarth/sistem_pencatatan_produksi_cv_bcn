@@ -216,7 +216,7 @@ class _FakturDropdownState extends State<FakturDropdown> {
       },
     ).then((selectedFaktur) {
       if (selectedFaktur != null) {
-        widget.onChanged(selectedFaktur);
+        //widget.onChanged(selectedFaktur);
 
         // Update other fields based on selectedFaktur if needed
         // ...
