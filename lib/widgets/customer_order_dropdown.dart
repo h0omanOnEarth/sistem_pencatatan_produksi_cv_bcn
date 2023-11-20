@@ -158,6 +158,10 @@ class _CustomerOrderDropDownWidgetState
                                   return Container();
                                 },
                               ),
+                              Text(
+                                'Catatan: ${document['catatan']}',
+                                style: const TextStyle(color: Colors.black),
+                              ),
                             ],
                           ),
                         ),
