@@ -107,6 +107,13 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
     }
   }
 
+  void _initializeEditMode() {
+    mode = "edit";
+    if (mounted) {
+      initializeMaterial();
+    }
+  }
+
   void _initializeMaterialTransfer() {
     if (widget.materialTransferId != null) {
       firestore
@@ -125,6 +132,7 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
                   (tanggalPemindahanFirestore as Timestamp).toDate();
             }
             selectedNomorPermintaan = data['material_request_id'];
+            fetchMaterialTransfer();
           });
         } else {
           print('Document does not exist on Firestore');
@@ -132,14 +140,6 @@ class _FormPemindahanBahanState extends State<FormPemindahanBahan> {
       }).catchError((error) {
         print('Error getting document: $error');
       });
-    }
-  }
-
-  void _initializeEditMode() {
-    mode = "edit";
-    if (mounted) {
-      fetchMaterialTransfer();
-      initializeMaterial();
     }
   }
 

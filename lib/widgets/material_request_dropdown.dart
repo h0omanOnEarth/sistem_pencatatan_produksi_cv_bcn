@@ -100,7 +100,7 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
               builder: (BuildContext context,
                   AsyncSnapshot<List<QueryDocumentSnapshot>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator(); // or another loading indicator
+                  return const CircularProgressIndicator(); // or another loading indicator
                 }
 
                 List<QueryDocumentSnapshot> documents = snapshot.data!;

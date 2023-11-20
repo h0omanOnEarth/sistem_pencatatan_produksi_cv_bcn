@@ -52,114 +52,96 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
           title: const Text('Select Material Usage'),
           content: SizedBox(
             width: double.maxFinite,
-            child: Builder(
-              builder: (BuildContext context) {
-                List<QueryDocumentSnapshot> documents = snapshot.docs.toList();
+            child: FutureBuilder<List<QueryDocumentSnapshot>>(
+              future: _filterMaterialUsages(snapshot.docs),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator(); // or other loading indicator
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Text('No data available');
+                } else {
+                  List<QueryDocumentSnapshot> documents = snapshot.data!;
 
-                // Filter dan urutkan data secara lokal
-                documents = documents.where((document) {
-                  bool isProductionInProgress = false;
+                  documents.sort((a, b) {
+                    DateTime dateA = a['tanggal_penggunaan'].toDate();
+                    DateTime dateB = b['tanggal_penggunaan'].toDate();
+                    return dateB.compareTo(dateA);
+                  });
 
-                  if (widget.isEnabled && widget.feature != null) {
-                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-                    if (document['status'] == 1 &&
-                        document['status_mu'] == "Selesai" &&
-                        document['batch'] == "Pencetakan") {
-                      isProductionInProgress =
-                          checkProductionStatus(document['production_order_id'])
-                              as bool;
-                    }
-                  } else if (widget.isEnabled) {
-                    if (document['status'] == 1 &&
-                        document['status_mu'] == "Selesai") {
-                      isProductionInProgress =
-                          checkProductionStatus(document['production_order_id'])
-                              as bool;
-                    }
-                    // Include the production status check when isEnabled is true
-                  } else {
-                    // Jika isEnabled false, tampilkan semua data
-                    return true;
-                  }
+                  return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: documents.length,
+                    itemBuilder: (context, index) {
+                      QueryDocumentSnapshot document = documents[index];
+                      String materialUsageId = document['id'];
+                      DateTime tanggalPenggunaan =
+                          document['tanggal_penggunaan'].toDate();
+                      String productionOrderId =
+                          document['production_order_id'];
+                      String materialRequestId =
+                          document['material_request_id'];
+                      String batch = document['batch'];
+                      String statusMu = document['status_mu'];
 
-                  return isProductionInProgress;
-                }).toList();
+                      return InkWell(
+                        onTap: () {
+                          Navigator.pop(context, materialUsageId);
 
-                documents.sort((a, b) {
-                  DateTime dateA = a['tanggal_penggunaan'].toDate();
-                  DateTime dateB = b['tanggal_penggunaan'].toDate();
-                  return dateB.compareTo(dateA);
-                });
+                          // Call the onChanged callback with the selected value
+                          widget.onChanged(materialUsageId);
 
-                return ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: documents.length,
-                  itemBuilder: (context, index) {
-                    QueryDocumentSnapshot document = documents[index];
-                    String materialUsageId = document['id'];
-                    DateTime tanggalPenggunaan =
-                        document['tanggal_penggunaan'].toDate();
-                    String productionOrderId = document['production_order_id'];
-                    String materialRequestId = document['material_request_id'];
-                    String batch = document['batch'];
-                    String statusMu = document['status_mu'];
+                          // Update other fields based on selectedMaterialUsage if needed
+                          if (widget.namaBatchController != null) {
+                            widget.namaBatchController!.text = batch;
+                          }
+                          if (widget.nomorPerintahProduksiController != null) {
+                            widget.nomorPerintahProduksiController!.text =
+                                productionOrderId;
+                          }
+                          // Add other controllers if needed
 
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pop(context, materialUsageId);
-
-                        // Call the onChanged callback with the selected value
-                        widget.onChanged(materialUsageId);
-
-                        // Update other fields based on selectedMaterialUsage if needed
-                        if (widget.namaBatchController != null) {
-                          widget.namaBatchController!.text = batch;
-                        }
-                        if (widget.nomorPerintahProduksiController != null) {
-                          widget.nomorPerintahProduksiController!.text =
-                              productionOrderId;
-                        }
-                        // Add other controllers if needed
-
-                        selectedBatch = batch;
-                      },
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'ID: $materialUsageId',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Tanggal Penggunaan: ${tanggalPenggunaan.toLocal()}',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Production Order ID: $productionOrderId',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Material Request ID: $materialRequestId',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Batch: $batch',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Status MU: $statusMu',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                            ],
+                          selectedBatch = batch;
+                        },
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ID: $materialUsageId',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Tanggal Penggunaan: ${tanggalPenggunaan.toLocal()}',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Production Order ID: $productionOrderId',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Material Request ID: $materialRequestId',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Batch: $batch',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                                Text(
+                                  'Status MU: $statusMu',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                );
+                      );
+                    },
+                  );
+                }
               },
             ),
           ),
@@ -173,6 +155,40 @@ class _MaterialUsageDropdownState extends State<MaterialUsageDropdown> {
         // ...
       }
     });
+  }
+
+  Future<List<QueryDocumentSnapshot>> _filterMaterialUsages(
+      List<QueryDocumentSnapshot> documents) async {
+    List<QueryDocumentSnapshot?> filteredDocuments = await Future.wait(
+      documents.map((document) async {
+        bool isProductionInProgress = false;
+
+        if (widget.isEnabled && widget.feature != null) {
+          if (document['status'] == 1 &&
+              document['status_mu'] == "Selesai" &&
+              document['batch'] == "Pencetakan") {
+            isProductionInProgress =
+                await checkProductionStatus(document['production_order_id']);
+          }
+        } else if (widget.isEnabled) {
+          if (document['status'] == 1 && document['status_mu'] == "Selesai") {
+            isProductionInProgress =
+                await checkProductionStatus(document['production_order_id']);
+          }
+        } else {
+          // If widget is not enabled, include all documents
+          return document;
+        }
+
+        return isProductionInProgress ? document : null;
+      }),
+    );
+
+    // Filter out null values (where isProductionInProgress is false)
+    List<QueryDocumentSnapshot> finalDocuments =
+        filteredDocuments.whereType<QueryDocumentSnapshot>().toList();
+
+    return finalDocuments;
   }
 
   void fetchMaterialUsageEdit() async {

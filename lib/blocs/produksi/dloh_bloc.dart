@@ -184,7 +184,7 @@ class DLOHBloc extends Bloc<DLOHEvent, DLOHBlocState> {
 
         // Perbarui status menjadi 0 pada semua dokumen yang sesuai dengan pencarian
         for (QueryDocumentSnapshot documentSnapshot in querySnapshot.docs) {
-          await documentSnapshot.reference.update({'status_doc': 0});
+          await documentSnapshot.reference.update({'status': 0});
         }
 
         // Setelah memperbarui status, Anda dapat memilih untuk menjalankan penghapusan jika masih diperlukan

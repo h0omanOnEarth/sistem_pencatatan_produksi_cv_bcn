@@ -227,9 +227,9 @@ class _ListDLOHCState extends State<ListDLOHC> {
             return (keterangan
                     .toLowerCase()
                     .contains(searchTerm.toLowerCase()) &&
-                (selectedStatus.isEmpty || status == 1) &&
+                (selectedStatus.isEmpty || statusDoc == selectedStatus) &&
                 isWithinDateRange &&
-                statusDoc == selectedStatus);
+                status == 1);
           }).toList();
 
           // Implementasi Pagination
