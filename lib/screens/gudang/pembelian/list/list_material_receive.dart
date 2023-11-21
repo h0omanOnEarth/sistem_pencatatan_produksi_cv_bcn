@@ -248,7 +248,9 @@ class _ListMaterialReceiveState extends State<ListMaterialReceive> {
 
   Widget _buildMaterialReceiveList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: materialReceivesRef.snapshots(),
+      stream: materialReceivesRef
+          .orderBy('tanggal_penerimaan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

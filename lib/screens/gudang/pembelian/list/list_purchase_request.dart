@@ -245,7 +245,9 @@ class _ListPurchaseRequestState extends State<ListPurchaseRequest> {
 
   Widget _buildPurchaseRequesetList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: purchaseReqRef.snapshots(),
+      stream: purchaseReqRef
+          .orderBy('tanggal_permintaan', descending: true)
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

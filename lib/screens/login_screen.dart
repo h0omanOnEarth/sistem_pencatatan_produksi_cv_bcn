@@ -54,12 +54,11 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool _showPassword = false;
   @override
   Widget build(BuildContext context) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-
     double screenHeight = MediaQuery.of(context).size.height;
     double desiredHeightPercentage = 0.1;
     final loginBloc = BlocProvider.of<LoginBloc>(context);

@@ -8,15 +8,17 @@ class PurchaseRequestDropDown extends StatefulWidget {
   final TextEditingController? jumlahPermintaanController;
   final TextEditingController? satuanPermintaanController;
   final bool isEnabled;
+  final String? feature;
 
-  const PurchaseRequestDropDown({
-    Key? key,
-    required this.selectedPurchaseRequest,
-    required this.onChanged,
-    this.jumlahPermintaanController,
-    this.satuanPermintaanController,
-    this.isEnabled = true,
-  }) : super(key: key);
+  const PurchaseRequestDropDown(
+      {Key? key,
+      required this.selectedPurchaseRequest,
+      required this.onChanged,
+      this.jumlahPermintaanController,
+      this.satuanPermintaanController,
+      this.isEnabled = true,
+      this.feature})
+      : super(key: key);
 
   @override
   State<PurchaseRequestDropDown> createState() =>
@@ -40,9 +42,13 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
         // Filter dan urutkan data secara lokal
         documents = documents.where((document) {
           if (widget.isEnabled) {
-            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
-            return document['status'] == 1 &&
-                document['status_prq'] == "Dalam Proses";
+            if (widget.feature == null) {
+              return document['status'] == 1 &&
+                  document['status_prq'] == "Dalam Proses";
+            } else {
+              return document['status'] == 1 &&
+                  document['status_prq'] == "Selesai";
+            }
           } else {
             // Jika isEnabled false, tampilkan semua data
             return true;
@@ -142,8 +148,13 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
 
                 documents = documents.where((document) {
                   if (widget.isEnabled) {
-                    return document['status'] == 1 &&
-                        document['status_prq'] == "Dalam Proses";
+                    if (widget.feature == null) {
+                      return document['status'] == 1 &&
+                          document['status_prq'] == "Dalam Proses";
+                    } else {
+                      return document['status'] == 1 &&
+                          document['status_prq'] == "Selesai";
+                    }
                   } else {
                     return true;
                   }
@@ -159,64 +170,7 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
                   physics: const BouncingScrollPhysics(),
                   itemCount: documents.length,
                   itemBuilder: (context, index) {
-                    QueryDocumentSnapshot document = documents[index];
-                    String purchaseRequestId = document['id'];
-                    String tanggalPermintaan = DateFormatter.formatDate(
-                      document['tanggal_permintaan'].toDate(),
-                    );
-                    String materialId = document['material_id'];
-                    String jumlah = document['jumlah'].toString();
-                    String satuan = document['satuan'].toString();
-                    String statusPrq = document['status_prq'];
-
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pop(context, purchaseRequestId);
-
-                        // Call the onChanged callback with the selected value
-                        widget.onChanged(purchaseRequestId);
-
-                        // Update other fields based on selectedPurchaseRequest if needed
-                        if (widget.jumlahPermintaanController != null) {
-                          widget.jumlahPermintaanController!.text = jumlah;
-                          widget.satuanPermintaanController!.text = satuan;
-                        }
-                      },
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'ID: $purchaseRequestId',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Tanggal Permintaan: $tanggalPermintaan',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Material ID: $materialId',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Jumlah: $jumlah',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Satuan: $satuan',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              Text(
-                                'Status PRQ: $statusPrq',
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
+                    return _buildPurchaseRequestItem(documents[index]);
                   },
                 );
               },
@@ -229,5 +183,92 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
         widget.onChanged(selectedPurchaseRequest);
       }
     });
+  }
+
+  Widget _buildPurchaseRequestItem(QueryDocumentSnapshot document) {
+    String purchaseRequestId = document['id'];
+    String tanggalPermintaan = DateFormatter.formatDate(
+      document['tanggal_permintaan'].toDate(),
+    );
+    String materialId = document['material_id'];
+    String jumlah = document['jumlah'].toString();
+    String satuan = document['satuan'].toString();
+    String statusPrq = document['status_prq'];
+
+    return FutureBuilder<bool>(
+      future: checkIdInMaterialReceives(purchaseRequestId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Error');
+        } else {
+          bool idNotInMaterialReceives = snapshot.data ?? false;
+
+          if (idNotInMaterialReceives) {
+            return InkWell(
+              onTap: () {
+                Navigator.pop(context, purchaseRequestId);
+
+                // Call the onChanged callback with the selected value
+                widget.onChanged(purchaseRequestId);
+
+                // Update other fields based on selectedPurchaseRequest if needed
+                if (widget.jumlahPermintaanController != null) {
+                  widget.jumlahPermintaanController!.text = jumlah;
+                  widget.satuanPermintaanController!.text = satuan;
+                }
+              },
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'ID: $purchaseRequestId',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Text(
+                        'Tanggal Permintaan: $tanggalPermintaan',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Text(
+                        'Material ID: $materialId',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Text(
+                        'Jumlah: $jumlah',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Text(
+                        'Satuan: $satuan',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                      Text(
+                        'Status PRQ: $statusPrq',
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          } else {
+            // If purchase request is already in 'material_receives', return an empty container
+            return Container();
+          }
+        }
+      },
+    );
+  }
+
+  Future<bool> checkIdInMaterialReceives(String id) async {
+    // Query 'material_receives' collection to check if the id exists
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('material_receives')
+        .where('purchase_request_id', isEqualTo: id)
+        .get();
+
+    return snapshot
+        .docs.isEmpty; // If the list is empty, id is not in 'material_receives'
   }
 }

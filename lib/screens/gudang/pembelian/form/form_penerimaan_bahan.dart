@@ -283,6 +283,7 @@ class _FormPenerimaanBahanScreenState extends State<FormPenerimaanBahanScreen> {
                           jumlahPermintaanController:
                               jumlahPermintaanController,
                           isEnabled: widget.materialReceiveId == null,
+                          feature: "receive",
                         ),
                         const SizedBox(
                           height: 16.0,

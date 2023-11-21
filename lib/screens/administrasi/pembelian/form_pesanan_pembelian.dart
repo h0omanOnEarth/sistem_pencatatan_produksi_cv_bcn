@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/blocs/pembelian/pesanan_pembelian_bloc.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/pembelian/purchase_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/bahan_dropdown.dart';
@@ -56,6 +57,8 @@ class _FormPesananPembelianScreenState
   TextEditingController jumlahPermintaanController = TextEditingController();
   TextEditingController satuanPermintaanController = TextEditingController();
 
+  final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
+
   @override
   void dispose() {
     jumlahController.removeListener(_updateTotal);
@@ -77,7 +80,7 @@ class _FormPesananPembelianScreenState
       final jumlah = int.parse(jumlahController.text);
       final hargaSatuan = int.parse(hargaSatuanController.text);
       final total = jumlah * hargaSatuan;
-      totalController.text = total.toString();
+      totalController.text = currencyFormat.format(total);
     }
   }
 
@@ -182,7 +185,9 @@ class _FormPesananPembelianScreenState
         statusPengiriman: selectedStatusPengiriman,
         keterangan: catatanController.text,
         status: 1,
-        total: int.tryParse(totalController.text) ?? 0,
+        total: int.tryParse(
+                currencyFormat.parse(totalController.text).toString()) ??
+            0,
         purchaseRequestId: selectedNomorPermintaan ?? '');
 
     if (widget.purchaseOrderId != null) {
