@@ -12,7 +12,7 @@ class PurchaseRequestDropDown extends StatefulWidget {
 
   const PurchaseRequestDropDown(
       {Key? key,
-      required this.selectedPurchaseRequest,
+      this.selectedPurchaseRequest,
       required this.onChanged,
       this.jumlahPermintaanController,
       this.satuanPermintaanController,
@@ -180,7 +180,7 @@ class _PurchaseRequestDropDownState extends State<PurchaseRequestDropDown> {
       },
     ).then((selectedPurchaseRequest) {
       if (selectedPurchaseRequest != null) {
-        widget.onChanged(selectedPurchaseRequest);
+        // widget.onChanged(selectedPurchaseRequest);
       }
     });
   }
