@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class SupplierDropdown extends StatelessWidget {
+class SupplierDropdown extends StatefulWidget {
   final String? selectedSupplier;
   final Function(String?) onChanged;
   final TextEditingController? kodeSupplierController;
@@ -16,16 +16,14 @@ class SupplierDropdown extends StatelessWidget {
   });
 
   @override
+  State<SupplierDropdown> createState() => _SupplierDropdownState();
+}
+
+class _SupplierDropdownState extends State<SupplierDropdown> {
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('suppliers')
-          .where(
-            'status',
-            isEqualTo:
-                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
-          )
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('suppliers').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const CircularProgressIndicator();
@@ -33,7 +31,20 @@ class SupplierDropdown extends StatelessWidget {
 
         List<DropdownMenuItem<String>> supplierItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled) {
+            // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+            return document['status'] == 1;
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        for (QueryDocumentSnapshot document in documents) {
           String supplierName = document['nama'] ?? '';
           String supplierId = document['id'];
           supplierItems.add(
@@ -64,13 +75,13 @@ class SupplierDropdown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedSupplier,
+                value: widget.selectedSupplier,
                 items: supplierItems,
-                onChanged: isEnabled
+                onChanged: widget.isEnabled
                     ? (newValue) {
-                        onChanged(newValue);
-                        if (kodeSupplierController != null) {
-                          kodeSupplierController!.text = newValue ?? '';
+                        widget.onChanged(newValue);
+                        if (widget.kodeSupplierController != null) {
+                          widget.kodeSupplierController!.text = newValue ?? '';
                         }
                       }
                     : null,

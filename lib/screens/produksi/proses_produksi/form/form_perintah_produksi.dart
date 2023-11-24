@@ -135,20 +135,11 @@ class _FormPerintahProduksiScreenState
 
   @override
   void dispose() {
-    selectedProdukNotifier.removeListener(_selectedKodeListener);
     super.dispose();
-  }
-
-// Fungsi yang akan dipanggil ketika selectedKode berubah
-  void _selectedKodeListener() {
-    setState(() {
-      selectedKodeProduk = selectedProdukNotifier.value;
-    });
   }
 
   void initializeProduct() {
     selectedKodeProduk = widget.productId;
-    _selectedKodeListener();
     firestore
         .collection('products')
         .where('id',
@@ -260,8 +251,6 @@ class _FormPerintahProduksiScreenState
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      selectedProdukNotifier.addListener(_selectedKodeListener);
-      selectedKodeProduk = selectedProdukNotifier.value;
       initializeProduct();
     });
   }
@@ -517,8 +506,13 @@ class _FormPerintahProduksiScreenState
                         ),
                         ProdukDropDown(
                           namaProdukController: namaProdukController,
-                          productId: widget.productId,
+                          selectedKode: selectedKodeProduk,
                           isEnabled: widget.productionOrderId == null,
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedKodeProduk = newValue;
+                            });
+                          },
                         ),
                         const SizedBox(height: 16.0),
                         TextFieldWidget(
@@ -635,6 +629,9 @@ class _FormPerintahProduksiScreenState
                                 namaMesinController:
                                     namaMesinPencampurController,
                                 isEnabled: widget.statusPro != "Selesai",
+                                mode: widget.productionOrderId != null
+                                    ? 'edit'
+                                    : 'add',
                               ),
                             ),
                             const SizedBox(
@@ -657,21 +654,23 @@ class _FormPerintahProduksiScreenState
                           children: [
                             Expanded(
                               child: MachineDropdown(
-                                selectedMachine: selectedMesinSheet,
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedMesinSheet = newValue;
-                                    mesinSheet.clear();
-                                    mesinSheet = {
-                                      'batch': 'Sheet',
-                                      'machine_id': newValue
-                                    };
-                                  });
-                                },
-                                title: 'Sheet',
-                                namaMesinController: namaMesinSheetController,
-                                isEnabled: widget.statusPro != "Selesai",
-                              ),
+                                  selectedMachine: selectedMesinSheet,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      selectedMesinSheet = newValue;
+                                      mesinSheet.clear();
+                                      mesinSheet = {
+                                        'batch': 'Sheet',
+                                        'machine_id': newValue
+                                      };
+                                    });
+                                  },
+                                  title: 'Sheet',
+                                  namaMesinController: namaMesinSheetController,
+                                  isEnabled: widget.statusPro != "Selesai",
+                                  mode: widget.productionOrderId != null
+                                      ? 'edit'
+                                      : 'add'),
                             ),
                             const SizedBox(
                               width: 16.0,
@@ -707,6 +706,9 @@ class _FormPerintahProduksiScreenState
                                 title: 'Pencetak',
                                 namaMesinController: namaMesinCetakController,
                                 isEnabled: widget.statusPro != "Selesai",
+                                mode: widget.productionOrderId != null
+                                    ? 'edit'
+                                    : 'add',
                               ),
                             ),
                             const SizedBox(

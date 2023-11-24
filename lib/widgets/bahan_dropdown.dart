@@ -50,14 +50,9 @@ class _BahanDropdownState extends State<BahanDropdown> {
             ),
             const SizedBox(height: 8.0),
             StreamBuilder<QuerySnapshot>(
-              stream: widget.isEnabled
-                  ? FirebaseFirestore.instance
-                      .collection('materials')
-                      .where('status', isEqualTo: 1)
-                      .snapshots()
-                  : FirebaseFirestore.instance
-                      .collection('materials')
-                      .snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('materials')
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const CircularProgressIndicator();
@@ -65,7 +60,20 @@ class _BahanDropdownState extends State<BahanDropdown> {
 
                 List<DropdownMenuItem<String>> materialItems = [];
 
-                for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+                List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+                // Filter dan urutkan data secara lokal
+                documents = documents.where((document) {
+                  if (widget.isEnabled) {
+                    // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
+                    return document['status'] == 1;
+                  } else {
+                    // Jika isEnabled false, tampilkan semua data
+                    return true;
+                  }
+                }).toList();
+
+                for (QueryDocumentSnapshot document in documents) {
                   String materialId = document['id'];
                   String materialName = document['nama'];
                   // Filter nama tertentu (misalnya, 'materialXXX')

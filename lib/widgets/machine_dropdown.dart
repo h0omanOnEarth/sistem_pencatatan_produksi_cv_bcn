@@ -1,33 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class MachineDropdown extends StatelessWidget {
+class MachineDropdown extends StatefulWidget {
   final String? selectedMachine;
   final TextEditingController? namaMesinController;
   final Function(String?) onChanged;
   final String title;
   final bool isEnabled;
+  final String? mode;
 
-  const MachineDropdown({
-    super.key,
-    required this.selectedMachine,
-    required this.onChanged,
-    required this.title,
-    this.namaMesinController,
-    this.isEnabled = true,
-  });
+  const MachineDropdown(
+      {super.key,
+      required this.selectedMachine,
+      required this.onChanged,
+      required this.title,
+      this.namaMesinController,
+      this.isEnabled = true,
+      this.mode});
 
+  @override
+  State<MachineDropdown> createState() => _MachineDropdownState();
+}
+
+class _MachineDropdownState extends State<MachineDropdown> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('machines')
-          .where('tipe', isEqualTo: title)
-          .where(
-            'status',
-            isEqualTo:
-                isEnabled ? 1 : null, // Filter status hanya saat isEnabled true
-          )
+          .where('tipe', isEqualTo: widget.title)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -36,21 +37,37 @@ class MachineDropdown extends StatelessWidget {
 
         List<DropdownMenuItem<String>> machineItems = [];
 
-        for (QueryDocumentSnapshot document in snapshot.data!.docs) {
+        List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+        // Filter dan urutkan data secara lokal
+        documents = documents.where((document) {
+          if (widget.isEnabled && widget.mode == "add") {
+            // Jika isEnabled true, tambahkan pemeriksaan status
+            return document['status'] == 1;
+          } else {
+            // Jika isEnabled false, tampilkan semua data
+            return true;
+          }
+        }).toList();
+
+        for (QueryDocumentSnapshot document in documents) {
           String machineName = document['nama'] ?? '';
           String machineId = document['id'];
-          machineItems.add(
-            DropdownMenuItem<String>(
-              value: machineId,
-              child: Text(
-                machineName,
-                style: const TextStyle(color: Colors.black),
+          if (document['status'] == 1 || widget.selectedMachine == machineId) {
+            machineItems.add(
+              DropdownMenuItem<String>(
+                value: machineId,
+                child: Text(
+                  machineName,
+                  style: const TextStyle(color: Colors.black),
+                ),
               ),
-            ),
-          );
-          if (selectedMachine == machineId && namaMesinController != null) {
+            );
+          }
+          if (widget.selectedMachine == machineId &&
+              widget.namaMesinController != null) {
             Future.delayed(Duration.zero, () {
-              namaMesinController?.text = machineId;
+              widget.namaMesinController?.text = machineId;
             });
           }
         }
@@ -58,15 +75,15 @@ class MachineDropdown extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (title != 'Penggiling')
+            if (widget.title != 'Penggiling')
               Text(
-                title,
+                widget.title,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[600],
                 ),
               ),
-            if (title == 'Penggiling')
+            if (widget.title == 'Penggiling')
               Text(
                 'Mesin',
                 style: TextStyle(
@@ -81,12 +98,12 @@ class MachineDropdown extends StatelessWidget {
                 border: Border.all(color: Colors.grey[400]!),
               ),
               child: DropdownButtonFormField<String>(
-                value: selectedMachine,
+                value: widget.selectedMachine,
                 items: machineItems,
-                onChanged: isEnabled
+                onChanged: widget.isEnabled
                     ? (newValue) {
-                        onChanged(newValue);
-                        if (namaMesinController != null) {
+                        widget.onChanged(newValue);
+                        if (widget.namaMesinController != null) {
                           final selectedMachineName = machineItems
                               .firstWhere(
                                 (item) => item.value == newValue,
@@ -94,7 +111,8 @@ class MachineDropdown extends StatelessWidget {
                                     value: '', child: Text('')),
                               )
                               .child as Text;
-                          namaMesinController?.text = selectedMachineName.data!;
+                          widget.namaMesinController?.text =
+                              selectedMachineName.data!;
                         }
                       }
                     : null,

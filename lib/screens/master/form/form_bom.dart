@@ -50,15 +50,7 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
   @override
   void dispose() {
     bomBloc.close();
-    selectedProdukNotifier.removeListener(_selectedKodeListener);
     super.dispose();
-  }
-
-  // Fungsi yang akan dipanggil ketika selectedKode berubah
-  void _selectedKodeListener() {
-    setState(() {
-      selectedKodeProduk = selectedProdukNotifier.value;
-    });
   }
 
   void addProductCard() {
@@ -221,7 +213,6 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
 
   void initializeProduct() {
     selectedKodeProduk = widget.productId;
-    _selectedKodeListener();
     firestore
         .collection('products')
         .where('id',
@@ -262,8 +253,6 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     if (widget.productId != null) {
       _initializeProductAndData();
     }
-
-    _addPostFrameCallback();
   }
 
   Future<void> _initializeBomId() async {
@@ -306,13 +295,6 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeProduct();
       fetchDataDetail();
-    });
-  }
-
-  void _addPostFrameCallback() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      selectedProdukNotifier.addListener(_selectedKodeListener);
-      selectedKodeProduk = selectedProdukNotifier.value;
     });
   }
 
@@ -404,8 +386,13 @@ class _FormMasterBOMScreenState extends State<FormMasterBOMScreen> {
                           beratController: beratController,
                           ketebalanController: ketebalanController,
                           satuanController: satuanController,
-                          productId: widget.productId,
+                          selectedKode: selectedKodeProduk,
                           isEnabled: widget.bomId == null,
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedKodeProduk = newValue;
+                            });
+                          },
                         ),
                         const SizedBox(height: 16.0),
                         TextFieldWidget(
