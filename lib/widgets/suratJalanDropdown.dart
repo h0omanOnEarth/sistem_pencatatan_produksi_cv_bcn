@@ -203,13 +203,13 @@ class _SuratJalanDropDownState extends State<SuratJalanDropDown> {
     });
   }
 
-  Future<String> _getCustomerInfo(String customerOrderId) async {
-    Map<String, dynamic>? customerOrder =
-        await customerOrderService.getCustomerOrderInfo(customerOrderId);
-    Map<String, dynamic>? customer =
-        await customerService.getCustomerInfo(customerOrder?['customer_id']);
-    return customer?['nama'] ?? '';
-  }
+  // Future<String> _getCustomerInfo(String customerOrderId) async {
+  //   Map<String, dynamic>? customerOrder =
+  //       await customerOrderService.getCustomerOrderInfo(customerOrderId);
+  //   Map<String, dynamic>? customer =
+  //       await customerService.getCustomerInfo(customerOrder?['customer_id']);
+  //   return customer?['nama'] ?? '';
+  // }
 
   Future<String> _getCustomerOrderInfo(String deliveryOrderId) async {
     Map<String, dynamic>? deliveryOrder =

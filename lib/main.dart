@@ -15,7 +15,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+ // cara menjalankan: firebase emulators:start --only functions
   // FirebaseFunctions.instanceFor(region: "asia-southeast2")
   //     .useFunctionsEmulator('localhost', 5001); // If you're using the emulator
 

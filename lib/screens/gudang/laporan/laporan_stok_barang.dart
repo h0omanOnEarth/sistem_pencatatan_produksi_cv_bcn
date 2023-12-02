@@ -383,7 +383,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         ),
         build: (context) => [
           pw.Header(
-            text: 'Laporan Barang Produksi',
+            text: 'Laporan Stok Barang',
             level: 0,
             textStyle: pw.TextStyle(
               font: font,

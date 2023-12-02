@@ -17,7 +17,7 @@ class PesananPembelianDropdown extends StatefulWidget {
   final String? purchaseOrderId;
   final bool isEnabled;
 
-  PesananPembelianDropdown({
+  const PesananPembelianDropdown({
     this.tanggalPemesananController,
     this.kodeBahanController,
     this.namaBahanController,

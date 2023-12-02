@@ -9,6 +9,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/helper/save_file_web.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/productService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/date_picker_button.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' hide Column;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -42,6 +43,40 @@ class CreateExcelStatefulWidget extends StatefulWidget {
 
 class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false; // Tambahkan variabel status loading
+  DateTime? startDate; // Tambahkan variabel tanggal awal
+  DateTime? endDate; // Tambahkan variabel tanggal akhir
+  final firestore = FirebaseFirestore.instance;
+  final List<Map<String, String>> productList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDataMaterial();
+  }
+
+  // Fungsi untuk mencari nama produk berdasarkan ID
+  String? findProductName(String productId) {
+    final product = productList.firstWhere(
+        (element) => element['id'] == productId,
+        orElse: () => {'nama': 'Product Not Found'});
+    return product['nama'];
+  }
+
+  Future<void> fetchDataMaterial() async {
+    // Fetch and store 'materials' data
+    final materialsQuery = firestore.collection('products');
+    final materialsQuerySnapshot = await materialsQuery.get();
+
+    // Populate productList with ID and name of each product
+    for (final materialDoc in materialsQuerySnapshot.docs) {
+      final materialData = materialDoc.data();
+      productList.add({
+        'id': materialData['id'],
+        'nama': materialData['nama'],
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,6 +132,34 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Awal',
+                        selectedDate: startDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            startDate = date;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    SizedBox(
+                      width: 250,
+                      child: DatePickerButton(
+                        label: 'Pilih Tanggal Akhir',
+                        selectedDate: endDate,
+                        onDateSelected: (date) {
+                          setState(() {
+                            endDate = date;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -180,12 +243,11 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     titleRange.cellStyle.backColor = '#C0C0C0'; // Header background color
 
     // Fetch and populate 'item_receives' data
-    final itemReceivesQuery =
-        FirebaseFirestore.instance.collection('item_receives');
+    final itemReceivesQuery = firestore.collection('item_receives');
     final itemReceivesQuerySnapshot = await itemReceivesQuery.get();
 
     // Fetch and populate 'shipments' data
-    final shipmentsQuery = FirebaseFirestore.instance.collection('shipments');
+    final shipmentsQuery = firestore.collection('shipments');
     final shipmentsQuerySnapshot = await shipmentsQuery.get();
 
     int rowIndex = 3;
@@ -220,88 +282,93 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     for (var i = 0; i < itemReceivesQuerySnapshot.docs.length; i++) {
       final ircDoc = itemReceivesQuerySnapshot.docs[i];
       final ircData = ircDoc.data();
+      final ircDate = ircData['tanggal_penerimaan'].toDate();
 
-      // Populate data cells for "Penerimaan Barang"
-      final ircRowData = [
-        ircData['id'],
-        ircData['production_confirmation_id'],
-        ircData['status_irc'],
-        DateFormat('dd/MM/yyyy').format(ircData['tanggal_penerimaan'].toDate()),
-      ];
-
-      for (var colIndex = 1; colIndex <= ircRowData.length; colIndex++) {
-        sheet
-            .getRangeByIndex(rowIndex, colIndex)
-            .setText(ircRowData[colIndex - 1]);
-      }
-
-      // Fetch and populate detail_item_receives from subcollection
-      final detailIRCQuery =
-          ircDoc.reference.collection('detail_item_receives');
-      final detailIRCQuerySnapshot = await detailIRCQuery.get();
-
-      if (detailIRCQuerySnapshot.docs.isNotEmpty) {
-        rowIndex++;
-
-        // Add a separator line for "Penerimaan Barang"
-        for (var colIndex = 1; colIndex <= 7; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#FFFFCC';
-        }
-        rowIndex++;
-
-        // Populate headers for detail_item_receives
-        final detailIRCHeaderTitles = [
-          'Product ID',
-          'Product Name',
-          'Jumlah Konfirmasi'
+      // Check if the ircDate is within the selected date range
+      if ((startDate == null || ircDate.isAfter(startDate)) &&
+          (endDate == null || ircDate.isBefore(endDate))) {
+        // Populate data cells for "Penerimaan Barang"
+        final ircRowData = [
+          ircData['id'],
+          ircData['production_confirmation_id'],
+          ircData['status_irc'],
+          DateFormat('dd/MM/yyyy').format(ircDate),
         ];
 
-        for (var colIndex = 1;
-            colIndex <= detailIRCHeaderTitles.length;
-            colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.setText(detailIRCHeaderTitles[colIndex - 1]);
-          cell.cellStyle.backColor = '#FFFFCC'; // Header background color
-          cell.cellStyle.bold = true;
+        for (var colIndex = 1; colIndex <= ircRowData.length; colIndex++) {
+          sheet
+              .getRangeByIndex(rowIndex, colIndex)
+              .setText(ircRowData[colIndex - 1]);
         }
-        rowIndex++;
 
-        for (var j = 0; j < detailIRCQuerySnapshot.docs.length; j++) {
-          final detailIRCData = detailIRCQuerySnapshot.docs[j].data();
+        // Fetch and populate detail_item_receives from subcollection
+        final detailIRCQuery =
+            ircDoc.reference.collection('detail_item_receives');
+        final detailIRCQuerySnapshot = await detailIRCQuery.get();
 
-          // Fetch product info using the ProductService
-          final productService = ProductService();
-          final productInfo =
-              await productService.getProductInfo(detailIRCData['product_id']);
-          final productName = productInfo != null
-              ? productInfo['nama']
-              : 'Product Name Not Found';
+        if (detailIRCQuerySnapshot.docs.isNotEmpty) {
+          rowIndex++;
 
-          // Populate data cells for detail_item_receives
-          final detailIRCRowData = [
-            detailIRCData['product_id'],
-            productName,
-            detailIRCData['jumlah_konfirmasi'].toString(),
+          // Add a separator line for "Penerimaan Barang"
+          for (var colIndex = 1; colIndex <= 7; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.cellStyle.borders.bottom.color = '#FFFFCC';
+          }
+          rowIndex++;
+
+          // Populate headers for detail_item_receives
+          final detailIRCHeaderTitles = [
+            'Product ID',
+            'Product Name',
+            'Jumlah Konfirmasi'
           ];
 
-          for (var colIndex = 1; colIndex <= 3; colIndex++) {
-            sheet
-                .getRangeByIndex(rowIndex, colIndex)
-                .setText(detailIRCRowData[colIndex - 1]);
+          for (var colIndex = 1;
+              colIndex <= detailIRCHeaderTitles.length;
+              colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.setText(detailIRCHeaderTitles[colIndex - 1]);
+            cell.cellStyle.backColor = '#FFFFCC'; // Header background color
+            cell.cellStyle.bold = true;
           }
+          rowIndex++;
 
+          for (var j = 0; j < detailIRCQuerySnapshot.docs.length; j++) {
+            final detailIRCData = detailIRCQuerySnapshot.docs[j].data();
+
+            // Fetch product info using the ProductService
+            final productService = ProductService();
+            final productInfo = await productService
+                .getProductInfo(detailIRCData['product_id']);
+            final productName = productInfo != null
+                ? productInfo['nama']
+                : 'Product Name Not Found';
+
+            // Populate data cells for detail_item_receives
+            final detailIRCRowData = [
+              detailIRCData['product_id'],
+              productName,
+              detailIRCData['jumlah_konfirmasi'].toString(),
+            ];
+
+            for (var colIndex = 1; colIndex <= 3; colIndex++) {
+              sheet
+                  .getRangeByIndex(rowIndex, colIndex)
+                  .setText(detailIRCRowData[colIndex - 1]);
+            }
+
+            rowIndex++;
+          }
+        }
+
+        if (i < itemReceivesQuerySnapshot.docs.length - 1) {
+          // Add a separator line between "Penerimaan Barang" entries
+          for (var colIndex = 1; colIndex <= 7; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.cellStyle.borders.bottom.color = '#FFFFCC';
+          }
           rowIndex++;
         }
-      }
-
-      if (i < itemReceivesQuerySnapshot.docs.length - 1) {
-        // Add a separator line between "Penerimaan Barang" entries
-        for (var colIndex = 1; colIndex <= 7; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#FFFFCC';
-        }
-        rowIndex++;
       }
     }
 
@@ -339,90 +406,95 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     for (var i = 0; i < shipmentsQuerySnapshot.docs.length; i++) {
       final shpDoc = shipmentsQuerySnapshot.docs[i];
       final shpData = shpDoc.data();
+      final shpDate = shpData['tanggal_pembuatan'].toDate();
 
-      // Populate data cells for "Pengiriman Barang"
-      final shpRowData = [
-        shpData['id'],
-        shpData['delivery_order_id'],
-        DateFormat('dd/MM/yyyy').format(shpData['tanggal_pembuatan'].toDate()),
-        shpData['total_pcs'].toString(),
-        shpData['status_shp'],
-      ];
-
-      for (var colIndex = 1; colIndex <= shpRowData.length; colIndex++) {
-        sheet
-            .getRangeByIndex(rowIndex, colIndex)
-            .setText(shpRowData[colIndex - 1]);
-      }
-
-      // Fetch and populate detail_shipments from subcollection
-      final detailShpQuery = shpDoc.reference.collection('detail_shipments');
-      final detailShpQuerySnapshot = await detailShpQuery.get();
-
-      if (detailShpQuerySnapshot.docs.isNotEmpty) {
-        rowIndex++;
-
-        // Add a separator line for "Pengiriman Barang"
-        for (var colIndex = 1; colIndex <= 7; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#FFFFCC';
-        }
-        rowIndex++;
-
-        // Populate headers for detail_shipments
-        final detailShpHeaderTitles = [
-          'Product ID',
-          'Product Name',
-          'Jumlah Pengiriman',
-          'Jumlah Pengiriman Dus'
+      // Check if the shpDate is within the selected date range
+      if ((startDate == null || shpDate.isAfter(startDate)) &&
+          (endDate == null || shpDate.isBefore(endDate))) {
+        // Populate data cells for "Pengiriman Barang"
+        final shpRowData = [
+          shpData['id'],
+          shpData['delivery_order_id'],
+          DateFormat('dd/MM/yyyy').format(shpDate),
+          shpData['total_pcs'].toString(),
+          shpData['status_shp'],
         ];
 
-        for (var colIndex = 1;
-            colIndex <= detailShpHeaderTitles.length;
-            colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.setText(detailShpHeaderTitles[colIndex - 1]);
-          cell.cellStyle.backColor = '#FFFFCC'; // Header background color
-          cell.cellStyle.bold = true;
+        for (var colIndex = 1; colIndex <= shpRowData.length; colIndex++) {
+          sheet
+              .getRangeByIndex(rowIndex, colIndex)
+              .setText(shpRowData[colIndex - 1]);
         }
-        rowIndex++;
 
-        for (var j = 0; j < detailShpQuerySnapshot.docs.length; j++) {
-          final detailShpData = detailShpQuerySnapshot.docs[j].data();
+        // Fetch and populate detail_shipments from subcollection
+        final detailShpQuery = shpDoc.reference.collection('detail_shipments');
+        final detailShpQuerySnapshot = await detailShpQuery.get();
 
-          // Fetch product info using the ProductService
-          final productService = ProductService();
-          final productInfo =
-              await productService.getProductInfo(detailShpData['product_id']);
-          final productName = productInfo != null
-              ? productInfo['nama']
-              : 'Product Name Not Found';
+        if (detailShpQuerySnapshot.docs.isNotEmpty) {
+          rowIndex++;
 
-          // Populate data cells for detail_shipments
-          final detailShpRowData = [
-            detailShpData['product_id'],
-            productName,
-            detailShpData['jumlah_pengiriman'].toString(),
-            detailShpData['jumlah_pengiriman_dus'].toString(),
+          // Add a separator line for "Pengiriman Barang"
+          for (var colIndex = 1; colIndex <= 7; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.cellStyle.borders.bottom.color = '#FFFFCC';
+          }
+          rowIndex++;
+
+          // Populate headers for detail_shipments
+          final detailShpHeaderTitles = [
+            'Product ID',
+            'Product Name',
+            'Jumlah Pengiriman',
+            'Jumlah Pengiriman Dus'
           ];
 
-          for (var colIndex = 1; colIndex <= 4; colIndex++) {
-            sheet
-                .getRangeByIndex(rowIndex, colIndex)
-                .setText(detailShpRowData[colIndex - 1]);
+          for (var colIndex = 1;
+              colIndex <= detailShpHeaderTitles.length;
+              colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.setText(detailShpHeaderTitles[colIndex - 1]);
+            cell.cellStyle.backColor = '#FFFFCC'; // Header background color
+            cell.cellStyle.bold = true;
           }
+          rowIndex++;
 
+          for (var j = 0; j < detailShpQuerySnapshot.docs.length; j++) {
+            final detailShpData = detailShpQuerySnapshot.docs[j].data();
+
+            // Fetch product info using the ProductService
+            final productService = ProductService();
+            final productInfo = await productService
+                .getProductInfo(detailShpData['product_id']);
+            final productName = productInfo != null
+                ? productInfo['nama']
+                : 'Product Name Not Found';
+
+            // Populate data cells for detail_shipments
+            final detailShpRowData = [
+              detailShpData['product_id'],
+              productName,
+              detailShpData['jumlah_pengiriman'].toString(),
+              detailShpData['jumlah_pengiriman_dus'].toString(),
+            ];
+
+            for (var colIndex = 1; colIndex <= 4; colIndex++) {
+              sheet
+                  .getRangeByIndex(rowIndex, colIndex)
+                  .setText(detailShpRowData[colIndex - 1]);
+            }
+
+            rowIndex++;
+          }
+        }
+
+        if (i < shipmentsQuerySnapshot.docs.length - 1) {
+          // Add a separator line between "Pengiriman Barang" entries
+          for (var colIndex = 1; colIndex <= 7; colIndex++) {
+            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+            cell.cellStyle.borders.bottom.color = '#FFFFCC';
+          }
           rowIndex++;
         }
-      }
-
-      if (i < shipmentsQuerySnapshot.docs.length - 1) {
-        // Add a separator line between "Pengiriman Barang" entries
-        for (var colIndex = 1; colIndex <= 7; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#FFFFCC';
-        }
-        rowIndex++;
       }
     }
 
@@ -441,52 +513,60 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
-    final itemReceivesQuery =
-        FirebaseFirestore.instance.collection('item_receives');
+    final itemReceivesQuery = firestore.collection('item_receives');
     final itemReceivesQuerySnapshot = await itemReceivesQuery.get();
 
-    final shipmentsQuery = FirebaseFirestore.instance.collection('shipments');
+    final shipmentsQuery = firestore.collection('shipments');
     final shipmentsQuerySnapshot = await shipmentsQuery.get();
 
-    // Membuat fungsi untuk mengambil data "item_receives" dari Firestore
     Future<List<Map<String, dynamic>>> getItemReceivesData() async {
       final data = <Map<String, dynamic>>[];
       for (final doc in itemReceivesQuerySnapshot.docs) {
         final ircData = doc.data();
-        final detailIRCQuery = doc.reference.collection('detail_item_receives');
-        final detailIRCQuerySnapshot = await detailIRCQuery.get();
-        final detailIRCData =
-            detailIRCQuerySnapshot.docs.map((doc) => doc.data()).toList();
-        data.add({
-          'id': ircData['id'],
-          'production_confirmation_id': ircData['production_confirmation_id'],
-          'status_irc': ircData['status_irc'],
-          'tanggal_penerimaan': DateFormat('dd/MM/yyyy')
-              .format(ircData['tanggal_penerimaan'].toDate()),
-          'detail_item_receives': detailIRCData,
-        });
+        final ircDate = ircData['tanggal_penerimaan'].toDate();
+
+        // Check if the ircDate is within the selected date range
+        if ((startDate == null || ircDate.isAfter(startDate)) &&
+            (endDate == null || ircDate.isBefore(endDate))) {
+          final detailIRCQuery =
+              doc.reference.collection('detail_item_receives');
+          final detailIRCQuerySnapshot = await detailIRCQuery.get();
+          final detailIRCData =
+              detailIRCQuerySnapshot.docs.map((doc) => doc.data()).toList();
+          data.add({
+            'id': ircData['id'],
+            'production_confirmation_id': ircData['production_confirmation_id'],
+            'status_irc': ircData['status_irc'],
+            'tanggal_penerimaan': DateFormat('dd/MM/yyyy').format(ircDate),
+            'detail_item_receives': detailIRCData,
+          });
+        }
       }
       return data;
     }
 
-    // Membuat fungsi untuk mengambil data "shipments" dari Firestore
     Future<List<Map<String, dynamic>>> getShipmentsData() async {
       final data = <Map<String, dynamic>>[];
       for (final doc in shipmentsQuerySnapshot.docs) {
         final shpData = doc.data();
-        final detailShpQuery = doc.reference.collection('detail_shipments');
-        final detailShpQuerySnapshot = await detailShpQuery.get();
-        final detailShpData =
-            detailShpQuerySnapshot.docs.map((doc) => doc.data()).toList();
-        data.add({
-          'id': shpData['id'],
-          'delivery_order_id': shpData['delivery_order_id'],
-          'tanggal_pembuatan': DateFormat('dd/MM/yyyy')
-              .format(shpData['tanggal_pembuatan'].toDate()),
-          'total_pcs': shpData['total_pcs'],
-          'status_shp': shpData['status_shp'],
-          'detail_shipments': detailShpData,
-        });
+        final shpDate = shpData['tanggal_pembuatan'].toDate();
+
+        // Check if the shpDate is within the selected date range
+        if ((startDate == null || shpDate.isAfter(startDate)) &&
+            (endDate == null || shpDate.isBefore(endDate))) {
+          final detailShpQuery = doc.reference.collection('detail_shipments');
+          final detailShpQuerySnapshot = await detailShpQuery.get();
+          final detailShpData =
+              detailShpQuerySnapshot.docs.map((doc) => doc.data()).toList();
+          data.add({
+            'id': shpData['id'],
+            'delivery_order_id': shpData['delivery_order_id'],
+            'tanggal_pembuatan': DateFormat('dd/MM/yyyy').format(shpDate),
+            'total_pcs': shpData['total_pcs'],
+            'status_shp': shpData['status_shp'],
+            'detail_shipments': detailShpData,
+          });
+        }
       }
       return data;
     }
@@ -541,7 +621,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
                 for (final detail in itemReceiveData['detail_item_receives'])
                   [
                     detail['product_id'],
-                    'Product Name Not Found',
+                    findProductName(detail['product_id']),
                     detail['jumlah_konfirmasi'].toString(),
                   ],
               ],
@@ -604,7 +684,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
                 for (final detail in shipmentData['detail_shipments'])
                   [
                     detail['product_id'],
-                    'Product Name Not Found',
+                    findProductName(detail['product_id']),
                     detail['jumlah_pengiriman'].toString(),
                     detail['jumlah_pengiriman_dus'].toString(),
                   ],
