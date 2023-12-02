@@ -7,7 +7,7 @@ class DropdownProdukDetailWidgetKonfirmasi extends StatelessWidget {
   final List<Map<String, dynamic>> products;
   final bool isEnabled; // Tambahkan properti isEnabled
 
-  DropdownProdukDetailWidgetKonfirmasi({
+  const DropdownProdukDetailWidgetKonfirmasi({
     required this.label,
     required this.selectedValue,
     required this.onChanged,
