@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +43,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   bool isGenerating = false; // Tambahkan variabel status loading
   DateTime? startDate; // Tambahkan variabel tanggal awal
   DateTime? endDate; // Tambahkan variabel tanggal akhir
+  final firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,8 +214,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     titleRange.setText('Laporan Penggunaan Bahan');
 
     // Fetch data from Firestore and populate the Excel sheet
-    final materialUsagesQuery =
-        FirebaseFirestore.instance.collection('material_usages');
+    final materialUsagesQuery = firestore.collection('material_usages');
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
 
     int rowIndex = 3;
@@ -350,8 +350,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
-    final materialUsagesQuery =
-        FirebaseFirestore.instance.collection('material_usages');
+    final materialUsagesQuery = firestore.collection('material_usages');
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
     final materialUsages =
         materialUsagesQuerySnapshot.docs.map((doc) => doc.data()).toList();

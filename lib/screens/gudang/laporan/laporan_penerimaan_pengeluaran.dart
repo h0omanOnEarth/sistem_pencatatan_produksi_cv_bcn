@@ -513,6 +513,12 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
+    final font = await PdfGoogleFonts.nunitoExtraLight();
+    final font1 = await PdfGoogleFonts.openSansRegular();
+    final font2 = await PdfGoogleFonts.openSansBold();
+
+    bool hasData = false;
+
     final itemReceivesQuery = firestore.collection('item_receives');
     final itemReceivesQuerySnapshot = await itemReceivesQuery.get();
 
@@ -528,6 +534,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         // Check if the ircDate is within the selected date range
         if ((startDate == null || ircDate.isAfter(startDate)) &&
             (endDate == null || ircDate.isBefore(endDate))) {
+          hasData = true;
           final detailIRCQuery =
               doc.reference.collection('detail_item_receives');
           final detailIRCQuerySnapshot = await detailIRCQuery.get();
@@ -586,6 +593,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             text: 'Laporan Pengiriman dan Penerimaan - Penerimaan Barang',
             level: 0,
             textStyle: pw.TextStyle(
+              font: font,
               fontSize: 18,
               fontWeight: pw.FontWeight.bold,
             ),
@@ -610,7 +618,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             pw.Header(
               text: 'Detail Penerimaan Barang',
               level: 2,
-              textStyle: const pw.TextStyle(
+              textStyle: pw.TextStyle(
+                font: font1,
                 fontSize: 14,
               ),
             ),
@@ -642,6 +651,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             text: 'Laporan Pengiriman dan Penerimaan - Pengiriman Barang',
             level: 0,
             textStyle: pw.TextStyle(
+              font: font2,
               fontSize: 18,
               fontWeight: pw.FontWeight.bold,
             ),
@@ -702,6 +712,15 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     // Membuat halaman PDF berdasarkan data "shipments"
     for (final shipmentData in shipmentsData) {
       createShipmentsPage(pdf, shipmentData);
+    }
+
+    if (!hasData) {
+      // No matching data found for the date filter, you can add a message or handle it accordingly.
+      pdf.addPage(pw.Page(
+        build: (pw.Context context) => pw.Center(
+          child: pw.Text('No data found for the selected date range'),
+        ),
+      ));
     }
 
     final pdfBytes = Uint8List.fromList(await pdf.save());
