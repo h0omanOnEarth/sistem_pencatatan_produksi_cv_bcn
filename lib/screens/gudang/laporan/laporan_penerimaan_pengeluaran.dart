@@ -232,6 +232,10 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     sheet1.showGridlines = false;
     sheet2.showGridlines = false;
 
+    // Ganti nama lembar kerja
+    sheet1.name = 'Laporan Penerimaan Barang';
+    sheet2.name = 'Laporan Pengiriman Barang';
+
     // Set column widths for Penerimaan Barang
     sheet1.getRangeByName('A1:I1').columnWidth = 13;
 
