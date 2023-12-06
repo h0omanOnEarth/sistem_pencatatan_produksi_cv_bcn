@@ -422,31 +422,33 @@ class ProductionOrderBloc
     final StringBuffer message = StringBuffer();
 
     message
-        .writeln('Perintah Produksi $nextProductionOrderId baru ditambahkan');
-    message.writeln('Detail Produksi:');
-    message.writeln('BOM ID: $bomId');
-    message.writeln('Jumlah Produksi Estimasi: $jumlahProduksiEst');
-    message.writeln('Jumlah Tenaga Kerja Estimasi: $jumlahTenagaKerjaEst');
-    message.writeln('Lama Waktu Estimasi: $lamaWaktuEst');
-    message.writeln('Product ID: $productId');
-    message.writeln('Status Produksi: $statusPro');
-    message.writeln('Tanggal Produksi: $tanggalProduksi');
-    message.writeln('Tanggal Rencana: $tanggalRencana');
-    message.writeln('Tanggal Selesai: $tanggalSelesai');
+        .write('Perintah Produksi $nextProductionOrderId baru ditambahkan<br>');
+    message.write('<br>Detail Produksi:<br>');
+    message.write('BOM ID: $bomId<br>');
+    message.write('Jumlah Produksi Estimasi: $jumlahProduksiEst<br>');
+    message.write('Jumlah Tenaga Kerja Estimasi: $jumlahTenagaKerjaEst<br>');
+    message.write('Lama Waktu Estimasi: $lamaWaktuEst<br>');
+    message.write('Product ID: $productId<br>');
+    message.write('Status Produksi: $statusPro<br>');
+    message.write('Tanggal Produksi: $tanggalProduksi<br>');
+    message.write('Tanggal Rencana: $tanggalRencana<br>');
+    message.write('Tanggal Selesai: $tanggalSelesai<br>');
 
-    message.writeln('Materials:');
+    message.write('<br>Materials:<br>');
     for (final material in materials) {
-      message.writeln('- Material ID: ${material.materialId}');
-      message.writeln('  Jumlah BOM: ${material.jumlahBOM}');
-      message.writeln('  Batch: ${material.batch}');
-      message.writeln('  Satuan: ${material.satuan}');
+      message.write('- Material ID: ${material.materialId}<br>');
+      message.write('  Jumlah BOM: ${material.jumlahBOM}<br>');
+      message.write('  Batch: ${material.batch}<br>');
+      message.write('  Satuan: ${material.satuan}<br>');
+      message.write('<br>');
     }
 
-    message.writeln('Machines:');
+    message.write('<br>Machines:<br>');
     for (final machine in machines) {
-      message.writeln('- Machine ID: ${machine.machineId}');
-      message.writeln('  Batch: ${machine.batch}');
-      message.writeln('  Status: ${machine.status}');
+      message.write('- Machine ID: ${machine.machineId}<br>');
+      message.write('  Batch: ${machine.batch}<br>');
+      message.write('  Status: ${machine.status}<br>');
+      message.write('<br>');
     }
 
     return message.toString();

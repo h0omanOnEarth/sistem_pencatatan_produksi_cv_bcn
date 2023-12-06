@@ -2,6 +2,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/delivery_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_delivery_order.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
 abstract class DeliveryOrderEvent {}
@@ -48,6 +51,7 @@ class DeliveryOrderBloc
     extends Bloc<DeliveryOrderEvent, DeliveryOrderBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable deliveryOrderCallable; //karena sama
+  final notificationService = NotificationService();
 
   DeliveryOrderBloc()
       : deliveryOrderCallable =
@@ -76,6 +80,7 @@ class DeliveryOrderBloc
       final totalHarga = event.deliveryOrder.totalHarga;
       final catatan = event.deliveryOrder.catatan;
       final products = event.deliveryOrder.detailDeliveryOrderList;
+      final namaEkspedisi = event.deliveryOrder.namaEkspedisi;
 
       if (customerOrderId.isNotEmpty) {
         if (alamatPengiriman.isNotEmpty) {
@@ -109,7 +114,7 @@ class DeliveryOrderBloc
                 'total_barang': totalBarang,
                 'total_harga': totalHarga,
                 'catatan': catatan,
-                'nama_ekspedisi': event.deliveryOrder.namaEkspedisi
+                'nama_ekspedisi': namaEkspedisi
               };
 
               await deliveryOrderRef.set(deliveryOrderData);
@@ -129,7 +134,7 @@ class DeliveryOrderBloc
                   // Tambahkan dokumen detail customer order dalam koleksi 'detail_customer_orders'
                   await detailDeliveryOrderRef.add({
                     'id': nextDetailDeliveryId,
-                    'customer_id': nextDeliveryOrderId,
+                    'delivery_order_id': nextDeliveryOrderId,
                     'product_id': detailDeliveryOrder.product_id,
                     'jumlah': detailDeliveryOrder.jumlah,
                     'harga_satuan': detailDeliveryOrder.hargaSatuan,
@@ -140,6 +145,28 @@ class DeliveryOrderBloc
                   detailCount++;
                 }
               }
+
+              await notificationService.addNotification(
+                  'Terdapat perintah pengiriman baru $nextDeliveryOrderId',
+                  'Gudang');
+
+              EmailNotificationService.sendNotification(
+                'Perintah Pengiriman Baru',
+                _createEmailMessage(
+                  nextDeliveryOrderId,
+                  customerOrderId,
+                  metodePengiriman,
+                  namaEkspedisi,
+                  alamatPengiriman,
+                  catatan,
+                  totalBarang,
+                  tanggalPesananPengiriman,
+                  tanggalRequestPengiriman,
+                  products!,
+                ),
+                'Gudang',
+              );
+
               yield SuccessState();
             } else {
               yield ErrorState(result.data['message']);
@@ -237,6 +264,7 @@ class DeliveryOrderBloc
                   detailCount++;
                 }
               }
+
               yield SuccessState();
             } else {
               yield ErrorState(result.data['message']);
@@ -310,5 +338,43 @@ class DeliveryOrderBloc
     await customerOrderRef
         .doc(customerOrderId)
         .update({'status_pesanan': 'Dalam Proses'});
+  }
+
+  String _createEmailMessage(
+    String nextDeliveryOrderId,
+    String customerOrderId,
+    String metodePengiriman,
+    String namaEkspedisi,
+    String alamatPengiriman,
+    String catatan,
+    int totalBarang,
+    DateTime tanggalPesananPengiriman,
+    DateTime tanggalRequestPengiriman,
+    List<DetailDeliveryOrder> products,
+  ) {
+    final StringBuffer message = StringBuffer();
+
+    message
+        .write('Perintah pengiriman $nextDeliveryOrderId baru ditambahkan<br>');
+    message.write('<br>Detail Perintah Pengiriman:<br>');
+    message.write('CUSTOMER ORDER ID: $customerOrderId<br>');
+    message.write('Alamat Pengiriman: $alamatPengiriman<br>');
+    message.write('Metode Pengiriman: $metodePengiriman<br>');
+    message.write('Nama Ekspedisi: $namaEkspedisi<br>');
+    message.write('Catatan: $catatan<br>');
+    message.write('Total Barang: $totalBarang<br>');
+    message.write('Tanggal Perintah Pengiriman: $tanggalPesananPengiriman<br>');
+    message
+        .write('Tanggal Permintaan Pengiriman: $tanggalRequestPengiriman<br>');
+
+    message.write('<br>Products:<br>');
+    for (final product in products) {
+      message.write('- Product ID: ${product.product_id}<br>');
+      message.write('  Jumlah : ${product.jumlah}<br>');
+      message.write('  Satuan: ${product.satuan}<br>');
+      message.write('<br>');
+    }
+
+    return message.toString();
   }
 }

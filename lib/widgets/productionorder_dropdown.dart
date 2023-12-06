@@ -11,7 +11,7 @@ class ProductionOrderDropDown extends StatefulWidget {
   final TextEditingController? kodeBomController;
   final bool isEnabled;
 
-  ProductionOrderDropDown({
+  const ProductionOrderDropDown({
     Key? key,
     required this.selectedPRO,
     required this.onChanged,

@@ -7,6 +7,7 @@ class ProductCard extends StatefulWidget {
   final bool isEnabled;
 
   const ProductCard({
+    super.key,
     required this.productCardData,
     required this.onDelete,
     required this.children,
@@ -38,7 +39,7 @@ class _ProductCardState extends State<ProductCard> {
           if (widget.isEnabled) // Tambahkan pengecekan isEnabled
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: widget.onDelete,

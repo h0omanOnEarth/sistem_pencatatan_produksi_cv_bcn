@@ -12,7 +12,8 @@ class ProdukDropDown extends StatefulWidget {
   final bool isEnabled;
   final Function(String?) onChanged;
 
-  ProdukDropDown({
+  const ProdukDropDown({
+    super.key,
     required this.namaProdukController,
     this.versionController,
     this.dimensiControler,
@@ -22,7 +23,7 @@ class ProdukDropDown extends StatefulWidget {
     this.selectedKode,
     required this.onChanged,
     this.isEnabled = true,
-  }) : super();
+  });
 
   @override
   _ProdukDropDownState createState() => _ProdukDropDownState();

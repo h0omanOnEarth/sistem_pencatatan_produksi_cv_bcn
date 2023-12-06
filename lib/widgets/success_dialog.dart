@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SuccessDialog extends StatelessWidget {
   final String message;
 
-  SuccessDialog({required this.message});
+  SuccessDialog({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {

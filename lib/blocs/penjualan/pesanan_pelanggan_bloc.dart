@@ -1,7 +1,10 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/detail_pesanan_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/penjualan/pesanan_pelanggan.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
 abstract class CustomerOrderEvent {}
@@ -48,6 +51,7 @@ class CustomerOrderBloc
     extends Bloc<CustomerOrderEvent, CustomerOrderBlocState> {
   late FirebaseFirestore _firestore;
   final HttpsCallable customerOrderCallable;
+  final notificationService = NotificationService();
 
   CustomerOrderBloc()
       : customerOrderCallable =
@@ -138,6 +142,25 @@ class CustomerOrderBloc
                   detailCount++;
                 }
               }
+
+              await notificationService.addNotification(
+                  'Terdapat pesanan pelanggan baru $nextCustomerOrderId',
+                  'Administrasi');
+
+              EmailNotificationService.sendNotification(
+                'Pesanan Pelanggan Baru',
+                _createEmailMessage(
+                    nextCustomerOrderId,
+                    customerId,
+                    alamatPengiriman,
+                    catatan,
+                    totalHarga,
+                    totalProduk,
+                    tanggalPesan,
+                    tanggalKirim,
+                    products!),
+                'Administrasi',
+              );
 
               yield SuccessState();
             } else {
@@ -291,5 +314,41 @@ class CustomerOrderBloc
       }
       customerCount++;
     }
+  }
+
+  String _createEmailMessage(
+    String nextCustomerOrderId,
+    String customerId,
+    String alamatPengiriman,
+    String catatan,
+    int totalHarga,
+    int totalProduk,
+    DateTime tanggalPesan,
+    DateTime tanggalKirim,
+    List<DetailCustomerOrder> products,
+  ) {
+    final StringBuffer message = StringBuffer();
+
+    message
+        .write('Pesanan pelanggan $nextCustomerOrderId baru ditambahkan<br>');
+    message.write('<br>Detail Pesanan Pelanggan:<br>');
+    message.write('CUSTOMER ID: $customerId<br>');
+    message.write('Alamat Pengiriman: $alamatPengiriman<br>');
+    message.write('Catatan: $catatan<br>');
+    message.write('Total Produk: $totalProduk<br>');
+    message.write('Total Harga: Rp $totalHarga<br>');
+    message.write('Tanggal Pesan: $tanggalPesan<br>');
+    message.write('Tanggal Kirim: $tanggalKirim<br>');
+
+    message.write('<br>Products:<br>');
+    for (final product in products) {
+      message.write('- Product ID: ${product.productId}<br>');
+      message.write('  Jumlah : ${product.jumlah}<br>');
+      message.write('  Satuan: ${product.satuan}<br>');
+      message.write('  Harga Satuan: ${product.hargaSatuan}<br>');
+      message.write('<br>');
+    }
+
+    return message.toString();
   }
 }

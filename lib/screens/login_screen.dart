@@ -49,6 +49,8 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
@@ -255,7 +257,7 @@ class _LoginFormState extends State<LoginForm> {
                             _showPassword
                                 ? Icons.visibility
                                 : Icons.visibility_off,
-                            color: Color.fromRGBO(59, 51, 51, 1),
+                            color: const Color.fromRGBO(59, 51, 51, 1),
                           ),
                           onPressed: () {
                             setState(() {

@@ -5,6 +5,7 @@ class SearchBarWidget extends StatelessWidget {
   final ValueChanged<String> onChanged;
 
   const SearchBarWidget({
+    super.key,
     required this.searchTerm,
     required this.onChanged,
   });

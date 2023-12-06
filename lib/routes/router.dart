@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/home_screen_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penggunaan_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/laporan/laporan_penjualan.dart';
@@ -14,16 +13,11 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/pembelian/
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_delivery_order.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_faktur_penjualan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/penjualan/list_pesanan_penjualan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_profil_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_penerimaan_pengeluaran.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_barang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_master.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_pembelian.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_material_receive.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/pembelian/list/list_purchase_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/penjualan/list/list_customer_order_return.dart';
@@ -45,11 +39,9 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pegawa
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_pelanggan.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/master/list/list_supplier_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/home_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_kualitas_produk.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/laporan/laporan_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_laporan.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_master.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_proses.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
@@ -64,9 +56,6 @@ import 'package:sistem_manajemen_produksi_cv_bcn/screens/profil_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/splash_screen.dart';
 
 import '/screens/administrasi/main/main_laporan.dart';
-import '/screens/gudang/main/main_laporan.dart';
-import '/screens/gudang/main/main_penjualan.dart';
-import '/screens/gudang/main/main_produksi.dart';
 
 final routes = RouteMap(
   onUnknownRoute: (path) {
