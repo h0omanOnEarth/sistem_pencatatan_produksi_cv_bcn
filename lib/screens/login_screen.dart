@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: BlocProvider(
         create: (context) => LoginBloc(),
-        child: LoginForm(),
+        child: const LoginForm(),
       ),
     );
   }

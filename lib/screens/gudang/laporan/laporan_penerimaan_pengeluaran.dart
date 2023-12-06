@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -228,19 +227,38 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
 
   Future<void> generateExcel() async {
     final Workbook workbook = Workbook();
-    final Worksheet sheet = workbook.worksheets[0];
-    sheet.showGridlines = false;
+    final Worksheet sheet1 = workbook.worksheets[0]; // Penerimaan Barang
+    final Worksheet sheet2 = workbook.worksheets.add(); // Pengiriman Barang
+    sheet1.showGridlines = false;
+    sheet2.showGridlines = false;
 
-    // Set column widths
-    sheet.getRangeByName('A1:G1').columnWidth = 13;
+    // Set column widths for Penerimaan Barang
+    sheet1.getRangeByName('A1:I1').columnWidth = 13;
 
-    // Merge cells for the title and format it
-    final titleRange = sheet.getRangeByName('A1:G1');
-    titleRange.merge();
-    titleRange.cellStyle.hAlign = HAlignType.center;
-    titleRange.cellStyle.bold = true;
-    titleRange.cellStyle.fontSize = 18;
-    titleRange.cellStyle.backColor = '#C0C0C0'; // Header background color
+    // Merge cells for the title and format it for Penerimaan Barang
+    final titleRange1 = sheet1.getRangeByName('A1:I1');
+    titleRange1.merge();
+    titleRange1.cellStyle.hAlign = HAlignType.center;
+    titleRange1.cellStyle.bold = true;
+    titleRange1.cellStyle.fontSize = 18;
+    titleRange1.cellStyle.backColor = '#C0C0C0'; // Header background color
+
+    // Add the title for Penerimaan Barang
+    titleRange1.setText('Laporan Penerimaan Barang');
+
+    // Set column widths for Pengiriman Barang
+    sheet2.getRangeByName('A1:I1').columnWidth = 13;
+
+    // Merge cells for the title and format it for Pengiriman Barang
+    final titleRange2 = sheet2.getRangeByName('A1:I1');
+    titleRange2.merge();
+    titleRange2.cellStyle.hAlign = HAlignType.center;
+    titleRange2.cellStyle.bold = true;
+    titleRange2.cellStyle.fontSize = 18;
+    titleRange2.cellStyle.backColor = '#C0C0C0'; // Header background color
+
+    // Add the title for Pengiriman Barang
+    titleRange2.setText('Laporan Pengiriman Barang');
 
     // Fetch and populate 'item_receives' data
     final itemReceivesQuery = firestore.collection('item_receives');
@@ -250,34 +268,52 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     final shipmentsQuery = firestore.collection('shipments');
     final shipmentsQuerySnapshot = await shipmentsQuery.get();
 
-    int rowIndex = 3;
+    int rowIndex1 = 3; // Row index for Penerimaan Barang
+    int rowIndex2 = 3; // Row index for Pengiriman Barang
 
-    // Add "Penerimaan Barang" title
-    final penerimaanTitleRange = sheet.getRangeByIndex(rowIndex, 1);
-    penerimaanTitleRange.setText('Penerimaan Barang');
-    penerimaanTitleRange.cellStyle.bold = true;
-    penerimaanTitleRange.cellStyle.backColor =
-        '#FFFF00'; // Title background color
-    penerimaanTitleRange.cellStyle.fontSize = 24;
-    rowIndex++;
-
-    // Populate headers for "Penerimaan Barang"
+    // Add headers for Penerimaan Barang
     final itemReceivesHeaderTitles = [
       'ID',
       'Production Confirmation ID',
       'Status IRC',
       'Tanggal Penerimaan',
+      'Product ID',
+      'Product Name',
+      'Jumlah Konfirmasi',
     ];
 
     for (var colIndex = 1;
         colIndex <= itemReceivesHeaderTitles.length;
         colIndex++) {
-      final cell = sheet.getRangeByIndex(rowIndex, colIndex);
+      final cell = sheet1.getRangeByIndex(rowIndex1, colIndex);
       cell.setText(itemReceivesHeaderTitles[colIndex - 1]);
       cell.cellStyle.backColor = '#FFFF00'; // Header background color
       cell.cellStyle.bold = true;
     }
-    rowIndex++;
+    rowIndex1++;
+
+    // Add headers for Pengiriman Barang
+    final shipmentsHeaderTitles = [
+      'ID',
+      'Delivery Order ID',
+      'Tanggal Pembuatan',
+      'Total PCS',
+      'Status SHP',
+      'Product ID',
+      'Product Name',
+      'Jumlah Pengiriman',
+      'Jumlah Pengiriman Dus',
+    ];
+
+    for (var colIndex = 1;
+        colIndex <= shipmentsHeaderTitles.length;
+        colIndex++) {
+      final cell = sheet2.getRangeByIndex(rowIndex2, colIndex);
+      cell.setText(shipmentsHeaderTitles[colIndex - 1]);
+      cell.cellStyle.backColor = '#FFFF00'; // Header background color
+      cell.cellStyle.bold = true;
+    }
+    rowIndex2++;
 
     for (var i = 0; i < itemReceivesQuerySnapshot.docs.length; i++) {
       final ircDoc = itemReceivesQuerySnapshot.docs[i];
@@ -287,7 +323,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       // Check if the ircDate is within the selected date range
       if ((startDate == null || ircDate.isAfter(startDate)) &&
           (endDate == null || ircDate.isBefore(endDate))) {
-        // Populate data cells for "Penerimaan Barang"
+        // Populate data cells for Penerimaan Barang
         final ircRowData = [
           ircData['id'],
           ircData['production_confirmation_id'],
@@ -296,8 +332,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         ];
 
         for (var colIndex = 1; colIndex <= ircRowData.length; colIndex++) {
-          sheet
-              .getRangeByIndex(rowIndex, colIndex)
+          sheet1
+              .getRangeByIndex(rowIndex1, colIndex)
               .setText(ircRowData[colIndex - 1]);
         }
 
@@ -306,102 +342,36 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             ircDoc.reference.collection('detail_item_receives');
         final detailIRCQuerySnapshot = await detailIRCQuery.get();
 
-        if (detailIRCQuerySnapshot.docs.isNotEmpty) {
-          rowIndex++;
+        for (var j = 0; j < detailIRCQuerySnapshot.docs.length; j++) {
+          final detailIRCData = detailIRCQuerySnapshot.docs[j].data();
 
-          // Add a separator line for "Penerimaan Barang"
-          for (var colIndex = 1; colIndex <= 7; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.cellStyle.borders.bottom.color = '#FFFFCC';
-          }
-          rowIndex++;
+          // Fetch product info using the ProductService
+          final productService = ProductService();
+          final productInfo =
+              await productService.getProductInfo(detailIRCData['product_id']);
+          final productName = productInfo != null
+              ? productInfo['nama']
+              : 'Product Name Not Found';
 
-          // Populate headers for detail_item_receives
-          final detailIRCHeaderTitles = [
-            'Product ID',
-            'Product Name',
-            'Jumlah Konfirmasi'
+          // Populate data cells for Penerimaan Barang
+          final detailIRCRowData = [
+            detailIRCData['product_id'],
+            productName,
+            detailIRCData['jumlah_konfirmasi'].toString(),
           ];
 
-          for (var colIndex = 1;
-              colIndex <= detailIRCHeaderTitles.length;
-              colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.setText(detailIRCHeaderTitles[colIndex - 1]);
-            cell.cellStyle.backColor = '#FFFFCC'; // Header background color
-            cell.cellStyle.bold = true;
+          for (var colIndex = 1; colIndex <= 3; colIndex++) {
+            sheet1
+                .getRangeByIndex(rowIndex1, colIndex + 4)
+                .setText(detailIRCRowData[colIndex - 1]);
           }
-          rowIndex++;
 
-          for (var j = 0; j < detailIRCQuerySnapshot.docs.length; j++) {
-            final detailIRCData = detailIRCQuerySnapshot.docs[j].data();
-
-            // Fetch product info using the ProductService
-            final productService = ProductService();
-            final productInfo = await productService
-                .getProductInfo(detailIRCData['product_id']);
-            final productName = productInfo != null
-                ? productInfo['nama']
-                : 'Product Name Not Found';
-
-            // Populate data cells for detail_item_receives
-            final detailIRCRowData = [
-              detailIRCData['product_id'],
-              productName,
-              detailIRCData['jumlah_konfirmasi'].toString(),
-            ];
-
-            for (var colIndex = 1; colIndex <= 3; colIndex++) {
-              sheet
-                  .getRangeByIndex(rowIndex, colIndex)
-                  .setText(detailIRCRowData[colIndex - 1]);
-            }
-
-            rowIndex++;
-          }
-        }
-
-        if (i < itemReceivesQuerySnapshot.docs.length - 1) {
-          // Add a separator line between "Penerimaan Barang" entries
-          for (var colIndex = 1; colIndex <= 7; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.cellStyle.borders.bottom.color = '#FFFFCC';
-          }
-          rowIndex++;
+          rowIndex1++;
         }
       }
     }
 
-    rowIndex++;
-
-    // Add "Pengiriman Barang" title
-    final pengirimanTitleRange = sheet.getRangeByIndex(rowIndex, 1);
-    pengirimanTitleRange.setText('Pengiriman Barang');
-    pengirimanTitleRange.cellStyle.bold = true;
-    pengirimanTitleRange.cellStyle.backColor =
-        '#FFFF00'; // Title background color
-    pengirimanTitleRange.cellStyle.fontSize =
-        24; // Set the font size to 14 (adjust as needed)
-    rowIndex++;
-
-    // Populate headers for "Pengiriman Barang"
-    final shipmentsHeaderTitles = [
-      'ID',
-      'Delivery Order ID',
-      'Tanggal Pembuatan',
-      'Total PCS',
-      'Status SHP',
-    ];
-
-    for (var colIndex = 1;
-        colIndex <= shipmentsHeaderTitles.length;
-        colIndex++) {
-      final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-      cell.setText(shipmentsHeaderTitles[colIndex - 1]);
-      cell.cellStyle.backColor = '#FFFF00'; // Header background color
-      cell.cellStyle.bold = true;
-    }
-    rowIndex++;
+    rowIndex1++;
 
     for (var i = 0; i < shipmentsQuerySnapshot.docs.length; i++) {
       final shpDoc = shipmentsQuerySnapshot.docs[i];
@@ -411,7 +381,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       // Check if the shpDate is within the selected date range
       if ((startDate == null || shpDate.isAfter(startDate)) &&
           (endDate == null || shpDate.isBefore(endDate))) {
-        // Populate data cells for "Pengiriman Barang"
+        // Populate data cells for Pengiriman Barang
         final shpRowData = [
           shpData['id'],
           shpData['delivery_order_id'],
@@ -421,8 +391,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         ];
 
         for (var colIndex = 1; colIndex <= shpRowData.length; colIndex++) {
-          sheet
-              .getRangeByIndex(rowIndex, colIndex)
+          sheet2
+              .getRangeByIndex(rowIndex2, colIndex)
               .setText(shpRowData[colIndex - 1]);
         }
 
@@ -430,70 +400,32 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
         final detailShpQuery = shpDoc.reference.collection('detail_shipments');
         final detailShpQuerySnapshot = await detailShpQuery.get();
 
-        if (detailShpQuerySnapshot.docs.isNotEmpty) {
-          rowIndex++;
+        for (var j = 0; j < detailShpQuerySnapshot.docs.length; j++) {
+          final detailShpData = detailShpQuerySnapshot.docs[j].data();
 
-          // Add a separator line for "Pengiriman Barang"
-          for (var colIndex = 1; colIndex <= 7; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.cellStyle.borders.bottom.color = '#FFFFCC';
-          }
-          rowIndex++;
+          // Fetch product info using the ProductService
+          final productService = ProductService();
+          final productInfo =
+              await productService.getProductInfo(detailShpData['product_id']);
+          final productName = productInfo != null
+              ? productInfo['nama']
+              : 'Product Name Not Found';
 
-          // Populate headers for detail_shipments
-          final detailShpHeaderTitles = [
-            'Product ID',
-            'Product Name',
-            'Jumlah Pengiriman',
-            'Jumlah Pengiriman Dus'
+          // Populate data cells for Pengiriman Barang
+          final detailShpRowData = [
+            detailShpData['product_id'],
+            productName,
+            detailShpData['jumlah_pengiriman'].toString(),
+            detailShpData['jumlah_pengiriman_dus'].toString(),
           ];
 
-          for (var colIndex = 1;
-              colIndex <= detailShpHeaderTitles.length;
-              colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.setText(detailShpHeaderTitles[colIndex - 1]);
-            cell.cellStyle.backColor = '#FFFFCC'; // Header background color
-            cell.cellStyle.bold = true;
+          for (var colIndex = 1; colIndex <= 4; colIndex++) {
+            sheet2
+                .getRangeByIndex(rowIndex2, colIndex + 5)
+                .setText(detailShpRowData[colIndex - 1]);
           }
-          rowIndex++;
 
-          for (var j = 0; j < detailShpQuerySnapshot.docs.length; j++) {
-            final detailShpData = detailShpQuerySnapshot.docs[j].data();
-
-            // Fetch product info using the ProductService
-            final productService = ProductService();
-            final productInfo = await productService
-                .getProductInfo(detailShpData['product_id']);
-            final productName = productInfo != null
-                ? productInfo['nama']
-                : 'Product Name Not Found';
-
-            // Populate data cells for detail_shipments
-            final detailShpRowData = [
-              detailShpData['product_id'],
-              productName,
-              detailShpData['jumlah_pengiriman'].toString(),
-              detailShpData['jumlah_pengiriman_dus'].toString(),
-            ];
-
-            for (var colIndex = 1; colIndex <= 4; colIndex++) {
-              sheet
-                  .getRangeByIndex(rowIndex, colIndex)
-                  .setText(detailShpRowData[colIndex - 1]);
-            }
-
-            rowIndex++;
-          }
-        }
-
-        if (i < shipmentsQuerySnapshot.docs.length - 1) {
-          // Add a separator line between "Pengiriman Barang" entries
-          for (var colIndex = 1; colIndex <= 7; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.cellStyle.borders.bottom.color = '#FFFFCC';
-          }
-          rowIndex++;
+          rowIndex2++;
         }
       }
     }

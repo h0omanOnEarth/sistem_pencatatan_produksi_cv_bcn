@@ -200,10 +200,10 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     sheet.showGridlines = false;
 
     // Set column widths
-    sheet.getRangeByName('A1:F1').columnWidth = 13;
+    sheet.getRangeByName('A1:H1').columnWidth = 13;
 
     // Merge cells for the title and format it
-    final titleRange = sheet.getRangeByName('A1:F1');
+    final titleRange = sheet.getRangeByName('A1:H1');
     titleRange.merge();
     titleRange.cellStyle.hAlign = HAlignType.center;
     titleRange.cellStyle.bold = true;
@@ -213,11 +213,23 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     // Add the title
     titleRange.setText('Laporan Penggunaan Bahan');
 
+    // Add headers
+    sheet.getRangeByIndex(2, 1).setText('ID');
+    sheet.getRangeByIndex(2, 2).setText('Production Order ID');
+    sheet.getRangeByIndex(2, 3).setText('Material Request ID');
+    sheet.getRangeByIndex(2, 4).setText('Material ID');
+    sheet.getRangeByIndex(2, 5).setText('Jumlah');
+    sheet.getRangeByIndex(2, 6).setText('Nama Bahan');
+    sheet.getRangeByIndex(2, 7).setText('Satuan');
+    sheet.getRangeByIndex(2, 8).setText('Tanggal Penggunaan');
+    sheet.getRangeByIndex(2, 9).setText('Status MU');
+    sheet.getRangeByIndex(2, 10).setText('Batch');
+
     // Fetch data from Firestore and populate the Excel sheet
     final materialUsagesQuery = firestore.collection('material_usages');
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
 
-    int rowIndex = 3;
+    int rowIndex = 4; // Starting row for data
 
     for (var i = 0; i < materialUsagesQuerySnapshot.docs.length; i++) {
       final materialUsageDoc = materialUsagesQuerySnapshot.docs[i];
@@ -228,47 +240,6 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       // Check if the materialUsageDate is within the selected date range
       if ((startDate == null || materialUsageDate.isAfter(startDate)) &&
           (endDate == null || materialUsageDate.isBefore(endDate))) {
-        // Populate headers with background colors
-        for (var colIndex = 1; colIndex <= 6; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.setText([
-            'ID',
-            'Production Order ID',
-            'Material Request ID',
-            'Batch',
-            'Tanggal Penggunaan',
-            'Status MU'
-          ][colIndex - 1]);
-          cell.cellStyle.backColor = '#FFFF00'; // Header background color
-          cell.cellStyle.bold = true;
-        }
-
-        rowIndex++;
-
-        // Populate data cells
-        for (var colIndex = 1; colIndex <= 6; colIndex++) {
-          sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
-          sheet
-              .getRangeByIndex(rowIndex, 2)
-              .setText(materialUsageData['production_order_id']);
-          sheet
-              .getRangeByIndex(rowIndex, 3)
-              .setText(materialUsageData['material_request_id']);
-          sheet
-              .getRangeByIndex(rowIndex, 4)
-              .setText(materialUsageData['batch']);
-          sheet.getRangeByIndex(rowIndex, 5).setDateTime(materialUsageDate);
-          sheet
-              .getRangeByIndex(rowIndex, 6)
-              .setText(materialUsageData['status_mu']);
-        }
-
-        // Add a separator line
-        for (var colIndex = 1; colIndex <= 6; colIndex++) {
-          final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-          cell.cellStyle.borders.bottom.color = '#000000'; // Border color
-        }
-
         // Fetch and populate the details from subcollection
         final detailMaterialUsagesQuery =
             materialUsageDoc.reference.collection('detail_material_usages');
@@ -278,58 +249,44 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
             .map((doc) => doc.data())
             .toList();
 
-        if (detailMaterialUsages.isNotEmpty) {
-          rowIndex++;
-          // Populate detail headers with a different background color
-          for (var colIndex = 1; colIndex <= 3; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.setText(['Material ID', 'Jumlah', 'Satuan'][colIndex - 1]);
-            cell.cellStyle.backColor =
-                '#FFFF00'; // Header detail_material_usages background color
-            cell.cellStyle.bold = true;
-          }
+        // Loop through detailMaterialUsages and populate the Excel sheet
+        for (var j = 0; j < detailMaterialUsages.length; j++) {
+          final detailMaterialUsageData = detailMaterialUsages[j];
 
-          // Add 'Nama Bahan' header with background color
-          sheet.getRangeByIndex(rowIndex, 4).setText('Nama Bahan');
-          sheet.getRangeByIndex(rowIndex, 4).cellStyle.backColor = '#FFFF00';
-          sheet.getRangeByIndex(rowIndex, 4).cellStyle.bold = true;
+          // Fetch material info using the BahanService
+          final materialId = detailMaterialUsageData['material_id'];
+          final materialInfo =
+              await MaterialService().getMaterialInfo(materialId);
 
-          rowIndex++;
+          // Populate data cells for the main material usage details
+          sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
+          sheet.getRangeByIndex(rowIndex, 2).setText(
+              materialUsageData['production_order_id'] ??
+                  ''); // Change '??' to the actual field name
+          sheet.getRangeByIndex(rowIndex, 3).setText(
+              materialUsageData['material_request_id'] ??
+                  ''); // Change '??' to the actual field name
+          sheet.getRangeByIndex(rowIndex, 4).setText(
+              detailMaterialUsageData['material_id'] ??
+                  ''); // Change '??' to the actual field name
+          sheet.getRangeByIndex(rowIndex, 5).setText(
+              detailMaterialUsageData['jumlah']
+                  .toString()); // Change '??' to the actual field name
+          sheet
+              .getRangeByIndex(rowIndex, 6)
+              .setText(materialInfo != null ? materialInfo['nama'] : '');
+          sheet.getRangeByIndex(rowIndex, 7).setText(
+              detailMaterialUsageData['satuan'] ??
+                  ''); // Change '??' to the actual field name
+          sheet.getRangeByIndex(rowIndex, 8).setDateTime(materialUsageDate);
+          sheet.getRangeByIndex(rowIndex, 9).setText(
+              materialUsageData['status_mu'] ??
+                  ''); // Change '??' to the actual field name
+          sheet.getRangeByIndex(rowIndex, 10).setText(
+              materialUsageData['batch'] ??
+                  ''); // Change '??' to the actual field name
 
-          for (var j = 0;
-              j < detailMaterialUsagesQuerySnapshot.docs.length;
-              j++) {
-            final detailMaterialUsageData = detailMaterialUsages[j];
-
-            // Populate data cells for detail_material_usages
-            for (var colIndex = 1; colIndex <= 3; colIndex++) {
-              final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-              cell.setText([
-                detailMaterialUsageData['material_id'],
-                detailMaterialUsageData['jumlah'].toString(),
-                detailMaterialUsageData['satuan']
-              ][colIndex - 1]);
-            }
-
-            // Fetch material info using the MaterialService
-            final materialId = detailMaterialUsageData['material_id'];
-            final materialInfo =
-                await MaterialService().getMaterialInfo(materialId);
-
-            // Populate 'Nama Bahan' column with material name
-            sheet
-                .getRangeByIndex(rowIndex, 4)
-                .setText(materialInfo != null ? materialInfo['nama'] : '');
-            rowIndex++;
-          }
-        }
-
-        if (i < materialUsagesQuerySnapshot.docs.length - 1) {
-          // Add a separator line between material_usages
-          for (var colIndex = 1; colIndex <= 6; colIndex++) {
-            final cell = sheet.getRangeByIndex(rowIndex, colIndex);
-            cell.cellStyle.borders.bottom.color = '#000000';
-          }
+          // Increment the rowIndex for the next entry
           rowIndex++;
         }
       }
