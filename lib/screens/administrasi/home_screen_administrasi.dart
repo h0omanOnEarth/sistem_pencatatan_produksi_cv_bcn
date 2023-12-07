@@ -5,7 +5,7 @@ import 'package:routemaster/routemaster.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/customerOrderChart.dart';
-import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialUsageChart.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/widgets/purchaseOrderChart.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreenAdministrasi extends StatefulWidget {
@@ -195,7 +195,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
           children: [
             Expanded(child: CustomerOrderChart()),
             SizedBox(width: 16),
-            Expanded(child: MaterialUsageChartCard()),
+            Expanded(child: PurchaseOrderChartCard()),
           ],
         ),
       ],
@@ -326,7 +326,7 @@ class _HomeScreenAdministrasiState extends State<HomeScreenAdministrasi> {
         ),
         const CustomerOrderChart(),
         const SizedBox(height: 16),
-        const MaterialUsageChartCard(),
+        const PurchaseOrderChartCard(),
         // Additional content goes here
       ],
     );
@@ -408,6 +408,7 @@ class CardList extends StatelessWidget {
   final int maxItems = 5;
 
   const CardList({
+    super.key,
     required this.collectionName,
     required this.statusField,
     required this.statusValue,

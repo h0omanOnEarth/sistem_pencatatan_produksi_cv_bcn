@@ -45,6 +45,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   List<Map<String, dynamic>> productionResults = [];
   List<Map<String, dynamic>> materialUsages = [];
   List<Map<String, dynamic>> productionOrders = [];
+  Map<String, List<Map<String, dynamic>>> customerOrderDetailsMap = {};
+  Map<String, List<Map<String, dynamic>>> customerOrderReturnDetailsMap = {};
 
   @override
   void initState() {
@@ -182,6 +184,29 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     productionResults = await fetchProductionResults();
     materialUsages = await fetchMaterialUsages();
     productionOrders = await fetchProductionOrders();
+
+    for (var customerOrder in customerOrders) {
+      final detailsQuery = await firestore
+          .collection('customer_orders')
+          .doc(customerOrder['id'])
+          .collection('detail_customer_orders')
+          .get();
+
+      customerOrderDetailsMap[customerOrder['id']] =
+          detailsQuery.docs.map((doc) => doc.data()).toList();
+    }
+
+    // Fetch customer order return details
+    for (var customerOrderReturn in customerOrderReturns) {
+      final detailsQuery = await firestore
+          .collection('customer_order_returns')
+          .doc(customerOrderReturn['id'])
+          .collection('detail_customer_order_returns')
+          .get();
+
+      customerOrderReturnDetailsMap[customerOrderReturn['id']] =
+          detailsQuery.docs.map((doc) => doc.data()).toList();
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchCustomerOrders() async {
@@ -281,19 +306,9 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<int> calculateTotalJumlahPesanan(String productID) async {
     int totalJumlahPesanan = 0;
 
-    for (var i = 0; i < customerOrders.length; i++) {
-      final customerOrderData = customerOrders[i];
-      final customerOrderDetailsQuery = await firestore
-          .collection('customer_orders')
-          .doc(customerOrderData['id']) // Use the document ID
-          .collection('detail_customer_orders')
-          .get();
-
-      final customerOrderDetails =
-          customerOrderDetailsQuery.docs.map((doc) => doc.data()).toList();
-
-      for (var j = 0; j < customerOrderDetails.length; j++) {
-        final detailOrder = customerOrderDetails[j];
+    for (var customerOrder in customerOrders) {
+      final details = customerOrderDetailsMap[customerOrder['id']] ?? [];
+      for (var detailOrder in details) {
         if (detailOrder['product_id'] == productID) {
           totalJumlahPesanan += detailOrder['jumlah'] as int;
         }
@@ -306,19 +321,10 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<int> calculateTotalJumlahRetur(String productID) async {
     int totalJumlahRetur = 0;
 
-    for (var i = 0; i < customerOrderReturns.length; i++) {
-      final customerOrderReturnDoc = customerOrderReturns[i];
-      final customerOrderReturnDetailsQuery = await firestore
-          .collection('customer_order_returns')
-          .doc(customerOrderReturnDoc['id'])
-          .collection('detail_customer_order_returns')
-          .get();
-      final customerOrderReturnDetails = customerOrderReturnDetailsQuery.docs
-          .map((doc) => doc.data())
-          .toList();
-
-      for (var j = 0; j < customerOrderReturnDetails.length; j++) {
-        final detailOrderReturn = customerOrderReturnDetails[j];
+    for (var customerOrderReturn in customerOrderReturns) {
+      final details =
+          customerOrderReturnDetailsMap[customerOrderReturn['id']] ?? [];
+      for (var detailOrderReturn in details) {
         if (detailOrderReturn['product_id'] == productID) {
           totalJumlahRetur += detailOrderReturn['jumlah_pengembalian'] as int;
         }

@@ -3,8 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/bahanService.dart';
 
-class MaterialUsageChartCard extends StatelessWidget {
-  const MaterialUsageChartCard({super.key});
+class PurchaseOrderChartCard extends StatelessWidget {
+  const PurchaseOrderChartCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MaterialUsageChartCard extends StatelessWidget {
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Penggunaan Bahan',
+              'Pembelian Bahan',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -66,21 +66,16 @@ class MaterialUsageChartCard extends StatelessWidget {
 
 Future<List<DataPoint>> fetchMaterialUsageChartData() async {
   final firestore = FirebaseFirestore.instance;
-  final querySnapshot = await firestore.collection('material_usages').get();
+  final querySnapshot = await firestore.collection('purchase_orders').get();
   final data = querySnapshot.docs;
 
   final chartData = <String, double>{};
   for (final doc in data) {
-    final detailSnapshot =
-        await doc.reference.collection('detail_material_usages').get();
-    final detailData = detailSnapshot.docs;
-    for (final detailDoc in detailData) {
-      final materialId = detailDoc['material_id'] as String;
-      final quantity = detailDoc['jumlah'] as int;
+    final materialId = doc['material_id'] as String;
+    final quantity = doc['jumlah'] as int;
 
-      chartData.update(materialId, (value) => value + quantity,
-          ifAbsent: () => quantity.toDouble());
-    }
+    chartData.update(materialId, (value) => value + quantity,
+        ifAbsent: () => quantity.toDouble());
   }
 
   final result = <DataPoint>[];
