@@ -44,6 +44,23 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   DateTime? startDate; // Tambahkan variabel tanggal awal
   DateTime? endDate; // Tambahkan variabel tanggal akhir
   final firestore = FirebaseFirestore.instance;
+  late Map<String, String> materialNames;
+
+  @override
+  void initState() {
+    super.initState();
+    loadMaterialNames(); // Panggil fungsi untuk memuat nama bahan
+  }
+
+  Future<void> loadMaterialNames() async {
+    final materialsQuery = firestore.collection('materials');
+    final materialsQuerySnapshot = await materialsQuery.get();
+
+    materialNames = {
+      for (var materialDoc in materialsQuerySnapshot.docs)
+        materialDoc['id']: materialDoc['nama'],
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -225,8 +242,20 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     sheet.getRangeByIndex(2, 9).setText('Status MU');
     sheet.getRangeByIndex(2, 10).setText('Batch');
 
-    // Fetch data from Firestore and populate the Excel sheet
-    final materialUsagesQuery = firestore.collection('material_usages');
+    // Fetch data from Firestore with date filter
+    Query<Map<String, dynamic>> materialUsagesQuery =
+        firestore.collection('material_usages');
+
+    if (startDate != null) {
+      materialUsagesQuery = materialUsagesQuery.where('tanggal_penggunaan',
+          isGreaterThanOrEqualTo: startDate);
+    }
+
+    if (endDate != null) {
+      materialUsagesQuery = materialUsagesQuery.where('tanggal_penggunaan',
+          isLessThanOrEqualTo: endDate);
+    }
+
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
 
     int rowIndex = 3; // Starting row for data
@@ -237,71 +266,67 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final materialUsageDate =
           materialUsageData['tanggal_penggunaan'].toDate();
 
-      // Check if the materialUsageDate is within the selected date range
-      if ((startDate == null || materialUsageDate.isAfter(startDate)) &&
-          (endDate == null || materialUsageDate.isBefore(endDate))) {
-        // Fetch and populate the details from subcollection
-        final detailMaterialUsagesQuery =
-            materialUsageDoc.reference.collection('detail_material_usages');
-        final detailMaterialUsagesQuerySnapshot =
-            await detailMaterialUsagesQuery.get();
-        final detailMaterialUsages = detailMaterialUsagesQuerySnapshot.docs
-            .map((doc) => doc.data())
-            .toList();
+      // Fetch and populate the details from subcollection
+      final detailMaterialUsagesQuery =
+          materialUsageDoc.reference.collection('detail_material_usages');
+      final detailMaterialUsagesQuerySnapshot =
+          await detailMaterialUsagesQuery.get();
+      final detailMaterialUsages = detailMaterialUsagesQuerySnapshot.docs
+          .map((doc) => doc.data())
+          .toList();
 
-        // Loop through detailMaterialUsages and populate the Excel sheet
-        for (var j = 0; j < detailMaterialUsages.length; j++) {
-          final detailMaterialUsageData = detailMaterialUsages[j];
+      // Loop through detailMaterialUsages and populate the Excel sheet
+      for (var j = 0; j < detailMaterialUsages.length; j++) {
+        final detailMaterialUsageData = detailMaterialUsages[j];
 
-          // Fetch material info using the BahanService
-          final materialId = detailMaterialUsageData['material_id'];
-          final materialInfo =
-              await MaterialService().getMaterialInfo(materialId);
+        // Fetch material info using the BahanService
+        final materialId = detailMaterialUsageData['material_id'];
+        final materialInfo =
+            await MaterialService().getMaterialInfo(materialId);
 
-          // Populate data cells for the main material usage details
-          if (j == 0) {
-            // Only print materialUsageData once for the first detail
-            sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
-            sheet
-                .getRangeByIndex(rowIndex, 2)
-                .setText(materialUsageData['production_order_id'] ?? '');
-            sheet
-                .getRangeByIndex(rowIndex, 3)
-                .setText(materialUsageData['material_request_id'] ?? '');
-            sheet.getRangeByIndex(rowIndex, 8).setDateTime(materialUsageDate);
-            sheet
-                .getRangeByIndex(rowIndex, 9)
-                .setText(materialUsageData['status_mu'] ?? '');
-            sheet
-                .getRangeByIndex(rowIndex, 10)
-                .setText(materialUsageData['batch'] ?? '');
-          } else {
-            // Leave the cells empty for the repeated materialUsageData
-            sheet.getRangeByIndex(rowIndex, 1).setText('');
-            sheet.getRangeByIndex(rowIndex, 2).setText('');
-            sheet.getRangeByIndex(rowIndex, 3).setText('');
-            sheet.getRangeByIndex(rowIndex, 8).setDateTime(null);
-            sheet.getRangeByIndex(rowIndex, 9).setText('');
-            sheet.getRangeByIndex(rowIndex, 10).setText('');
-          }
-
-          // Populate data cells for the material usage details
+        // Populate data cells for the main material usage details
+        if (j == 0) {
+          // Only print materialUsageData once for the first detail
+          sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
           sheet
-              .getRangeByIndex(rowIndex, 4)
-              .setText(detailMaterialUsageData['material_id'] ?? '');
+              .getRangeByIndex(rowIndex, 2)
+              .setText(materialUsageData['production_order_id'] ?? '');
           sheet
-              .getRangeByIndex(rowIndex, 5)
-              .setText(detailMaterialUsageData['jumlah'].toString());
+              .getRangeByIndex(rowIndex, 3)
+              .setText(materialUsageData['material_request_id'] ?? '');
+          sheet.getRangeByIndex(rowIndex, 8).setDateTime(materialUsageDate);
           sheet
-              .getRangeByIndex(rowIndex, 6)
-              .setText(materialInfo != null ? materialInfo['nama'] : '');
+              .getRangeByIndex(rowIndex, 9)
+              .setText(materialUsageData['status_mu'] ?? '');
           sheet
-              .getRangeByIndex(rowIndex, 7)
-              .setText(detailMaterialUsageData['satuan'] ?? '');
-
-          // Increment the rowIndex for the next entry
-          rowIndex++;
+              .getRangeByIndex(rowIndex, 10)
+              .setText(materialUsageData['batch'] ?? '');
+        } else {
+          // Leave the cells empty for the repeated materialUsageData
+          sheet.getRangeByIndex(rowIndex, 1).setText('');
+          sheet.getRangeByIndex(rowIndex, 2).setText('');
+          sheet.getRangeByIndex(rowIndex, 3).setText('');
+          sheet.getRangeByIndex(rowIndex, 8).setDateTime(null);
+          sheet.getRangeByIndex(rowIndex, 9).setText('');
+          sheet.getRangeByIndex(rowIndex, 10).setText('');
         }
+
+        // Populate data cells for the material usage details
+        sheet
+            .getRangeByIndex(rowIndex, 4)
+            .setText(detailMaterialUsageData['material_id'] ?? '');
+        sheet
+            .getRangeByIndex(rowIndex, 5)
+            .setText(detailMaterialUsageData['jumlah'].toString());
+        sheet
+            .getRangeByIndex(rowIndex, 6)
+            .setText(materialInfo != null ? materialInfo['nama'] : '');
+        sheet
+            .getRangeByIndex(rowIndex, 7)
+            .setText(detailMaterialUsageData['satuan'] ?? '');
+
+        // Increment the rowIndex for the next entry
+        rowIndex++;
       }
     }
 
@@ -320,7 +345,24 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
   Future<Uint8List> generatePDF(PdfPageFormat format) async {
     final pdf = pw.Document();
 
-    final materialUsagesQuery = firestore.collection('material_usages');
+    Query<Map<String, dynamic>> materialUsagesQuery =
+        firestore.collection('material_usages');
+
+    // Apply date filter if startDate and endDate are not null
+    if (startDate != null) {
+      materialUsagesQuery = materialUsagesQuery.where(
+        'tanggal_penggunaan',
+        isGreaterThanOrEqualTo: Timestamp.fromDate(startDate!),
+      );
+    }
+
+    if (endDate != null) {
+      materialUsagesQuery = materialUsagesQuery.where(
+        'tanggal_penggunaan',
+        isLessThanOrEqualTo: Timestamp.fromDate(endDate!),
+      );
+    }
+
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
     final materialUsages =
         materialUsagesQuerySnapshot.docs.map((doc) => doc.data()).toList();
@@ -335,36 +377,70 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final mu = materialUsages[i];
       final muDate = mu['tanggal_penggunaan'].toDate();
 
-      // Check if the muDate is within the selected date range
-      if ((startDate == null || muDate.isAfter(startDate)) &&
-          (endDate == null || muDate.isBefore(endDate))) {
-        hasData = true; // Set the flag to true if there's matching data
+      hasData = true; // Set the flag to true if there's matching data
 
-        final detailMaterialUsagesQuery = materialUsagesQuery
-            .doc(mu['id'])
-            .collection('detail_material_usages');
-        final detailMaterialUsagesQuerySnapshot =
-            await detailMaterialUsagesQuery.get();
-        final detailMaterialUsages = detailMaterialUsagesQuerySnapshot.docs
-            .map((doc) => doc.data())
-            .toList();
+      final DocumentReference materialUsageDocRef =
+          firestore.collection('material_usages').doc(mu['id']);
 
-        final pages = <pw.Widget>[];
-        pages.add(
-          pw.Header(
-            text: 'Laporan Penggunaan Bahan',
-            level: 0,
-            textStyle: pw.TextStyle(
-              font: font,
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-            ),
+      final detailMaterialUsagesQuery =
+          materialUsageDocRef.collection('detail_material_usages');
+      final detailMaterialUsagesQuerySnapshot =
+          await detailMaterialUsagesQuery.get();
+      final detailMaterialUsages = detailMaterialUsagesQuerySnapshot.docs
+          .map((doc) => doc.data())
+          .toList();
+
+      final pages = <pw.Widget>[];
+      pages.add(
+        pw.Header(
+          text: 'Laporan Penggunaan Bahan',
+          level: 0,
+          textStyle: pw.TextStyle(
+            font: font,
+            fontSize: 18,
+            fontWeight: pw.FontWeight.bold,
           ),
-        );
+        ),
+      );
+      pages.add(
+        pw.Header(
+          text: 'Material Usage ID: ${mu['id']}',
+          level: 1,
+          textStyle: pw.TextStyle(
+            font: font2,
+            fontSize: 14,
+          ),
+        ),
+      );
+      pages.add(
+        pw.Table.fromTextArray(
+          data: [
+            [
+              'ID',
+              'Production Order ID',
+              'Material Request ID',
+              'Batch',
+              'Tanggal Penggunaan',
+              'Status MU',
+            ],
+            [
+              mu['id'].toString(),
+              mu['production_order_id'].toString(),
+              mu['material_request_id'].toString(),
+              mu['batch'].toString(),
+              DateFormat('dd/MM/yyyy').format(muDate),
+              mu['status_mu'].toString(),
+              // Initialize these columns with empty strings
+            ],
+          ],
+        ),
+      );
+
+      if (detailMaterialUsages.isNotEmpty) {
         pages.add(
           pw.Header(
-            text: 'Material Usage ID: ${mu['id']}',
-            level: 1,
+            text: 'Detail Penggunaan Bahan',
+            level: 2,
             textStyle: pw.TextStyle(
               font: font2,
               fontSize: 14,
@@ -375,69 +451,35 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
           pw.Table.fromTextArray(
             data: [
               [
-                'ID',
-                'Production Order ID',
-                'Material Request ID',
-                'Batch',
-                'Tanggal Penggunaan',
-                'Status MU',
+                'Material ID',
+                'Nama Bahan',
+                'Jumlah',
+                'Satuan',
               ],
-              [
-                mu['id'].toString(),
-                mu['production_order_id'].toString(),
-                mu['material_request_id'].toString(),
-                mu['batch'].toString(),
-                DateFormat('dd/MM/yyyy').format(muDate),
-                mu['status_mu'].toString(),
-                // Initialize these columns with empty strings
-              ],
+              for (var detailMu in detailMaterialUsages)
+                [
+                  detailMu['material_id'].toString(),
+                  materialNames[detailMu['material_id'].toString()] ?? '',
+                  detailMu['jumlah'].toString(),
+                  detailMu['satuan'].toString(),
+                ],
             ],
           ),
         );
-
-        if (detailMaterialUsages.isNotEmpty) {
-          pages.add(
-            pw.Header(
-              text: 'Detail Penggunaan Bahan',
-              level: 2,
-              textStyle: pw.TextStyle(
-                font: font2,
-                fontSize: 14,
-              ),
-            ),
-          );
-          pages.add(
-            pw.Table.fromTextArray(
-              data: [
-                [
-                  'Material ID',
-                  'Jumlah',
-                  'Satuan',
-                ],
-                for (var detailMu in detailMaterialUsages)
-                  [
-                    detailMu['material_id'].toString(),
-                    detailMu['jumlah'].toString(),
-                    detailMu['satuan'].toString(),
-                  ],
-              ],
-            ),
-          );
-        }
-
-        pdf.addPage(
-          pw.MultiPage(
-            pageTheme: pw.PageTheme(
-              orientation: pw.PageOrientation.landscape,
-              theme: pw.ThemeData.withFont(
-                base: font1,
-                bold: font2,
-              ),
-            ),
-            build: (pw.Context context) => pages,
-          ),
-        );
       }
+
+      pdf.addPage(
+        pw.MultiPage(
+          pageTheme: pw.PageTheme(
+            orientation: pw.PageOrientation.landscape,
+            theme: pw.ThemeData.withFont(
+              base: font1,
+              bold: font2,
+            ),
+          ),
+          build: (pw.Context context) => pages,
+        ),
+      );
     }
 
     if (!hasData) {
