@@ -244,8 +244,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final product = products[i];
       final productID = product['id'];
 
-      final jumlahPesanan = calculateTotalJumlahPesanan(productID);
-      final jumlahRetur = calculateTotalJumlahRetur(productID);
+      final jumlahPesanan = await calculateTotalJumlahPesanan(productID);
+      final jumlahRetur = await calculateTotalJumlahRetur(productID);
       final jumlahProduksi = calculateJumlahProduksi(productID);
       final jumlahCacat = calculateJumlahProduksiGagal(productID);
 
@@ -278,18 +278,54 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     }
   }
 
-  int calculateTotalJumlahPesanan(String productID) {
-    return customerOrders
-        .where((order) => order['product_id'] == productID)
-        .map((order) => order['jumlah_pesanan'] as int)
-        .fold(0, (prev, amount) => prev + amount);
+  Future<int> calculateTotalJumlahPesanan(String productID) async {
+    int totalJumlahPesanan = 0;
+
+    for (var i = 0; i < customerOrders.length; i++) {
+      final customerOrderData = customerOrders[i];
+      final customerOrderDetailsQuery = await firestore
+          .collection('customer_orders')
+          .doc(customerOrderData['id']) // Use the document ID
+          .collection('detail_customer_orders')
+          .get();
+
+      final customerOrderDetails =
+          customerOrderDetailsQuery.docs.map((doc) => doc.data()).toList();
+
+      for (var j = 0; j < customerOrderDetails.length; j++) {
+        final detailOrder = customerOrderDetails[j];
+        if (detailOrder['product_id'] == productID) {
+          totalJumlahPesanan += detailOrder['jumlah'] as int;
+        }
+      }
+    }
+
+    return totalJumlahPesanan;
   }
 
-  int calculateTotalJumlahRetur(String productID) {
-    return customerOrderReturns
-        .where((orderReturn) => orderReturn['product_id'] == productID)
-        .map((orderReturn) => orderReturn['jumlah_retur'] as int)
-        .fold(0, (prev, amount) => prev + amount);
+  Future<int> calculateTotalJumlahRetur(String productID) async {
+    int totalJumlahRetur = 0;
+
+    for (var i = 0; i < customerOrderReturns.length; i++) {
+      final customerOrderReturnDoc = customerOrderReturns[i];
+      final customerOrderReturnDetailsQuery = await firestore
+          .collection('customer_order_returns')
+          .doc(customerOrderReturnDoc['id'])
+          .collection('detail_customer_order_returns')
+          .get();
+      final customerOrderReturnDetails = customerOrderReturnDetailsQuery.docs
+          .map((doc) => doc.data())
+          .toList();
+
+      for (var j = 0; j < customerOrderReturnDetails.length; j++) {
+        final detailOrderReturn = customerOrderReturnDetails[j];
+        if (detailOrderReturn['product_id'] == productID) {
+          totalJumlahRetur += detailOrderReturn['jumlah_pengembalian'] as int;
+        }
+      }
+    }
+
+    return totalJumlahRetur;
   }
 
   int calculateJumlahProduksi(String productID) {
@@ -357,8 +393,8 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
       final product = products[i];
       final productID = product['id'];
 
-      final totalJumlahPesanan = calculateTotalJumlahPesanan(productID);
-      final totalJumlahRetur = calculateTotalJumlahRetur(productID);
+      final totalJumlahPesanan = await calculateTotalJumlahPesanan(productID);
+      final totalJumlahRetur = await calculateTotalJumlahRetur(productID);
       final jumlahProduksi = calculateJumlahProduksi(productID);
 
       tableData.add([
