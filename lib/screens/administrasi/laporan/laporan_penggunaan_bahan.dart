@@ -229,7 +229,7 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
     final materialUsagesQuery = firestore.collection('material_usages');
     final materialUsagesQuerySnapshot = await materialUsagesQuery.get();
 
-    int rowIndex = 4; // Starting row for data
+    int rowIndex = 3; // Starting row for data
 
     for (var i = 0; i < materialUsagesQuerySnapshot.docs.length; i++) {
       final materialUsageDoc = materialUsagesQuerySnapshot.docs[i];
@@ -259,32 +259,45 @@ class _CreateExcelState extends State<CreateExcelStatefulWidget> {
               await MaterialService().getMaterialInfo(materialId);
 
           // Populate data cells for the main material usage details
-          sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
-          sheet.getRangeByIndex(rowIndex, 2).setText(
-              materialUsageData['production_order_id'] ??
-                  ''); // Change '??' to the actual field name
-          sheet.getRangeByIndex(rowIndex, 3).setText(
-              materialUsageData['material_request_id'] ??
-                  ''); // Change '??' to the actual field name
-          sheet.getRangeByIndex(rowIndex, 4).setText(
-              detailMaterialUsageData['material_id'] ??
-                  ''); // Change '??' to the actual field name
-          sheet.getRangeByIndex(rowIndex, 5).setText(
-              detailMaterialUsageData['jumlah']
-                  .toString()); // Change '??' to the actual field name
+          if (j == 0) {
+            // Only print materialUsageData once for the first detail
+            sheet.getRangeByIndex(rowIndex, 1).setText(materialUsageDoc.id);
+            sheet
+                .getRangeByIndex(rowIndex, 2)
+                .setText(materialUsageData['production_order_id'] ?? '');
+            sheet
+                .getRangeByIndex(rowIndex, 3)
+                .setText(materialUsageData['material_request_id'] ?? '');
+            sheet.getRangeByIndex(rowIndex, 8).setDateTime(materialUsageDate);
+            sheet
+                .getRangeByIndex(rowIndex, 9)
+                .setText(materialUsageData['status_mu'] ?? '');
+            sheet
+                .getRangeByIndex(rowIndex, 10)
+                .setText(materialUsageData['batch'] ?? '');
+          } else {
+            // Leave the cells empty for the repeated materialUsageData
+            sheet.getRangeByIndex(rowIndex, 1).setText('');
+            sheet.getRangeByIndex(rowIndex, 2).setText('');
+            sheet.getRangeByIndex(rowIndex, 3).setText('');
+            sheet.getRangeByIndex(rowIndex, 8).setDateTime(null);
+            sheet.getRangeByIndex(rowIndex, 9).setText('');
+            sheet.getRangeByIndex(rowIndex, 10).setText('');
+          }
+
+          // Populate data cells for the material usage details
+          sheet
+              .getRangeByIndex(rowIndex, 4)
+              .setText(detailMaterialUsageData['material_id'] ?? '');
+          sheet
+              .getRangeByIndex(rowIndex, 5)
+              .setText(detailMaterialUsageData['jumlah'].toString());
           sheet
               .getRangeByIndex(rowIndex, 6)
               .setText(materialInfo != null ? materialInfo['nama'] : '');
-          sheet.getRangeByIndex(rowIndex, 7).setText(
-              detailMaterialUsageData['satuan'] ??
-                  ''); // Change '??' to the actual field name
-          sheet.getRangeByIndex(rowIndex, 8).setDateTime(materialUsageDate);
-          sheet.getRangeByIndex(rowIndex, 9).setText(
-              materialUsageData['status_mu'] ??
-                  ''); // Change '??' to the actual field name
-          sheet.getRangeByIndex(rowIndex, 10).setText(
-              materialUsageData['batch'] ??
-                  ''); // Change '??' to the actual field name
+          sheet
+              .getRangeByIndex(rowIndex, 7)
+              .setText(detailMaterialUsageData['satuan'] ?? '');
 
           // Increment the rowIndex for the next entry
           rowIndex++;
