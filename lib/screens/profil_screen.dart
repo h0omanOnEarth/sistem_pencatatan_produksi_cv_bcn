@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/helper/notification_helper.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/administrasi/main/main_administrasi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/delete_account_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/edit_passowrd_screen.dart';
@@ -25,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? userEmail;
   String? userPosisi;
   final _auth = FirebaseAuth.instance;
+  bool hasNewNotif = false;
 
   @override
   void initState() {
@@ -47,6 +49,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         userName = userData['nama'];
         userEmail = userData['email'];
         userPosisi = userData['posisi'];
+      });
+      bool newNotif = await hasNewNotifications(userPosisi!);
+      setState(() {
+        hasNewNotif = newNotif;
       });
     }
   }
@@ -82,47 +88,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                         GestureDetector(
-                          onTap: () {
-                            // Navigate to the notification screen
-                            if (kIsWeb) {
-                              if (userPosisi!.contains('Gudang')) {
-                                Routemaster.of(context).push(
-                                    '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=6');
-                              } else if (userPosisi!.contains('Administrasi')) {
-                                Routemaster.of(context).push(
-                                    '${NotifikasiScreen.routeName}?routeBack=${MainAdministrasi.routeName}?selectedIndex=5');
+                            onTap: () {
+                              // Navigate to the notification screen
+                              if (kIsWeb) {
+                                if (userPosisi!.contains('Gudang')) {
+                                  Routemaster.of(context).push(
+                                      '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=6');
+                                } else if (userPosisi!
+                                    .contains('Administrasi')) {
+                                  Routemaster.of(context).push(
+                                      '${NotifikasiScreen.routeName}?routeBack=${MainAdministrasi.routeName}?selectedIndex=5');
+                                } else {
+                                  Routemaster.of(context).push(
+                                      '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=4');
+                                }
                               } else {
-                                Routemaster.of(context).push(
-                                    '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=4');
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotifikasiScreen(),
+                                  ),
+                                );
                               }
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotifikasiScreen(),
+                            },
+                            child:
+                                Stack(alignment: Alignment.center, children: [
+                              Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors
+                                        .grey, // Customize the border color
+                                    width: 1, // Customize the border width
+                                  ),
                                 ),
-                              );
-                            }
-                          },
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(
-                                color:
-                                    Colors.grey, // Customize the border color
-                                width: 1, // Customize the border width
+                                child: const Icon(
+                                  Icons.notifications,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            child: const Icon(
-                              Icons.notifications,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
+                              if (hasNewNotif)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 5,
+                                  child: Container(
+                                    width: 15.0,
+                                    height: 15.0,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                            ])),
                       ],
                     ),
                   ),

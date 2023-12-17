@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/helper/notification_helper.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/main/main_produksi.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/produksi/proses_produksi/form/form_perintah_produksi.dart';
@@ -19,6 +20,14 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
   String? userName;
   bool _isMounted = false;
   String? posisi;
+  bool hasNewNotif = false;
+
+  Future<void> checkNotifications() async {
+    bool newNotif = await hasNewNotifications('Produksi');
+    setState(() {
+      hasNewNotif = newNotif;
+    });
+  }
 
   @override
   void initState() {
@@ -28,6 +37,7 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
     if (user != null) {
       getUserDetails(user.email ?? '');
     }
+    checkNotifications();
   }
 
   @override
@@ -176,10 +186,27 @@ class _HomeScreenProduksiState extends State<HomeScreenProduksi> {
                                         '${NotifikasiScreen.routeName}?routeBack=${MainProduksi.routeName}?selectedIndex=0');
                                   }
                                 },
-                                icon: const Icon(
-                                  Icons.notifications,
-                                  color: Colors.black,
-                                  size: 24,
+                                icon: Stack(
+                                  children: [
+                                    const Icon(
+                                      Icons.notifications,
+                                      color: Colors.black,
+                                      size: 24,
+                                    ),
+                                    if (hasNewNotif)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 10.0,
+                                          height: 10.0,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ),

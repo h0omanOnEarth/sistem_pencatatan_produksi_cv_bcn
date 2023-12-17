@@ -192,6 +192,10 @@ class ProductionOrderBloc
               // Gunakan .set() untuk menambahkan data ke dokumen tersebut
               await newNotificationDoc.set(notificationData);
 
+              await notificationService.addNotification(
+                  'Telah dibuat perintah produksi baru $nextProductionOrderId}',
+                  'Kepala Produksi');
+
               EmailNotificationService.sendNotification(
                 'Perintah Produksi Baru',
                 _createEmailMessage(

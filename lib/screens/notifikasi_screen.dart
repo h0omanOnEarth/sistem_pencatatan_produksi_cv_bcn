@@ -123,6 +123,10 @@ class _NotifikasiScreenState extends State<NotifikasiScreen> {
                             'Employee not found for email: $userEmailAddress');
                       }
 
+                      if (userPosition == 'Kepala Produksi') {
+                        userPosition = 'Produksi';
+                      }
+
                       return StreamBuilder<QuerySnapshot>(
                         stream: _firestore
                             .collection('notifications')

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/helper/notification_helper.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/main/main_gudang.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/notifikasi_screen.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/widgets/materialsChart.dart';
@@ -19,6 +20,14 @@ class HomeScreenGudang extends StatefulWidget {
 class _HomeScreenGudangState extends State<HomeScreenGudang> {
   String? userName;
   String? posisi;
+  bool hasNewNotif = false;
+
+  Future<void> checkNotifications() async {
+    bool newNotif = await hasNewNotifications('Gudang');
+    setState(() {
+      hasNewNotif = newNotif;
+    });
+  }
 
   @override
   void initState() {
@@ -27,6 +36,7 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
     if (user != null) {
       getUserDetails(user.email ?? '');
     }
+    checkNotifications();
   }
 
   Future<void> getUserDetails(String email) async {
@@ -153,10 +163,27 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                         Routemaster.of(context).push(
                             '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=0');
                       },
-                      icon: const Icon(
-                        Icons.notifications,
-                        color: Colors.black,
-                        size: 24,
+                      icon: Stack(
+                        children: [
+                          const Icon(
+                            Icons.notifications,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                          if (hasNewNotif)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                width: 10.0,
+                                height: 10.0,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
@@ -294,10 +321,27 @@ class _HomeScreenGudangState extends State<HomeScreenGudang> {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.notifications,
-                        color: Colors.black,
-                        size: 24,
+                      icon: Stack(
+                        children: [
+                          const Icon(
+                            Icons.notifications,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                          if (hasNewNotif)
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                width: 10.0,
+                                height: 10.0,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),

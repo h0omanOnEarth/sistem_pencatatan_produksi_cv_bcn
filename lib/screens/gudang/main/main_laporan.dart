@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/helper/notification_helper.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_penerimaan_pengeluaran.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_retur.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/screens/gudang/laporan/laporan_stok_bahan.dart';
@@ -19,6 +20,21 @@ class MainLaporanGudangScreen extends StatefulWidget {
 }
 
 class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
+  bool hasNewNotif = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkNotifications();
+  }
+
+  Future<void> checkNotifications() async {
+    bool newNotif = await hasNewNotifications('Gudang');
+    setState(() {
+      hasNewNotif = newNotif;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +74,8 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                             // Handle notification button press
                             if (kIsWeb) {
                               Routemaster.of(context).push(
-                                  '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=5');
+                                '${NotifikasiScreen.routeName}?routeBack=${MainGudang.routeName}?selectedIndex=5',
+                              );
                             } else {
                               Navigator.push(
                                 context,
@@ -69,24 +86,42 @@ class _MainMasterGudangScreenState extends State<MainLaporanGudangScreen> {
                               );
                             }
                           },
-                          child: Container(
-                            margin: const EdgeInsets.only(right: 20.0),
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 20.0),
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.notifications,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                            child: const Icon(
-                              Icons.notifications,
-                              color: Colors.black,
-                            ),
+                              if (hasNewNotif)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 20,
+                                  child: Container(
+                                    width: 20.0,
+                                    height: 20.0,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                     const SizedBox(height: 16),
