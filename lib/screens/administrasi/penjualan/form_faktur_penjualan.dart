@@ -69,6 +69,7 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
 
   Future<void> fetchShipments() async {
     QuerySnapshot snapshot;
+    String deliveryOrderId = "";
 
     if (widget.invoiceId != null) {
       snapshot = await firestore
@@ -77,6 +78,14 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
           .collection('detail_invoices')
           .get();
     } else {
+      final shipmentsDocSnapshot = await firestore
+          .collection('shipments')
+          .doc(selectedNomorSuratJalan)
+          .get();
+
+      deliveryOrderId =
+          shipmentsDocSnapshot.get('delivery_order_id') as String? ?? '';
+
       snapshot = await firestore
           .collection('shipments')
           .doc(selectedNomorSuratJalan)
@@ -97,7 +106,9 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
       final productInfoSnapshot = await productInfoFuture;
 
       final productName = productInfoSnapshot['nama'] as String;
-      final productPrice = (productInfoSnapshot['harga'] as num).toDouble();
+
+      final productPrice =
+          await getProductPrice(productId, data, deliveryOrderId);
       final jumlahPcs = data['jumlah_pengiriman'] as int? ?? 0;
       final jumlahDus = data['jumlah_pengiriman_dus'] as int? ?? 0;
 
@@ -128,6 +139,40 @@ class _FormFakturPenjualanScreenState extends State<FormFakturPenjualanScreen> {
       customCards.add(customCard);
     }
     setState(() {});
+  }
+
+  // Helper function to fetch product price based on the scenario
+  Future<double> getProductPrice(String productId, Map<String, dynamic> data,
+      String deliveryOrderId) async {
+    if (widget.invoiceId != null) {
+      // Fetch product price from 'detail_invoices'
+      final detailInvoiceSnapshot = await firestore
+          .collection('invoices')
+          .doc(widget.invoiceId ?? '')
+          .collection('detail_invoices')
+          .where('product_id', isEqualTo: productId)
+          .get();
+
+      final detailInvoiceData = detailInvoiceSnapshot.docs.first.data();
+      return (detailInvoiceData['harga'] as num).toDouble();
+    } else {
+      // Check if 'delivery_order_id' is not empty before fetching the data
+      if (deliveryOrderId.isNotEmpty) {
+        final deliveryOrderSnapshot = await firestore
+            .collection('delivery_orders')
+            .doc(deliveryOrderId)
+            .collection('detail_delivery_orders')
+            .where('product_id', isEqualTo: productId)
+            .get();
+
+        if (deliveryOrderSnapshot.docs.isNotEmpty) {
+          final deliveryOrderData = deliveryOrderSnapshot.docs.first.data();
+          return (deliveryOrderData['harga_satuan'] as num).toDouble();
+        }
+      }
+      // Handle the case where 'delivery_order_id' is empty or no data is found
+      return 0.0; // Provide a default value or handle it based on your logic
+    }
   }
 
   void initializeShipment() async {

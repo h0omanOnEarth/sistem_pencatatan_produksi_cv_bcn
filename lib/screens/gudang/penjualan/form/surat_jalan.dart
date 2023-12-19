@@ -37,10 +37,16 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
   final DeliveryOrderService deliveryOrderService = DeliveryOrderService();
   final CustomerOrderService customerOrderService = CustomerOrderService();
   final CustomerService customerService = CustomerService();
+  late Future<void> _loadingData;
 
   @override
   void initState() {
     super.initState();
+    _loadingData = _initAsync();
+  }
+
+  Future<void> _initAsync() async {
+    await loadShipmentData();
   }
 
   Future<void> loadShipmentData() async {
@@ -105,9 +111,23 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
       appBar: AppBar(
         title: const Text('Surat Jalan Report'),
       ),
-      body: PdfPreview(
-        allowPrinting: true, // Nonaktifkan opsi cetak
-        build: (format) => generateDocument(format),
+      body: FutureBuilder<void>(
+        future: _loadingData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading indicator while waiting for data
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle errors
+            return const Center(child: Text('Error loading data'));
+          } else {
+            // Data has been loaded, build your UI
+            return PdfPreview(
+              allowPrinting: true,
+              build: (format) => generateDocument(format),
+            );
+          }
+        },
       ),
     );
   }
@@ -120,10 +140,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
     final Uint8List logoImage =
         (await rootBundle.load('images/logo2.jpg')).buffer.asUint8List();
 
-    await loadShipmentData();
-
     doc.addPage(
-      pw.Page(
+      pw.MultiPage(
         pageTheme: pw.PageTheme(
           pageFormat: format.copyWith(
             marginBottom: 20.0, // Margin bawah
@@ -137,8 +155,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
             bold: font2,
           ),
         ),
-        build: (context) {
-          return pw.Column(
+        build: (context) => [
+          pw.Column(
             children: [
               // Logo dan alamat
               pw.Row(
@@ -279,8 +297,8 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                 ],
               ),
             ],
-          );
-        },
+          )
+        ],
       ),
     );
 

@@ -218,33 +218,29 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
 
     List<QueryDocumentSnapshot> filteredDocuments = [];
 
-    for (QueryDocumentSnapshot document in documents) {
+    // Perform asynchronous operations in parallel using Future.wait
+    await Future.wait(documents.map((document) async {
       bool isProductionInProgress = false;
 
       if (widget.feature == null) {
         // material transfer
-        // Filter dan urutkan data secara lokal
         if (widget.mode == "add" && widget.isEnabled) {
-          // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
           if (document['status'] == 1 &&
               document['status_mr'] == "Dalam Proses") {
             isProductionInProgress =
                 await checkProductionStatus(document['production_order_id']);
           }
         } else {
-          // Jika isEnabled false atau mode bukan "add", tampilkan semua data
           isProductionInProgress = true;
         }
       } else {
         // material usage
         if (widget.isEnabled) {
-          // Jika isEnabled true, tambahkan pemeriksaan status pesanan pengiriman
           if (document['status'] == 1 && document['status_mr'] == "Selesai") {
             isProductionInProgress =
                 await checkProductionStatus(document['production_order_id']);
           }
         } else {
-          // Jika isEnabled false, tampilkan semua data
           isProductionInProgress = true;
         }
       }
@@ -252,7 +248,7 @@ class _MaterialRequestDropdownState extends State<MaterialRequestDropdown> {
       if (isProductionInProgress) {
         filteredDocuments.add(document);
       }
-    }
+    }));
 
     return filteredDocuments;
   }

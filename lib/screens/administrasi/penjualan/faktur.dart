@@ -27,10 +27,19 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
   var totalPcs;
   List<Map<String, dynamic>> detailInvoices = [];
   ProductService productService = ProductService();
+  late Future<void> _loadingData;
 
   @override
   void initState() {
     super.initState();
+    // Call the helper function using await
+    _loadingData = _initAsync();
+  }
+
+  // Helper function marked as async
+  Future<void> _initAsync() async {
+    // Use await here
+    await loadInvoiceData();
   }
 
   Future<void> loadInvoiceData() async {
@@ -90,9 +99,23 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
       appBar: AppBar(
         title: const Text('Faktur Penjualan Report'),
       ),
-      body: PdfPreview(
-        allowPrinting: true,
-        build: (format) => generateDocument(format),
+      body: FutureBuilder<void>(
+        future: _loadingData,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Loading indicator while waiting for data
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // Handle errors
+            return const Center(child: Text('Error loading data'));
+          } else {
+            // Data has been loaded, build your UI
+            return PdfPreview(
+              allowPrinting: true,
+              build: (format) => generateDocument(format),
+            );
+          }
+        },
       ),
     );
   }
@@ -104,8 +127,6 @@ class _FakturPenjualanReportState extends State<FakturPenjualanReport> {
     final font2 = await PdfGoogleFonts.openSansBold();
     final Uint8List logoImage =
         (await rootBundle.load('images/logo2.jpg')).buffer.asUint8List();
-
-    await loadInvoiceData();
 
     doc.addPage(
       pw.MultiPage(
