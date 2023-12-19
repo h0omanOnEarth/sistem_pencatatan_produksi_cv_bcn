@@ -11,11 +11,7 @@ class PositionWidget extends StatelessWidget {
         FutureBuilder<User?>(
           future: FirebaseAuth.instance.authStateChanges().first,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else if (snapshot.hasData && snapshot.data != null) {
+            if (snapshot.hasData && snapshot.data != null) {
               final user = snapshot.data!;
               final email = user.email;
 
@@ -25,12 +21,7 @@ class PositionWidget extends StatelessWidget {
                     .where('email', isEqualTo: email)
                     .get(),
                 builder: (context, employeeSnapshot) {
-                  if (employeeSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (employeeSnapshot.hasError) {
-                    return Text('Error: ${employeeSnapshot.error}');
-                  } else if (employeeSnapshot.hasData &&
+                  if (employeeSnapshot.hasData &&
                       employeeSnapshot.data != null) {
                     final employeeDocs = employeeSnapshot.data!.docs;
                     if (employeeDocs.isNotEmpty) {
