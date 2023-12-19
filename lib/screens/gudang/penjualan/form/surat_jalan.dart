@@ -190,12 +190,16 @@ class _SuratJalanReportState extends State<SuratJalanReport> {
                 ],
               ),
               // Alamat penerima
-              pw.Row(
+              pw.Wrap(
                 children: [
-                  pw.Text('Alamat Penerima: ',
-                      style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text(alamatPenerima ?? 'N/A',
-                      style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text(
+                    'Alamat Penerima: ',
+                    style: const pw.TextStyle(fontSize: 20),
+                  ),
+                  pw.Text(
+                    alamatPenerima ?? 'N/A',
+                    style: const pw.TextStyle(fontSize: 20),
+                  ),
                 ],
               ),
               pw.Row(
