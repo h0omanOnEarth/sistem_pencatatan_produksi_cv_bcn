@@ -1,7 +1,9 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_material_request.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_request.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
@@ -124,6 +126,13 @@ class MaterialRequestBloc
             await notificationService.addNotification(
                 'Terdapat permintaan bahan baru $nextMaterialRequestId',
                 'Gudang');
+
+            EmailNotificationService.sendNotification(
+              'Permintaan Bahan Baru',
+              _createEmailMessage(nextMaterialRequestId, productionOrderId,
+                  catatan, tanggalPermintaan, materials),
+              'Gudang',
+            );
 
             yield SuccessState();
           } else {
@@ -258,5 +267,33 @@ class MaterialRequestBloc
       }
       materialRequestCount++;
     }
+  }
+
+  String _createEmailMessage(
+    String nextMaterialRequestId,
+    String productionOrderId,
+    String catatan,
+    DateTime tanggalPermintaan,
+    List<DetailMaterialRequest> materials,
+  ) {
+    final StringBuffer message = StringBuffer();
+
+    message
+        .write('Permintaan Bahan $nextMaterialRequestId baru ditambahkan<br>');
+    message.write('<br>Detail Permintaan Bahan:<br>');
+    message.write('PRODUCTION ORDER ID: $productionOrderId<br>');
+    message.write('Catatan: $catatan<br>');
+    message.write('Tanggal Permintaan: $tanggalPermintaan<br>');
+
+    message.write('<br>Materials:<br>');
+    for (final material in materials) {
+      message.write('- Material ID: ${material.materialId}<br>');
+      message.write('  Jumlah : ${material.jumlahBom}<br>');
+      message.write('  Satuan: ${material.satuan}<br>');
+      message.write('  Batch: ${material.batch}<br>');
+      message.write('<br>');
+    }
+
+    return message.toString();
   }
 }

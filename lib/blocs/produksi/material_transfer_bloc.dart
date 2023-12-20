@@ -1,7 +1,9 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/detail_material_transfer.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/models/produksi/material_transfer.dart';
+import 'package:sistem_manajemen_produksi_cv_bcn/services/emailNotificationService.dart';
 import 'package:sistem_manajemen_produksi_cv_bcn/services/notificationService.dart';
 
 // Events
@@ -132,6 +134,17 @@ class MaterialTransferBloc
             await notificationService.addNotification(
                 'Terdapat pemindahan bahan baru $nextMaterialTransferId untuk ${event.materialTransfer.materialRequestId}',
                 'Produksi');
+
+            EmailNotificationService.sendNotification(
+              'Pemindahan Bahan Baru',
+              _createEmailMessage(
+                  nextMaterialTransferId,
+                  materialRequestId,
+                  event.materialTransfer.catatan,
+                  event.materialTransfer.tanggalPemindahan,
+                  materials),
+              'Produksi',
+            );
 
             yield SuccessState();
           } else {
@@ -304,5 +317,32 @@ class MaterialTransferBloc
       }
       materialTransferCount++;
     }
+  }
+
+  String _createEmailMessage(
+    String nextMaterialTransferId,
+    String materialRequestId,
+    String catatan,
+    DateTime tanggalPemindahan,
+    List<MaterialTransferDetail> materials,
+  ) {
+    final StringBuffer message = StringBuffer();
+
+    message
+        .write('Pemindahan Bahan $nextMaterialTransferId baru ditambahkan<br>');
+    message.write('<br>Detail Pemindahan Bahan:<br>');
+    message.write('MATERIAL REQUEST ID: $materialRequestId<br>');
+    message.write('Catatan: $catatan<br>');
+    message.write('Tanggal Pemindahan: $tanggalPemindahan<br>');
+
+    message.write('<br>Materials:<br>');
+    for (final material in materials) {
+      message.write('- Material ID: ${material.materialId}<br>');
+      message.write('  Jumlah : ${material.jumlahBom}<br>');
+      message.write('  Satuan: ${material.satuan}<br>');
+      message.write('<br>');
+    }
+
+    return message.toString();
   }
 }
